@@ -1,19 +1,14 @@
 #pragma once
 
-#if SOC_USB_OTG_SUPPORTED
-
-#include <USBCDC.h>
 #include "SerialPort.h"
 
-class UsbSerialPort : public SerialPort {
+class HWCDCSerialPort : public SerialPort {
 public:
-    UsbSerialPort(USBCDC& serial) : serial(serial) {}
+    HWCDCSerialPort(HWCDC& serial) : serial(serial) {}
     void begin(unsigned long baud) override { serial.begin(baud); }
     void end() override { serial.end(); }
     Stream& stream() override { return serial; }
 
 private:
-    USBCDC& serial;
+    HWCDC& serial;
 };
-
-#endif

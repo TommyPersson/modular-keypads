@@ -6,22 +6,23 @@ MCP23x17::~MCP23x17() {
 }
 
 uint8_t MCP23x17::readPortA() const {
-    return bus->read8(0x00, 0x12);
+    return bus->read8(0x00, MCP23x17_Registers::GPIOA);
 }
 
 uint8_t MCP23x17::readPortB() const {
-    return bus->read8(0x00, 0x13);
+    return bus->read8(0x00, MCP23x17_Registers::GPIOB);
 }
 
-void MCP23x17::begin() const {
+uint8_t MCP23x17::readRegister(uint8_t reg) const {
+    return bus->read8(0x00, reg);
+}
+
+uint8_t MCP23x17::writeRegister(uint8_t reg, uint8_t value) {
+    return bus->write8(0x00, reg, value);
+}
+
+void MCP23x17::begin() {
     bus->begin();
-
-    // TODO Move to configuration function
-    bus->write8(0x00, 0x00, 0xff);
-    bus->write8(0x00, 0x01, 0xff);
-
-    bus->write8(0x00, 0x0c, 0xff);
-    bus->write8(0x00, 0x0d, 0xff);
 }
 
 std::unique_ptr<MCP23x17> MCP23x17::SPI(const SPIConfig& config) {

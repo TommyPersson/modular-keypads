@@ -51,5 +51,4 @@ void SPISerialBus::begin() {
     config.pinCS.setHigh();
 
     spi->begin(config.pinSCK.pinNumber, config.pinMISO->pinNumber, config.pinMOSI.pinNumber, config.pinCS.pinNumber);
-
 }
