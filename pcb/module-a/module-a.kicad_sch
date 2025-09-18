@@ -4757,6 +4757,16 @@
 		)
 		(uuid "6bfcb209-09d5-4c17-8d94-0ba255bdc025")
 	)
+	(label "~{MCP_RST}"
+		(at 170.18 83.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8cd4bb7a-2f8c-4471-8036-7f6e7f46af2b")
+	)
 	(label "MOSI"
 		(at 104.14 74.93 0)
 		(effects
@@ -4807,7 +4817,7 @@
 		)
 		(uuid "c9a860c9-587f-448a-bb21-3712dd75a9ff")
 	)
-	(label "~{CS}"
+	(label "~{MCP_CS}"
 		(at 104.14 80.01 0)
 		(effects
 			(font

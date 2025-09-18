@@ -19331,7 +19331,6 @@
 		)
 	)
 	(footprint "Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm"
-		(locked yes)
 		(layer "B.Cu")
 		(uuid "754a2119-3c3e-426d-a507-2741badd5f51")
 		(at 152.7625 36.044)
@@ -22228,7 +22227,6 @@
 		)
 	)
 	(footprint "JonathanAdams-Waveshare-ESP32:Waveshare-ESP32-C3-Zero"
-		(locked yes)
 		(layer "B.Cu")
 		(uuid "c87289e1-bcd9-4337-8dae-9153c554d6a3")
 		(at 130.3125 32.614 180)
@@ -24584,6 +24582,159 @@
 		(locked yes)
 		(layer "User.2")
 		(uuid "e05be7ff-e4c1-4777-9491-a18c30897ac0")
+	)
+	(gr_line
+		(start 138.9725 74.644)
+		(end 140.5525 74.644)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "12681b52-af1c-4af4-945d-7a2316e81213")
+	)
+	(gr_line
+		(start 140.5425 124.319)
+		(end 138.9725 122.269)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "1d88e0a2-dcfd-4cd4-9cda-d447def3b442")
+	)
+	(gr_circle
+		(center 139.7575 123.294)
+		(end 140.2625 123.579)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "User.4")
+		(uuid "20ade91d-c9b6-4a26-bdf1-aca600d7aa00")
+	)
+	(gr_line
+		(start 140.5475 171.949)
+		(end 138.9775 169.899)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "26b52de3-2b99-4de6-a428-5770d30fde45")
+	)
+	(gr_line
+		(start 140.5425 76.694)
+		(end 138.9725 74.644)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "3b318c03-10d5-4957-b5f4-82cffb40a4aa")
+	)
+	(gr_circle
+		(center 139.7625 170.924)
+		(end 140.2675 171.209)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "User.4")
+		(uuid "3f4605fd-f338-4185-b54b-1ff19565652c")
+	)
+	(gr_line
+		(start 138.9775 171.949)
+		(end 140.5475 171.949)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "40079aa9-0ca8-49aa-b6cb-3b381627e527")
+	)
+	(gr_line
+		(start 138.9775 169.899)
+		(end 140.5575 169.899)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "436f2cb5-da7e-43cd-90b2-cfae48dfa88a")
+	)
+	(gr_line
+		(start 138.9725 124.319)
+		(end 140.5425 124.319)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "4e5c4cf0-6d33-41f5-9cfe-a51045124d88")
+	)
+	(gr_circle
+		(center 139.7575 75.669)
+		(end 140.2625 75.954)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "User.4")
+		(uuid "54072b38-0d7f-44a7-926f-a790f8ee745b")
+	)
+	(gr_line
+		(start 138.9725 122.269)
+		(end 140.5525 122.269)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "607b98b9-e11b-4bda-98df-d2eed3659839")
+	)
+	(gr_line
+		(start 138.9725 76.694)
+		(end 140.5425 76.694)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "85a396fe-7563-4496-bd00-73495be25542")
+	)
+	(gr_line
+		(start 140.5525 74.644)
+		(end 138.9725 76.694)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "985c275a-ada3-4209-bc97-d4a182196037")
+	)
+	(gr_line
+		(start 140.5575 169.899)
+		(end 138.9775 171.949)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "ca00f065-eaf3-4e74-a8ea-56ecddaf3254")
+	)
+	(gr_line
+		(start 140.5525 122.269)
+		(end 138.9725 124.319)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "User.4")
+		(uuid "f18f33f1-fa37-4223-bcb3-c4e4bad4f2f1")
 	)
 	(segment
 		(start 174.0225 54.194)
@@ -33902,6 +34053,27 @@
 				(xy 130.513 40.239396) (xy 130.513 25.20623) (xy 130.532685 25.139191) (xy 130.549319 25.118549)
 				(xy 132.177049 23.490819) (xy 132.238372 23.457334) (xy 132.26473 23.4545) (xy 135.935523 23.4545)
 			)
+		)
+	)
+	(group ""
+		(uuid "3507dd86-a5b5-4425-97c4-134264b2be3a")
+		(members "26b52de3-2b99-4de6-a428-5770d30fde45" "3f4605fd-f338-4185-b54b-1ff19565652c"
+			"40079aa9-0ca8-49aa-b6cb-3b381627e527" "436f2cb5-da7e-43cd-90b2-cfae48dfa88a"
+			"ca00f065-eaf3-4e74-a8ea-56ecddaf3254"
+		)
+	)
+	(group ""
+		(uuid "a77768c7-31a6-4ccd-a5ff-a5b4e68c9ee2")
+		(members "12681b52-af1c-4af4-945d-7a2316e81213" "3b318c03-10d5-4957-b5f4-82cffb40a4aa"
+			"54072b38-0d7f-44a7-926f-a790f8ee745b" "85a396fe-7563-4496-bd00-73495be25542"
+			"985c275a-ada3-4209-bc97-d4a182196037"
+		)
+	)
+	(group ""
+		(uuid "b130f72b-a3c2-4acd-8255-e487c9833344")
+		(members "1d88e0a2-dcfd-4cd4-9cda-d447def3b442" "20ade91d-c9b6-4a26-bdf1-aca600d7aa00"
+			"4e5c4cf0-6d33-41f5-9cfe-a51045124d88" "607b98b9-e11b-4bda-98df-d2eed3659839"
+			"f18f33f1-fa37-4223-bcb3-c4e4bad4f2f1"
 		)
 	)
 	(embedded_fonts no)
