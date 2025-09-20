@@ -1,3 +1,6 @@
 *-cache
 *-backups/
 *.lck
+_autosave*
+\#auto_saved_files*
+*/*.kicad_pcb.zip
