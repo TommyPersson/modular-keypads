@@ -71,7 +71,7 @@ void FirmwareModuleA::loop() {
         uint8_t iodirb = mcp23x17->readRegister(MCP23x17_Registers::IODIRB);
 
         serialPort->stream().printf(
-            "%4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x\n",
+            "#debug %4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x\n",
             j,
             sws1Reg->read(),
             sws2Reg->read(),

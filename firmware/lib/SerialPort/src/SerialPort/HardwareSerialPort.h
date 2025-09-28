@@ -1,6 +1,7 @@
 #pragma once
 
 #include <HardwareSerial.h>
+
 #include "SerialPort.h"
 
 class HardwareSerialPort : public SerialPort {
