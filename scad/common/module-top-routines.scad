@@ -50,7 +50,7 @@ module module_top_side_connector_fittings(module_size) {
     w = outer_wall_thickness;
     x1 = 0;
     x2 = module_size.x - w;
-    y = module_size.y - side_connector_offset - (tolerance/2);
+    y = module_size.y - side_connector_offset - (tolerance / 2);
 
     translate([x1, y, module_top_thickness]) {
         linear_extrude(pcb_thickness) {
@@ -90,7 +90,7 @@ module module_top_side_connector_solder_joint_cutouts(module_size) {
 module module_top_back_connector_fitting(module_size) {
     tolerance = 0.5;
 
-    x = back_connector_offset + tolerance/2;
+    x = back_connector_offset + tolerance / 2;
     w = module_size.x - (x * 2) - tolerance;
     y = module_size.y - outer_wall_thickness;
 
@@ -120,17 +120,24 @@ module module_top_key_switch_cutout() {
 
             translate([0, 0, bottom_offset]) {
                 linear_extrude(switch_neck_thickness) {
-                    square([switch_neck_width, switch_neck_width], center = true);
-
-                    xy = (switch_neck_width / 2) - 0.5;
-                    points = [[-xy, -xy], [xy, -xy], [-xy, xy], [xy, xy]];
-                    for (p = points) {
-                        translate([p.x, p.y]) {
-                            circle(r = 1);
-                        }
-                    }
+                    rectangle_with_circle_corners([switch_neck_width, switch_neck_width], center = true);
                 }
             }
         }
+    }
+}
+
+module module_top_rotary_encoder_cutouts(points) {
+    for (p = points) {
+        translate(p) {
+            module_top_rotary_encoder_cutout();
+        }
+    }
+}
+
+
+module module_top_rotary_encoder_cutout() {
+    linear_extrude(module_top_thickness) {
+        rounded_rectangle([rotary_encoder_width, rotary_encoder_height], corner_radius = 1, center = true);
     }
 }

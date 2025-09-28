@@ -18,6 +18,25 @@ module rounded_rectangle(size, corner_radius, center = false) {
     }
 }
 
+module rectangle_with_circle_corners(size, circle_radius = 1, center = false) {
+    x_offset = center ? 0 : size.x / 2;
+    y_offset = center ? 0 : size.y / 2;
+    offset = [x_offset, y_offset];
+
+    translate(offset) {
+            square(size, center = true);
+
+            x = (size.x / 2) - circle_radius/2;
+            y = (size.y / 2) - circle_radius/2;
+            points = [[-x, -y], [x, -y], [-x, y], [x, y]];
+
+            for (p = points) {
+                translate([p.x, p.y]) {
+                    circle(r = circle_radius);
+                }
+            }
+    }
+}
 
 module circle_segment(radius, cut_off_height) {
     intersection() {

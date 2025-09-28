@@ -10,8 +10,8 @@ switch_neck_thickness = 1.2;
 switch_neck_width = 13.9;
 switch_hole_width = switch_neck_width + 2;
 
-encoder_width = 17;
-encoder_height = 14;
+rotary_encoder_width = 17;
+rotary_encoder_height = 17;
 
 magnet_diameter = 5 + 0.3;
 magnet_depth = 2 + 0.2;
