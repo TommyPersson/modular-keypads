@@ -1,4 +1,4 @@
-import { Alert, Card, CardContent, Typography } from "@mui/material"
+import { Card, CardContent, Typography } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 import { useDeviceContext } from "../../context/DeviceContext"
 import type { LogMessage } from "../../facade/DeviceFacade"
@@ -53,8 +53,8 @@ export const LogsCard = () => {
 
 function formatLogLine(message: LogMessage) {
   if (message.direction === 'to-host') {
-    return `< ${message.message}\n`
+    return `[${message.timestamp.toFormat("HH:mm:ss.SSS")}] < ${message.message}\n`
   } else {
-    return `> ${message.message}\n`
+    return `[${message.timestamp.toFormat("HH:mm:ss.SSS")}] > ${message.message}\n`
   }
 }

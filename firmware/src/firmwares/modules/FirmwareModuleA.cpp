@@ -50,6 +50,35 @@ void FirmwareModuleA::setup() {
     serialPort->stream().printf("started\n");
 }
 
+char inputBuffer[1024];
+char commandIdBuffer[1024];
+String currentLine = "";
+
+void handleLine(const String& line, Stream& serial) {
+    int commandId = 0;
+    String command;
+
+    memset(commandIdBuffer, 0, sizeof(commandIdBuffer));
+    for (i = 0; i < line.length() - 1; i++) {
+        auto c = line[i];
+        if (isdigit(c)) {
+            commandIdBuffer[i] = c;
+        } else {
+            commandIdBuffer[i] = 0;
+            break;
+        }
+    }
+
+    commandId = atoi(commandIdBuffer);
+    command = line.substring(strlen(commandIdBuffer) + 1);
+
+    if (command.equals("ping")) {
+        serial.printf("%%%i:pong\n", commandId);
+    } else {
+        serial.printf("#error unknown.command: %s\n", command.c_str());
+    }
+}
+
 void FirmwareModuleA::loop() {
     delayMicroseconds(1000);
 
@@ -58,6 +87,22 @@ void FirmwareModuleA::loop() {
 
     sws1Reg->write(mcp23x17->readPortA());
     sws2Reg->write(mcp23x17->readPortB());
+
+    const auto available = this->serialPort->stream().available();
+    if (available > 0) {
+        const auto numRead = this->serialPort->stream().readBytes(&inputBuffer[0], available);
+        if (numRead > 0) {
+            for (int i = 0; i < numRead; i++) {
+                char c = inputBuffer[i];
+                if (c == '\n') {
+                    handleLine(currentLine, this->serialPort->stream());
+                    currentLine = "";
+                } else {
+                    currentLine += c;
+                }
+            }
+        }
+    }
 
     i++;
     if (i == 1000) {
@@ -71,14 +116,15 @@ void FirmwareModuleA::loop() {
         uint8_t iodirb = mcp23x17->readRegister(MCP23x17_Registers::IODIRB);
 
         serialPort->stream().printf(
-            "#debug %4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x\n",
+            "#debug %4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x, line=%s\n",
             j,
             sws1Reg->read(),
             sws2Reg->read(),
             iodira,
             iodirb,
             gppua,
-            gppub
+            gppub,
+            currentLine.c_str()
             );
 
         pixels.clear();
