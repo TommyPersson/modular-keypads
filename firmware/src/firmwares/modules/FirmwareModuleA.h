@@ -1,5 +1,7 @@
 #pragma once
 
+#include <firmwares/common/LineReader.h>
+
 #include "../Firmware.h"
 
 #include <vector>
@@ -19,5 +21,6 @@ public:
 private:
     std::unique_ptr<MCP23x17> mcp23x17;
     std::unique_ptr<SerialPort> serialPort;
+    std::unique_ptr<LineReader> lineReader;
     std::vector<std::shared_ptr<Register>> registers;
 };

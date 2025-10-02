@@ -35,9 +35,9 @@ export class DeviceCommandExecutor {
 
       const packet = this.formatPacket(commandId, str)
 
-      this.logsSubject.next({ direction: "to-device", message: packet.text, timestamp: DateTime.now() })
-
       await writer.write(packet.bytes)
+
+      this.logsSubject.next({ direction: "to-device", message: packet.text, timestamp: DateTime.now() })
 
       const timeout = setTimeout(() => {
         deferredCommandResult.reject(new Error("command timeout"))

@@ -16,6 +16,8 @@ FirmwareModuleA::FirmwareModuleA() {
 
     this->registers.push_back(std::make_shared<Register>("SWS1"));
     this->registers.push_back(std::make_shared<Register>("SWS2"));
+
+    this->lineReader = std::make_unique<LineReader>(this->serialPort->stream());
 }
 
 FirmwareModuleA::~FirmwareModuleA() {
@@ -45,7 +47,7 @@ void FirmwareModuleA::setup() {
     mcp23x17->writeRegister(MCP23x17_Registers::IOPOLB, 0xff);
 
     pixels.begin();
-    pixels.setBrightness(100);
+    pixels.setBrightness(50);
 
     serialPort->stream().printf("started\n");
 }
@@ -79,29 +81,44 @@ void handleLine(const String& line, Stream& serial) {
     }
 }
 
+
+uint32_t sw9Pixel = 0;
+
 void FirmwareModuleA::loop() {
     delayMicroseconds(1000);
 
     const auto& sws1Reg = this->registers.at(0);
     const auto& sws2Reg = this->registers.at(1);
 
+    auto lastSws1Value = sws1Reg->read();
+    auto lastSws2Value = sws2Reg->read();
+
     sws1Reg->write(mcp23x17->readPortA());
     sws2Reg->write(mcp23x17->readPortB());
 
-    const auto available = this->serialPort->stream().available();
-    if (available > 0) {
-        const auto numRead = this->serialPort->stream().readBytes(&inputBuffer[0], available);
-        if (numRead > 0) {
-            for (int i = 0; i < numRead; i++) {
-                char c = inputBuffer[i];
-                if (c == '\n') {
-                    handleLine(currentLine, this->serialPort->stream());
-                    currentLine = "";
-                } else {
-                    currentLine += c;
-                }
-            }
-        }
+    std::shared_ptr<String> line;
+    while ((line = this->lineReader->readLine()) != nullptr) {
+        handleLine(*line, this->serialPort->stream());
+    }
+
+    bool pixelsDirty = false;
+
+    if ((sws1Reg->read() & 0x01) && !(lastSws1Value & 0x01)) {
+        this->serialPort->stream().println("!switch.pressed:9");
+        sw9Pixel = pixels.Color(0xff, 0x00, 0x00);
+        pixelsDirty = true;
+    }
+
+    if (!(sws1Reg->read() & 0x01) && (lastSws1Value & 0x01)) {
+        this->serialPort->stream().println("!switch.released:9");
+        sw9Pixel = pixels.Color(0x00, 0x00, 0x00);
+        pixelsDirty = true;
+    }
+
+    pixels.setPixelColor(4, sw9Pixel);
+
+    if (pixelsDirty) {
+        pixels.show();
     }
 
     i++;
@@ -127,12 +144,10 @@ void FirmwareModuleA::loop() {
             currentLine.c_str()
             );
 
-        pixels.clear();
         pixels.setPixelColor(0, pixels.Color(0xff, 0x00, 0x00));
         pixels.setPixelColor(1, pixels.Color(0x00, 0xff, 0x00));
         pixels.setPixelColor(2, pixels.Color(0x00, 0x00, 0xff));
         pixels.setPixelColor(3, pixels.Color(0x00, 0xff, 0xff));
-        pixels.setPixelColor(4, pixels.Color(0xff, 0xff, 0xff));
         pixels.show();
     }
 }

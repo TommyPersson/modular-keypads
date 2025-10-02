@@ -6,12 +6,16 @@ export class Mutex {
 
   async acquire(timeoutMs: number): Promise<void> {
     const timeoutDeferred = new Deferred()
-    setTimeout(() => {
-      timeoutDeferred.reject(new Error("timeout"))
-    }, timeoutMs)
 
-    if (this._lock) {
-      await Promise.race([this._lock.promise, timeoutDeferred.promise])
+    const lock = this._lock;
+    if (lock) {
+      setTimeout(() => {
+        if (!lock.isResolved) {
+          timeoutDeferred.reject(new Error("timeout"))
+        }
+      }, timeoutMs)
+
+      await Promise.race([lock.promise, timeoutDeferred.promise])
     }
 
     this._lock = new Deferred<void>()
