@@ -12,12 +12,19 @@
 //USBHIDConsumerControl consumerControl;
 //USBHIDSystemControl systemControl;
 
-#include <firmwares/modules/FirmwareModuleA.h>
+#include <firmwares/common/DeviceConfigurationManager.h>
+#include <firmwares/modules/a/FirmwareModuleA.h>
+
+#include <Preferences.h>
 
 std::unique_ptr<Firmware> firmware;
 
+Preferences preferences;
+Logger logger(Serial);
+DeviceConfigurationManager deviceConfigurationManager(preferences, logger);
+
 void setup() {
-    firmware = Firmware::create('A');
+    firmware = Firmware::create('A', deviceConfigurationManager, logger);
     firmware->setup();
 
   //  USB.productName("tommy-product");

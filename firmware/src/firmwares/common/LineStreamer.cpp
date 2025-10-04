@@ -1,6 +1,6 @@
-#include "LineReader.h"
+#include "LineStreamer.h"
 
-LineReader::LineReader(Stream& inputStream, size_t bufferSize) :
+LineStreamer::LineStreamer(Stream& inputStream, size_t bufferSize) :
     inputStream(inputStream),
     bufferSize(bufferSize),
     lineBuffer(new char[bufferSize]),
@@ -12,12 +12,12 @@ LineReader::LineReader(Stream& inputStream, size_t bufferSize) :
     memset(this->receiveBuffer, 0, this->bufferSize);
 }
 
-LineReader::~LineReader() {
+LineStreamer::~LineStreamer() {
     delete[] this->lineBuffer;
     delete[] this->receiveBuffer;
 }
 
-std::shared_ptr<String> LineReader::readLine() {
+void LineStreamer::update() {
     if (receiveBufferLength <= 0) {
         populateReceiveBuffer();
     }
@@ -25,14 +25,14 @@ std::shared_ptr<String> LineReader::readLine() {
     while (this->receiveBufferLength > 0) {
         const auto& result = processReceiveBuffer();
         if (result != nullptr) {
-            return result;
+            auto& value = *result;
+            // TODO stack/pre-allocated strings instead
+            this->lineSubject.notify(value);
         }
     }
-
-    return nullptr;
 }
 
-std::shared_ptr<String> LineReader::processReceiveBuffer() {
+std::shared_ptr<String> LineStreamer::processReceiveBuffer() {
     for (int i = 0; receiveBufferIndex < receiveBufferLength; receiveBufferIndex++, i++) {
         char c = this->receiveBuffer[receiveBufferIndex];
         if (c == '\n') {
@@ -51,7 +51,15 @@ std::shared_ptr<String> LineReader::processReceiveBuffer() {
     return nullptr;
 }
 
-void LineReader::populateReceiveBuffer() {
+void LineStreamer::addObserver(Observer<String>* observer) {
+    this->lineSubject.addObserver(observer);
+}
+
+void LineStreamer::removeObserver(Observer<String>* observer) {
+    this->lineSubject.removeObserver(observer);
+}
+
+void LineStreamer::populateReceiveBuffer() {
     receiveBufferIndex = 0;
     receiveBufferLength = 0;
 

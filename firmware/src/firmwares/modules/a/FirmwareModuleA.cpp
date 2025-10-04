@@ -3,7 +3,17 @@
 #include <SPI.h>
 #include <Adafruit_NeoPixel.h>
 
-FirmwareModuleA::FirmwareModuleA() {
+#include "../../common/commands/CommandProcessor.h"
+#include "../generic/commands/PingCommandHandler.h"
+#include "../generic/commands/ReadDeviceIdCommandHandler.h"
+#include "../generic/commands/ReadDeviceFirmwareVersionCommandHandler.h"
+#include "../generic/commands/ReadDeviceTypeCommandHandler.h"
+#include "../generic/commands/ReadDeviceAddressCommandHandler.h"
+
+FirmwareModuleA::FirmwareModuleA(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger) :
+    deviceConfigurationManager(deviceConfigurationManager),
+    logger(logger) {
+
     this->mcp23x17 = MCP23x17::SPI({
         .spiBus = FSPI,
         .pinSCK = OutputPin(4),
@@ -17,11 +27,20 @@ FirmwareModuleA::FirmwareModuleA() {
     this->registers.push_back(std::make_shared<Register>("SWS1"));
     this->registers.push_back(std::make_shared<Register>("SWS2"));
 
-    this->lineReader = std::make_unique<LineReader>(this->serialPort->stream());
+    this->lineStreamer = std::make_unique<LineStreamer>(this->serialPort->stream());
+    this->commandProcessor = std::make_unique<CommandProcessor>(this->serialPort->stream());
+
+    this->lineStreamer->addObserver(this->commandProcessor.get());
+
+    this->commandProcessor->addHandler(std::make_shared<PingCommandHandler>());
+    this->commandProcessor->addHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
+    this->commandProcessor->addHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
+    this->commandProcessor->addHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
+    this->commandProcessor->addHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
+
 }
 
-FirmwareModuleA::~FirmwareModuleA() {
-}
+FirmwareModuleA::~FirmwareModuleA() = default;
 
 int i = 0;
 int j = 0;
@@ -49,38 +68,11 @@ void FirmwareModuleA::setup() {
     pixels.begin();
     pixels.setBrightness(50);
 
-    serialPort->stream().printf("started\n");
+    delay(100);
+    deviceConfigurationManager.begin();
+
+    logger.info("FirmwareModuleA:started");
 }
-
-char inputBuffer[1024];
-char commandIdBuffer[1024];
-String currentLine = "";
-
-void handleLine(const String& line, Stream& serial) {
-    int commandId = 0;
-    String command;
-
-    memset(commandIdBuffer, 0, sizeof(commandIdBuffer));
-    for (i = 0; i < line.length() - 1; i++) {
-        auto c = line[i];
-        if (isdigit(c)) {
-            commandIdBuffer[i] = c;
-        } else {
-            commandIdBuffer[i] = 0;
-            break;
-        }
-    }
-
-    commandId = atoi(commandIdBuffer);
-    command = line.substring(strlen(commandIdBuffer) + 1);
-
-    if (command.equals("ping")) {
-        serial.printf("%%%i:pong\n", commandId);
-    } else {
-        serial.printf("#error unknown.command: %s\n", command.c_str());
-    }
-}
-
 
 uint32_t sw9Pixel = 0;
 
@@ -96,10 +88,7 @@ void FirmwareModuleA::loop() {
     sws1Reg->write(mcp23x17->readPortA());
     sws2Reg->write(mcp23x17->readPortB());
 
-    std::shared_ptr<String> line;
-    while ((line = this->lineReader->readLine()) != nullptr) {
-        handleLine(*line, this->serialPort->stream());
-    }
+    lineStreamer->update();
 
     bool pixelsDirty = false;
 
@@ -131,19 +120,18 @@ void FirmwareModuleA::loop() {
 
         uint8_t iodira = mcp23x17->readRegister(MCP23x17_Registers::IODIRA);
         uint8_t iodirb = mcp23x17->readRegister(MCP23x17_Registers::IODIRB);
-
-        serialPort->stream().printf(
-            "#debug %4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x, line=%s\n",
+/*
+        logger.debug(
+            "%4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x",
             j,
             sws1Reg->read(),
             sws2Reg->read(),
             iodira,
             iodirb,
             gppua,
-            gppub,
-            currentLine.c_str()
+            gppub
             );
-
+*/
         pixels.setPixelColor(0, pixels.Color(0xff, 0x00, 0x00));
         pixels.setPixelColor(1, pixels.Color(0x00, 0xff, 0x00));
         pixels.setPixelColor(2, pixels.Color(0x00, 0x00, 0xff));

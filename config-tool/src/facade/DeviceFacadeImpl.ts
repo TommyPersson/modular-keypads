@@ -35,7 +35,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
       this.port = await navigator.serial.requestPort({})
       this.port.open({ baudRate: 115200 }).then(async () => {
-        await this.port!.setSignals({ dataTerminalReady: true, requestToSend: false }) // Avoids resetting the MC when connecting
+        //await this.port!.setSignals({ dataTerminalReady: true, requestToSend: false }) // Avoids resetting the MC when connecting
 
 
         this.writer = this.port!.writable!.getWriter()
@@ -77,6 +77,23 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
   async performPing(): Promise<string> {
     return await this.sendCommand("ping")
+  }
+
+  async getDeviceId(): Promise<string> {
+    return await this.sendCommand("read.device.id")
+  }
+
+  async getDeviceFirmwareVersion(): Promise<string> {
+    return await this.sendCommand("read.device.firmware.version")
+  }
+
+  async getDeviceType(): Promise<string> {
+    return await this.sendCommand("read.device.type")
+  }
+
+  async getDeviceAddress(): Promise<number> {
+    const addressHex = await this.sendCommand("read.device.address")
+    return parseInt(addressHex, 16)
   }
 
   private async sendCommand(str: string): Promise<string> {

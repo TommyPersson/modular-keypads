@@ -1,6 +1,7 @@
-import { Alert, AlertTitle, Box, Button, Grid } from "@mui/material"
+import { Alert, AlertTitle, Box, Button, Grid, Stack } from "@mui/material"
 import { useCallback } from "react"
 import { useDeviceContext } from "../../context/DeviceContext"
+import { DeviceInformationCard } from "../DeviceInformationCard"
 import { LogsCard } from "../LogsCard"
 import { MainAppBar } from "../MainAppBar"
 import { PingCommandCard } from "../PingCommandCard"
@@ -29,7 +30,10 @@ export const RootScreen = () => {
 
       <Grid container spacing={2} padding={2}>
         <Grid size={6}>
-          <PingCommandCard />
+          <Stack spacing={2}>
+            <PingCommandCard />
+            <DeviceInformationCard />
+          </Stack>
         </Grid>
         <Grid size={6}>
           <LogsCard />
