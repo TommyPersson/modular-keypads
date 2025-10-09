@@ -10,9 +10,12 @@
 #include "../generic/commands/ReadDeviceTypeCommandHandler.h"
 #include "../generic/commands/ReadDeviceAddressCommandHandler.h"
 
-FirmwareModuleA::FirmwareModuleA(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger) :
-    deviceConfigurationManager(deviceConfigurationManager),
-    logger(logger) {
+FirmwareModuleA::FirmwareModuleA(
+    DeviceConfigurationManager& deviceConfigurationManager,
+    SerialPort& serialPort,
+    Logger& logger
+    ) :
+    Firmware(deviceConfigurationManager, serialPort, logger) {
 
     this->mcp23x17 = MCP23x17::SPI({
         .spiBus = FSPI,
@@ -22,21 +25,14 @@ FirmwareModuleA::FirmwareModuleA(DeviceConfigurationManager& deviceConfiguration
         .pinCS = OutputPin(5),
     });
 
-    this->serialPort = SerialPort::from(Serial);
-
     this->registers.push_back(std::make_shared<Register>("SWS1"));
     this->registers.push_back(std::make_shared<Register>("SWS2"));
 
-    this->lineStreamer = std::make_unique<LineStreamer>(this->serialPort->stream());
-    this->commandProcessor = std::make_unique<CommandProcessor>(this->serialPort->stream());
-
-    this->lineStreamer->addObserver(this->commandProcessor.get());
-
-    this->commandProcessor->addHandler(std::make_shared<PingCommandHandler>());
-    this->commandProcessor->addHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
-    this->commandProcessor->addHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
-    this->commandProcessor->addHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
-    this->commandProcessor->addHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
+    this->registerCommandHandler(std::make_shared<PingCommandHandler>());
+    this->registerCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
+    this->registerCommandHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
+    this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
+    this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
 
 }
 
@@ -47,10 +43,11 @@ int j = 0;
 Adafruit_NeoPixel pixels(12, 6, NEO_GRB + NEO_KHZ800);
 
 void FirmwareModuleA::setup() {
+    Firmware::setup();
+
     i = 0;
     j = 0;
 
-    serialPort->begin(115200);
     mcp23x17->begin();
 
     // Set all pins as input
@@ -68,16 +65,13 @@ void FirmwareModuleA::setup() {
     pixels.begin();
     pixels.setBrightness(50);
 
-    delay(100);
-    deviceConfigurationManager.begin();
-
     logger.info("FirmwareModuleA:started");
 }
 
 uint32_t sw9Pixel = 0;
 
 void FirmwareModuleA::loop() {
-    delayMicroseconds(1000);
+    Firmware::loop();
 
     const auto& sws1Reg = this->registers.at(0);
     const auto& sws2Reg = this->registers.at(1);
@@ -88,18 +82,16 @@ void FirmwareModuleA::loop() {
     sws1Reg->write(mcp23x17->readPortA());
     sws2Reg->write(mcp23x17->readPortB());
 
-    lineStreamer->update();
-
     bool pixelsDirty = false;
 
     if ((sws1Reg->read() & 0x01) && !(lastSws1Value & 0x01)) {
-        this->serialPort->stream().println("!switch.pressed:9");
+        this->serialPort.stream().println("!switch.pressed:9");
         sw9Pixel = pixels.Color(0xff, 0x00, 0x00);
         pixelsDirty = true;
     }
 
     if (!(sws1Reg->read() & 0x01) && (lastSws1Value & 0x01)) {
-        this->serialPort->stream().println("!switch.released:9");
+        this->serialPort.stream().println("!switch.released:9");
         sw9Pixel = pixels.Color(0x00, 0x00, 0x00);
         pixelsDirty = true;
     }
@@ -120,18 +112,18 @@ void FirmwareModuleA::loop() {
 
         uint8_t iodira = mcp23x17->readRegister(MCP23x17_Registers::IODIRA);
         uint8_t iodirb = mcp23x17->readRegister(MCP23x17_Registers::IODIRB);
-/*
-        logger.debug(
-            "%4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x",
-            j,
-            sws1Reg->read(),
-            sws2Reg->read(),
-            iodira,
-            iodirb,
-            gppua,
-            gppub
-            );
-*/
+        /*
+                logger.debug(
+                    "%4i: SWS1=%2x, SWS2=%2x, DIRA=%2x, DIRB=%2x, GPPUA=%2x, GPPUB=%2x",
+                    j,
+                    sws1Reg->read(),
+                    sws2Reg->read(),
+                    iodira,
+                    iodirb,
+                    gppua,
+                    gppub
+                    );
+        */
         pixels.setPixelColor(0, pixels.Color(0xff, 0x00, 0x00));
         pixels.setPixelColor(1, pixels.Color(0x00, 0xff, 0x00));
         pixels.setPixelColor(2, pixels.Color(0x00, 0x00, 0xff));

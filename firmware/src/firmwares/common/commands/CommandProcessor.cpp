@@ -1,7 +1,9 @@
 #include "CommandProcessor.h"
 
-CommandProcessor::CommandProcessor(Stream& outputStream) :
-    outputStream(outputStream) {
+CommandProcessor::CommandProcessor(Stream& outputStream, Logger& logger) :
+    outputStream(outputStream),
+    logger(logger),
+    arena(4096) {
 }
 
 CommandProcessor::~CommandProcessor() {
@@ -13,7 +15,10 @@ void CommandProcessor::addHandler(const std::shared_ptr<CommandHandler>& handler
 };
 
 
-std::shared_ptr<CommandHandler> findHandler(const String& commandType, std::list<std::shared_ptr<CommandHandler>>& handlers) {
+std::shared_ptr<CommandHandler> findHandler(
+    const String& commandType,
+    std::list<std::shared_ptr<CommandHandler>>& handlers
+    ) {
     for (auto& handler : handlers) {
         if (handler->getCommandType().equals(commandType)) {
             return handler;
@@ -24,12 +29,14 @@ std::shared_ptr<CommandHandler> findHandler(const String& commandType, std::list
 }
 
 void CommandProcessor::observe(const String& value) {
-    char commandIdBuffer[value.length()];
+    unsigned int bufferSize = value.length();
+    auto commandIdBuffer = reinterpret_cast<char*>(arena.allocate(bufferSize));
+
     auto line = value;
     int commandId = 0;
     String command;
 
-    memset(commandIdBuffer, 0, sizeof(commandIdBuffer));
+    memset(commandIdBuffer, 0, bufferSize);
     for (int i = 0; i < line.length() - 1; i++) {
         auto c = line[i];
         if (isdigit(c)) {
@@ -49,6 +56,8 @@ void CommandProcessor::observe(const String& value) {
         const auto response = handler->execute();
         outputStream.printf("%%%i:%s\n", commandId, response.c_str());
     } else {
-        outputStream.printf("#error unknown.command: %s\n", command.c_str());
+        logger.error("unknown.command: %s", command.c_str());
     }
+
+    arena.reset();
 }

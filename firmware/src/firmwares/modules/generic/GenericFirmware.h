@@ -1,29 +1,23 @@
 #pragma once
 
-#include "firmwares/Firmware.h"
-#include "firmwares/common/DeviceConfigurationManager.h"
-#include "firmwares/common/Logger.h"
-
-#include <vector>
-
-#include <MCP23x17/MCP23x17.h>
+#include <firmwares/Firmware.h>
+#include <firmwares/common/commands/CommandProcessor.h>
 #include <Registers/Register.h>
 #include <SerialPort/SerialPort.h>
 
-class FirmwareModuleA final : public Firmware {
+class GenericFirmware final : public Firmware {
 public:
-    explicit FirmwareModuleA(
+    explicit GenericFirmware(
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
         Logger& logger
     );
 
-    ~FirmwareModuleA() override;
+    ~GenericFirmware() override;
 
     void setup() override;
     void loop() override;
 
 private:
-    std::unique_ptr<MCP23x17> mcp23x17;
     std::vector<std::shared_ptr<Register>> registers;
 };

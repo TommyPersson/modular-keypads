@@ -3,13 +3,16 @@
 #include <list>
 #include <WString.h>
 #include <SerialPort/SerialPort.h>
+
+#include "firmwares/common/Logger.h"
+#include "utils/allocations/Arena.h"
 #include "utils/observables/Observer.h"
 
 #include "CommandHandler.h"
 
 class CommandProcessor final : public Observer<String> {
 public:
-    explicit CommandProcessor(Stream& outputStream);
+    explicit CommandProcessor(Stream& outputStream, Logger& logger);
     ~CommandProcessor() override;
 
     void addHandler(const std::shared_ptr<CommandHandler>& handler);
@@ -19,5 +22,7 @@ public:
 private:
     std::list<std::shared_ptr<CommandHandler>> handlers;
     Stream& outputStream;
+    Logger& logger;
+    Arena arena;
 };
 

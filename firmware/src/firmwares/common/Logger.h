@@ -1,62 +1,48 @@
 #pragma once
+
 #include <Stream.h>
 #include <cstdarg>
-
-// TODO stack strings
 
 class Logger {
 public:
     explicit Logger(Stream& outputStream);
 
     void info(const char* format, ...) __attribute__((format(printf, 2, 3))) {
-        String finalFormat;
-        finalFormat.concat("#info:");
-        finalFormat.concat(format);
-        finalFormat.concat("\n");
-
-        va_list va;
-        va_start(va, format);
-        outputStream.vprintf(finalFormat.c_str(), va);
-        va_end(va);
+        va_list args;
+        va_start(args, format);
+        vlog("info", format, args);
+        va_end(args);
     };
 
     void debug(const char* format, ...) __attribute__((format(printf, 2, 3))) {
-        String finalFormat;
-        finalFormat.concat("#debug:");
-        finalFormat.concat(format);
-        finalFormat.concat("\n");
-
-        va_list va;
-        va_start(va, format);
-        outputStream.vprintf(finalFormat.c_str(), va);
-        va_end(va);
+        va_list args;
+        va_start(args, format);
+        vlog("debug", format, args);
+        va_end(args);
     };
 
     void warn(const char* format, ...) __attribute__((format(printf, 2, 3))) {
-        String finalFormat;
-        finalFormat.concat("#warn:");
-        finalFormat.concat(format);
-        finalFormat.concat("\n");
-
-        va_list va;
-        va_start(va, format);
-        outputStream.vprintf(finalFormat.c_str(), va);
-        va_end(va);
+        va_list args;
+        va_start(args, format);
+        vlog("warn", format, args);
+        va_end(args);
     };
 
     void error(const char* format, ...) __attribute__((format(printf, 2, 3))) {
-        String finalFormat;
-        finalFormat.concat("#error:");
-        finalFormat.concat(format);
-        finalFormat.concat("\n");
-
-        va_list va;
-        va_start(va, format);
-        outputStream.vprintf(finalFormat.c_str(), va);
-        va_end(va);
+        va_list args;
+        va_start(args, format);
+        vlog("error", format, args);
+        va_end(args);
     };
 
 private:
+    void vlog(const char* level, const char* format, va_list args) const {
+        outputStream.print("#");
+        outputStream.print(level);
+        outputStream.print(":");
+        outputStream.vprintf(format, args);
+        outputStream.print("\n");
+    };
 
     Stream& outputStream;
 };
