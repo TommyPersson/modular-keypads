@@ -7,10 +7,10 @@ ReadDeviceAddressCommandHandler::ReadDeviceAddressCommandHandler(DeviceConfigura
 
 ReadDeviceAddressCommandHandler::~ReadDeviceAddressCommandHandler() = default;
 
-String ReadDeviceAddressCommandHandler::execute() {
+std::string ReadDeviceAddressCommandHandler::execute() {
     auto address = this->deviceConfigurationManager.getDeviceAddress();
     char addressStr[5];
     snprintf(addressStr, sizeof(addressStr), "%02x", address);
 
-    return addressStr; // TODO stack string
+    return addressStr;
 }

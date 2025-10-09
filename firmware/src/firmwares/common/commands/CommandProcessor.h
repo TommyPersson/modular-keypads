@@ -1,7 +1,6 @@
 #pragma once
 
 #include <list>
-#include <WString.h>
 #include <SerialPort/SerialPort.h>
 
 #include "firmwares/common/Logger.h"
@@ -10,14 +9,14 @@
 
 #include "CommandHandler.h"
 
-class CommandProcessor final : public Observer<String> {
+class CommandProcessor final : public Observer<std::string> {
 public:
     explicit CommandProcessor(Stream& outputStream, Logger& logger);
     ~CommandProcessor() override;
 
     void addHandler(const std::shared_ptr<CommandHandler>& handler);
 
-    void observe(const String& value) override;
+    void observe(const std::string& value) override;
 
 private:
     std::list<std::shared_ptr<CommandHandler>> handlers;

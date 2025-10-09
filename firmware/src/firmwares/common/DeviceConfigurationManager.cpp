@@ -31,7 +31,11 @@ void DeviceConfigurationManager::begin() const {
     if (existingId.isEmpty()) {
         const auto newId = generateNewId();
         const auto numWritten = this->preferences.putString(prefsKeyDeviceId, newId);
-        logger.info("DeviceConfigurationManager:generated new device ID = '%s' (numWritten = %i)", newId.c_str(), numWritten);
+        logger.info(
+            "DeviceConfigurationManager:generated new device ID = '%s' (numWritten = %i)",
+            newId.c_str(),
+            numWritten
+            );
     } else {
         logger.info("DeviceConfigurationManager:read existing device ID = '%s'", existingId.c_str());
     }
@@ -40,7 +44,11 @@ void DeviceConfigurationManager::begin() const {
     if (existingAddress == 0) {
         const uint8_t newAddress = 1;
         const auto numWritten = this->preferences.putUChar(prefsKeyDeviceAddress, newAddress);
-        logger.info("DeviceConfigurationManager:generated new device address = '%0x02x' (numWritten = %i)", newAddress, numWritten);
+        logger.info(
+            "DeviceConfigurationManager:generated new device address = '%0x02x' (numWritten = %i)",
+            newAddress,
+            numWritten
+            );
     } else {
         logger.info("DeviceConfigurationManager:read existing device address = '0x%02x'", existingAddress);
     }
@@ -48,15 +56,15 @@ void DeviceConfigurationManager::begin() const {
     this->preferences.end();
 }
 
-String DeviceConfigurationManager::getDeviceId() const {
+std::string DeviceConfigurationManager::getDeviceId() const {
     this->preferences.begin(prefsNamespace, true);
     auto id = this->preferences.getString(prefsKeyDeviceId);
     this->preferences.end();
 
-    return id;
+    return id.c_str();
 }
 
-String DeviceConfigurationManager::getDeviceVersion() const {
+std::string DeviceConfigurationManager::getDeviceVersion() const {
     return "0.0.1";
 }
 

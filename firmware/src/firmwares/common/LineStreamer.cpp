@@ -32,12 +32,12 @@ void LineStreamer::update() {
     }
 }
 
-std::shared_ptr<String> LineStreamer::processReceiveBuffer() {
+std::shared_ptr<std::string> LineStreamer::processReceiveBuffer() {
     for (int i = 0; receiveBufferIndex < receiveBufferLength; receiveBufferIndex++, i++) {
         char c = this->receiveBuffer[receiveBufferIndex];
         if (c == '\n') {
             receiveBufferIndex += 1;
-            auto line = std::make_shared<String>(this->lineBuffer);
+            auto line = std::make_shared<std::string>(this->lineBuffer);
             memset(this->lineBuffer, 0, this->bufferSize);
             return line;
         }
@@ -51,11 +51,11 @@ std::shared_ptr<String> LineStreamer::processReceiveBuffer() {
     return nullptr;
 }
 
-void LineStreamer::addObserver(Observer<String>* observer) {
+void LineStreamer::addObserver(Observer<std::string>* observer) {
     this->lineSubject.addObserver(observer);
 }
 
-void LineStreamer::removeObserver(Observer<String>* observer) {
+void LineStreamer::removeObserver(Observer<std::string>* observer) {
     this->lineSubject.removeObserver(observer);
 }
 

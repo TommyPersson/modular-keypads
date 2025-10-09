@@ -9,5 +9,5 @@ public:
     explicit PingCommandHandler();
     ~PingCommandHandler() override;
 
-    String execute() override;
+    std::string execute() override;
 };

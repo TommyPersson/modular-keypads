@@ -6,6 +6,6 @@ PingCommandHandler::PingCommandHandler() :
 
 PingCommandHandler::~PingCommandHandler() = default;
 
-String PingCommandHandler::execute() {
+std::string PingCommandHandler::execute() {
     return "pong";
 }

@@ -8,9 +8,9 @@ ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(DeviceConfigurationManage
 
 ReadDeviceIdCommandHandler::~ReadDeviceIdCommandHandler() = default;
 
-String ReadDeviceIdCommandHandler::execute() {
+std::string ReadDeviceIdCommandHandler::execute() {
     auto deviceId = this->deviceConfigurationManager.getDeviceId();
-    if (deviceId.isEmpty()) {
+    if (deviceId.empty()) {
         return "NAK";
     }
     return deviceId;

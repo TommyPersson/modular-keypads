@@ -11,16 +11,16 @@ public:
     explicit LineStreamer(Stream& inputStream, size_t bufferSize = 1024);
     ~LineStreamer();
 
-    void addObserver(Observer<String>* observer);
-    void removeObserver(Observer<String>* observer);
+    void addObserver(Observer<std::string>* observer);
+    void removeObserver(Observer<std::string>* observer);
 
     void update();
 
 private:
-    std::shared_ptr<String> processReceiveBuffer();
+    std::shared_ptr<std::string> processReceiveBuffer();
     void populateReceiveBuffer();
 
-    Subject<String> lineSubject;
+    Subject<std::string> lineSubject;
 
     Stream& inputStream;
     const size_t bufferSize;
