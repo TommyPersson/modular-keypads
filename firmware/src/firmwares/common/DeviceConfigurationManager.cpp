@@ -92,7 +92,14 @@ char DeviceConfigurationManager::getDeviceType() const {
 
 bool DeviceConfigurationManager::setDeviceType(const char deviceType) const {
     this->preferences.begin(prefsNamespace, false);
-    const auto numWritten = this->preferences.putUChar(prefsKeyDeviceAddress, deviceType);
+    const auto numWritten = this->preferences.putUChar(prefsKeyDeviceType, deviceType);
     this->preferences.end();
-    return numWritten > 0;
+
+    logger.debug("numWritten = %i", numWritten);
+
+    this->preferences.begin(prefsNamespace, false);
+    const auto written = this->preferences.getUChar(prefsKeyDeviceType, deviceType);
+    this->preferences.end();
+
+    return written == deviceType;
 }

@@ -1,15 +1,17 @@
 #include "FirmwareModuleA.h"
 
-#include <SPI.h>
 #include <Adafruit_NeoPixel.h>
+#include <SPI.h>
 
 #include "../../common/commands/CommandProcessor.h"
 #include "../generic/commands/PingCommandHandler.h"
-#include "../generic/commands/ReadDeviceIdCommandHandler.h"
-#include "../generic/commands/ReadDeviceFirmwareVersionCommandHandler.h"
-#include "../generic/commands/ReadDeviceTypeCommandHandler.h"
 #include "../generic/commands/ReadDeviceAddressCommandHandler.h"
+#include "../generic/commands/ReadDeviceFirmwareVersionCommandHandler.h"
+#include "../generic/commands/ReadDeviceIdCommandHandler.h"
+#include "../generic/commands/ReadDeviceTypeCommandHandler.h"
+#include "../generic/commands/ResetDeviceCommandHandler.h"
 #include "../generic/commands/SetDeviceAddressCommandHandler.h"
+#include "../generic/commands/SetDeviceTypeCommandHandler.h"
 
 FirmwareModuleA::FirmwareModuleA(
     DeviceConfigurationManager& deviceConfigurationManager,
@@ -40,6 +42,8 @@ FirmwareModuleA::FirmwareModuleA(
     this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
     this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
     this->registerCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager, logger));
 
 }
 

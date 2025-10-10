@@ -14,7 +14,7 @@ ReadDeviceAddressCommandHandler::~ReadDeviceAddressCommandHandler() = default;
 std::string ReadDeviceAddressCommandHandler::execute(const std::span<const std::string_view>& args) {
     auto address = this->deviceConfigurationManager.getDeviceAddress();
     char addressStr[5];
-    snprintf(addressStr, sizeof(addressStr), "%02x", address);
+    snprintf(addressStr, sizeof(addressStr), "0x%02x", address);
 
     return addressStr;
 }

@@ -5,3 +5,15 @@ body {
     padding: 0;
     margin: 0;
 }
+
+code, pre {
+    padding: 2px 4px;
+    color: hsl(215, 15%, 12%);
+    background-color: hsl(215, 15%, 97%);
+    border: 1px solid hsl(215, 15%, 89%);
+    border-radius: 6px;
+}
+
+pre {
+    margin: 0
+}

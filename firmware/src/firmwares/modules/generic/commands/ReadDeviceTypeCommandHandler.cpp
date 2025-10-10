@@ -14,7 +14,8 @@ ReadDeviceTypeCommandHandler::~ReadDeviceTypeCommandHandler() = default;
 std::string ReadDeviceTypeCommandHandler::execute(const std::span<const std::string_view>& args) {
     auto deviceId = this->deviceConfigurationManager.getDeviceType();
     if (deviceId == 0) {
-        return "generic";
+        return "0";
     }
-    return std::string(1, deviceId);
+
+    return {&deviceId, 1};
 }

@@ -79,6 +79,12 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return await this.sendCommand("ping", ["a", "b", "c"])
   }
 
+  async resetDevice(): Promise<void>{
+    await this.sendWriteCommand("reset.device").catch(() => {})
+
+    return;
+  }
+
   async getDeviceId(): Promise<string> {
     return await this.sendCommand("read.device.id")
   }
@@ -91,9 +97,25 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return await this.sendCommand("read.device.type")
   }
 
+  async setDeviceType(type: string) {
+    await this.sendWriteCommand("set.device.type", [type])
+  }
+
   async getDeviceAddress(): Promise<number> {
     const addressHex = await this.sendCommand("read.device.address")
     return parseInt(addressHex, 16)
+  }
+
+  async setDeviceAddress(address: number) {
+    const addressHex = "0x" + address.toString(16);
+    await this.sendWriteCommand("set.device.address", [addressHex])
+  }
+
+  private async sendWriteCommand(str: string, args: string[] = []): Promise<void> {
+    const response = await this.sendCommand(str, args)
+    if (response.toLowerCase() !== "ack") {
+      throw new Error(`Unable to reset device: ${response}`)
+    }
   }
 
   private async sendCommand(str: string, args: string[] = []): Promise<string> {

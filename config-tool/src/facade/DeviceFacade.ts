@@ -10,6 +10,11 @@ export interface DeviceFacade {
   getDeviceType(): Promise<string>
   getDeviceAddress(): Promise<number>
 
+  setDeviceType(type: string): Promise<void>
+  setDeviceAddress(address: number): Promise<void>
+
+  resetDevice(): Promise<void>
+
   performPing(): Promise<string>
 
   $logs: Observable<LogMessage>
