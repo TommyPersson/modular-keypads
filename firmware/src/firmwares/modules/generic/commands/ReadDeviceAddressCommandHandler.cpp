@@ -1,13 +1,17 @@
- #include "ReadDeviceAddressCommandHandler.h"
+#include "ReadDeviceAddressCommandHandler.h"
 
-ReadDeviceAddressCommandHandler::ReadDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager) :
-    CommandHandler("read.device.address"),
+ReadDeviceAddressCommandHandler::ReadDeviceAddressCommandHandler(
+    DeviceConfigurationManager& deviceConfigurationManager,
+    Logger& logger
+    ) :
+    CommandHandler("read.device.address", logger),
+
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 
 ReadDeviceAddressCommandHandler::~ReadDeviceAddressCommandHandler() = default;
 
-std::string ReadDeviceAddressCommandHandler::execute() {
+std::string ReadDeviceAddressCommandHandler::execute(const std::span<const std::string_view>& args) {
     auto address = this->deviceConfigurationManager.getDeviceAddress();
     char addressStr[5];
     snprintf(addressStr, sizeof(addressStr), "%02x", address);

@@ -7,6 +7,7 @@
 #include "commands/ReadDeviceFirmwareVersionCommandHandler.h"
 #include "commands/ReadDeviceTypeCommandHandler.h"
 #include "commands/ReadDeviceAddressCommandHandler.h"
+#include "commands/SetDeviceAddressCommandHandler.h"
 
 GenericFirmware::GenericFirmware(
     DeviceConfigurationManager& deviceConfigurationManager,
@@ -15,11 +16,17 @@ GenericFirmware::GenericFirmware(
     ) :
     Firmware(deviceConfigurationManager, serialPort, logger) {
 
-    this->registerCommandHandler(std::make_shared<PingCommandHandler>());
-    this->registerCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
-    this->registerCommandHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
-    this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
-    this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
+    this->registerCommandHandler(std::make_shared<PingCommandHandler>(logger));
+    this->registerCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(
+        std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(
+            deviceConfigurationManager,
+            logger
+            )
+        );
+    this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
 
 }
 

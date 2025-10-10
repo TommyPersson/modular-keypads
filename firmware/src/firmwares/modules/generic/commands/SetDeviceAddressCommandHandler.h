@@ -3,10 +3,10 @@
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/commands/CommandHandler.h"
 
-class ReadDeviceFirmwareVersionCommandHandler final : public CommandHandler {
+class SetDeviceAddressCommandHandler final : public CommandHandler {
 public:
-    explicit ReadDeviceFirmwareVersionCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
-    ~ReadDeviceFirmwareVersionCommandHandler() override;
+    explicit SetDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    ~SetDeviceAddressCommandHandler() override;
     std::string execute(const std::span<const std::string_view>& args) override;
 
 private:

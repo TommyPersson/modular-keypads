@@ -5,9 +5,9 @@
 
 class ReadDeviceIdCommandHandler final : public CommandHandler {
 public:
-    explicit ReadDeviceIdCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit ReadDeviceIdCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
     ~ReadDeviceIdCommandHandler() override;
-    std::string execute() override;
+    std::string execute(const std::span<const std::string_view>& args) override;
 
 private:
     DeviceConfigurationManager& deviceConfigurationManager;

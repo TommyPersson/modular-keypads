@@ -76,7 +76,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async performPing(): Promise<string> {
-    return await this.sendCommand("ping")
+    return await this.sendCommand("ping", ["a", "b", "c"])
   }
 
   async getDeviceId(): Promise<string> {
@@ -96,12 +96,12 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return parseInt(addressHex, 16)
   }
 
-  private async sendCommand(str: string): Promise<string> {
+  private async sendCommand(str: string, args: string[] = []): Promise<string> {
     if (!this.commandExecutor) {
       throw new Error("Not connected")
     }
 
-    return this.commandExecutor?.sendCommand(str)
+    return this.commandExecutor?.sendCommand(str, args)
   }
 
   private async close() {

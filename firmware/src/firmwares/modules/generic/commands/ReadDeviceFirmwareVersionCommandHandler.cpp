@@ -1,13 +1,17 @@
 #include "ReadDeviceFirmwareVersionCommandHandler.h"
 
-ReadDeviceFirmwareVersionCommandHandler::ReadDeviceFirmwareVersionCommandHandler(DeviceConfigurationManager& deviceConfigurationManager) :
-    CommandHandler("read.device.firmware.version"),
+ReadDeviceFirmwareVersionCommandHandler::ReadDeviceFirmwareVersionCommandHandler(
+    DeviceConfigurationManager& deviceConfigurationManager,
+    Logger& logger
+    ) :
+    CommandHandler("read.device.firmware.version", logger),
+
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 
 ReadDeviceFirmwareVersionCommandHandler::~ReadDeviceFirmwareVersionCommandHandler() = default;
 
-std::string ReadDeviceFirmwareVersionCommandHandler::execute() {
+std::string ReadDeviceFirmwareVersionCommandHandler::execute(const std::span<const std::string_view>& args) {
     auto deviceId = this->deviceConfigurationManager.getDeviceVersion();
     if (deviceId.empty()) {
         return "NAK";

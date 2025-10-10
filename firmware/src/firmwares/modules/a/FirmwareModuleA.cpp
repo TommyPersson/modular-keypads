@@ -9,6 +9,7 @@
 #include "../generic/commands/ReadDeviceFirmwareVersionCommandHandler.h"
 #include "../generic/commands/ReadDeviceTypeCommandHandler.h"
 #include "../generic/commands/ReadDeviceAddressCommandHandler.h"
+#include "../generic/commands/SetDeviceAddressCommandHandler.h"
 
 FirmwareModuleA::FirmwareModuleA(
     DeviceConfigurationManager& deviceConfigurationManager,
@@ -28,11 +29,17 @@ FirmwareModuleA::FirmwareModuleA(
     this->registers.push_back(std::make_shared<Register>("SWS1"));
     this->registers.push_back(std::make_shared<Register>("SWS2"));
 
-    this->registerCommandHandler(std::make_shared<PingCommandHandler>());
-    this->registerCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
-    this->registerCommandHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
-    this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
-    this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
+    this->registerCommandHandler(std::make_shared<PingCommandHandler>(logger));
+    this->registerCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(
+        std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(
+            deviceConfigurationManager,
+            logger
+            )
+        );
+    this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
+    this->registerCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
 
 }
 
