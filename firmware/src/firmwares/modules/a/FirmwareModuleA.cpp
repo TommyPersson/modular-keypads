@@ -3,16 +3,6 @@
 #include <Adafruit_NeoPixel.h>
 #include <SPI.h>
 
-#include "../../common/commands/CommandProcessor.h"
-#include "../generic/commands/PingCommandHandler.h"
-#include "../generic/commands/ReadDeviceAddressCommandHandler.h"
-#include "../generic/commands/ReadDeviceFirmwareVersionCommandHandler.h"
-#include "../generic/commands/ReadDeviceIdCommandHandler.h"
-#include "../generic/commands/ReadDeviceTypeCommandHandler.h"
-#include "../generic/commands/ResetDeviceCommandHandler.h"
-#include "../generic/commands/SetDeviceAddressCommandHandler.h"
-#include "../generic/commands/SetDeviceTypeCommandHandler.h"
-
 FirmwareModuleA::FirmwareModuleA(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
@@ -30,21 +20,6 @@ FirmwareModuleA::FirmwareModuleA(
 
     this->registers.push_back(std::make_shared<Register>("SWS1"));
     this->registers.push_back(std::make_shared<Register>("SWS2"));
-
-    this->registerCommandHandler(std::make_shared<PingCommandHandler>(logger));
-    this->registerCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager, logger));
-    this->registerCommandHandler(
-        std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(
-            deviceConfigurationManager,
-            logger
-            )
-        );
-    this->registerCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
-    this->registerCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
-    this->registerCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
-    this->registerCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
-    this->registerCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager, logger));
-
 }
 
 FirmwareModuleA::~FirmwareModuleA() = default;
