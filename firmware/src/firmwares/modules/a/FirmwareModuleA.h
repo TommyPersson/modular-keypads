@@ -4,10 +4,7 @@
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/Logger.h"
 
-#include <vector>
-
 #include <MCP23x17/MCP23x17.h>
-#include <Registers/Register.h>
 #include <SerialPort/SerialPort.h>
 
 class FirmwareModuleA final : public Firmware {
@@ -25,5 +22,4 @@ public:
 
 private:
     std::unique_ptr<MCP23x17> mcp23x17;
-    std::vector<std::shared_ptr<Register>> registers;
 };

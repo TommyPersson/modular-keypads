@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <Registers/Registers.h>
 #include <SerialPort/SerialPort.h>
 
 #include "common/DeviceConfigurationManager.h"
@@ -27,11 +28,14 @@ public:
     );
 
 protected:
-    void registerCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const;
+    void addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const;
+    void addRegister(const std::string& name) const;
 
     DeviceConfigurationManager& deviceConfigurationManager;
     SerialPort& serialPort;
     Logger& logger;
+
+    std::unique_ptr<RegisterManager> registers;
 
 private:
     std::unique_ptr<LineStreamer> lineStreamer;

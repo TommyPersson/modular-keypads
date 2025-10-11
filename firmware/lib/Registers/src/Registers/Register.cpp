@@ -1,15 +1,13 @@
 #include "Register.h"
 
-#include <string.h>
+#include <string>
 
-Register::Register(const char* const name) :
-    value(0) {
-    this->name = strdup(name);
+Register::Register(const std::string& name) :
+    value(0),
+    name(name) {
 }
 
-Register::~Register() {
-    free(this->name);
-}
+Register::~Register() = default;
 
 void Register::write(uint8_t newValue) {
     std::lock_guard guard(lock);

@@ -18,8 +18,8 @@ FirmwareModuleA::FirmwareModuleA(
         .pinCS = OutputPin(5),
     });
 
-    this->registers.push_back(std::make_shared<Register>("SWS1"));
-    this->registers.push_back(std::make_shared<Register>("SWS2"));
+    this->registers->add("SWS1");
+    this->registers->add("SWS2");
 }
 
 FirmwareModuleA::~FirmwareModuleA() = default;
@@ -59,8 +59,8 @@ uint32_t sw9Pixel = 0;
 void FirmwareModuleA::loop() {
     Firmware::loop();
 
-    const auto& sws1Reg = this->registers.at(0);
-    const auto& sws2Reg = this->registers.at(1);
+    const auto& sws1Reg = this->registers->get("SWS1");
+    const auto& sws2Reg = this->registers->get("SWS2");
 
     auto lastSws1Value = sws1Reg->read();
     auto lastSws2Value = sws2Reg->read();
