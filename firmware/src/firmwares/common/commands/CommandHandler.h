@@ -4,7 +4,8 @@
 #include <string_view>
 #include <span>
 #include <utility>
-#include <firmwares/common/Logger.h>
+
+#include "../logging/Logger.h"
 
 
 class CommandHandler {

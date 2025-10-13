@@ -14,6 +14,7 @@
 std::unique_ptr<Firmware> Firmware::create(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
+    Notifier& notifier,
     Logger& logger
     ) {
 
@@ -22,19 +23,21 @@ std::unique_ptr<Firmware> Firmware::create(
     switch (deviceType) {
     case 'a':
     case 'A':
-        return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, logger);
+        return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, notifier, logger);
     default:
-        return std::make_unique<GenericFirmware>(deviceConfigurationManager, serialPort, logger);
+        return std::make_unique<GenericFirmware>(deviceConfigurationManager, serialPort, notifier, logger);
     }
 }
 
 Firmware::Firmware(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
+    Notifier& notifier,
     Logger& logger
     ) :
     deviceConfigurationManager(deviceConfigurationManager),
     serialPort(serialPort),
+    notifier(notifier),
     logger(logger) {
 
     this->registers = std::make_unique<RegisterManager>();
@@ -59,6 +62,8 @@ Firmware::Firmware(
 }
 
 void Firmware::setup() {
+    serialPort.begin(115200);
+    deviceConfigurationManager.begin();
 }
 
 void Firmware::loop() {
@@ -70,6 +75,7 @@ void Firmware::addCommandHandler(const std::shared_ptr<CommandHandler>& commandH
     this->commandProcessor->addHandler(commandHandler);;
 }
 
-void Firmware::addRegister(const std::string& name) const {
-    this->registers->add(name);
+std::shared_ptr<Register> Firmware::addRegister(const std::string& name) const {
+    return this->registers->add(name);
+
 }

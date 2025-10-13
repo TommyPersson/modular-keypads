@@ -2,7 +2,7 @@
 #include <string>
 #include <Preferences.h>
 
-#include "Logger.h"
+#include "logging/Logger.h"
 
 class DeviceConfigurationManager {
 public:

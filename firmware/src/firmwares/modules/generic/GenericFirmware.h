@@ -1,15 +1,13 @@
 #pragma once
 
-#include <firmwares/Firmware.h>
-#include <firmwares/common/commands/CommandProcessor.h>
-#include <Registers/Register.h>
-#include <SerialPort/SerialPort.h>
+#include "firmwares/Firmware.h"
 
 class GenericFirmware final : public Firmware {
 public:
     explicit GenericFirmware(
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
+        Notifier& notifier,
         Logger& logger
     );
 
@@ -17,7 +15,4 @@ public:
 
     void setup() override;
     void loop() override;
-
-private:
-    std::vector<std::shared_ptr<Register>> registers;
 };

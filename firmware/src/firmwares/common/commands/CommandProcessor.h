@@ -3,7 +3,7 @@
 #include <list>
 #include <SerialPort/SerialPort.h>
 
-#include "firmwares/common/Logger.h"
+#include "../logging/Logger.h"
 #include "utils/allocations/Arena.h"
 #include "utils/observables/Observer.h"
 

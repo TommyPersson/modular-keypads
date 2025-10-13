@@ -12,7 +12,7 @@ public:
     ~RegisterManager();
     RegisterManager(RegisterManager const&) = delete;
 
-    void add(const std::string& name);
+    std::shared_ptr<Register> add(const std::string& name);
     std::shared_ptr<Register> get(const std::string& name);
 
 private:

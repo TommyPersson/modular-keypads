@@ -4,8 +4,10 @@ RegisterManager::RegisterManager() = default;
 
 RegisterManager::~RegisterManager() = default;
 
-void RegisterManager::add(const std::string& name) {
-    this->registers.emplace_back(std::make_shared<Register>(name));
+std::shared_ptr<Register> RegisterManager::add(const std::string& name) {
+    auto reg = std::make_shared<Register>(name);
+    this->registers.emplace_back(reg);
+    return reg;
 }
 
 std::shared_ptr<Register> RegisterManager::get(const std::string& name) {

@@ -4,7 +4,7 @@
 #include <list>
 #include <cstring>
 
-#include "firmwares/common/Logger.h"
+#include "firmwares/common/logging/Logger.h"
 
 class Arena {
 public:

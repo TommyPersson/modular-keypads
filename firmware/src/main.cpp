@@ -12,11 +12,14 @@
 //USBHIDConsumerControl consumerControl;
 //USBHIDSystemControl systemControl;
 
-#include <SerialPort/SerialPort.h>
-#include <firmwares/common/DeviceConfigurationManager.h>
-#include <firmwares/modules/a/FirmwareModuleA.h>
-
 #include <Preferences.h>
+
+#include <SerialPort/SerialPort.h>
+
+#include "firmwares/common/notifications/Notifier.h"
+#include "firmwares/common/DeviceConfigurationManager.h"
+#include "firmwares/Firmware.h"
+
 
 std::unique_ptr<Firmware> firmware;
 
@@ -24,12 +27,10 @@ Preferences preferences;
 Logger logger(Serial);
 std::unique_ptr<SerialPort> serialPort = SerialPort::from(Serial);
 DeviceConfigurationManager deviceConfigurationManager(preferences, logger);
+Notifier notifier(Serial);
 
 void setup() {
-    serialPort->begin(115200);
-    deviceConfigurationManager.begin();
-
-    firmware = Firmware::create(deviceConfigurationManager, *serialPort, logger);
+    firmware = Firmware::create(deviceConfigurationManager, *serialPort, notifier, logger);
     firmware->setup();
 
   //  USB.productName("tommy-product");

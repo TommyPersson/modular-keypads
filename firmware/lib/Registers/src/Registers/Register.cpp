@@ -15,7 +15,7 @@ void Register::write(uint8_t newValue) {
     this->value = newValue;
 }
 
-uint8_t Register::read() {
+uint8_t Register::read() const {
     std::lock_guard guard(lock);
 
     return this->value;
