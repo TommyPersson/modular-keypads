@@ -6,13 +6,17 @@
 #include "utils/observables/Subject.h"
 #include "utils/observables/Observer.h"
 
+struct LineEvent {
+    std::string text;
+};
+
 class LineStreamer {
 public:
     explicit LineStreamer(Stream& inputStream, size_t bufferSize = 1024);
     ~LineStreamer();
 
-    void addObserver(Observer<std::string>* observer);
-    void removeObserver(Observer<std::string>* observer);
+    void addObserver(Observer<LineEvent>* observer);
+    void removeObserver(Observer<LineEvent>* observer);
 
     void update();
 
@@ -20,7 +24,7 @@ private:
     std::shared_ptr<std::string> processReceiveBuffer();
     void populateReceiveBuffer();
 
-    Subject<std::string> lineSubject;
+    Subject<LineEvent> lineSubject;
 
     Stream& inputStream;
     const size_t bufferSize;

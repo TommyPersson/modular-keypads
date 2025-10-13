@@ -20,8 +20,8 @@ void CommandProcessor::addHandler(const std::shared_ptr<CommandHandler>& handler
     this->handlers.push_back(handler);
 }
 
-void CommandProcessor::observe(const std::string& value) {
-    const auto command = parseCommand(value);
+void CommandProcessor::observe(const LineEvent& value) {
+    const auto command = parseCommand(value.text);
 
     const auto handler = findHandler(command.type);
 

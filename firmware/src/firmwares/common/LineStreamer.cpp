@@ -26,8 +26,9 @@ void LineStreamer::update() {
         const auto& result = processReceiveBuffer();
         if (result != nullptr) {
             auto& value = *result;
+
             // TODO stack/pre-allocated strings instead
-            this->lineSubject.notify(value);
+            this->lineSubject.notify({ .text = value });
         }
     }
 }
@@ -51,11 +52,11 @@ std::shared_ptr<std::string> LineStreamer::processReceiveBuffer() {
     return nullptr;
 }
 
-void LineStreamer::addObserver(Observer<std::string>* observer) {
+void LineStreamer::addObserver(Observer<LineEvent>* observer) {
     this->lineSubject.addObserver(observer);
 }
 
-void LineStreamer::removeObserver(Observer<std::string>* observer) {
+void LineStreamer::removeObserver(Observer<LineEvent>* observer) {
     this->lineSubject.removeObserver(observer);
 }
 

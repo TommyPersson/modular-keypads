@@ -3,6 +3,12 @@
 #include <memory>
 #include "../bitreaders/BitReader.h"
 
+enum class SwitchState {
+    PRESSED,
+    UNPRESSED,
+    UNKNOWN,
+};
+
 class SwitchMonitor {
 public:
     SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<BitReader>& bitReader);
@@ -13,13 +19,15 @@ public:
     void update();
 
     std::uint8_t getSwitchNumber() const;
-    bool getCurrentState() const;
-    bool getPreviousState() const;
+    SwitchState getCurrentState() const;
+    SwitchState getPreviousState() const;
 
 private:
+    SwitchState readState() const;
+
     const std::uint8_t switchNumber;
     const std::shared_ptr<BitReader> bitReader;
 
-    bool currentState = false;
-    bool previousState = false;
+    SwitchState currentState = SwitchState::UNKNOWN;
+    SwitchState previousState = SwitchState::UNKNOWN;
 };

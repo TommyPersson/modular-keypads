@@ -11,13 +11,13 @@ SwitchMonitor::SwitchMonitor(
 SwitchMonitor::~SwitchMonitor() = default;
 
 void SwitchMonitor::begin() {
-    previousState = bitReader->read();
+    previousState = readState();
     currentState = previousState;
 }
 
 void SwitchMonitor::update() {
     previousState = currentState;
-    currentState = bitReader->read();
+    currentState = readState();
 
     // TODO some form of observable
 }
@@ -26,10 +26,14 @@ std::uint8_t SwitchMonitor::getSwitchNumber() const {
     return switchNumber;
 }
 
-bool SwitchMonitor::getCurrentState() const {
+SwitchState SwitchMonitor::getCurrentState() const {
     return currentState;
 }
 
-bool SwitchMonitor::getPreviousState() const {
+SwitchState SwitchMonitor::getPreviousState() const {
     return previousState;
+}
+
+SwitchState SwitchMonitor::readState() const {
+    return bitReader->read() ? SwitchState::PRESSED : SwitchState::UNPRESSED;
 }
