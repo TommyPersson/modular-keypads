@@ -4,14 +4,17 @@
 
 SwitchIndicatorLed::SwitchIndicatorLed(const SwitchMonitor& switchMonitor, IndicatorLed& indicatorLed) :
     switchMonitor(switchMonitor), indicatorLed(indicatorLed) {
+
+    switchMonitor.onSwitchStateChanged().addObserver(this);
 }
 
-SwitchIndicatorLed::~SwitchIndicatorLed() = default;
+SwitchIndicatorLed::~SwitchIndicatorLed() {
+    switchMonitor.onSwitchStateChanged().removeObserver(this);
+}
 
-void SwitchIndicatorLed::update() const {
+void SwitchIndicatorLed::observe(const SwitchEvent& event) {
     // TODO "override behavior"?
-    // i.e. let a i2c writable register control the color normally, but presses should overwrite temporarily.
-  if (switchMonitor.getCurrentState() == SwitchState::PRESSED) {
+    if (event.state == SwitchState::PRESSED) {
         indicatorLed.setColor(255, 255, 255, 0);
     } else {
         indicatorLed.setColor(0, 0, 0, 0);

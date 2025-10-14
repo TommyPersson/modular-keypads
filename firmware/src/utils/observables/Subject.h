@@ -1,30 +1,16 @@
 #pragma once
 
-#include <list>
-
-#include "Observer.h"
+#include "Observable.h"
 
 template <class T>
-class Subject {
+class Subject : public Observable<T> {
 public:
     Subject() = default;
-    ~Subject(){
-        this->_observers.clear();
-    };
+    ~Subject() = default;
 
-    void addObserver(Observer<T>* observer){
-        this->_observers.push_back(observer);
-    };
-    void removeObserver(Observer<T>* observer){
-        this->_observers.remove(observer);
-    };
-
-    void notify(const T& value) {
+    void notify(const T& event) {
         for (auto observer : this->_observers) {
-            observer->observe(value);
+            observer->observe(event);
         }
     }
-
-private:
-    std::list<Observer<T>*> _observers;
 };

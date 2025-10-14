@@ -3,7 +3,6 @@
 template<class T>
 class Observer {
 public:
-    virtual ~Observer() {}
-    virtual void observe(const T& value) {
-    };
+    virtual ~Observer() = default;
+    virtual void observe(const T& event) = 0;
 };

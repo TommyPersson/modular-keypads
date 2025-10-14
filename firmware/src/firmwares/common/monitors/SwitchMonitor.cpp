@@ -5,7 +5,8 @@ SwitchMonitor::SwitchMonitor(
     const std::shared_ptr<BitReader>& bitReader
     ) :
     switchNumber(switchNumber),
-    bitReader(bitReader) {
+    bitReader(bitReader),
+    keySwitchStateChangedSubject(std::make_unique<Subject<SwitchEvent>>()) {
 }
 
 SwitchMonitor::~SwitchMonitor() = default;
@@ -19,7 +20,13 @@ void SwitchMonitor::update() {
     previousState = currentState;
     currentState = readState();
 
-    // TODO some form of observable
+    if (currentState != previousState) {
+        keySwitchStateChangedSubject->notify({.switchNumber = this->switchNumber, .state = currentState});
+    }
+}
+
+Observable<SwitchEvent>& SwitchMonitor::onSwitchStateChanged() const {
+    return *keySwitchStateChangedSubject;
 }
 
 std::uint8_t SwitchMonitor::getSwitchNumber() const {

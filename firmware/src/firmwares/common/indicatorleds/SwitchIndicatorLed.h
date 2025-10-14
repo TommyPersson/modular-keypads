@@ -4,14 +4,14 @@
 
 class IndicatorLed;
 
-class SwitchIndicatorLed {
+class SwitchIndicatorLed : Observer<SwitchEvent> {
 public:
     SwitchIndicatorLed(const SwitchMonitor& switchMonitor, IndicatorLed& indicatorLed);
-    ~SwitchIndicatorLed();
-
-    void update() const;
+    ~SwitchIndicatorLed() override;
 
 private:
+    void observe(const SwitchEvent& event) override;
+
     const SwitchMonitor& switchMonitor;
     IndicatorLed& indicatorLed;
 };

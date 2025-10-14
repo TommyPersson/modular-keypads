@@ -32,10 +32,6 @@ void IndicatorLedManager::update() {
         isDirty = false;
         neoPixel.show();
     }
-
-    for (const auto& switchIndicator : switchIndicators) {
-        switchIndicator->update();
-    }
 }
 
 void IndicatorLedManager::markAsDirty() {

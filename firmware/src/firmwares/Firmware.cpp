@@ -10,6 +10,7 @@
 #include "modules/base/commands/SetDeviceAddressCommandHandler.h"
 #include "modules/base/commands/SetDeviceTypeCommandHandler.h"
 #include "modules/generic/GenericFirmware.h"
+#include "modules/master/MasterFirmware.h"
 
 std::unique_ptr<Firmware> Firmware::create(
     DeviceConfigurationManager& deviceConfigurationManager,
@@ -21,6 +22,9 @@ std::unique_ptr<Firmware> Firmware::create(
     auto deviceType = deviceConfigurationManager.getDeviceType();
 
     switch (deviceType) {
+    case 'm':
+    case 'M':
+        return std::make_unique<MasterFirmware>(deviceConfigurationManager, serialPort, notifier, logger);
     case 'a':
     case 'A':
         return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, notifier, logger);
