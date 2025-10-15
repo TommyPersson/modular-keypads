@@ -1,11 +1,13 @@
 #include "Firmware.h"
 
 #include "modules/a/FirmwareModuleA.h"
+#include "modules/base/commands/ListRegistersCommandHandler.h"
 #include "modules/base/commands/PingCommandHandler.h"
 #include "modules/base/commands/ReadDeviceAddressCommandHandler.h"
 #include "modules/base/commands/ReadDeviceFirmwareVersionCommandHandler.h"
 #include "modules/base/commands/ReadDeviceIdCommandHandler.h"
 #include "modules/base/commands/ReadDeviceTypeCommandHandler.h"
+#include "modules/base/commands/ReadRegisterCommandHandler.h"
 #include "modules/base/commands/ResetDeviceCommandHandler.h"
 #include "modules/base/commands/SetDeviceAddressCommandHandler.h"
 #include "modules/base/commands/SetDeviceTypeCommandHandler.h"
@@ -63,6 +65,8 @@ Firmware::Firmware(
     this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager, logger));
+    this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(*registers, logger));
+    this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(*registers, logger));
 }
 
 void Firmware::setup() {
@@ -76,10 +80,9 @@ void Firmware::loop() {
 }
 
 void Firmware::addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const {
-    this->commandProcessor->addHandler(commandHandler);;
+    this->commandProcessor->addHandler(commandHandler);
 }
 
 std::shared_ptr<Register> Firmware::addRegister(const std::string& name) const {
     return this->registers->add(name);
-
 }

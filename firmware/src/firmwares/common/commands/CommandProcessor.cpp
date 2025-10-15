@@ -26,7 +26,7 @@ void CommandProcessor::observe(const LineEvent& value) {
     const auto handler = findHandler(command.type);
 
     if (handler != nullptr) {
-        const auto response = handler->execute(command.args);
+        const auto response = handler->execute(command.args, this->arena);
         outputStream.printf("%%%i:%s\n", command.id, response.c_str());
     } else {
         logger.error("unknown.command: %.*s", command.type.length(), command.type.data());
@@ -36,7 +36,7 @@ void CommandProcessor::observe(const LineEvent& value) {
 }
 
 ParsedCommand CommandProcessor::parseCommand(const std::string_view& rawCommand) {
-    ArenaAllocator<std::string_view> allocator(this->arena, this->logger);
+    ArenaAllocator<std::string_view> allocator(this->arena);
 
     const auto commandParts = arena::strings::split(rawCommand, ':', allocator);
 

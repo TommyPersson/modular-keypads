@@ -12,7 +12,7 @@ ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(
 
 ReadDeviceIdCommandHandler::~ReadDeviceIdCommandHandler() = default;
 
-std::string ReadDeviceIdCommandHandler::execute(const std::span<const std::string_view>& args) {
+std::string ReadDeviceIdCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
     auto deviceId = this->deviceConfigurationManager.getDeviceId();
     if (deviceId.empty()) {
         return "NAK";

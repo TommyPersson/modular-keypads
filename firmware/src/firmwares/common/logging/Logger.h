@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Stream.h>
+#include <Print.h>
 #include <cstdarg>
 
 class Logger {
 public:
-    explicit Logger(Stream& outputStream);
+    explicit Logger(Print& outputStream);
 
     void info(const char* format, ...) const __attribute__((format(printf, 2, 3))) {
         va_list args;
@@ -45,5 +45,5 @@ private:
         outputStream.flush();
     };
 
-    Stream& outputStream;
+    Print& outputStream;
 };

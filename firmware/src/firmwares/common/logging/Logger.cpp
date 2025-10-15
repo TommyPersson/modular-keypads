@@ -1,4 +1,4 @@
 #include "Logger.h"
 
-Logger::Logger(Stream& outputStream) : outputStream(outputStream) {
+Logger::Logger(Print& outputStream) : outputStream(outputStream) {
 }

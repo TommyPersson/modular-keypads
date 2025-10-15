@@ -9,5 +9,5 @@ public:
     explicit PingCommandHandler(Logger& logger);
     ~PingCommandHandler() override;
 
-    std::string execute(const std::span<const std::string_view>& args) override;
+    std::string execute(const std::span<const std::string_view>& args, Arena& arena) override;
 };

@@ -24,22 +24,22 @@ FirmwareModuleA::FirmwareModuleA(
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
 
-    const auto& sws1Reg = this->addRegister("SWS1");
-    const auto& sws2Reg = this->addRegister("SWS2");
+    const auto& ioaReg = this->addRegister("IOA");
+    const auto& iobReg = this->addRegister("IOB");
 
-    this->attachSwitch(1, BitReader::forRegister(*sws1Reg, 0), 0);
-    this->attachSwitch(2, BitReader::forRegister(*sws1Reg, 1), 11);
-    this->attachSwitch(3, BitReader::forRegister(*sws1Reg, 2), 1);
-    this->attachSwitch(4, BitReader::forRegister(*sws1Reg, 3), 10);
-    this->attachSwitch(5, BitReader::forRegister(*sws1Reg, 4), 2);
-    this->attachSwitch(6, BitReader::forRegister(*sws1Reg, 5), 9);
-    this->attachSwitch(7, BitReader::forRegister(*sws1Reg, 6), 3);
-    this->attachSwitch(8, BitReader::forRegister(*sws1Reg, 7), 8);
+    this->attachSwitch(1, BitReader::forRegister(*iobReg, 0), 0);
+    this->attachSwitch(2, BitReader::forRegister(*iobReg, 1), 11);
+    this->attachSwitch(3, BitReader::forRegister(*iobReg, 2), 1);
+    this->attachSwitch(4, BitReader::forRegister(*iobReg, 3), 10);
+    this->attachSwitch(5, BitReader::forRegister(*iobReg, 4), 2);
+    this->attachSwitch(6, BitReader::forRegister(*iobReg, 5), 9);
+    this->attachSwitch(7, BitReader::forRegister(*iobReg, 6), 3);
+    this->attachSwitch(8, BitReader::forRegister(*iobReg, 7), 8);
 
-    this->attachSwitch(9, BitReader::forRegister(*sws2Reg, 0), 4);
-    this->attachSwitch(10, BitReader::forRegister(*sws2Reg, 1), 7);
-    this->attachSwitch(11, BitReader::forRegister(*sws2Reg, 2), 5);
-    this->attachSwitch(12, BitReader::forRegister(*sws2Reg, 3), 6);
+    this->attachSwitch(9, BitReader::forRegister(*ioaReg, 0), 4);
+    this->attachSwitch(10, BitReader::forRegister(*ioaReg, 1), 7);
+    this->attachSwitch(11, BitReader::forRegister(*ioaReg, 2), 5);
+    this->attachSwitch(12, BitReader::forRegister(*ioaReg, 3), 6);
 }
 
 FirmwareModuleA::~FirmwareModuleA() {
@@ -78,8 +78,8 @@ void FirmwareModuleA::setup() {
 void FirmwareModuleA::loop() {
     Firmware::loop();
 
-    this->registers->get("SWS1")->write(mcp23x17->readPortB());
-    this->registers->get("SWS2")->write(mcp23x17->readPortA());
+    this->registers->get("IOB")->write(mcp23x17->readPortB());
+    this->registers->get("IOA")->write(mcp23x17->readPortA());
 
     for (const auto& switchMonitor : this->switchMonitors) {
         switchMonitor->update();

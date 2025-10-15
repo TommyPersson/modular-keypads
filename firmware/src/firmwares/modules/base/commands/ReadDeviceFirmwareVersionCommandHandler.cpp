@@ -11,7 +11,7 @@ ReadDeviceFirmwareVersionCommandHandler::ReadDeviceFirmwareVersionCommandHandler
 
 ReadDeviceFirmwareVersionCommandHandler::~ReadDeviceFirmwareVersionCommandHandler() = default;
 
-std::string ReadDeviceFirmwareVersionCommandHandler::execute(const std::span<const std::string_view>& args) {
+std::string ReadDeviceFirmwareVersionCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
     auto deviceId = this->deviceConfigurationManager.getDeviceVersion();
     if (deviceId.empty()) {
         return "NAK";

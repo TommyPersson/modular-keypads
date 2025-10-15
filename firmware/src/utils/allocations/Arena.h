@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <cstring>
+#include <sstream>
 
 #include "firmwares/common/logging/Logger.h"
 
@@ -54,25 +55,21 @@ struct ArenaAllocator {
     using size_type = std::size_t;
     using propagate_on_container_move_assignment = std::true_type;
 
-    ArenaAllocator(Arena& arena, Logger& logger) noexcept
-        : arena(&arena),
-          logger(&logger) {
+    ArenaAllocator(Arena& arena) noexcept
+        : arena(&arena) {
     }
 
     ArenaAllocator(const ArenaAllocator& other) noexcept
-        : arena(other.arena),
-          logger(other.logger) {
+        : arena(other.arena) {
     }
 
     template <class U>
     ArenaAllocator(const ArenaAllocator<U>& other) noexcept
-        : arena(other.arena),
-          logger(other.logger) {
+        : arena(other.arena) {
     }
 
     ArenaAllocator(ArenaAllocator&& other) noexcept
-        : arena(other.arena),
-          logger(other.logger) {
+        : arena(other.arena) {
     }
 
     ArenaAllocator& operator =(const ArenaAllocator&) noexcept {
@@ -82,21 +79,17 @@ struct ArenaAllocator {
 
     ArenaAllocator& operator =(ArenaAllocator&& other) noexcept {
         arena = other.arena;
-        logger = other.logger;
         return *this;
     }
 
     T* allocate(std::size_t n) {
-        logger->debug("allocate(%i), sizeOf(T)=%i", n, sizeof(T));
         return reinterpret_cast<T*>(arena->allocate(n * sizeof(T)));
     }
 
     void deallocate(T* p, std::size_t n) {
-        //logger->debug("deallocate(%i)", n);
     }
 
     Arena* arena;
-    Logger* logger;
 };
 
 
@@ -116,4 +109,6 @@ namespace arena {
 
     template <typename T>
     using list = std::list<T, ArenaAllocator<T>>;
+
+    typedef std::basic_ostringstream<char, std::char_traits<char>, ArenaAllocator<char>> ostringstream;
 }

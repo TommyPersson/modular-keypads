@@ -10,7 +10,7 @@ SetDeviceTypeCommandHandler::SetDeviceTypeCommandHandler(
 
 SetDeviceTypeCommandHandler::~SetDeviceTypeCommandHandler() = default;
 
-std::string SetDeviceTypeCommandHandler::execute(const std::span<const std::string_view>& args) {
+std::string SetDeviceTypeCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
     if (args.size() != 1) {
         this->logger.error("SetDeviceTypeCommandHandler::execute: wrong number of arguments");
         return "NAK";

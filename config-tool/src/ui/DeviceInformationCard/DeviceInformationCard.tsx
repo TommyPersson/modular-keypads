@@ -23,26 +23,16 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { type ChangeEvent, useCallback, useEffect, useState } from "react"
 import { PropertyGroup, PropertyText } from "../../components"
 import { useDeviceContext } from "../../context/DeviceContext"
-import type { DeviceFacade } from "../../facade/DeviceFacade"
+import type { DeviceFacade, DeviceInformation } from "../../facade/DeviceFacade"
+import { GetDeviceInformationQuery } from "../../queries/GetDeviceInformationQuery"
 import { queryClient } from "../../utils/queryClient"
 
 export const DeviceInformationCard = () => {
-  const { facade: deviceFacade, isConnected } = useDeviceContext()
+  const { facade: deviceFacade } = useDeviceContext()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const deviceIdQuery = useQuery({
-    queryKey: ["device-information"],
-    queryFn: async (): Promise<DeviceInformation> => {
-      return {
-        deviceId: await deviceFacade.getDeviceId(),
-        deviceFirmwareVersion: await deviceFacade.getDeviceFirmwareVersion(),
-        deviceType: await deviceFacade.getDeviceType(),
-        deviceAddress: await deviceFacade.getDeviceAddress(),
-      }
-    },
-    enabled: isConnected,
-  })
+  const deviceInformationQuery = useQuery(GetDeviceInformationQuery(deviceFacade))
 
   const handleOpenDialogClicked = useCallback(() => {
     setIsDialogOpen(true)
@@ -52,7 +42,7 @@ export const DeviceInformationCard = () => {
     setIsDialogOpen(false)
   }, [setIsDialogOpen])
 
-  const deviceInformation = deviceIdQuery.data ?? null
+  const deviceInformation = deviceInformationQuery.data ?? null
 
   const canOpenDialog = !isDialogOpen && deviceInformation !== null
 
@@ -64,7 +54,7 @@ export const DeviceInformationCard = () => {
         action={
           <>
             <IconButton
-              onClick={() => deviceIdQuery.refetch()}
+              onClick={() => deviceInformationQuery.refetch()}
               children={<RefreshOutlinedIcon />}
             />
             <IconButton
@@ -94,6 +84,10 @@ export const DeviceInformationCard = () => {
             title={"Address"}
             subtitle={<code>{deviceInformation?.deviceAddress ?? "N/A"}</code>}
           />
+          <PropertyText
+            title={"Register Names"}
+            subtitle={(deviceInformation?.deviceRegisterNames ?? []).map(it => <><code key={it}>{it}</code><br/></>)}
+          />
         </PropertyGroup>
       </CardContent>
       {deviceInformation && (
@@ -106,13 +100,6 @@ export const DeviceInformationCard = () => {
       )}
     </Card>
   )
-}
-
-type DeviceInformation = {
-  deviceId: string
-  deviceFirmwareVersion: string
-  deviceType: string
-  deviceAddress: number
 }
 
 type DeviceType = {

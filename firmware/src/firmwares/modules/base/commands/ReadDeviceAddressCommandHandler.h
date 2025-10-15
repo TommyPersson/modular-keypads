@@ -7,7 +7,7 @@ class ReadDeviceAddressCommandHandler final : public CommandHandler {
 public:
     explicit ReadDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
     ~ReadDeviceAddressCommandHandler() override;
-    std::string execute(const std::span<const std::string_view>& args) override;
+    std::string execute(const std::span<const std::string_view>& args, Arena& arena) override;
 
 private:
     DeviceConfigurationManager& deviceConfigurationManager;

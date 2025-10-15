@@ -12,7 +12,7 @@ SetDeviceAddressCommandHandler::SetDeviceAddressCommandHandler(
 
 SetDeviceAddressCommandHandler::~SetDeviceAddressCommandHandler() = default;
 
-std::string SetDeviceAddressCommandHandler::execute(const std::span<const std::string_view>& args) {
+std::string SetDeviceAddressCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
     const auto addressStr = args[0];
 
     const auto address = utils::strings::atol(addressStr, 16);

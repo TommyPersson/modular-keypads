@@ -1,5 +1,8 @@
 #include "ArenaUtils.h"
 
+#include <HardwareSerial.h>
+#include <pstl/execution_defs.h>
+
 #include "Arena.h"
 
 namespace arena::strings {
@@ -32,4 +35,56 @@ namespace arena::strings {
 
         return parts;
     }
+}
+
+std::string arena::strings::join(
+    const std::span<const std::string_view>& strings,
+    const std::string& delimiter,
+    Arena& arena
+    ) {
+    const ArenaAllocator<char> allocator(arena);
+
+    ostringstream ss(std::ios_base::out, allocator);
+
+    for (int i = 0; i < strings.size(); i++) {
+        ss << strings[i];
+        if (i != strings.size() - 1) {
+            ss << delimiter;
+        }
+    }
+
+    return std::string(ss.str());
+}
+
+std::string arena::strings::join(
+    const std::span<const std::string>& strings,
+    const std::string& delimiter,
+    Arena& arena
+    ) {
+    const ArenaAllocator<char> allocator(arena);
+
+    ostringstream ss(std::ios_base::out, allocator);
+
+    for (int i = 0; i < strings.size(); i++) {
+        ss << strings[i];
+        if (i != strings.size() - 1) {
+            ss << delimiter;
+        }
+    }
+
+    return std::string(ss.str());
+}
+
+std::string arena::strings::sprintf(Arena& arena, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    const auto bufferSize = vsnprintf(nullptr, 0, format, args) + 1;
+    const auto buffer = reinterpret_cast<char*>(arena.allocate(bufferSize));
+
+    std::vsnprintf(buffer, bufferSize, format, args);
+
+    va_end(args);
+
+    return std::string{buffer};
 }

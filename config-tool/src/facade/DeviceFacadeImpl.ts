@@ -2,12 +2,13 @@ import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
 import { readLines } from "../utils/streams"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
-import type { DeviceFacade, LogMessage } from "./DeviceFacade"
+import type { DeviceFacade, DeviceInformation, DeviceRegisterValues, LogMessage } from "./DeviceFacade"
 
 export class DeviceFacadeImpl implements DeviceFacade {
 
   private logsSubject = new Subject<LogMessage>()
   private isConnectedSubject = new BehaviorSubject<boolean>(false)
+  private _isConnected = false
 
   private notifications: string[] = []
 
@@ -41,6 +42,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
         this.writer = this.port!.writable!.getWriter()
         this.commandExecutor = new DeviceCommandExecutor(this.writer, this.logsSubject)
 
+        this._isConnected = true
         this.isConnectedSubject.next(true)
 
         try {
@@ -79,10 +81,33 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return await this.sendCommand("ping", ["a", "b", "c"])
   }
 
-  async resetDevice(): Promise<void>{
-    await this.sendWriteCommand("reset.device").catch(() => {})
+  async resetDevice(): Promise<void> {
+    await this.sendWriteCommand("reset.device").catch(() => {
+    })
 
-    return;
+    return
+  }
+
+  async getDeviceInformation(): Promise<DeviceInformation> {
+    return {
+      deviceId: await this.getDeviceId(),
+      deviceFirmwareVersion: await this.getDeviceFirmwareVersion(),
+      deviceType: await this.getDeviceType(),
+      deviceAddress: await this.getDeviceAddress(),
+      deviceRegisterNames: await this.getDeviceRegisterNames(),
+    }
+  }
+
+  async getDeviceRegisterValues(): Promise<DeviceRegisterValues> {
+    const registerNames = await this.getDeviceRegisterNames()
+
+    const result: DeviceRegisterValues = {}
+
+    for (const name of registerNames) {
+      result[name] = await this.getDeviceRegisterValue(name)
+    }
+
+    return result
   }
 
   async getDeviceId(): Promise<string> {
@@ -107,7 +132,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async setDeviceAddress(address: number) {
-    const addressHex = "0x" + address.toString(16);
+    const addressHex = "0x" + address.toString(16)
     await this.sendWriteCommand("set.device.address", [addressHex])
   }
 
@@ -116,6 +141,16 @@ export class DeviceFacadeImpl implements DeviceFacade {
     if (response.toLowerCase() !== "ack") {
       throw new Error(`Unable to reset device: ${response}`)
     }
+  }
+
+  async getDeviceRegisterNames(): Promise<string[]> {
+    const response = await this.sendCommand("list.registers")
+    return response.split(",")
+  }
+
+  async getDeviceRegisterValue(register: string): Promise<number> {
+    const addressHex = await this.sendCommand("read.register", [register])
+    return parseInt(addressHex, 16)
   }
 
   private async sendCommand(str: string, args: string[] = []): Promise<string> {
@@ -138,6 +173,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.port = null
     this.disconnectAbortController = null
     this.commandExecutor = null
+    this._isConnected = false
     this.isConnectedSubject.next(false)
   }
 
@@ -147,5 +183,9 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
   get $isConnected(): Observable<boolean> {
     return this.isConnectedSubject
+  }
+
+  get isConnected(): boolean {
+    return this._isConnected
   }
 }
