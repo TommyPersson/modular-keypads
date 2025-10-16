@@ -18,7 +18,7 @@ export const MainAppBar = () => {
   }, [deviceFacade])
 
   return (
-    <AppBar position={"static"}>
+    <AppBar position={"fixed"} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <Stack direction={"row"} spacing={2}>
           <Typography variant="h6" component="div">

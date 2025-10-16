@@ -1,5 +1,5 @@
 import { Grid, Stack } from "@mui/material"
-import { DeviceInformationCard, DeviceRegistersCard, LogsCard, PingCommandCard } from "../components"
+import { DeviceInformationCard, DeviceRegistersCard, DeviceTrafficLogsCard, PingCommandCard } from "../components"
 
 export const DeviceDebuggerPage = () => {
   return (
@@ -12,7 +12,7 @@ export const DeviceDebuggerPage = () => {
         </Stack>
       </Grid>
       <Grid size={6}>
-        <LogsCard />
+        <DeviceTrafficLogsCard />
       </Grid>
     </Grid>
   )

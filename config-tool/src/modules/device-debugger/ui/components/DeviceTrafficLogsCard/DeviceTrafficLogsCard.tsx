@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { useDeviceContext } from "@src/modules/device/context"
 import type { LogMessage } from "@src/modules/device/facade"
 
-export const LogsCard = () => {
+export const DeviceTrafficLogsCard = () => {
 
   const deviceContext = useDeviceContext()
   const { facade: deviceFacade } = deviceContext
@@ -35,7 +35,7 @@ export const LogsCard = () => {
 
   return (
     <Card>
-      <CardHeader title={"Message Logs"} />
+      <CardHeader title={"Device Serial Traffic"} />
       <CardContent>
         <pre style={{
           overflowY: "scroll",
@@ -43,6 +43,7 @@ export const LogsCard = () => {
           maxHeight: 400,
           background: "lightgray",
           padding: 8,
+          fontSize: 14,
         }} ref={scrollViewRef}>
             {output.map(it => `${formatLogLine(it)}`)}
         </pre>

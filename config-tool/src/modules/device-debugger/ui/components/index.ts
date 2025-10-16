@@ -1,4 +1,4 @@
 export * from "./DeviceInformationCard"
 export * from "./DeviceRegistersCard"
-export * from "./LogsCard"
+export * from "./DeviceTrafficLogsCard"
 export * from "./PingCommandCard"
