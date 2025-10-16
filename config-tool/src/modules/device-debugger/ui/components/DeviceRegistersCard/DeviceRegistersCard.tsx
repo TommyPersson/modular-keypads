@@ -11,8 +11,8 @@ import {
   IconButton
 } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { useDeviceContext } from "../../context/DeviceContext"
-import { GetDeviceRegisterValuesQuery } from "../../queries/GetDeviceRegisterValuesQuery"
+import { useDeviceContext } from "@src/modules/device/context"
+import { GetDeviceRegisterValuesQuery } from "@src/modules/device/queries"
 
 export const DeviceRegistersCard = () => {
   const { facade: deviceFacade } = useDeviceContext()

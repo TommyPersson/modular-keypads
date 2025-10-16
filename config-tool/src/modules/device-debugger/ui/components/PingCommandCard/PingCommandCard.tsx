@@ -1,6 +1,6 @@
 import { Button, Card, CardContent, Typography } from "@mui/material"
+import { useDeviceFacade } from "@src/modules/device/context"
 import { useCallback, useState } from "react"
-import { useDeviceFacade } from "../../context/DeviceContext"
 
 
 export const PingCommandCard = () => {

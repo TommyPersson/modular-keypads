@@ -21,11 +21,11 @@ import {
 } from "@mui/material"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { type ChangeEvent, useCallback, useEffect, useState } from "react"
-import { PropertyGroup, PropertyText } from "../../components"
-import { useDeviceContext } from "../../context/DeviceContext"
-import type { DeviceFacade, DeviceInformation } from "../../facade/DeviceFacade"
-import { GetDeviceInformationQuery } from "../../queries/GetDeviceInformationQuery"
-import { queryClient } from "../../utils/queryClient"
+import { queryClient } from "@src/utils/queryClient"
+import { PropertyGroup, PropertyText } from "@src/modules/common/components"
+import { useDeviceContext } from "@src/modules/device/context"
+import type { DeviceFacade, DeviceInformation } from "@src/modules/device/facade"
+import { GetDeviceInformationQuery } from "@src/modules/device/queries"
 
 export const DeviceInformationCard = () => {
   const { facade: deviceFacade } = useDeviceContext()

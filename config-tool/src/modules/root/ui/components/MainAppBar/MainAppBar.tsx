@@ -1,6 +1,6 @@
 import { AppBar, Button, Chip, Stack, Toolbar, Typography } from "@mui/material"
+import { useDeviceContext } from "@src/modules/device/context"
 import { useCallback } from "react"
-import { useDeviceContext } from "../../context/DeviceContext"
 import UsbOutlinedIcon from "@mui/icons-material/UsbOutlined"
 import UsbOffOutlinedIcon from "@mui/icons-material/UsbOffOutlined"
 

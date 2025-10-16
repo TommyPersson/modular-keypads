@@ -1,6 +1,6 @@
+import { DeviceContextProvider } from "@src/modules/device/context"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { DeviceContextProvider } from "./context/DeviceContextProvider"
-import { RootScreen } from "./ui/RootScreen"
+import { RootScreen } from "./modules/root/ui"
 import { queryClient } from "./utils/queryClient"
 
 

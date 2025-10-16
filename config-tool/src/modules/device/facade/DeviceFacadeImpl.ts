@@ -1,6 +1,6 @@
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
-import { readLines } from "../utils/streams"
+import { readLines } from "@src/utils/streams"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type { DeviceFacade, DeviceInformation, DeviceRegisterValues, LogMessage } from "./DeviceFacade"
 

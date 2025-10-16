@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
-import { useDeviceContext } from "../../context/DeviceContext"
-import type { LogMessage } from "../../facade/DeviceFacade"
+import { useDeviceContext } from "@src/modules/device/context"
+import type { LogMessage } from "@src/modules/device/facade"
 
 export const LogsCard = () => {
 
