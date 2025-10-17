@@ -12,14 +12,14 @@ export const DeviceTrafficLogsCard = () => {
   const [output, setOutput] = useState<LogMessage[]>([])
 
   useEffect(() => {
-    const subscription = deviceFacade.$logs.subscribe(next => {
+    const subscription = deviceFacade.logs$.subscribe(next => {
       setOutput(s => [...s, next])
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [deviceFacade.$logs, setOutput])
+  }, [deviceFacade.logs$, setOutput])
 
   useEffect(() => {
     setTimeout(() => {

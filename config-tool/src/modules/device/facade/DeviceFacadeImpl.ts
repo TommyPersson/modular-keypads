@@ -1,16 +1,21 @@
 import { DateTime } from "luxon"
-import { BehaviorSubject, Observable, Subject } from "rxjs"
+import { BehaviorSubject, Notification, Observable, Subject } from "rxjs"
 import { readLines } from "@src/utils/streams"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
-import type { DeviceFacade, DeviceInformation, DeviceRegisterValues, LogMessage } from "./DeviceFacade"
+import type {
+  DeviceFacade,
+  DeviceInformation,
+  DeviceRegisterValues,
+  LogMessage,
+  NotificationMessage
+} from "./DeviceFacade"
 
 export class DeviceFacadeImpl implements DeviceFacade {
 
   private logsSubject = new Subject<LogMessage>()
+  private notificationsSubject = new Subject<NotificationMessage>()
   private isConnectedSubject = new BehaviorSubject<boolean>(false)
   private _isConnected = false
-
-  private notifications: string[] = []
 
   private writer: WritableStreamDefaultWriter<Uint8Array> | null = null
 
@@ -57,7 +62,8 @@ export class DeviceFacadeImpl implements DeviceFacade {
               this.commandExecutor.onLineReceived(line)
 
               if (line.startsWith("!")) {
-                this.notifications.push(line)
+                const [type, ...args] = line.substring(1).split(":")
+                this.notificationsSubject.next({ type, args, timestamp: DateTime.now() })
               }
             }
           }
@@ -177,11 +183,15 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.isConnectedSubject.next(false)
   }
 
-  get $logs(): Observable<LogMessage> {
+  get logs$(): Observable<LogMessage> {
     return this.logsSubject
   }
 
-  get $isConnected(): Observable<boolean> {
+  get notifications$(): Observable<NotificationMessage> {
+    return this.notificationsSubject
+  }
+
+  get isConnected$(): Observable<boolean> {
     return this.isConnectedSubject
   }
 

@@ -25,8 +25,10 @@ export interface DeviceFacade {
 
   performPing(): Promise<string>
 
-  $logs: Observable<LogMessage>
-  $isConnected: Observable<boolean>
+  logs$: Observable<LogMessage>
+  notifications$: Observable<NotificationMessage>
+
+  isConnected$: Observable<boolean>
   isConnected: boolean
 }
 
@@ -36,4 +38,8 @@ export type LogMessage = {
   timestamp: DateTime
 }
 
-
+export type NotificationMessage = {
+  type: string
+  args: string[]
+  timestamp: DateTime
+}

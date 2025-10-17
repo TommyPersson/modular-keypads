@@ -1,0 +1,32 @@
+.TypeAPreviewContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    border-radius: 8px;
+    width: 300px;
+    padding: 20px;
+    padding-top: 100px;
+    margin: auto;
+}
+
+.SwitchStateIndicatorCluster {
+    width: 260px;
+}
+
+.SwitchStateIndicator {
+    height: 60px;
+    border: 1px solid gray;
+    border-radius: 4px;
+    margin: auto;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: #f6f6f6;
+
+}
+.SwitchStateIndicator[data-isPressed="true"]  {
+    background: lightblue;
+}

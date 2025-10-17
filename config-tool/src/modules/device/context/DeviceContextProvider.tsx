@@ -7,7 +7,7 @@ export const DeviceContextProvider = (props: { children: any }) => {
   const facade = value.facade
 
   useEffect(() => {
-    const subscription = facade.$isConnected.subscribe(next => {
+    const subscription = facade.isConnected$.subscribe(next => {
       setValue(s=> ({ ...s, isConnected: next }))
     })
 
