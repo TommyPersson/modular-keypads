@@ -6,7 +6,7 @@
 
 class RegisterBitReader final : public BitReader {
 public:
-    RegisterBitReader(const Register& reg, std::uint8_t bitNumber);
+    RegisterBitReader(const Register& reg, std::uint8_t bitNumber, BitReaderMode mode);
     ~RegisterBitReader() override;
 
     bool read() override;
@@ -15,4 +15,5 @@ private:
 
     const Register& reg;
     const std::uint8_t bitNumber;
+    const BitReaderMode mode;
 };

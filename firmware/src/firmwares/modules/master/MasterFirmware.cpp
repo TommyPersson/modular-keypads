@@ -24,18 +24,26 @@ MasterFirmware::MasterFirmware(
     indicatorLeds = IndicatorLedManager::NeoPixel(5, 7);
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
+    encoderRotationNotifier = std::make_unique<EncoderRotationNotifier>(notifier);
 
     mcpResetPin = std::make_unique<OutputPin>(8);
 
-    const auto& sws1Reg = this->addRegister("SWS1");
-    const auto& sws2Reg = this->addRegister("SWS2");
+    const auto& ioaReg = this->addRegister("IOA");
+    const auto& iobReg = this->addRegister("IOB");
 
-    this->attachSwitch(1, BitReader::forRegister(*sws1Reg, 0), 0);
-    this->attachSwitch(2, BitReader::forRegister(*sws1Reg, 1), 1);
-    this->attachSwitch(3, BitReader::forRegister(*sws1Reg, 2), 2);
-    this->attachSwitch(4, BitReader::forRegister(*sws1Reg, 3), 3);
+    this->attachSwitch(1, BitReader::forRegister(*iobReg, 0), 0);
+    this->attachSwitch(2, BitReader::forRegister(*iobReg, 1), 1);
+    this->attachSwitch(3, BitReader::forRegister(*iobReg, 2), 2);
+    this->attachSwitch(4, BitReader::forRegister(*iobReg, 3), 3);
 
-    this->attachSwitch(5, BitReader::forRegister(*sws1Reg, 4), -1);
+    this->attachSwitch(5, BitReader::forRegister(*iobReg, 4), -1);
+
+    this->attachRotationalEncoder(
+        1,
+        BitReader::forRegister(*ioaReg, 0, BitReaderMode::Inverted),
+        BitReader::forRegister(*ioaReg, 1, BitReaderMode::Inverted)
+        );
+
 }
 
 MasterFirmware::~MasterFirmware() {
@@ -71,17 +79,26 @@ void MasterFirmware::setup() {
         switchMonitor->onSwitchStateChanged().addObserver(switchStateChangeNotifier.get());
     }
 
+    for (const auto& encoderMonitor : this->rotationalEncoderMonitors) {
+        encoderMonitor->begin();
+        encoderMonitor->onEncoderRotated().addObserver(encoderRotationNotifier.get());
+    }
+
     logger.info("MasterFirmware:started");
 }
 
 void MasterFirmware::loop() {
     Firmware::loop();
 
-    this->registers->get("SWS1")->write(mcp23x17->readPortB());
-    this->registers->get("SWS2")->write(mcp23x17->readPortA());
+    this->registers->get("IOA")->write(mcp23x17->readPortA());
+    this->registers->get("IOB")->write(mcp23x17->readPortB());
 
     for (const auto& switchMonitor : this->switchMonitors) {
         switchMonitor->update();
+    }
+
+    for (const auto& encoderMonitor : this->rotationalEncoderMonitors) {
+        encoderMonitor->update();
     }
 
     indicatorLeds->update();
@@ -96,4 +113,15 @@ void MasterFirmware::attachSwitch(
     if (ledIndex >= 0) {
         indicatorLeds->connectToSwitch(ledIndex, *switchMonitor);
     }
+}
+
+void MasterFirmware::attachRotationalEncoder(
+    const uint8_t number,
+    const std::shared_ptr<BitReader>& aBitReader,
+    const std::shared_ptr<BitReader>& bBitReader
+    ) {
+    this->rotationalEncoderMonitors.emplace_back(
+        std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader)
+        );
+
 }
