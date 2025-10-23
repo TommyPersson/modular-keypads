@@ -11,7 +11,12 @@ ListRegistersCommandHandler::ListRegistersCommandHandler(const RegisterManager& 
 ListRegistersCommandHandler::~ListRegistersCommandHandler() = default;
 
 
-std::string ListRegistersCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
-    const auto& names = registers.listNames();
-    return arena::strings::join(names, ",", arena);
+void ListRegistersCommandHandler::execute(
+    const std::span<const std::string_view>& args,
+    CommandResponseWriter& responseWriter,
+    Arena& arena
+    ) {
+    for (auto& name : registers.listNames()) {
+        responseWriter.writeLine(name);
+    }
 }

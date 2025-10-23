@@ -11,11 +11,16 @@ ReadDeviceTypeCommandHandler::ReadDeviceTypeCommandHandler(
 
 ReadDeviceTypeCommandHandler::~ReadDeviceTypeCommandHandler() = default;
 
-std::string ReadDeviceTypeCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
+void ReadDeviceTypeCommandHandler::execute(
+    const std::span<const std::string_view>& args,
+    CommandResponseWriter& responseWriter,
+    Arena& arena
+    ) {
     auto deviceId = this->deviceConfigurationManager.getDeviceType();
     if (deviceId == 0) {
-        return "0";
+        responseWriter.writeLine("0");
+        return;
     }
 
-    return {&deviceId, 1};
+    responseWriter.writeLine({&deviceId, 1});
 }

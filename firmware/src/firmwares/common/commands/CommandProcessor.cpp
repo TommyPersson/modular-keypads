@@ -6,7 +6,7 @@
 #include "utils/allocations/ArenaUtils.h"
 
 
-CommandProcessor::CommandProcessor(Stream& outputStream, Logger& logger) :
+CommandProcessor::CommandProcessor(Print& outputStream, Logger& logger) :
     outputStream(outputStream),
     logger(logger),
     arena(4096) {
@@ -24,10 +24,10 @@ void CommandProcessor::observe(const LineEvent& value) {
     const auto command = parseCommand(value.text);
 
     const auto handler = findHandler(command.type);
-
     if (handler != nullptr) {
-        const auto response = handler->execute(command.args, this->arena);
-        outputStream.printf("%%%i:%s\n", command.id, response.c_str());
+        auto responseWriter = CommandResponseWriter(command.id, outputStream);
+        handler->execute(command.args, responseWriter, this->arena);
+        outputStream.printf("%%%i.0\n", command.id);
     } else {
         logger.error("unknown.command: %.*s", command.type.length(), command.type.data());
     }

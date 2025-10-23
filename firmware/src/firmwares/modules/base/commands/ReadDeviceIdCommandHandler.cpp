@@ -12,10 +12,16 @@ ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(
 
 ReadDeviceIdCommandHandler::~ReadDeviceIdCommandHandler() = default;
 
-std::string ReadDeviceIdCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
-    auto deviceId = this->deviceConfigurationManager.getDeviceId();
+void ReadDeviceIdCommandHandler::execute(
+    const std::span<const std::string_view>& args,
+    CommandResponseWriter& responseWriter,
+    Arena& arena
+    ) {
+    const auto deviceId = this->deviceConfigurationManager.getDeviceId();
     if (deviceId.empty()) {
-        return "NAK";
+        responseWriter.writeLine("NAK");
+        return;
     }
-    return deviceId;
+
+    responseWriter.writeLine(deviceId);
 }

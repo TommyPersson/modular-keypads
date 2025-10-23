@@ -7,7 +7,12 @@ class SetDeviceAddressCommandHandler final : public CommandHandler {
 public:
     explicit SetDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
     ~SetDeviceAddressCommandHandler() override;
-    std::string execute(const std::span<const std::string_view>& args, Arena& arena) override;
+
+    void execute(
+        const std::span<const std::string_view>& args,
+        CommandResponseWriter& responseWriter,
+        Arena& arena
+    ) override;
 
 private:
     DeviceConfigurationManager& deviceConfigurationManager;

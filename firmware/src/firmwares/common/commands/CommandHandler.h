@@ -7,6 +7,7 @@
 
 #include "utils/allocations/Arena.h"
 
+#include "CommandResponseWriter.h"
 #include "../logging/Logger.h"
 
 
@@ -19,7 +20,11 @@ public:
         return this->commandType;
     };
 
-    virtual std::string execute(const std::span<const std::string_view>& args, Arena& arena) = 0;
+    virtual void execute(
+        const std::span<const std::string_view>& args,
+        CommandResponseWriter& responseWriter,
+        Arena& arena
+    ) = 0;
 
 protected:
     Logger& logger;

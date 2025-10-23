@@ -17,7 +17,7 @@ struct ParsedCommand {
 
 class CommandProcessor final : public Observer<LineEvent> {
 public:
-    explicit CommandProcessor(Stream& outputStream, Logger& logger);
+    explicit CommandProcessor(Print& outputStream, Logger& logger);
     ~CommandProcessor() override;
 
     void addHandler(const std::shared_ptr<CommandHandler>& handler);
@@ -30,7 +30,7 @@ private:
     ParsedCommand parseCommand(const std::string_view& rawCommand);
 
     std::list<std::shared_ptr<CommandHandler>> handlers;
-    Stream& outputStream;
+    Print& outputStream;
     Logger& logger;
     Arena arena;
 };

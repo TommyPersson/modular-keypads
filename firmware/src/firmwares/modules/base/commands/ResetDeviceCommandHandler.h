@@ -7,7 +7,12 @@ class ResetDeviceCommandHandler final : public CommandHandler {
 public:
     explicit ResetDeviceCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
     ~ResetDeviceCommandHandler() override;
-    std::string execute(const std::span<const std::string_view>& args, Arena& arena) override;
+
+    void execute(
+        const std::span<const std::string_view>& args,
+        CommandResponseWriter& responseWriter,
+        Arena& arena
+    ) override;
 
 private:
     DeviceConfigurationManager& deviceConfigurationManager;

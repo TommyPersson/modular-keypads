@@ -37,10 +37,8 @@ private:
     const std::shared_ptr<BitReader> aBitReader;
     const std::shared_ptr<BitReader> bBitReader;
 
-    std::unique_ptr<Subject<EncoderRotatedEvent>> encoderRotatedSubject;
+    const std::unique_ptr<Subject<EncoderRotatedEvent>> encoderRotatedSubject;
 
     std::uint8_t previousState;
     RotationalEncoderDirection previousDirection = RotationalEncoderDirection::None;
-
-    std::uint32_t lastUpdateTime;
 };

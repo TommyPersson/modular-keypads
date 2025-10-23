@@ -6,9 +6,14 @@ PingCommandHandler::PingCommandHandler(Logger& logger) :
 
 PingCommandHandler::~PingCommandHandler() = default;
 
-std::string PingCommandHandler::execute(const std::span<const std::string_view>& args, Arena& arena) {
+void PingCommandHandler::execute(
+    const std::span<const std::string_view>& args,
+    CommandResponseWriter& responseWriter,
+    Arena& arena
+    ) {
     for (auto& arg : args) {
         logger.debug("arg = %.*s", arg.length(), arg.data());
     }
-    return "pong";
+
+    responseWriter.writeLine("pong");
 }

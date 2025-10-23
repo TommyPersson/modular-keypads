@@ -9,8 +9,7 @@ RotationalEncoderMonitor::RotationalEncoderMonitor(
     aBitReader(aBitReader),
     bBitReader(bBitReader),
     encoderRotatedSubject(std::make_unique<Subject<EncoderRotatedEvent>>()),
-    previousState(0),
-    lastUpdateTime(0) {
+    previousState(0) {
 }
 
 RotationalEncoderMonitor::~RotationalEncoderMonitor() = default;

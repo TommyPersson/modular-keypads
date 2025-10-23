@@ -6,7 +6,8 @@ import type { LogMessage } from "./DeviceFacade"
 
 export class DeviceCommandExecutor {
 
-  private activeCommands: { [index: number]: Deferred<string> } = {}
+  private activeCommands: { [index: number]: Deferred<string[]> } = {}
+  private activeCommandResponses: Map<number, string[]> = new Map()
   private nextCommandId: number = 1
 
   private readonly sendMutex: Mutex = new Mutex()
@@ -20,14 +21,14 @@ export class DeviceCommandExecutor {
   ) {
   }
 
-  async sendCommand(str: string, args: string[]): Promise<string> {
+  async sendCommand(str: string, args: string[]): Promise<string[]> {
     const writer = this.writer
     if (!writer) {
       throw new Error("Not connected")
     }
 
     const commandId = this.getNextCommandId()
-    const deferredCommandResult = new Deferred<string>()
+    const deferredCommandResult = new Deferred<string[]>()
     this.activeCommands[commandId] = deferredCommandResult
 
     try {
@@ -60,10 +61,29 @@ export class DeviceCommandExecutor {
     }
 
     try {
-      const [commandIdStr, ...rest] = line.substring(1).split(":")
+      const [responseHeader, ...rest] = line.substring(1).split(":")
+      const [commandIdStr, sequenceNumberStr] = responseHeader.split(".")
+
       const commandId = parseInt(commandIdStr)
+      const sequenceNumber = parseInt(sequenceNumberStr)
       const commandResponse = rest.join(":")
-      this.activeCommands[commandId]?.resolve(commandResponse)
+
+      if (!this.activeCommandResponses.has(commandId)) {
+        this.activeCommandResponses.set(commandId, [])
+      }
+
+      const commandResponses = this.activeCommandResponses.get(commandId)!
+
+      if (sequenceNumber > 0) {
+        commandResponses.push(commandResponse)
+      }
+
+      if (sequenceNumber === 0) {
+        this.activeCommands[commandId]?.resolve(commandResponses)
+        this.activeCommandResponses.delete(commandId)
+      } else if (isNaN(sequenceNumber)) {
+        this.activeCommands[commandId]?.resolve([commandResponse])
+      }
     } catch {
       // ignore, promise already resolved or rejected
     }

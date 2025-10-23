@@ -1,5 +1,5 @@
 import { DateTime } from "luxon"
-import { BehaviorSubject, Notification, Observable, Subject } from "rxjs"
+import { BehaviorSubject, Observable, Subject } from "rxjs"
 import { readLines } from "@src/utils/streams"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type {
@@ -84,7 +84,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async performPing(): Promise<string> {
-    return await this.sendCommand("ping", ["a", "b", "c"])
+    return await this.sendSingleLineResponseCommand("ping", ["a", "b", "c"])
   }
 
   async resetDevice(): Promise<void> {
@@ -117,15 +117,15 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async getDeviceId(): Promise<string> {
-    return await this.sendCommand("read.device.id")
+    return await this.sendSingleLineResponseCommand("read.device.id")
   }
 
   async getDeviceFirmwareVersion(): Promise<string> {
-    return await this.sendCommand("read.device.firmware.version")
+    return await this.sendSingleLineResponseCommand("read.device.firmware.version")
   }
 
   async getDeviceType(): Promise<string> {
-    return await this.sendCommand("read.device.type")
+    return await this.sendSingleLineResponseCommand("read.device.type")
   }
 
   async setDeviceType(type: string) {
@@ -133,7 +133,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async getDeviceAddress(): Promise<number> {
-    const addressHex = await this.sendCommand("read.device.address")
+    const addressHex = await this.sendSingleLineResponseCommand("read.device.address")
     return parseInt(addressHex, 16)
   }
 
@@ -143,28 +143,32 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   private async sendWriteCommand(str: string, args: string[] = []): Promise<void> {
-    const response = await this.sendCommand(str, args)
-    if (response.toLowerCase() !== "ack") {
-      throw new Error(`Unable to reset device: ${response}`)
-    }
+    await this.sendSingleLineResponseCommand(str, args)
   }
 
   async getDeviceRegisterNames(): Promise<string[]> {
-    const response = await this.sendCommand("list.registers")
-    return response.split(",")
+    return await this.sendCommand("list.registers")
   }
 
   async getDeviceRegisterValue(register: string): Promise<number> {
-    const addressHex = await this.sendCommand("read.register", [register])
+    const addressHex = await this.sendSingleLineResponseCommand("read.register", [register])
     return parseInt(addressHex, 16)
   }
 
-  private async sendCommand(str: string, args: string[] = []): Promise<string> {
+  private async sendCommand(str: string, args: string[] = []): Promise<string[]> {
     if (!this.commandExecutor) {
       throw new Error("Not connected")
     }
 
     return this.commandExecutor?.sendCommand(str, args)
+  }
+
+  private async sendSingleLineResponseCommand(str: string, args: string[] = []): Promise<string> {
+    if (!this.commandExecutor) {
+      throw new Error("Not connected")
+    }
+
+    return (await this.commandExecutor.sendCommand(str, args))[0]
   }
 
   private async close() {
