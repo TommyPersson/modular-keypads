@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <Preferences.h>
 
@@ -16,6 +17,9 @@ public:
 
     uint8_t getDeviceAddress() const;
     bool setDeviceAddress(uint8_t deviceAddress) const;
+
+    std::string getDeviceName() const;
+    bool setDeviceName(const std::string_view& deviceName) const;
 
     char getDeviceType() const;
     bool setDeviceType(char deviceType) const;

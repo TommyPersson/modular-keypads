@@ -4,6 +4,7 @@ auto prefsNamespace = "device";
 auto prefsKeyDeviceId = "device.id";
 auto prefsKeyDeviceAddress = "device.address";
 auto prefsKeyDeviceType = "device.type";
+auto prefsKeyDeviceName = "device.name";
 
 String generateNewId() {
     uint8_t newIdBytes[16];
@@ -102,4 +103,24 @@ bool DeviceConfigurationManager::setDeviceType(const char deviceType) const {
     this->preferences.end();
 
     return written == deviceType;
+}
+
+std::string DeviceConfigurationManager::getDeviceName() const {
+    this->preferences.begin(prefsNamespace, true);
+    const auto deviceName = this->preferences.getString(prefsKeyDeviceName);
+    this->preferences.end();
+
+    if (deviceName.isEmpty()) {
+        return "Unnamed";
+    }
+
+    return deviceName.c_str();
+}
+
+bool DeviceConfigurationManager::setDeviceName(const std::string_view& deviceName) const {
+    this->preferences.begin(prefsNamespace, false);
+    const auto numWritten = this->preferences.putString(prefsKeyDeviceName, std::string(deviceName).c_str());
+    this->preferences.end();
+
+    return numWritten > 0;
 }

@@ -6,6 +6,7 @@ export type DeviceInformation = {
   readonly deviceFirmwareVersion: string
   readonly deviceType: string
   readonly deviceAddress: number
+  readonly deviceName: string
   readonly deviceRegisterNames: string[]
 }
 
@@ -20,6 +21,7 @@ export interface DeviceFacade {
 
   setDeviceType(type: string): Promise<void>
   setDeviceAddress(address: number): Promise<void>
+  setDeviceName(name: string): Promise<void>
 
   resetDevice(): Promise<void>
 

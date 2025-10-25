@@ -6,10 +6,12 @@
 #include "modules/base/commands/ReadDeviceAddressCommandHandler.h"
 #include "modules/base/commands/ReadDeviceFirmwareVersionCommandHandler.h"
 #include "modules/base/commands/ReadDeviceIdCommandHandler.h"
+#include "modules/base/commands/ReadDeviceNameCommandHandler.h"
 #include "modules/base/commands/ReadDeviceTypeCommandHandler.h"
 #include "modules/base/commands/ReadRegisterCommandHandler.h"
 #include "modules/base/commands/ResetDeviceCommandHandler.h"
 #include "modules/base/commands/SetDeviceAddressCommandHandler.h"
+#include "modules/base/commands/SetDeviceNameCommandHandler.h"
 #include "modules/base/commands/SetDeviceTypeCommandHandler.h"
 #include "modules/generic/GenericFirmware.h"
 #include "modules/master/MasterFirmware.h"
@@ -62,8 +64,10 @@ Firmware::Firmware(
         );
     this->addCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
+    this->addCommandHandler(std::make_shared<ReadDeviceNameCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
+    this->addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager, logger));
     this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(*registers, logger));
     this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(*registers, logger));

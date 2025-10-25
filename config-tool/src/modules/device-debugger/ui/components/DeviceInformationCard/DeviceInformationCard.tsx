@@ -69,6 +69,10 @@ export const DeviceInformationCard = () => {
       <CardContent>
         <PropertyGroup>
           <PropertyText
+            title={"Name"}
+            subtitle={<code>{deviceInformation?.deviceName ?? "N/A"}</code>}
+          />
+          <PropertyText
             title={"ID"}
             subtitle={<code>{deviceInformation?.deviceId ?? "N/A"}</code>}
           />
@@ -138,10 +142,12 @@ const UpdateDeviceConfigurationDialog = (props: {
 
   const [deviceTypeCode, setDeviceTypeCode] = useState(deviceInformation.deviceType)
   const [deviceAddress, setDeviceAddress] = useState(deviceInformation.deviceAddress)
+  const [deviceName, setDeviceName] = useState(deviceInformation.deviceName)
 
   useEffect(() => {
     setDeviceTypeCode(deviceInformation.deviceType)
     setDeviceAddress(deviceInformation.deviceAddress)
+    setDeviceName(deviceInformation.deviceName)
   }, [deviceInformation, isOpen])
 
   const handleDeviceTypeCodeChanged = useCallback((event: SelectChangeEvent) => {
@@ -157,10 +163,15 @@ const UpdateDeviceConfigurationDialog = (props: {
     setDeviceAddress(newValue)
   }, [setDeviceAddress])
 
+  const handleDeviceNameChanged = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setDeviceName(event.target.value)
+  }, [setDeviceName])
+
   const saveMutation = useMutation({
-    mutationFn: async (args: {deviceTypeCode: string, deviceAddress: number}) => {
+    mutationFn: async (args: {deviceTypeCode: string, deviceAddress: number, deviceName: string}) => {
       await deviceFacade.setDeviceType(args.deviceTypeCode)
       await deviceFacade.setDeviceAddress(args.deviceAddress)
+      await deviceFacade.setDeviceName(args.deviceName)
       await deviceFacade.resetDevice()
     },
     onSuccess: async () => {
@@ -169,12 +180,13 @@ const UpdateDeviceConfigurationDialog = (props: {
   })
 
   const handleSaveClicked = useCallback(async () => {
-    await saveMutation.mutateAsync({ deviceTypeCode, deviceAddress })
+    await saveMutation.mutateAsync({ deviceTypeCode, deviceAddress, deviceName })
     onClose()
-  }, [deviceTypeCode, deviceAddress, saveMutation, onClose])
+  }, [deviceTypeCode, deviceAddress, deviceName, saveMutation, onClose])
 
   const isDirty = deviceTypeCode !== deviceInformation.deviceType
     || deviceAddress !== deviceInformation.deviceAddress
+    || deviceName !== deviceInformation.deviceName
 
   const canSave = isDirty && !saveMutation.isPending;
 
@@ -183,6 +195,12 @@ const UpdateDeviceConfigurationDialog = (props: {
       <DialogTitle>Update Device Configuration</DialogTitle>
       <DialogContent>
         <Stack spacing={2} paddingTop={2}>
+          <TextField
+            label={"Device Name"}
+            value={deviceName}
+            onChange={handleDeviceNameChanged}
+            helperText={"At most 30 characters"}
+          />
           <FormControl>
             <InputLabel>Device Type</InputLabel>
             <Select

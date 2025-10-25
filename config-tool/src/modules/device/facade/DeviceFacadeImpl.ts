@@ -100,6 +100,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
       deviceFirmwareVersion: await this.getDeviceFirmwareVersion(),
       deviceType: await this.getDeviceType(),
       deviceAddress: await this.getDeviceAddress(),
+      deviceName: await this.getDeviceName(),
       deviceRegisterNames: await this.getDeviceRegisterNames(),
     }
   }
@@ -140,6 +141,14 @@ export class DeviceFacadeImpl implements DeviceFacade {
   async setDeviceAddress(address: number) {
     const addressHex = "0x" + address.toString(16)
     await this.sendWriteCommand("set.device.address", [addressHex])
+  }
+
+  async getDeviceName(): Promise<string> {
+    return await this.sendSingleLineResponseCommand("read.device.name")
+  }
+
+  async setDeviceName(name: string) {
+    await this.sendWriteCommand("set.device.name", [name])
   }
 
   private async sendWriteCommand(str: string, args: string[] = []): Promise<void> {
