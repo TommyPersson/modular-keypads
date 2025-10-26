@@ -76,6 +76,7 @@ Firmware::Firmware(
 void Firmware::setup() {
     serialPort.begin(115200);
     deviceConfigurationManager.begin();
+    notifier.begin(deviceConfigurationManager.getDeviceId());
 }
 
 void Firmware::loop() {

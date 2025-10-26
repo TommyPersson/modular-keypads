@@ -41,6 +41,7 @@ export type LogMessage = {
 }
 
 export type NotificationMessage = {
+  deviceId: string
   type: string
   args: string[]
   timestamp: DateTime

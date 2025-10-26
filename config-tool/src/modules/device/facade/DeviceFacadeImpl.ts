@@ -62,8 +62,8 @@ export class DeviceFacadeImpl implements DeviceFacade {
               this.commandExecutor.onLineReceived(line)
 
               if (line.startsWith("!")) {
-                const [type, ...args] = line.substring(1).split(":")
-                this.notificationsSubject.next({ type, args, timestamp: DateTime.now() })
+                const [deviceId, type, ...args] = line.substring(1).split(":")
+                this.notificationsSubject.next({ deviceId, type, args, timestamp: DateTime.now() })
               }
             }
           }
