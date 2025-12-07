@@ -18,7 +18,8 @@ public:
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
         Notifier& notifier,
-        Logger& logger
+        Logger& logger,
+        TwoWire& i2c
     );
 
     ~MasterFirmware() override;

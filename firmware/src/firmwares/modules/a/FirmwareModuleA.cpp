@@ -1,5 +1,7 @@
 #include "FirmwareModuleA.h"
 
+#include "firmwares/common/i2c/EndpointStructs.h"
+
 #include <Adafruit_NeoPixel.h>
 #include <SPI.h>
 
@@ -7,9 +9,11 @@ FirmwareModuleA::FirmwareModuleA(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
     Notifier& notifier,
-    Logger& logger
+    Logger& logger,
+    TwoWire& i2c
     ) :
-    Firmware(deviceConfigurationManager, serialPort, notifier, logger) {
+    Firmware(deviceConfigurationManager, serialPort, notifier, logger, i2c) {
+
     this->mcp23x17 = MCP23x17::SPI(
         {
             .spiBus = FSPI,
@@ -23,6 +27,8 @@ FirmwareModuleA::FirmwareModuleA(
     this->indicatorLeds = IndicatorLedManager::NeoPixel(12, 6);
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
+
+    i2cSlavePort = std::make_unique<i2c::SlavePort>(i2c, logger);
 
     const auto& ioaReg = this->addRegister("IOA");
     const auto& iobReg = this->addRegister("IOB");
@@ -50,6 +56,17 @@ FirmwareModuleA::~FirmwareModuleA() {
 
 void FirmwareModuleA::setup() {
     Firmware::setup();
+
+    auto deviceAddress = deviceConfigurationManager.getDeviceAddress();
+    if (deviceAddress > 0) {
+        const auto deviceId = deviceConfigurationManager.getDeviceId();
+        i2c::structs::DeviceInformation deviceInformationStruct;
+        std::memcpy(&deviceInformationStruct.deviceId, deviceId.data(), sizeof(deviceInformationStruct.deviceId));
+        deviceInformationStruct.deviceType = deviceConfigurationManager.getDeviceType();
+
+        i2cSlavePort->updateEndpoint(i2c::Endpoint::DeviceInformation, &deviceInformationStruct, sizeof(deviceInformationStruct));
+        i2cSlavePort->begin(deviceAddress, 1, 0);
+    }
 
     mcp23x17->begin();
 

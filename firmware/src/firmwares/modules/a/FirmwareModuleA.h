@@ -2,9 +2,10 @@
 
 #include "firmwares/Firmware.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
-#include "firmwares/common/monitors/SwitchMonitor.h"
-#include "firmwares/common/logging/Logger.h"
+#include "firmwares/common/i2c/SlavePort.h"
 #include "firmwares/common/indicatorleds/IndicatorLeds.h"
+#include "firmwares/common/logging/Logger.h"
+#include "firmwares/common/monitors/SwitchMonitor.h"
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 
 #include <MCP23x17/MCP23x17.h>
@@ -16,7 +17,8 @@ public:
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
         Notifier& notifier,
-        Logger& logger
+        Logger& logger,
+        TwoWire& i2c
     );
 
     ~FirmwareModuleA() override;
@@ -30,6 +32,7 @@ private:
     std::unique_ptr<MCP23x17> mcp23x17;
     std::unique_ptr<IndicatorLedManager> indicatorLeds;
     std::unique_ptr<SwitchStateChangeNotifier> switchStateChangeNotifier;
+    std::unique_ptr<i2c::SlavePort> i2cSlavePort;
 
     std::vector<std::shared_ptr<SwitchMonitor>> switchMonitors;
 };

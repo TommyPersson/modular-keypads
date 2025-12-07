@@ -20,7 +20,8 @@ std::unique_ptr<Firmware> Firmware::create(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
     Notifier& notifier,
-    Logger& logger
+    Logger& logger,
+    TwoWire& i2c
     ) {
 
     auto deviceType = deviceConfigurationManager.getDeviceType();
@@ -28,12 +29,12 @@ std::unique_ptr<Firmware> Firmware::create(
     switch (deviceType) {
     case 'm':
     case 'M':
-        return std::make_unique<MasterFirmware>(deviceConfigurationManager, serialPort, notifier, logger);
+        return std::make_unique<MasterFirmware>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
     case 'a':
     case 'A':
-        return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, notifier, logger);
+        return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
     default:
-        return std::make_unique<GenericFirmware>(deviceConfigurationManager, serialPort, notifier, logger);
+        return std::make_unique<GenericFirmware>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
     }
 }
 
@@ -41,12 +42,14 @@ Firmware::Firmware(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
     Notifier& notifier,
-    Logger& logger
+    Logger& logger,
+    TwoWire& i2c
     ) :
     deviceConfigurationManager(deviceConfigurationManager),
     serialPort(serialPort),
     notifier(notifier),
-    logger(logger) {
+    logger(logger),
+    i2c(i2c) {
 
     this->registers = std::make_unique<RegisterManager>();
 

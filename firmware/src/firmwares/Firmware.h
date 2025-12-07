@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Wire.h>
 #include <memory>
 #include <Registers/Registers.h>
 #include <SerialPort/SerialPort.h>
@@ -15,7 +16,8 @@ public:
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
         Notifier& notifier,
-        Logger& logger
+        Logger& logger,
+        TwoWire& i2c
     );
 
     virtual ~Firmware() = default;
@@ -27,7 +29,8 @@ public:
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
         Notifier& notifier,
-        Logger& logger
+        Logger& logger,
+        TwoWire& i2c
     );
 
 protected:
@@ -38,6 +41,7 @@ protected:
     SerialPort& serialPort;
     Notifier& notifier;
     Logger& logger;
+    TwoWire& i2c;
 
     std::unique_ptr<RegisterManager> registers;
 

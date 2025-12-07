@@ -13,6 +13,7 @@
 //USBHIDSystemControl systemControl;
 
 #include <Preferences.h>
+#include <Wire.h>
 
 #include <SerialPort/SerialPort.h>
 
@@ -30,7 +31,7 @@ DeviceConfigurationManager deviceConfigurationManager(preferences, logger);
 Notifier notifier(Serial);
 
 void setup() {
-    firmware = Firmware::create(deviceConfigurationManager, *serialPort, notifier, logger);
+    firmware = Firmware::create(deviceConfigurationManager, *serialPort, notifier, logger, Wire);
     firmware->setup();
 
   //  USB.productName("tommy-product");

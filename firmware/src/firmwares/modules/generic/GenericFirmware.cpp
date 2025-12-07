@@ -4,9 +4,10 @@ GenericFirmware::GenericFirmware(
     DeviceConfigurationManager& deviceConfigurationManager,
     SerialPort& serialPort,
     Notifier& notifier,
-    Logger& logger
+    Logger& logger,
+    TwoWire& i2c
     ) :
-    Firmware(deviceConfigurationManager, serialPort, notifier, logger) {
+    Firmware(deviceConfigurationManager, serialPort, notifier, logger, i2c) {
 }
 
 GenericFirmware::~GenericFirmware() = default;

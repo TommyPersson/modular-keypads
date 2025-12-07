@@ -1,5 +1,7 @@
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined"
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
+import RestartAltOutlinedIcon from '@mui/icons-material/RestartAltOutlined';
+
 import {
   Button,
   Card,
@@ -42,6 +44,10 @@ export const DeviceInformationCard = () => {
     setIsDialogOpen(false)
   }, [setIsDialogOpen])
 
+  const handleRestartClicked = useCallback(async () => {
+    await deviceFacade.resetDevice()
+  }, [deviceFacade])
+
   const deviceInformation = deviceInformationQuery.data ?? null
 
   const canOpenDialog = !isDialogOpen && deviceInformation !== null
@@ -56,6 +62,10 @@ export const DeviceInformationCard = () => {
             <IconButton
               onClick={() => deviceInformationQuery.refetch()}
               children={<RefreshOutlinedIcon />}
+            />
+            <IconButton
+              onClick={handleRestartClicked}
+              children={<RestartAltOutlinedIcon />}
             />
             <IconButton
               disabled={!canOpenDialog}
