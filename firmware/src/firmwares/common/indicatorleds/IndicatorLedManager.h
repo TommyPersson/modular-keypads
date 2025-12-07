@@ -5,16 +5,15 @@
 
 #include "IndicatorLed.h"
 #include "SwitchIndicatorLed.h"
+#include "IndicatorLedDriver.h"
 
 class IndicatorLedManager {
 public:
-    explicit IndicatorLedManager(uint16_t numberOfPixels, int16_t pin, neoPixelType type = NEO_GRB | NEO_KHZ800);
+    explicit IndicatorLedManager(uint16_t numberOfPixels, std::unique_ptr<IndicatorLedDriver> driver);
     ~IndicatorLedManager();
 
     void begin();
     void update();
-    void markAsDirty();
-    void clearDirty();
 
     std::shared_ptr<IndicatorLed>& get(uint8_t pixelNumber);
 
@@ -26,9 +25,10 @@ public:
         neoPixelType type = NEO_GRB | NEO_KHZ800
     );
 
+    static std::unique_ptr<IndicatorLedManager> NoOp(uint16_t numberOfPixels);
+
 private:
-    Adafruit_NeoPixel neoPixel;
+    std::unique_ptr<IndicatorLedDriver> driver;
     std::vector<std::shared_ptr<IndicatorLed>> leds;
     std::vector<std::shared_ptr<SwitchIndicatorLed>> switchIndicators;
-    bool isDirty = true;
 };

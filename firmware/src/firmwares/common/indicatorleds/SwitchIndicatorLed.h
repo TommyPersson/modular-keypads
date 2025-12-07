@@ -1,10 +1,9 @@
 #pragma once
 
+#include "firmwares/common/indicatorleds/IndicatorLed.h"
 #include "firmwares/common/monitors/SwitchMonitor.h"
 
-class IndicatorLed;
-
-class SwitchIndicatorLed : Observer<SwitchEvent> {
+class SwitchIndicatorLed final : Observer<SwitchEvent> {
 public:
     SwitchIndicatorLed(const SwitchMonitor& switchMonitor, IndicatorLed& indicatorLed);
     ~SwitchIndicatorLed() override;

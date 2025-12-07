@@ -1,10 +1,7 @@
 #include "IndicatorLed.h"
 
-#include "IndicatorLedManager.h"
-
-IndicatorLed::IndicatorLed(Adafruit_NeoPixel& neoPixel, const uint8_t pixelIndex, IndicatorLedManager& ledManager) :
-    neoPixel(neoPixel),
-    ledManager(ledManager),
+IndicatorLed::IndicatorLed(IndicatorLedDriver& driver, const uint8_t pixelIndex) :
+    driver(driver),
     pixelIndex(pixelIndex),
     color(0) {
 }
@@ -14,7 +11,7 @@ IndicatorLed::IndicatorLed(const IndicatorLed& other) = default;
 IndicatorLed::~IndicatorLed() = default;
 
 void IndicatorLed::setColor(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w) {
-    setColor(Adafruit_NeoPixel::Color(r, g, b, w));
+    setColor(driver.makeColor(r, g, b, w));
 }
 
 void IndicatorLed::setColor(const uint32_t _color) {
@@ -24,9 +21,7 @@ void IndicatorLed::setColor(const uint32_t _color) {
 
     this->color = _color;
 
-    neoPixel.setPixelColor(pixelIndex, color);
-
-    ledManager.markAsDirty();
+    driver.setPixelColor(pixelIndex, color);
 }
 
 uint32_t IndicatorLed::getColor() const {

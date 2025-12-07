@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Adafruit_NeoPixel.h>
+#include "IndicatorLedDriver.h"
 
 class IndicatorLedManager;
 
 class IndicatorLed {
 public:
-    IndicatorLed(Adafruit_NeoPixel& neoPixel, uint8_t pixelIndex, IndicatorLedManager& ledManager);
+    IndicatorLed(IndicatorLedDriver& driver, uint8_t pixelIndex);
     IndicatorLed(const IndicatorLed& other);
     ~IndicatorLed();
 
@@ -15,8 +15,7 @@ public:
     uint32_t getColor() const;
 
 private:
-    Adafruit_NeoPixel& neoPixel;
-    IndicatorLedManager& ledManager;
+    IndicatorLedDriver& driver;
 
     uint8_t pixelIndex;
     uint32_t color;

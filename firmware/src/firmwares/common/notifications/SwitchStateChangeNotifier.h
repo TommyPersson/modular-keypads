@@ -12,6 +12,5 @@ public:
     void observe(const SwitchEvent& event) override;
 
 private:
-
     Notifier& notifier;
 };

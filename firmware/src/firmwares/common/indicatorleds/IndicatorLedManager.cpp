@@ -2,21 +2,21 @@
 
 IndicatorLedManager::IndicatorLedManager(
     const uint16_t numberOfPixels,
-    const int16_t pin,
-    const neoPixelType type
-    ) :
-    neoPixel(numberOfPixels, pin, type) {
+    std::unique_ptr<IndicatorLedDriver> driver
+    ) : driver(std::move(driver)) {
 
     for (int i = 0; i < numberOfPixels; i++) {
-        leds.emplace_back(std::make_shared<IndicatorLed>(neoPixel, i, *this));
+        leds.emplace_back(std::make_shared<IndicatorLed>(*this->driver, i));
     }
 }
 
-IndicatorLedManager::~IndicatorLedManager() = default;
+IndicatorLedManager::~IndicatorLedManager() {
+    switchIndicators.clear();
+    leds.clear();
+};
 
 void IndicatorLedManager::begin() {
-    neoPixel.begin();
-    neoPixel.setBrightness(255);
+    driver->begin();
 }
 
 std::shared_ptr<SwitchIndicatorLed> IndicatorLedManager::connectToSwitch(
@@ -28,21 +28,10 @@ std::shared_ptr<SwitchIndicatorLed> IndicatorLedManager::connectToSwitch(
 }
 
 void IndicatorLedManager::update() {
-    if (isDirty) {
-        isDirty = false;
-        neoPixel.show();
-    }
+    driver->show();
 }
 
-void IndicatorLedManager::markAsDirty() {
-    isDirty = true;
-}
-
-void IndicatorLedManager::clearDirty() {
-    isDirty = false;
-}
-
-std::shared_ptr<IndicatorLed>& IndicatorLedManager::get(uint8_t pixelNumber) {
+std::shared_ptr<IndicatorLed>& IndicatorLedManager::get(const uint8_t pixelNumber) {
     return leds[pixelNumber];
 }
 
@@ -51,5 +40,9 @@ std::unique_ptr<IndicatorLedManager> IndicatorLedManager::NeoPixel(
     int16_t pin,
     neoPixelType type
     ) {
-    return std::make_unique<IndicatorLedManager>(numberOfPixels, pin, type);
+    return std::make_unique<IndicatorLedManager>(numberOfPixels, IndicatorLedDriver::NeoPixel(numberOfPixels, pin, type));
+}
+
+std::unique_ptr<IndicatorLedManager> IndicatorLedManager::NoOp(uint16_t numberOfPixels) {
+    return std::make_unique<IndicatorLedManager>(numberOfPixels, IndicatorLedDriver::NoOp());
 }
