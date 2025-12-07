@@ -1,5 +1,7 @@
 #include "FirmwareModuleA.h"
 
+#include "DeviceRuntimeA.h"
+#include "LocalRegisterRefresherA.h"
 #include "firmwares/common/i2c/EndpointStructs.h"
 
 FirmwareModuleA::FirmwareModuleA(

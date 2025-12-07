@@ -6,6 +6,7 @@
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
 #include "firmwares/common/logging/Logger.h"
 #include "firmwares/common/monitors/SwitchMonitor.h"
+#include "firmwares/common/monitors/RotationalEncoderMonitor.h"
 #include "firmwares/common/notifications/Notifier.h"
 
 enum class DeviceMode {
@@ -32,7 +33,13 @@ protected:
     std::shared_ptr<Register> addRegister(const std::string& name) const;
 
     void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, uint8_t ledIndex);
+    void attachRotationalEncoder(
+        uint8_t number,
+        const std::shared_ptr<BitReader>& aBitReader,
+        const std::shared_ptr<BitReader>& bBitReader
+    );
 
+    std::vector<std::shared_ptr<RotationalEncoderMonitor>> rotationalEncoderMonitors;
     std::vector<std::shared_ptr<SwitchMonitor>> switchMonitors;
 
     RegisterManager& registers;

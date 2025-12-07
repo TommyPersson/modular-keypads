@@ -19,6 +19,17 @@ void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader
     indicatorLeds.connectToSwitch(ledIndex, *switchMonitor);
 }
 
+void DeviceRuntime::attachRotationalEncoder(
+    const uint8_t number,
+    const std::shared_ptr<BitReader>& aBitReader,
+    const std::shared_ptr<BitReader>& bBitReader
+    ) {
+    this->rotationalEncoderMonitors.emplace_back(
+        std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader)
+        );
+}
+
+
 std::shared_ptr<Register> DeviceRuntime::addRegister(const std::string& name) const {
     return this->registers.add(name);
 }

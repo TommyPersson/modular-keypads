@@ -1,19 +1,17 @@
 #pragma once
 
+#include <SerialPort/SerialPort.h>
 
 #include "firmwares/Firmware.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
-#include "firmwares/common/i2c/SlavePort.h"
-#include "firmwares/common/indicatorleds/IndicatorLeds.h"
 #include "firmwares/common/logging/Logger.h"
+#include "firmwares/common/notifications/EncoderRotationNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
 #include "firmwares/common/runtimes/RegisterRefresher.h"
 
-#include <SerialPort/SerialPort.h>
-
-class FirmwareModuleA final : public Firmware {
+class FirmwareModuleM final : public Firmware {
 public:
-    explicit FirmwareModuleA(
+    explicit FirmwareModuleM(
         DeviceConfigurationManager& deviceConfigurationManager,
         SerialPort& serialPort,
         Notifier& notifier,
@@ -21,15 +19,13 @@ public:
         TwoWire& i2c
     );
 
-    ~FirmwareModuleA() override;
+    ~FirmwareModuleM() override;
 
     void setup() override;
     void loop() override;
 
 private:
     std::unique_ptr<IndicatorLedManager> indicatorLeds;
-    std::unique_ptr<i2c::SlavePort> i2cSlavePort;
-
     std::unique_ptr<RegisterRefresher> registerRefresher;
     std::unique_ptr<DeviceRuntime> runtime;
 };

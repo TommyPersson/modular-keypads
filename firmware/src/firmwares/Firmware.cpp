@@ -14,7 +14,7 @@
 #include "modules/base/commands/SetDeviceNameCommandHandler.h"
 #include "modules/base/commands/SetDeviceTypeCommandHandler.h"
 #include "modules/generic/GenericFirmware.h"
-#include "modules/master/MasterFirmware.h"
+#include "modules/m/FirmwareModuleM.h"
 
 std::unique_ptr<Firmware> Firmware::create(
     DeviceConfigurationManager& deviceConfigurationManager,
@@ -29,7 +29,7 @@ std::unique_ptr<Firmware> Firmware::create(
     switch (deviceType) {
     case 'm':
     case 'M':
-        return std::make_unique<MasterFirmware>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
+        return std::make_unique<FirmwareModuleM>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
     case 'a':
     case 'A':
         return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
