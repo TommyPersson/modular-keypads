@@ -12,8 +12,8 @@ DeviceRuntimeM::DeviceRuntimeM(
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
     encoderRotationNotifier = std::make_unique<EncoderRotationNotifier>(notifier);
 
-    const auto& ioaReg = this->addRegister("IOA");
-    const auto& iobReg = this->addRegister("IOB");
+    const auto& ioaReg = this->configureRegister(devices::m::registers::IOA);
+    const auto& iobReg = this->configureRegister(devices::m::registers::IOB);
 
     this->attachSwitch(1, BitReader::forRegister(*iobReg, 0), 0);
     this->attachSwitch(2, BitReader::forRegister(*iobReg, 1), 1);

@@ -5,6 +5,8 @@
 #include <vector>
 
 #include "Register.h"
+#include "RegisterDescriptor.h"
+#include "RegisterStorage.h"
 
 class RegisterManager {
 public:
@@ -12,14 +14,20 @@ public:
     ~RegisterManager();
     RegisterManager(RegisterManager const&) = delete;
 
-    std::shared_ptr<Register> add(const std::string& name);
-    std::shared_ptr<Register> get(const std::string& name) const;
+    std::shared_ptr<Register> configure(const RegisterDescriptor& descriptor);
 
-    const std::vector<std::string>& listNames() const;
+    std::shared_ptr<Register> get(const RegisterDescriptor& descriptor) const;
+
+    uint8_t read(const RegisterDescriptor& descriptor) const;
+    uint8_t read(const std::string& descriptor) const;
+    void write(const RegisterDescriptor& descriptor, uint8_t value);
+
+    const std::vector<RegisterDescriptor>& list() const;
 
 private:
+    RegisterStorage storage;
     std::vector<std::shared_ptr<Register>> registers;
-    std::vector<std::string> registerNames;
+    std::vector<RegisterDescriptor> descriptors;
 };
 
 

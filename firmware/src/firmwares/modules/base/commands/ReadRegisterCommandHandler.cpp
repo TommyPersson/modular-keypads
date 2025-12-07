@@ -17,8 +17,7 @@ void ReadRegisterCommandHandler::execute(
     Arena& arena
     ) {
     const auto registerName = std::string(args[0]);
-    const auto& reg = registers.get(registerName);
-    const auto value = reg->read();
+    const auto value = registers.read(registerName);
 
     responseWriter.writeLine(arena::strings::sprintf(arena, "0x%02x", value));
 }

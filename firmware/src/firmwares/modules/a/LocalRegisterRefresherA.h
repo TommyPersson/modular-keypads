@@ -4,6 +4,7 @@
 #include <Registers/RegisterManager.h>
 
 #include "firmwares/common/runtimes/RegisterRefresher.h"
+#include "RegisterDescriptorsA.h"
 
 class LocalRegisterRefresherA final : public RegisterRefresher {
 public:

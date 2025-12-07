@@ -1,20 +1,23 @@
 #pragma once
 
-#include <mutex>
 #include <string>
+
+#include "RegisterDescriptor.h"
+#include "RegisterStorage.h"
 
 class Register {
 public:
-    explicit Register(const std::string& name);
+    explicit Register(const RegisterDescriptor& descriptor, RegisterStorage& storage);
     ~Register();
 
-    const std::string& getName() const { return this->name; };
+    const std::string& getName() const { return this->descriptor.name; }
+    const RegisterDescriptor& getDescriptor() const { return this->descriptor; }
 
-    void write(uint8_t newValue);
+    void write(uint8_t newValue) const;
     uint8_t read() const;
 
+
 private:
-    mutable std::mutex lock;
-    uint8_t value;
-    std::string name;
+    const RegisterDescriptor descriptor;
+    RegisterStorage& storage;
 };

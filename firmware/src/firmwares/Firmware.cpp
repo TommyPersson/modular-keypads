@@ -91,6 +91,3 @@ void Firmware::addCommandHandler(const std::shared_ptr<CommandHandler>& commandH
     this->commandProcessor->addHandler(commandHandler);
 }
 
-std::shared_ptr<Register> Firmware::addRegister(const std::string& name) const {
-    return this->registers->add(name);
-}

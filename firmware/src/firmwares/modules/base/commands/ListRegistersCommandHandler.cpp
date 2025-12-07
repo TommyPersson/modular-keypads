@@ -16,7 +16,7 @@ void ListRegistersCommandHandler::execute(
     CommandResponseWriter& responseWriter,
     Arena& arena
     ) {
-    for (auto& name : registers.listNames()) {
-        responseWriter.writeLine(name);
+    for (auto& descriptor : registers.list()) {
+        responseWriter.writeLine(descriptor.name);
     }
 }

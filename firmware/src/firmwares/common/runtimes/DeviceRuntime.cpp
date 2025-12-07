@@ -30,8 +30,8 @@ void DeviceRuntime::attachRotationalEncoder(
 }
 
 
-std::shared_ptr<Register> DeviceRuntime::addRegister(const std::string& name) const {
-    return this->registers.add(name);
+std::shared_ptr<Register> DeviceRuntime::configureRegister(const RegisterDescriptor& descriptor) const {
+    return this->registers.configure(descriptor);
 }
 
 void DeviceRuntime::begin() {

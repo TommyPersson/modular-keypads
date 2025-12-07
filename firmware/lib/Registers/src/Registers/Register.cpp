@@ -1,22 +1,18 @@
 #include "Register.h"
 
-#include <string>
+#include "RegisterManager.h"
 
-Register::Register(const std::string& name) :
-    value(0),
-    name(name) {
+Register::Register(const RegisterDescriptor& descriptor, RegisterStorage& storage) :
+    descriptor(descriptor),
+    storage(storage) {
 }
 
 Register::~Register() = default;
 
-void Register::write(uint8_t newValue) {
-    std::lock_guard guard(lock);
-
-    this->value = newValue;
+void Register::write(const uint8_t newValue) const {
+    storage.write(descriptor, newValue);
 }
 
 uint8_t Register::read() const {
-    std::lock_guard guard(lock);
-
-    return this->value;
+    return storage.read(descriptor);
 }

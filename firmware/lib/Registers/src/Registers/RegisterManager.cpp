@@ -4,16 +4,16 @@ RegisterManager::RegisterManager() = default;
 
 RegisterManager::~RegisterManager() = default;
 
-std::shared_ptr<Register> RegisterManager::add(const std::string& name) {
-    auto reg = std::make_shared<Register>(name);
+std::shared_ptr<Register> RegisterManager::configure(const RegisterDescriptor& descriptor) {
+    auto reg = std::make_shared<Register>(descriptor, storage);
     this->registers.emplace_back(reg);
-    this->registerNames.emplace_back(name);
+    this->descriptors.emplace_back(descriptor);
     return reg;
 }
 
-std::shared_ptr<Register> RegisterManager::get(const std::string& name) const {
-    for (auto& reg : this->registers) {
-        if (reg->getName() == name) {
+std::shared_ptr<Register> RegisterManager::get(const RegisterDescriptor& descriptor) const {
+    for (const auto& reg : this->registers) {
+        if (reg->getName() == descriptor.name) {
             return reg;
         }
     }
@@ -21,6 +21,24 @@ std::shared_ptr<Register> RegisterManager::get(const std::string& name) const {
     return nullptr;
 }
 
-const std::vector<std::string>& RegisterManager::listNames() const {
-    return this->registerNames;
+uint8_t RegisterManager::read(const RegisterDescriptor& descriptor) const {
+    return storage.read(descriptor);
+}
+
+uint8_t RegisterManager::read(const std::string& name) const {
+    for (const auto& descriptor : this->descriptors) {
+        if (descriptor.name == name) {
+            return read(descriptor);
+        }
+    }
+
+    return 0;
+}
+
+void RegisterManager::write(const RegisterDescriptor& descriptor, uint8_t value) {
+    storage.write(descriptor, value);
+}
+
+const std::vector<RegisterDescriptor>& RegisterManager::list() const {
+    return descriptors;
 }

@@ -5,6 +5,8 @@
 #include "firmwares/common/notifications/EncoderRotationNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
 
+#include "RegisterDescriptorsM.h"
+
 class DeviceRuntimeM final : public DeviceRuntime {
 public:
     explicit DeviceRuntimeM(

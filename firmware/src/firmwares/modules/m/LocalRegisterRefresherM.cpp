@@ -40,6 +40,6 @@ void LocalRegisterRefresherM::begin() {
 }
 
 void LocalRegisterRefresherM::loop() {
-    registers.get("IOB")->write(mcp23x17->readPortB());
-    registers.get("IOA")->write(mcp23x17->readPortA());
+    registers.write(devices::m::registers::IOA, mcp23x17->readPortA());
+    registers.write(devices::m::registers::IOB, mcp23x17->readPortB());
 }

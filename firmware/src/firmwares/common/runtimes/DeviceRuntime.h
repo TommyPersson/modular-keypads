@@ -30,7 +30,7 @@ public:
     virtual void loop();
 
 protected:
-    std::shared_ptr<Register> addRegister(const std::string& name) const;
+    std::shared_ptr<Register> configureRegister(const RegisterDescriptor& descriptor) const;
 
     void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, uint8_t ledIndex);
     void attachRotationalEncoder(

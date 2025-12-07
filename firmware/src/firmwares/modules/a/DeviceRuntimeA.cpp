@@ -11,8 +11,8 @@ DeviceRuntimeA::DeviceRuntimeA(
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
 
-    const auto& ioaReg = addRegister("IOA");
-    const auto& iobReg = addRegister("IOB");
+    const auto& ioaReg = this->configureRegister(devices::a::registers::IOA);
+    const auto& iobReg = this->configureRegister(devices::a::registers::IOB);
 
     attachSwitch(1, BitReader::forRegister(*iobReg, 0), 0);
     attachSwitch(2, BitReader::forRegister(*iobReg, 1), 11);

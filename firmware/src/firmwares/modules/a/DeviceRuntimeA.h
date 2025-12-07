@@ -3,6 +3,7 @@
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
+#include "RegisterDescriptorsA.h"
 
 class DeviceRuntimeA final : public DeviceRuntime {
 public:
