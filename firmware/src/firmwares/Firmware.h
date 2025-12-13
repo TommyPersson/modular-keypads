@@ -11,6 +11,8 @@
 #include "common/commands/CommandProcessor.h"
 #include "common/notifications/Notifier.h"
 
+#include "firmwares/modules/common/DeviceModule.h"
+
 class Firmware {
 public:
     explicit Firmware(ServiceLocator& serviceLocator);
@@ -32,6 +34,7 @@ protected:
     Logger& logger;
     TwoWire& i2c;
 
+    std::unique_ptr<DeviceModule> deviceModule;
     std::unique_ptr<RegisterManager> registers;
 
 private:

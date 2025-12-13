@@ -5,6 +5,14 @@
 
 #include "logging/Logger.h"
 
+
+struct DeviceConfiguration {
+    std::string id;
+    std::string name;
+    char type;
+    uint8_t address;
+};
+
 class DeviceConfigurationManager {
 public:
     explicit DeviceConfigurationManager(Preferences& preferences, Logger& logger);

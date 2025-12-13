@@ -23,11 +23,14 @@ void FirmwareModuleA::setup() {
     auto deviceAddress = deviceConfigurationManager.getDeviceAddress();
     if (deviceAddress > 0) {
         const auto deviceId = deviceConfigurationManager.getDeviceId();
+        const auto deviceName = deviceConfigurationManager.getDeviceName();
+
         i2c::structs::DeviceInformation deviceInformationStruct;
         std::memcpy(&deviceInformationStruct.deviceId, deviceId.data(), sizeof(deviceInformationStruct.deviceId));
         deviceInformationStruct.deviceType = deviceConfigurationManager.getDeviceType();
 
         i2cSlavePort->updateEndpoint(i2c::Endpoint::DeviceInformation, &deviceInformationStruct, sizeof(deviceInformationStruct));
+        i2cSlavePort->updateEndpoint(i2c::Endpoint::DeviceName, deviceName.c_str(), i2c::MAX_PACKET_SIZE - 1);
         i2cSlavePort->begin(deviceAddress, 1, 0);
     }
 

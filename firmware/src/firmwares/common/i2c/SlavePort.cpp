@@ -22,9 +22,9 @@ void i2c::SlavePort::begin(const uint8_t address, const uint8_t sdaPin, const ui
 
 void i2c::SlavePort::updateEndpoint(Endpoint endpoint, const void* data, uint8_t length) {
     auto& endpointData = this->endpoints[static_cast<int>(endpoint)];
+    std::memset(&endpointData.data, 0, 32);
     std::memcpy(&endpointData.data, data, length);
     endpointData.length = length;
-
 }
 
 void i2c::SlavePort::onReceiveCallback(const int len) {

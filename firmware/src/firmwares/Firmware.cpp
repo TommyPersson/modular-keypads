@@ -16,10 +16,20 @@
 #include "modules/base/commands/SetDeviceTypeCommandHandler.h"
 #include "modules/generic/GenericFirmware.h"
 #include "modules/m/FirmwareModuleM.h"
+#include "firmwares/MasterFirmware.h"
+#include "firmwares/SlaveFirmware.h"
 
 std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
 
     auto deviceType = serviceLocator.deviceConfigurationManager.getDeviceType();
+    auto deviceAddress = serviceLocator.deviceConfigurationManager.getDeviceAddress();
+
+    /*
+    if (deviceAddress == 10) {
+        return std::make_unique<MasterFirmware>(serviceLocator);
+    } else {
+        return std::make_unique<SlaveFirmware>(serviceLocator);
+    }*/
 
     switch (deviceType) {
     case 'm':
