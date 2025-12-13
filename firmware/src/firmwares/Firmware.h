@@ -7,31 +7,20 @@
 
 #include "common/DeviceConfigurationManager.h"
 #include "common/LineStreamer.h"
+#include "common/ServiceLocator.h"
 #include "common/commands/CommandProcessor.h"
 #include "common/notifications/Notifier.h"
 
 class Firmware {
 public:
-    Firmware(
-        DeviceConfigurationManager& deviceConfigurationManager,
-        SerialPort& serialPort,
-        Notifier& notifier,
-        Logger& logger,
-        TwoWire& i2c
-    );
+    explicit Firmware(ServiceLocator& serviceLocator);
 
     virtual ~Firmware() = default;
 
     virtual void setup();
     virtual void loop();
 
-    static std::unique_ptr<Firmware> create(
-        DeviceConfigurationManager& deviceConfigurationManager,
-        SerialPort& serialPort,
-        Notifier& notifier,
-        Logger& logger,
-        TwoWire& i2c
-    );
+    static std::unique_ptr<Firmware> create(ServiceLocator& serviceLocator);
 
 protected:
     void addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const;

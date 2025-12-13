@@ -5,14 +5,8 @@
 #include "DeviceRuntimeM.h"
 #include "LocalRegisterRefresherM.h"
 
-FirmwareModuleM::FirmwareModuleM(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    SerialPort& serialPort,
-    Notifier& notifier,
-    Logger& logger,
-    TwoWire& i2c
-    ) :
-    Firmware(deviceConfigurationManager, serialPort, notifier, logger, i2c) {
+FirmwareModuleM::FirmwareModuleM(ServiceLocator& serviceLocator) :
+    Firmware(serviceLocator) {
 
     indicatorLeds = IndicatorLedManager::NeoPixel(5, 7);
 
@@ -20,8 +14,7 @@ FirmwareModuleM::FirmwareModuleM(
     runtime = std::make_unique<DeviceRuntimeM>(*registers, *indicatorLeds, notifier, logger, DeviceMode::Local);
 }
 
-FirmwareModuleM::~FirmwareModuleM() {
-}
+FirmwareModuleM::~FirmwareModuleM() = default;
 
 void FirmwareModuleM::setup() {
     Firmware::setup();

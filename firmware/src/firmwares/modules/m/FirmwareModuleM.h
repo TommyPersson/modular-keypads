@@ -1,23 +1,12 @@
 #pragma once
 
-#include <SerialPort/SerialPort.h>
-
 #include "firmwares/Firmware.h"
-#include "firmwares/common/DeviceConfigurationManager.h"
-#include "firmwares/common/logging/Logger.h"
-#include "firmwares/common/notifications/EncoderRotationNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
 #include "firmwares/common/runtimes/RegisterRefresher.h"
 
 class FirmwareModuleM final : public Firmware {
 public:
-    explicit FirmwareModuleM(
-        DeviceConfigurationManager& deviceConfigurationManager,
-        SerialPort& serialPort,
-        Notifier& notifier,
-        Logger& logger,
-        TwoWire& i2c
-    );
+    explicit FirmwareModuleM(ServiceLocator& serviceLocator);
 
     ~FirmwareModuleM() override;
 

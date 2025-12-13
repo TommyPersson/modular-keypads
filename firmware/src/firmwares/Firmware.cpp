@@ -1,5 +1,6 @@
 #include "Firmware.h"
 
+#include "common/ServiceLocator.h"
 #include "modules/a/FirmwareModuleA.h"
 #include "modules/base/commands/ListRegistersCommandHandler.h"
 #include "modules/base/commands/PingCommandHandler.h"
@@ -16,40 +17,28 @@
 #include "modules/generic/GenericFirmware.h"
 #include "modules/m/FirmwareModuleM.h"
 
-std::unique_ptr<Firmware> Firmware::create(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    SerialPort& serialPort,
-    Notifier& notifier,
-    Logger& logger,
-    TwoWire& i2c
-    ) {
+std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
 
-    auto deviceType = deviceConfigurationManager.getDeviceType();
+    auto deviceType = serviceLocator.deviceConfigurationManager.getDeviceType();
 
     switch (deviceType) {
     case 'm':
     case 'M':
-        return std::make_unique<FirmwareModuleM>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
+        return std::make_unique<FirmwareModuleM>(serviceLocator);
     case 'a':
     case 'A':
-        return std::make_unique<FirmwareModuleA>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
+        return std::make_unique<FirmwareModuleA>(serviceLocator);
     default:
-        return std::make_unique<GenericFirmware>(deviceConfigurationManager, serialPort, notifier, logger, i2c);
+        return std::make_unique<GenericFirmware>(serviceLocator);
     }
 }
 
-Firmware::Firmware(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    SerialPort& serialPort,
-    Notifier& notifier,
-    Logger& logger,
-    TwoWire& i2c
-    ) :
-    deviceConfigurationManager(deviceConfigurationManager),
-    serialPort(serialPort),
-    notifier(notifier),
-    logger(logger),
-    i2c(i2c) {
+Firmware::Firmware(ServiceLocator& serviceLocator) :
+    deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
+    serialPort(serviceLocator.serialPort),
+    notifier(serviceLocator.notifier),
+    logger(serviceLocator.logger),
+    i2c(serviceLocator.i2c) {
 
     this->registers = std::make_unique<RegisterManager>();
 

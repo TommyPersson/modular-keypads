@@ -4,6 +4,7 @@
 #include <SPI.h>
 
 #include <cstdint>
+#include <memory>
 
 //#include <MacroPad/MacroPadHardware.h>
 //#include <MacroPad/MacroPad.h>
@@ -20,6 +21,7 @@
 #include "firmwares/common/notifications/Notifier.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/Firmware.h"
+#include "firmwares/common/ServiceLocator.h"
 
 
 std::unique_ptr<Firmware> firmware;
@@ -30,8 +32,18 @@ std::unique_ptr<SerialPort> serialPort = SerialPort::from(Serial);
 DeviceConfigurationManager deviceConfigurationManager(preferences, logger);
 Notifier notifier(Serial);
 
+std::unique_ptr<ServiceLocator> serviceLocator;
+
 void setup() {
-    firmware = Firmware::create(deviceConfigurationManager, *serialPort, notifier, logger, Wire);
+    serviceLocator = std::make_unique<ServiceLocator>(ServiceLocator{
+        .deviceConfigurationManager = deviceConfigurationManager,
+        .serialPort = *serialPort,
+        .notifier = notifier,
+        .logger = logger,
+        .i2c = Wire,
+    });
+
+    firmware = Firmware::create(*serviceLocator);
     firmware->setup();
 
   //  USB.productName("tommy-product");

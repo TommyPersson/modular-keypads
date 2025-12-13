@@ -4,13 +4,7 @@
 
 class GenericFirmware final : public Firmware {
 public:
-    explicit GenericFirmware(
-        DeviceConfigurationManager& deviceConfigurationManager,
-        SerialPort& serialPort,
-        Notifier& notifier,
-        Logger& logger,
-        TwoWire& i2c
-    );
+    explicit GenericFirmware(ServiceLocator& serviceLocator);
 
     ~GenericFirmware() override;
 

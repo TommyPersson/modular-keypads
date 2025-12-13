@@ -1,11 +1,7 @@
 #pragma once
 
-
 #include "firmwares/Firmware.h"
-#include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/i2c/SlavePort.h"
-#include "firmwares/common/indicatorleds/IndicatorLeds.h"
-#include "firmwares/common/logging/Logger.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
 #include "firmwares/common/runtimes/RegisterRefresher.h"
 
@@ -13,13 +9,7 @@
 
 class FirmwareModuleA final : public Firmware {
 public:
-    explicit FirmwareModuleA(
-        DeviceConfigurationManager& deviceConfigurationManager,
-        SerialPort& serialPort,
-        Notifier& notifier,
-        Logger& logger,
-        TwoWire& i2c
-    );
+    explicit FirmwareModuleA(ServiceLocator& serviceLocator);
 
     ~FirmwareModuleA() override;
 
