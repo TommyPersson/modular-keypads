@@ -15,7 +15,7 @@ let (xy = get_module_size(width_units))
     ];
 
 
-module magnet_hole_cutouts(module_size) {
+module magnet_hole_cutouts(module_size, variant = "normal", rotation = 0) {
     x_inset = module_width_x_unit / 2;
     y_inset = magnet_inset;
 
@@ -28,13 +28,19 @@ module magnet_hole_cutouts(module_size) {
 
     for (p = points) {
         translate(p) {
-            magnet_hole_cutout();
+            magnet_hole_cutout(variant, rotation);
         }
     }
 }
 
-module magnet_hole_cutout() {
+module magnet_hole_cutout(variant = "normal", rotation = 0) {
     linear_extrude(magnet_depth) {
-        circle(d = magnet_diameter);
+        if (variant == "normal") {
+            circle(d = magnet_diameter);
+        } else if (variant == "teardrop") {
+            rotate(rotation, [0, 0, 1]) {
+                tear_drop_circle(d = magnet_diameter);
+            }
+        }
     }
 }
