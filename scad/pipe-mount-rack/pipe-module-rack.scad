@@ -6,28 +6,51 @@ module_base_height = 5;
 pipe_mount_inner_diameter = 16.4;
 pipe_mount_outer_diameter = 20;
 pipe_separation = 50;
+support_wall_thickness = 2;
+support_wall_height = 8;
 
 module_base(4);
 
 module module_base(width_units) {
     size = get_module_size(width_units);
 
-    difference() {
-        linear_extrude(module_base_height) {
-            square(size);
+    intersection() {
+        union() {
+            // main body
+            difference() {
+                linear_extrude(module_base_height) {
+                    square(size);
+                }
+
+                translate([0, 0, module_base_height - magnet_depth]) {
+                    #magnet_hole_cutouts(size, variant = "teardrop", rotation = 90);
+                }
+            }
+
+            // near grip
+            translate([0, module_height_y / 2 + pipe_separation / 2, -pipe_mount_inner_diameter / 2]) {
+                pipe_mount(size.x);
+            }
+
+            // far grip
+            translate([0, module_height_y / 2 - pipe_separation / 2, -pipe_mount_inner_diameter / 2]) {
+                pipe_mount(size.x);
+            }
+
+            // near wall
+            translate([0, -support_wall_thickness]) {
+                linear_extrude(module_base_height + support_wall_height) {
+                    square([size.x, support_wall_thickness]);
+                }
+            }
         }
 
-        translate([0, 0, module_base_height - magnet_depth]) {
-            #magnet_hole_cutouts(size, variant = "teardrop", rotation = 90);
+        translate([1, -support_wall_thickness, -50]) {
+            // bounding box
+            #linear_extrude(100) {
+                rounded_rectangle([size.x - 2, size.y + support_wall_thickness], corner_radius = 1);
+            }
         }
-    }
-
-    translate([0, module_height_y / 2 + pipe_separation / 2, -pipe_mount_inner_diameter / 2]) {
-        pipe_mount(size.x);
-    }
-
-    translate([0, module_height_y / 2 - pipe_separation / 2, -pipe_mount_inner_diameter / 2]) {
-        pipe_mount(size.x);
     }
 }
 
@@ -48,7 +71,19 @@ module pipe_mount(width) {
                         circle(d = pipe_mount_outer_diameter);
 
                     }
-                    circle(d = pipe_mount_inner_diameter);
+
+                    union() {
+                        circle(d = pipe_mount_inner_diameter);
+                        translate([-pipe_mount_outer_diameter / 2, 0]) {
+                            square([pipe_mount_outer_diameter, pipe_mount_outer_diameter / 2]);
+                        }
+                    }
+                }
+            }
+
+            linear_extrude(width) {
+                translate([-pipe_mount_inner_diameter / 2 - support_wall_thickness, -5]) {
+                    square([support_wall_thickness, 10]);
                 }
             }
         }
