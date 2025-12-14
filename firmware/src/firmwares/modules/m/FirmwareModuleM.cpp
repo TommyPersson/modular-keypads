@@ -6,13 +6,17 @@
 #include "DeviceRuntimeM.h"
 #include "LocalRegisterRefresherM.h"
 
+namespace {
+    auto logger = common::logging::createLogger("FirmwareModuleM");
+}
+
 FirmwareModuleM::FirmwareModuleM(ServiceLocator& serviceLocator) :
     Firmware(serviceLocator) {
 
     indicatorLeds = IndicatorLedManager::NeoPixel(5, 7);
 
     registerRefresher = std::make_unique<LocalRegisterRefresherM>(*registers);
-    runtime = std::make_unique<DeviceRuntimeM>(*registers, *indicatorLeds, notifier, logger, DeviceMode::Local);
+    runtime = std::make_unique<DeviceRuntimeM>(*registers, *indicatorLeds, notifier, DeviceMode::Local);
 }
 
 FirmwareModuleM::~FirmwareModuleM() = default;
@@ -25,7 +29,7 @@ void FirmwareModuleM::setup() {
 
     i2c.begin(2, 1);
 
-    logger.info("FirmwareModuleM:started");
+    logger->info("started");
 
     delay(100);
 
@@ -34,9 +38,9 @@ void FirmwareModuleM::setup() {
     auto scanResult = scanner.scan();
 
     for (auto& device : scanResult) {
-        logger.info("Found device at %i: %s", device->getConfiguration().address, device->getConfiguration().id.c_str());
-        logger.info("Device name: %s", device->getConfiguration().name.c_str());
-        logger.info("Device type: %c", device->getConfiguration().type);
+        logger->info("Found device at %i: %s", device->getConfiguration().address, device->getConfiguration().id.c_str());
+        logger->info("Device name: %s", device->getConfiguration().name.c_str());
+        logger->info("Device type: %c", device->getConfiguration().type);
     }
 }
 

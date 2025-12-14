@@ -2,11 +2,14 @@
 
 #include <utils/strings.h>
 
+namespace {
+    auto logger = common::logging::createLogger("SetDeviceNameCommandHandler");
+}
+
 SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("set.device.name", logger),
+    CommandHandler("set.device.name"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 
@@ -20,7 +23,7 @@ void SetDeviceNameCommandHandler::execute(
     const auto name = args[0];
 
     if (!this->deviceConfigurationManager.setDeviceName(name)) {
-        this->logger.error("SetDeviceNameCommandHandler::execute: unable to set device name");
+        logger->error("execute: unable to set device name");
         responseWriter.writeLine("NAK");
     }
 }

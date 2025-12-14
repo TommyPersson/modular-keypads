@@ -6,7 +6,7 @@
 
 class PingCommandHandler final : public CommandHandler {
 public:
-    explicit PingCommandHandler(Logger& logger);
+    explicit PingCommandHandler();
     ~PingCommandHandler() override;
 
     void execute(

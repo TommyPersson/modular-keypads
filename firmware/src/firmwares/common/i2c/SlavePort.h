@@ -14,7 +14,7 @@ namespace i2c {
 
     class SlavePort {
     public:
-        explicit SlavePort(TwoWire& twoWire, Logger& logger);
+        explicit SlavePort(TwoWire& twoWire);
         ~SlavePort();
 
         void begin(uint8_t address, uint8_t sdaPin, uint8_t sclPin);
@@ -30,7 +30,6 @@ namespace i2c {
         EndpointData& selectedEndpoint;
 
         TwoWire& twoWire;
-        Logger& logger;
 
         Arena receiveArena;
     };

@@ -5,7 +5,7 @@
 
 class ReadDeviceFirmwareVersionCommandHandler final : public CommandHandler {
 public:
-    explicit ReadDeviceFirmwareVersionCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    explicit ReadDeviceFirmwareVersionCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceFirmwareVersionCommandHandler() override;
 
     void execute(

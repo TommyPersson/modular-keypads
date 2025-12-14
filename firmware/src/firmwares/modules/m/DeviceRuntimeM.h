@@ -13,7 +13,6 @@ public:
         RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier,
-        Logger& logger,
         DeviceMode mode
     );
     ~DeviceRuntimeM() override;

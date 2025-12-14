@@ -6,7 +6,7 @@
 
 class ListRegistersCommandHandler final : public CommandHandler {
 public:
-    explicit ListRegistersCommandHandler(const RegisterManager& registers, Logger& logger);
+    explicit ListRegistersCommandHandler(const RegisterManager& registers);
     ~ListRegistersCommandHandler() override;
 
     void execute(

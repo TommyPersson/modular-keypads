@@ -47,32 +47,26 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
     notifier(serviceLocator.notifier),
-    logger(serviceLocator.logger),
     i2c(serviceLocator.i2c) {
 
     this->registers = std::make_unique<RegisterManager>();
 
     this->lineStreamer = std::make_unique<LineStreamer>(serialPort.stream());
-    this->commandProcessor = std::make_unique<CommandProcessor>(serialPort.stream(), logger);
+    this->commandProcessor = std::make_unique<CommandProcessor>(serialPort.stream());
     this->lineStreamer->addObserver(this->commandProcessor.get());
 
-    this->addCommandHandler(std::make_shared<PingCommandHandler>(logger));
-    this->addCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(
-        std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(
-            deviceConfigurationManager,
-            logger
-            )
-        );
-    this->addCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<ReadDeviceNameCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager, logger));
-    this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(*registers, logger));
-    this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(*registers, logger));
+    this->addCommandHandler(std::make_shared<PingCommandHandler>());
+    this->addCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<ReadDeviceNameCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
+    this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(*registers));
+    this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(*registers));
 }
 
 void Firmware::setup() {

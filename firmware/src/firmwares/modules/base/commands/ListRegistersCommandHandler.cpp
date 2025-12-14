@@ -4,8 +4,8 @@
 #include <utils/allocations/ArenaUtils.h>
 
 
-ListRegistersCommandHandler::ListRegistersCommandHandler(const RegisterManager& registers, Logger& logger) :
-    CommandHandler("list.registers", logger), registers(registers) {
+ListRegistersCommandHandler::ListRegistersCommandHandler(const RegisterManager& registers) :
+    CommandHandler("list.registers"), registers(registers) {
 }
 
 ListRegistersCommandHandler::~ListRegistersCommandHandler() = default;

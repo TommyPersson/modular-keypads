@@ -2,10 +2,9 @@
 
 
 ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("read.device.id", logger),
+    CommandHandler("read.device.id"),
 
     deviceConfigurationManager(deviceConfigurationManager) {
 }

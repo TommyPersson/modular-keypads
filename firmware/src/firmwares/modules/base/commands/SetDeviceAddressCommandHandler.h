@@ -5,7 +5,7 @@
 
 class SetDeviceAddressCommandHandler final : public CommandHandler {
 public:
-    explicit SetDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    explicit SetDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~SetDeviceAddressCommandHandler() override;
 
     void execute(

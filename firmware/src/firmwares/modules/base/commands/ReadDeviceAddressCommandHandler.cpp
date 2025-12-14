@@ -1,10 +1,9 @@
 #include "ReadDeviceAddressCommandHandler.h"
 
 ReadDeviceAddressCommandHandler::ReadDeviceAddressCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("read.device.address", logger),
+    CommandHandler("read.device.address"),
 
     deviceConfigurationManager(deviceConfigurationManager) {
 }

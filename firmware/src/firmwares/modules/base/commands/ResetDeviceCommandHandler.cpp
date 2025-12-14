@@ -1,10 +1,9 @@
 #include "ResetDeviceCommandHandler.h"
 
 ResetDeviceCommandHandler::ResetDeviceCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("reset.device", logger),
+    CommandHandler("reset.device"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 

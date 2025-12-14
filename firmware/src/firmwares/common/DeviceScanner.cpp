@@ -3,6 +3,10 @@
 #include "i2c/Endpoint.h"
 #include "i2c/EndpointStructs.h"
 
+namespace {
+    auto logger = common::logging::createLogger("DeviceScanner");
+}
+
 DeviceScanner::DeviceScanner(I2cClient& client) :
     client(client) {
 }
@@ -14,7 +18,10 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
     std::vector<std::shared_ptr<DeviceProxy>> result;
 
     for (uint8_t address = 10; address < 14; address++) {
+        logger->debug("probing %i", address);
+
         if (!client.setEndpoint(address, i2c::Endpoint::DeviceInformation)) {
+            logger->debug("unable to get device information (%i)", address);
             continue;
         }
 
@@ -24,6 +31,7 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
         const char type = deviceInformation->deviceType;
 
         if (!client.setEndpoint(address, i2c::Endpoint::DeviceName)) {
+            logger->debug("unable to get device name (%i)", address);
             continue;
         }
 

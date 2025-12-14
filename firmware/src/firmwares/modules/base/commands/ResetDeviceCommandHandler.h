@@ -5,7 +5,7 @@
 
 class ResetDeviceCommandHandler final : public CommandHandler {
 public:
-    explicit ResetDeviceCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    explicit ResetDeviceCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~ResetDeviceCommandHandler() override;
 
     void execute(

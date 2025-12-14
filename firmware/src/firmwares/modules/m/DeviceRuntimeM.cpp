@@ -4,10 +4,9 @@ DeviceRuntimeM::DeviceRuntimeM(
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier,
-    Logger& logger,
     const DeviceMode mode
     ) :
-    DeviceRuntime(registers, indicatorLeds, notifier, logger, mode) {
+    DeviceRuntime(registers, indicatorLeds, notifier, mode) {
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
     encoderRotationNotifier = std::make_unique<EncoderRotationNotifier>(notifier);

@@ -11,6 +11,5 @@ struct ServiceLocator {
     DeviceConfigurationManager& deviceConfigurationManager;
     SerialPort& serialPort;
     Notifier& notifier;
-    Logger& logger;
     TwoWire& i2c;
 };

@@ -2,11 +2,14 @@
 
 #include <utils/strings.h>
 
+namespace {
+    auto logger = common::logging::createLogger("SetDeviceAddressCommandHandler");
+}
+
 SetDeviceAddressCommandHandler::SetDeviceAddressCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("set.device.address", logger),
+    CommandHandler("set.device.address"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 
@@ -22,7 +25,7 @@ void SetDeviceAddressCommandHandler::execute(
     const auto address = utils::strings::atol(addressStr, 16);
 
     if (!this->deviceConfigurationManager.setDeviceAddress(address)) {
-        this->logger.error("SetDeviceAddressCommandHandler::execute: unable to set device address");
+        logger->error("execute: unable to set device address");
         responseWriter.writeLine("NAK");
     }
 }

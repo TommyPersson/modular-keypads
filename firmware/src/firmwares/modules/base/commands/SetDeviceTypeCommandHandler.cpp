@@ -1,10 +1,13 @@
 #include "SetDeviceTypeCommandHandler.h"
 
+namespace {
+    auto logger = common::logging::createLogger("SetDeviceTypeCommandHandler");
+}
+
 SetDeviceTypeCommandHandler::SetDeviceTypeCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("set.device.type", logger),
+    CommandHandler("set.device.type"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 
@@ -16,13 +19,13 @@ void SetDeviceTypeCommandHandler::execute(
     Arena& arena
     ) {
     if (args.size() != 1) {
-        this->logger.error("SetDeviceTypeCommandHandler::execute: wrong number of arguments");
+        logger->error("execute: wrong number of arguments");
         responseWriter.writeLine("NAK");
         return;
     }
 
     if (args[0].size() != 1) {
-        this->logger.error("SetDeviceTypeCommandHandler::execute: wrong number of characters for device type");
+        logger->error("execute: wrong number of characters for device type");
         responseWriter.writeLine("NAK");
         return;
     }
@@ -30,7 +33,7 @@ void SetDeviceTypeCommandHandler::execute(
     const auto deviceTypeCode = args[0][0];
 
     if (!deviceConfigurationManager.setDeviceType(deviceTypeCode)) {
-        this->logger.error("SetDeviceTypeCommandHandler::execute: unable to set device type");
+        logger->error("execute: unable to set device type");
         responseWriter.writeLine("NAK");
         return;
     }

@@ -6,7 +6,7 @@
 
 class ReadRegisterCommandHandler final : public CommandHandler {
 public:
-    explicit ReadRegisterCommandHandler(const RegisterManager& registers, Logger& logger);
+    explicit ReadRegisterCommandHandler(const RegisterManager& registers);
     ~ReadRegisterCommandHandler() override;
 
     void execute(

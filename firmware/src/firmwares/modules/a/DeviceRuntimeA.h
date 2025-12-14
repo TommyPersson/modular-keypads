@@ -11,7 +11,6 @@ public:
         RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier,
-        Logger& logger,
         DeviceMode mode
     );
     ~DeviceRuntimeA() override;

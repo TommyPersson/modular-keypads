@@ -1,10 +1,9 @@
 #include "ReadDeviceFirmwareVersionCommandHandler.h"
 
 ReadDeviceFirmwareVersionCommandHandler::ReadDeviceFirmwareVersionCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("read.device.firmware.version", logger),
+    CommandHandler("read.device.firmware.version"),
 
     deviceConfigurationManager(deviceConfigurationManager) {
 }

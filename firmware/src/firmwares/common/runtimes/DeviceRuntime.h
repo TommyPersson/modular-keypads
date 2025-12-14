@@ -4,7 +4,6 @@
 
 #include "firmwares/common/bitreaders/BitReader.h"
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
-#include "firmwares/common/logging/Logger.h"
 #include "firmwares/common/monitors/SwitchMonitor.h"
 #include "firmwares/common/monitors/RotationalEncoderMonitor.h"
 #include "firmwares/common/notifications/Notifier.h"
@@ -20,7 +19,6 @@ public:
         RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier,
-        Logger& logger,
         DeviceMode mode
     );
 
@@ -45,6 +43,5 @@ protected:
     RegisterManager& registers;
     IndicatorLedManager& indicatorLeds;
     Notifier& notifier;
-    Logger& logger;
     DeviceMode mode;
 };

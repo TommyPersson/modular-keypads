@@ -5,7 +5,7 @@
 
 class ReadDeviceIdCommandHandler final : public CommandHandler {
 public:
-    explicit ReadDeviceIdCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    explicit ReadDeviceIdCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceIdCommandHandler() override;
 
     void execute(

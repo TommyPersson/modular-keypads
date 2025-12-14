@@ -5,10 +5,12 @@
 #include "utils/strings.h"
 #include "utils/allocations/ArenaUtils.h"
 
+namespace {
+    auto logger = common::logging::createLogger("CommandProcessor");
+}
 
-CommandProcessor::CommandProcessor(Print& outputStream, Logger& logger) :
+CommandProcessor::CommandProcessor(Print& outputStream) :
     outputStream(outputStream),
-    logger(logger),
     arena(4096) {
 }
 
@@ -29,7 +31,7 @@ void CommandProcessor::observe(const LineEvent& value) {
         handler->execute(command.args, responseWriter, this->arena);
         outputStream.printf("%%%i.0\n", command.id);
     } else {
-        logger.error("unknown.command: %.*s", command.type.length(), command.type.data());
+        logger->error("unknown.command: %.*s", command.type.length(), command.type.data());
     }
 
     arena.reset();

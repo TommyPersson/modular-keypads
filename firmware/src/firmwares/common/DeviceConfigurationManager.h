@@ -15,7 +15,7 @@ struct DeviceConfiguration {
 
 class DeviceConfigurationManager {
 public:
-    explicit DeviceConfigurationManager(Preferences& preferences, Logger& logger);
+    explicit DeviceConfigurationManager(Preferences& preferences);
     ~DeviceConfigurationManager() = default;
 
     void begin() const;
@@ -34,5 +34,4 @@ public:
 
 private:
     Preferences& preferences;
-    Logger& logger;
 };

@@ -4,13 +4,11 @@ DeviceRuntime::DeviceRuntime(
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier,
-    Logger& logger,
     const DeviceMode mode
     ) :
     registers(registers),
     indicatorLeds(indicatorLeds),
     notifier(notifier),
-    logger(logger),
     mode(mode) {
 }
 

@@ -4,15 +4,19 @@
 #include "LocalRegisterRefresherA.h"
 #include "firmwares/common/i2c/EndpointStructs.h"
 
+namespace {
+    auto logger = common::logging::createLogger("FirmwareModuleA");
+}
+
 FirmwareModuleA::FirmwareModuleA(ServiceLocator& serviceLocator) :
     Firmware(serviceLocator) {
 
     indicatorLeds = IndicatorLedManager::NeoPixel(12, 6);
 
     registerRefresher = std::make_unique<LocalRegisterRefresherA>(*registers);
-    runtime = std::make_unique<DeviceRuntimeA>(*registers, *indicatorLeds, notifier, logger, DeviceMode::Local);
+    runtime = std::make_unique<DeviceRuntimeA>(*registers, *indicatorLeds, notifier, DeviceMode::Local);
 
-    i2cSlavePort = std::make_unique<i2c::SlavePort>(i2c, logger);
+    i2cSlavePort = std::make_unique<i2c::SlavePort>(i2c);
 }
 
 FirmwareModuleA::~FirmwareModuleA() = default;
@@ -37,7 +41,7 @@ void FirmwareModuleA::setup() {
     registerRefresher->begin();
     runtime->begin();
 
-    logger.info("FirmwareModuleA:started");
+    logger->info("started");
 }
 
 void FirmwareModuleA::loop() {

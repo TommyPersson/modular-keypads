@@ -4,11 +4,13 @@
 
 #include "Operation.h"
 
+namespace {
+    auto logger = common::logging::createLogger("SlavePort");
+}
 
-i2c::SlavePort::SlavePort(TwoWire& twoWire, Logger& logger) :
+i2c::SlavePort::SlavePort(TwoWire& twoWire) :
     selectedEndpoint(endpoints[0]),
     twoWire(twoWire),
-    logger(logger),
     receiveArena(32) {
 }
 
@@ -50,5 +52,5 @@ void i2c::SlavePort::onRequestCallback() {
 void i2c::SlavePort::selectEndpoint(Endpoint endpoint) {
     selectedEndpoint = this->endpoints[static_cast<int>(endpoint)];
 
-    logger.info("selected endpoint = %i", static_cast<int>(endpoint));
+    logger->info("selected endpoint = %i", static_cast<int>(endpoint));
 }

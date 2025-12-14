@@ -1,11 +1,13 @@
 #pragma once
 
-#include <Print.h>
 #include <cstdarg>
+#include <memory>
+#include <Print.h>
+#include <optional>
 
 class Logger {
 public:
-    explicit Logger(Print& outputStream);
+    explicit Logger(std::optional<Print*>& outputStream, const std::string& name);
 
     void info(const char* format, ...) const __attribute__((format(printf, 2, 3))) {
         va_list args;
@@ -37,13 +39,28 @@ public:
 
 private:
     void vlog(const char* level, const char* format, const va_list args) const {
-        outputStream.print("#");
-        outputStream.print(level);
-        outputStream.print(":");
-        outputStream.vprintf(format, args);
-        outputStream.print("\n");
-        outputStream.flush();
+        const auto ostream = outputStream.value_or(nullptr);
+        if (ostream == nullptr) {
+            return;
+        }
+
+        ostream->print("#");
+        ostream->print(level);
+        ostream->print(":");
+        if (name.length() > 0) {
+            ostream->print(name.c_str());
+            ostream->print(":");
+        }
+        ostream->vprintf(format, args);
+        ostream->print("\n");
+        ostream->flush();
     };
 
-    Print& outputStream;
+    std::optional<Print*>& outputStream;
+    std::string name;
 };
+
+namespace common::logging {
+    void initialize(Print* outputStream1);
+    std::shared_ptr<Logger> createLogger(const std::string& name);
+}

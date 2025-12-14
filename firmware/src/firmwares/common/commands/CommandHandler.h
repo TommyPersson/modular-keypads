@@ -13,7 +13,7 @@
 
 class CommandHandler {
 public:
-    explicit CommandHandler(std::string commandType, Logger& logger);
+    explicit CommandHandler(std::string commandType);
     virtual ~CommandHandler() = default;
 
     const std::string& getCommandType() const {
@@ -26,14 +26,10 @@ public:
         Arena& arena
     ) = 0;
 
-protected:
-    Logger& logger;
-
 private:
     std::string commandType;
 };
 
-inline CommandHandler::CommandHandler(std::string commandType, Logger& logger)
-    : logger(logger),
-      commandType(std::move(commandType)) {
+inline CommandHandler::CommandHandler(std::string commandType)
+    : commandType(std::move(commandType)) {
 }

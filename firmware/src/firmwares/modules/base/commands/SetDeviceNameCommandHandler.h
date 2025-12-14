@@ -5,7 +5,7 @@
 
 class SetDeviceNameCommandHandler final : public CommandHandler {
 public:
-    explicit SetDeviceNameCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    explicit SetDeviceNameCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~SetDeviceNameCommandHandler() override;
 
     void execute(

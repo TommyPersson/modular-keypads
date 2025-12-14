@@ -1,7 +1,12 @@
 #include "PingCommandHandler.h"
 
-PingCommandHandler::PingCommandHandler(Logger& logger) :
-    CommandHandler("ping", logger) {
+
+namespace {
+    auto logger = common::logging::createLogger("PingCommandHandler");
+}
+
+PingCommandHandler::PingCommandHandler() :
+    CommandHandler("ping") {
 }
 
 PingCommandHandler::~PingCommandHandler() = default;
@@ -12,7 +17,7 @@ void PingCommandHandler::execute(
     Arena& arena
     ) {
     for (auto& arg : args) {
-        logger.debug("arg = %.*s", arg.length(), arg.data());
+        logger->debug("arg = %.*s", arg.length(), arg.data());
     }
 
     responseWriter.writeLine("pong");

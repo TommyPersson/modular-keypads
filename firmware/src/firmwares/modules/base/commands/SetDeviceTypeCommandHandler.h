@@ -5,7 +5,7 @@
 
 class SetDeviceTypeCommandHandler final : public CommandHandler {
 public:
-    explicit SetDeviceTypeCommandHandler(DeviceConfigurationManager& deviceConfigurationManager, Logger& logger);
+    explicit SetDeviceTypeCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~SetDeviceTypeCommandHandler() override;
     void execute(
         const std::span<const std::string_view>& args,

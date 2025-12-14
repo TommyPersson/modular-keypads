@@ -1,10 +1,9 @@
 #include "ReadDeviceTypeCommandHandler.h"
 
 ReadDeviceTypeCommandHandler::ReadDeviceTypeCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager,
-    Logger& logger
+    DeviceConfigurationManager& deviceConfigurationManager
     ) :
-    CommandHandler("read.device.type", logger),
+    CommandHandler("read.device.type"),
 
     deviceConfigurationManager(deviceConfigurationManager) {
 }

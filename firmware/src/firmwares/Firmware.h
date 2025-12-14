@@ -31,7 +31,6 @@ protected:
     DeviceConfigurationManager& deviceConfigurationManager;
     SerialPort& serialPort;
     Notifier& notifier;
-    Logger& logger;
     TwoWire& i2c;
 
     std::unique_ptr<DeviceModule> deviceModule;
