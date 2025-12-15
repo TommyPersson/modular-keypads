@@ -36,7 +36,7 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
         }
 
         const auto deviceName = client.readEndpoint<i2c::structs::DeviceName>(address);
-        const auto name = std::string(deviceName->deviceName, 32);
+        const auto name = std::string(deviceName->deviceName, sizeof(deviceName->deviceName));
 
         DeviceConfiguration configuration{
             .id = id,

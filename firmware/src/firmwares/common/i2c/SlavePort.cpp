@@ -27,7 +27,7 @@ void i2c::SlavePort::updateEndpoint(Endpoint endpoint, const void* data, uint8_t
     std::lock_guard guard(lock);
 
     auto& endpointData = this->endpoints[static_cast<int>(endpoint)];
-    std::memset(&endpointData.data, 0, 32);
+    std::memset(&endpointData.data, 0, i2c::MAX_PACKET_SIZE);
     std::memcpy(&endpointData.data, data, length);
     endpointData.length = length;
 }
@@ -39,7 +39,13 @@ void i2c::SlavePort::onReceiveCallback(const int len) {
 
     int i = 0;
     while (Wire.available()) {
-        data[i++] = Wire.read();
+        int value = Wire.read();
+
+        if (i == 0 && value == 0x17) {
+            continue;
+        }
+
+        data[i++] = value;
     }
 
     if (data[0] == static_cast<int>(Operation::SetEndpoint)) {

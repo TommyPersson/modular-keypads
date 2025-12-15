@@ -7,5 +7,5 @@ namespace i2c {
         Registers = 0x03,
     };
 
-    const uint8_t MAX_PACKET_SIZE = 32;
+    const uint8_t MAX_PACKET_SIZE = 30; // 32 is the underlying Wire buffer, but if we use it we often read ETB characters
 };

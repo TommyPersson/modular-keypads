@@ -35,7 +35,7 @@ uint8_t RegisterManager::read(const std::string& name) const {
     return 0;
 }
 
-const std::array<uint8_t, 32>& RegisterManager::readAll() const {
+const std::array<uint8_t, 30>& RegisterManager::readAll() const {
     return storage.readAll();
 }
 
@@ -47,6 +47,6 @@ const std::vector<RegisterDescriptor>& RegisterManager::list() const {
     return descriptors;
 }
 
-void RegisterManager::writeAll(std::span<uint8_t, 32>& data) {
+void RegisterManager::writeAll(std::span<uint8_t, 30>& data) {
     storage.writeAll(data);
 }

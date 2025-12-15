@@ -9,7 +9,7 @@
 
 namespace i2c {
     struct EndpointData {
-        uint8_t data[32];
+        uint8_t data[MAX_PACKET_SIZE];
         uint8_t length;
     };
 

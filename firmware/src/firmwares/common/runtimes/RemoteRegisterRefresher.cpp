@@ -19,7 +19,7 @@ void RemoteRegisterRefresher::loop() {
     }
 
     auto response = i2cClient.readEndpoint<i2c::structs::DeviceRegisters>(deviceAddress);
-    auto data = std::span<uint8_t, 32>(response->data, response->data + 32);
+    auto data = std::span<uint8_t, 30>(response->data, response->data + sizeof(response->data));
 
     registers.writeAll(data);
 

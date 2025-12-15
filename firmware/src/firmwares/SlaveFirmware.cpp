@@ -50,7 +50,7 @@ void SlaveFirmware::setup() {
         slavePort.updateEndpoint(
             i2c::Endpoint::DeviceName,
             deviceName.c_str(),
-            i2c::MAX_PACKET_SIZE - 1
+            sizeof(i2c::structs::DeviceName)
             );
 
         slavePort.setup(deviceAddress, pins);
@@ -64,7 +64,7 @@ void SlaveFirmware::loop() {
 
     i2c::structs::DeviceRegisters registersStruct;
     auto registerData = device->getRegisters().readAll();
-    std::memcpy(&registersStruct.data, registerData.data(), sizeof(registerData));
+    std::memcpy(&registersStruct.data, registerData.data(), sizeof(registersStruct.data));
 
     slavePort.updateEndpoint(i2c::Endpoint::Registers, &registersStruct, sizeof(registersStruct));
 }

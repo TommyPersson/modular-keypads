@@ -20,9 +20,9 @@ public:
 
     uint8_t read(const RegisterDescriptor& descriptor) const;
     uint8_t read(const std::string& descriptor) const;
-    const std::array<uint8_t, 32>& readAll() const;
+    const std::array<uint8_t, 30>& readAll() const;
     void write(const RegisterDescriptor& descriptor, uint8_t value);
-    void writeAll(std::span<uint8_t, 32>& data);
+    void writeAll(std::span<uint8_t, 30>& data);
 
     const std::vector<RegisterDescriptor>& list() const;
 

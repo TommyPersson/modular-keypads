@@ -14,13 +14,13 @@ void RegisterStorage::write(const RegisterDescriptor& descriptor, uint8_t value)
     values.at(descriptor.index) = value;
 }
 
-const std::array<uint8_t, 32>& RegisterStorage::readAll() const {
+const std::array<uint8_t, 30>& RegisterStorage::readAll() const {
     std::lock_guard guard(lock);
 
     return values;
 }
 
-void RegisterStorage::writeAll(std::span<uint8_t, 32>& newValues) {
+void RegisterStorage::writeAll(std::span<uint8_t, 30>& newValues) {
     std::lock_guard guard(lock);
 
     std::copy(newValues.begin(), newValues.end(), values.begin());
