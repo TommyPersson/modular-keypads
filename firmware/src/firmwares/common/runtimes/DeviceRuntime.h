@@ -18,8 +18,7 @@ public:
     explicit DeviceRuntime(
         RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
-        Notifier& notifier,
-        DeviceMode mode
+        Notifier& notifier
     );
 
     virtual ~DeviceRuntime() = default;

@@ -4,7 +4,7 @@
 #include <utils/allocations/ArenaUtils.h>
 
 
-ReadRegisterCommandHandler::ReadRegisterCommandHandler(const RegisterManager& registers) :
+ReadRegisterCommandHandler::ReadRegisterCommandHandler(const std::optional<RegisterManager*>& registers) :
     CommandHandler("read.register"), registers(registers) {
 }
 
@@ -16,8 +16,13 @@ void ReadRegisterCommandHandler::execute(
     CommandResponseWriter& responseWriter,
     Arena& arena
     ) {
+    if (!registers.has_value()) {
+        responseWriter.writeLine("0x00");
+        return;
+    }
+
     const auto registerName = std::string(args[0]);
-    const auto value = registers.read(registerName);
+    const auto value = (*registers)->read(registerName);
 
     responseWriter.writeLine(arena::strings::sprintf(arena, "0x%02x", value));
 }

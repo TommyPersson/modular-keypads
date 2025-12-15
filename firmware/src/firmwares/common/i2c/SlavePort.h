@@ -5,6 +5,7 @@
 #include "utils/allocations/Arena.h"
 
 #include "Endpoint.h"
+#include "I2cPins.h"
 
 namespace i2c {
     struct EndpointData {
@@ -17,7 +18,7 @@ namespace i2c {
         explicit SlavePort(TwoWire& twoWire);
         ~SlavePort();
 
-        void begin(uint8_t address, uint8_t sdaPin, uint8_t sclPin);
+        void setup(uint8_t address, Pins pins);
         void updateEndpoint(Endpoint endpoint, const void* data, uint8_t length);
 
     private:
@@ -32,5 +33,7 @@ namespace i2c {
         TwoWire& twoWire;
 
         Arena receiveArena;
+
+        mutable std::mutex lock;
     };
 }

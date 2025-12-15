@@ -9,5 +9,9 @@ public:
 
     void setup() override;
     void loop() override;
+
 private:
+    std::unique_ptr<DeviceModule> device;
+
+    i2c::SlavePort& slavePort;
 };

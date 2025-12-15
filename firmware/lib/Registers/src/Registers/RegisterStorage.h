@@ -2,6 +2,7 @@
 
 #include <array>
 #include <mutex>
+#include <span>
 
 #include "RegisterDescriptor.h"
 
@@ -11,7 +12,7 @@ public:
     void write(const RegisterDescriptor& descriptor, uint8_t value);
 
     const std::array<uint8_t, 32>& readAll() const;
-    void writeAll(std::array<uint8_t, 32>& newValues);
+    void writeAll(std::span<uint8_t, 32>& newValues);
 
 private:
     std::array<uint8_t, 32> values{};

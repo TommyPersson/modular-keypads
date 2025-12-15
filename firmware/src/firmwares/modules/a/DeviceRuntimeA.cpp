@@ -1,12 +1,19 @@
 #include "DeviceRuntimeA.h"
 
+#include <firmwares/common/logging/Logger.h>
+
+#include "RegisterDescriptorsA.h"
+
+namespace {
+    auto logger = common::logging::createLogger("DeviceRuntimeA");
+}
+
 DeviceRuntimeA::DeviceRuntimeA(
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
-    Notifier& notifier,
-    const DeviceMode mode
+    Notifier& notifier
     ) :
-    DeviceRuntime(registers, indicatorLeds, notifier, mode) {
+    DeviceRuntime(registers, indicatorLeds, notifier) {
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
 
@@ -26,6 +33,8 @@ DeviceRuntimeA::DeviceRuntimeA(
     attachSwitch(10, BitReader::forRegister(*ioaReg, 1), 7);
     attachSwitch(11, BitReader::forRegister(*ioaReg, 2), 5);
     attachSwitch(12, BitReader::forRegister(*ioaReg, 3), 6);
+
+    logger->info("Constructed");
 }
 
 DeviceRuntimeA::~DeviceRuntimeA() {
@@ -45,6 +54,8 @@ void DeviceRuntimeA::begin() {
     indicatorLeds.begin();
 }
 
+int i = 0;
+
 void DeviceRuntimeA::loop() {
     DeviceRuntime::loop();
 
@@ -53,4 +64,14 @@ void DeviceRuntimeA::loop() {
     }
 
     indicatorLeds.update();
+
+    i++;
+    if (i == 1000) {
+        i = 0;
+
+        for (auto desc : registers.list()) {
+            auto value = registers.read(desc);
+            logger->info("%s: 0x%02x", desc.name.c_str(), value);
+        }
+    }
 }

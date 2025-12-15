@@ -1,5 +1,7 @@
 #include "RegisterStorage.h"
 
+#include <span>
+
 uint8_t RegisterStorage::read(const RegisterDescriptor& descriptor) const {
     std::lock_guard guard(lock);
 
@@ -18,7 +20,7 @@ const std::array<uint8_t, 32>& RegisterStorage::readAll() const {
     return values;
 }
 
-void RegisterStorage::writeAll(std::array<uint8_t, 32>& newValues) {
+void RegisterStorage::writeAll(std::span<uint8_t, 32>& newValues) {
     std::lock_guard guard(lock);
 
     std::copy(newValues.begin(), newValues.end(), values.begin());

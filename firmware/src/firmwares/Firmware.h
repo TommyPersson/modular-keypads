@@ -12,6 +12,7 @@
 #include "common/notifications/Notifier.h"
 
 #include "firmwares/modules/common/DeviceModule.h"
+#include "firmwares/modules/common/DeviceModuleFactory.h"
 
 class Firmware {
 public:
@@ -26,17 +27,19 @@ public:
 
 protected:
     void addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const;
-    std::shared_ptr<Register> addRegister(const std::string& name) const;
+    devices::common::DeviceModuleFactory* getModuleFactory(char deviceType) const;
 
     DeviceConfigurationManager& deviceConfigurationManager;
     SerialPort& serialPort;
     Notifier& notifier;
     TwoWire& i2c;
+    ServiceLocator& serviceLocator;
 
     std::unique_ptr<DeviceModule> deviceModule;
-    std::unique_ptr<RegisterManager> registers;
+    std::optional<RegisterManager*> registers;
 
 private:
     std::unique_ptr<LineStreamer> lineStreamer;
     std::unique_ptr<CommandProcessor> commandProcessor;
+    std::vector<std::unique_ptr<devices::common::DeviceModuleFactory>> moduleFactories;
 };

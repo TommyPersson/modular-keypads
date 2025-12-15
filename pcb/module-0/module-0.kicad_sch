@@ -5417,7 +5417,7 @@
 		)
 		(uuid "b42c19e8-3ef6-4b13-8ff7-bcb0c6870006")
 	)
-	(label "SLC"
+	(label "SCL"
 		(at 156.21 90.17 0)
 		(effects
 			(font

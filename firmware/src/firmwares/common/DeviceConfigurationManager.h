@@ -32,6 +32,8 @@ public:
     char getDeviceType() const;
     bool setDeviceType(char deviceType) const;
 
+    DeviceConfiguration getDeviceConfiguration() const;
+
 private:
     Preferences& preferences;
 };

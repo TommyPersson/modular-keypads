@@ -6,7 +6,7 @@
 
 class ReadRegisterCommandHandler final : public CommandHandler {
 public:
-    explicit ReadRegisterCommandHandler(const RegisterManager& registers);
+    explicit ReadRegisterCommandHandler(const std::optional<RegisterManager*>& registers);
     ~ReadRegisterCommandHandler() override;
 
     void execute(
@@ -16,5 +16,5 @@ public:
     ) override;
 
 private:
-    const RegisterManager& registers;
+    const std::optional<RegisterManager*>& registers;
 };

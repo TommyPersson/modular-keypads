@@ -2,6 +2,8 @@
 
 #include <SPI.h>
 
+#include "RegisterDescriptorsM.h"
+
 LocalRegisterRefresherM::LocalRegisterRefresherM(RegisterManager& registers) :
     RegisterRefresher(registers) {
 

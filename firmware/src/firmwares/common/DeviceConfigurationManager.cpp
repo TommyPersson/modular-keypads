@@ -126,3 +126,12 @@ bool DeviceConfigurationManager::setDeviceName(const std::string_view& deviceNam
 
     return numWritten > 0;
 }
+
+DeviceConfiguration DeviceConfigurationManager::getDeviceConfiguration() const {
+    return {
+        .id = getDeviceId(),
+        .name = getDeviceName(),
+        .type = getDeviceType(),
+        .address = getDeviceAddress(),
+    };
+}

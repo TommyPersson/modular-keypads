@@ -4,7 +4,7 @@
 #include <utils/allocations/ArenaUtils.h>
 
 
-ListRegistersCommandHandler::ListRegistersCommandHandler(const RegisterManager& registers) :
+ListRegistersCommandHandler::ListRegistersCommandHandler(const std::optional<RegisterManager*>& registers) :
     CommandHandler("list.registers"), registers(registers) {
 }
 
@@ -16,7 +16,12 @@ void ListRegistersCommandHandler::execute(
     CommandResponseWriter& responseWriter,
     Arena& arena
     ) {
-    for (auto& descriptor : registers.list()) {
+
+    if (!registers.has_value()) {
+        return;
+    }
+
+    for (auto& descriptor : (*registers)->list()) {
         responseWriter.writeLine(descriptor.name);
     }
 }

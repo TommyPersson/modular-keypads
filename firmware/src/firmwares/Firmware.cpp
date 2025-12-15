@@ -1,7 +1,6 @@
 #include "Firmware.h"
 
 #include "common/ServiceLocator.h"
-#include "modules/a/FirmwareModuleA.h"
 #include "modules/base/commands/ListRegistersCommandHandler.h"
 #include "modules/base/commands/PingCommandHandler.h"
 #include "modules/base/commands/ReadDeviceAddressCommandHandler.h"
@@ -14,42 +13,17 @@
 #include "modules/base/commands/SetDeviceAddressCommandHandler.h"
 #include "modules/base/commands/SetDeviceNameCommandHandler.h"
 #include "modules/base/commands/SetDeviceTypeCommandHandler.h"
-#include "modules/generic/GenericFirmware.h"
-#include "modules/m/FirmwareModuleM.h"
 #include "firmwares/MasterFirmware.h"
 #include "firmwares/SlaveFirmware.h"
-
-std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
-
-    auto deviceType = serviceLocator.deviceConfigurationManager.getDeviceType();
-    auto deviceAddress = serviceLocator.deviceConfigurationManager.getDeviceAddress();
-
-    /*
-    if (deviceAddress == 10) {
-        return std::make_unique<MasterFirmware>(serviceLocator);
-    } else {
-        return std::make_unique<SlaveFirmware>(serviceLocator);
-    }*/
-
-    switch (deviceType) {
-    case 'm':
-    case 'M':
-        return std::make_unique<FirmwareModuleM>(serviceLocator);
-    case 'a':
-    case 'A':
-        return std::make_unique<FirmwareModuleA>(serviceLocator);
-    default:
-        return std::make_unique<GenericFirmware>(serviceLocator);
-    }
-}
+#include "modules/m/DeviceModuleFactoryM.h"
+#include "modules/a/DeviceModuleFactoryA.h"
 
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
     notifier(serviceLocator.notifier),
-    i2c(serviceLocator.i2c) {
-
-    this->registers = std::make_unique<RegisterManager>();
+    i2c(serviceLocator.i2c),
+    serviceLocator(serviceLocator) {
 
     this->lineStreamer = std::make_unique<LineStreamer>(serialPort.stream());
     this->commandProcessor = std::make_unique<CommandProcessor>(serialPort.stream());
@@ -65,8 +39,21 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(*registers));
-    this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(*registers));
+    this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
+    this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));
+
+    moduleFactories.emplace_back(std::make_unique<devices::m::DeviceModuleFactoryM>());
+    moduleFactories.emplace_back(std::make_unique<devices::a::DeviceModuleFactoryA>());
+}
+
+devices::common::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType) const {
+    for (const auto& moduleFactory : moduleFactories) {
+        if (moduleFactory->matches(deviceType)) {
+            return moduleFactory.get();
+        }
+    }
+
+    return nullptr;
 }
 
 void Firmware::setup() {
@@ -84,3 +71,11 @@ void Firmware::addCommandHandler(const std::shared_ptr<CommandHandler>& commandH
     this->commandProcessor->addHandler(commandHandler);
 }
 
+std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
+    const auto deviceAddress = serviceLocator.deviceConfigurationManager.getDeviceAddress();
+    if (deviceAddress == 10) {
+        return std::make_unique<MasterFirmware>(serviceLocator);
+    }
+
+    return std::make_unique<SlaveFirmware>(serviceLocator);
+}

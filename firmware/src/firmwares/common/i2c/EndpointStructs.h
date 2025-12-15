@@ -14,4 +14,12 @@ namespace i2c::structs {
         char deviceName[32]{};
     };
 #pragma pack(pop)
+
+#pragma pack(push, 1)
+    struct DeviceRegisters {
+        uint8_t data[32]{};
+    };
+#pragma pack(pop)
 }
+
+

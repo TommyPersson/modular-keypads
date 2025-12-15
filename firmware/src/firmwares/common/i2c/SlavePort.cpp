@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include "I2cPins.h"
 #include "Operation.h"
 
 namespace {
@@ -16,13 +17,15 @@ i2c::SlavePort::SlavePort(TwoWire& twoWire) :
 
 i2c::SlavePort::~SlavePort() = default;
 
-void i2c::SlavePort::begin(const uint8_t address, const uint8_t sdaPin, const uint8_t sclPin) {
+void i2c::SlavePort::setup(const uint8_t address, Pins pins) {
     twoWire.onReceive([this](const int len) { onReceiveCallback(len); });
     twoWire.onRequest([this]() { onRequestCallback(); });
-    twoWire.begin(address, sdaPin, sclPin, 100'000);
+    twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
 }
 
 void i2c::SlavePort::updateEndpoint(Endpoint endpoint, const void* data, uint8_t length) {
+    std::lock_guard guard(lock);
+
     auto& endpointData = this->endpoints[static_cast<int>(endpoint)];
     std::memset(&endpointData.data, 0, 32);
     std::memcpy(&endpointData.data, data, length);
@@ -30,6 +33,8 @@ void i2c::SlavePort::updateEndpoint(Endpoint endpoint, const void* data, uint8_t
 }
 
 void i2c::SlavePort::onReceiveCallback(const int len) {
+    std::lock_guard guard(lock);
+
     auto data = receiveArena.allocate(len);
 
     int i = 0;
@@ -46,11 +51,11 @@ void i2c::SlavePort::onReceiveCallback(const int len) {
 }
 
 void i2c::SlavePort::onRequestCallback() {
+    std::lock_guard guard(lock);
+
     twoWire.write(selectedEndpoint.data, selectedEndpoint.length);
 }
 
 void i2c::SlavePort::selectEndpoint(Endpoint endpoint) {
     selectedEndpoint = this->endpoints[static_cast<int>(endpoint)];
-
-    logger->info("selected endpoint = %i", static_cast<int>(endpoint));
 }

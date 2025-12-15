@@ -6,7 +6,7 @@
 
 class ListRegistersCommandHandler final : public CommandHandler {
 public:
-    explicit ListRegistersCommandHandler(const RegisterManager& registers);
+    explicit ListRegistersCommandHandler(const std::optional<RegisterManager*>& registers);
     ~ListRegistersCommandHandler() override;
 
     void execute(
@@ -16,5 +16,5 @@ public:
     ) override;
 
 private:
-    const RegisterManager& registers;
+    const std::optional<RegisterManager*>& registers;
 };

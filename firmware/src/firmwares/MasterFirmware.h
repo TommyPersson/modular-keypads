@@ -10,4 +10,5 @@ public:
     void setup() override;
     void loop() override;
 private:
+    std::vector<std::unique_ptr<DeviceModule>> devices;
 };

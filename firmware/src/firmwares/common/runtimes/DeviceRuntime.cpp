@@ -3,13 +3,11 @@
 DeviceRuntime::DeviceRuntime(
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
-    Notifier& notifier,
-    const DeviceMode mode
+    Notifier& notifier
     ) :
     registers(registers),
     indicatorLeds(indicatorLeds),
-    notifier(notifier),
-    mode(mode) {
+    notifier(notifier) {
 }
 
 void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, uint8_t ledIndex) {
