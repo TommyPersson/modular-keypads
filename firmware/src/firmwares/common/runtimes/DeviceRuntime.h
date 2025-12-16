@@ -29,7 +29,7 @@ public:
 protected:
     std::shared_ptr<Register> configureRegister(const RegisterDescriptor& descriptor) const;
 
-    void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, uint8_t ledIndex);
+    void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex);
     void attachRotationalEncoder(
         uint8_t number,
         const std::shared_ptr<BitReader>& aBitReader,

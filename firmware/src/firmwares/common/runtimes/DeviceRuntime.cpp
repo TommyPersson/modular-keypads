@@ -10,8 +10,13 @@ DeviceRuntime::DeviceRuntime(
     notifier(notifier) {
 }
 
-void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, uint8_t ledIndex) {
+void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex) {
     const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
+
+    if (ledIndex < 0) {
+        return;
+    }
+
     indicatorLeds.connectToSwitch(ledIndex, *switchMonitor);
 }
 
