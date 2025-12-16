@@ -31,7 +31,6 @@ protected:
 
     DeviceConfigurationManager& deviceConfigurationManager;
     SerialPort& serialPort;
-    Notifier& notifier;
     TwoWire& i2c;
     ServiceLocator& serviceLocator;
 

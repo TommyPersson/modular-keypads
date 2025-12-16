@@ -64,7 +64,7 @@ std::string DeviceConfigurationManager::getDeviceId() const {
     auto id = this->preferences.getString(prefsKeyDeviceId);
     this->preferences.end();
 
-    return id.c_str();
+    return std::string{id.c_str(), std::min(id.length(), 16u)};
 }
 
 std::string DeviceConfigurationManager::getDeviceVersion() const {

@@ -64,14 +64,4 @@ void DeviceRuntimeA::loop() {
     }
 
     indicatorLeds.update();
-
-    i++;
-    if (i == 1000) {
-        i = 0;
-
-        for (auto desc : registers.list()) {
-            auto value = registers.read(desc);
-            logger->info("%s: 0x%02x", desc.name.c_str(), value);
-        }
-    }
 }

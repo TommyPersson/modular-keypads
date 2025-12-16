@@ -22,13 +22,13 @@
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/ServiceLocator.h"
 #include "firmwares/common/logging/Logger.h"
-#include "firmwares/common/notifications/Notifier.h"
+#include "firmwares/common/notifications/NotifierFactory.h"
 
 
 std::unique_ptr<Firmware> firmware;
 std::unique_ptr<Preferences> preferences;
 std::unique_ptr<SerialPort> serialPort;
-std::unique_ptr<Notifier> notifier;
+std::unique_ptr<NotifierFactory> notifierFactory;
 std::unique_ptr<DeviceConfigurationManager> deviceConfigurationManager;
 std::unique_ptr<I2cClient> i2cClient;
 std::unique_ptr<i2c::SlavePort> i2cSlavePort;
@@ -41,14 +41,14 @@ void setup() {
     serialPort = SerialPort::from(Serial);
     preferences = std::make_unique<Preferences>();
     deviceConfigurationManager = std::make_unique<DeviceConfigurationManager>(*preferences);
-    notifier = std::make_unique<Notifier>(Serial);
+    notifierFactory = std::make_unique<NotifierFactory>(Serial);
     i2cClient = std::make_unique<I2cClient>(Wire);
     i2cSlavePort = std::make_unique<i2c::SlavePort>(Wire);
 
     serviceLocator = std::make_unique<ServiceLocator>(ServiceLocator{
         .deviceConfigurationManager = *deviceConfigurationManager,
         .serialPort = *serialPort,
-        .notifier = *notifier,
+        .notifierFactory = *notifierFactory,
         .i2cClient = *i2cClient,
         .i2cSlavePort = *i2cSlavePort,
         .i2c = Wire,

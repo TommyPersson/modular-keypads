@@ -21,7 +21,6 @@
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
-    notifier(serviceLocator.notifier),
     i2c(serviceLocator.i2c),
     serviceLocator(serviceLocator) {
 
@@ -59,7 +58,6 @@ devices::common::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType
 void Firmware::setup() {
     serialPort.begin(115200);
     deviceConfigurationManager.begin();
-    notifier.begin(deviceConfigurationManager.getDeviceId());
 }
 
 void Firmware::loop() {

@@ -1,16 +1,12 @@
 #include "Notifier.h"
 
-Notifier::Notifier(Print& outputStream) :
-    outputStream(outputStream) {
+Notifier::Notifier(const std::string& deviceId, Print& outputStream) :
+    deviceId(deviceId), outputStream(outputStream) {
 }
 
 Notifier::~Notifier() = default;
 
-void Notifier::begin(const std::string& deviceId) {
-    this->deviceId = deviceId;
-}
-
-void Notifier::notify(const Notification& notification) {
+void Notifier::notify(const Notification& notification) const {
     outputStream.print("!");
     outputStream.print(deviceId.c_str());
     outputStream.print(":");

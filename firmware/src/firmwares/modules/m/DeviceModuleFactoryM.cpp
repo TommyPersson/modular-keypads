@@ -20,13 +20,15 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createLocal(
 
     std::unique_ptr<RegisterRefresher> registerRefresher = std::make_unique<LocalRegisterRefresherM>(*registers);
 
+    auto notifier = serviceLocator.notifierFactory.create(config.id);
+
     std::unique_ptr<DeviceRuntime> runtime = std::make_unique<DeviceRuntimeM>(
         *registers,
         *indicatorLeds,
-        serviceLocator.notifier
+        *notifier
         );
 
-    return std::make_unique<DeviceModuleM>(config, indicatorLeds, registers, registerRefresher, runtime);
+    return std::make_unique<DeviceModuleM>(config, indicatorLeds, registers, registerRefresher, runtime, notifier);
 }
 
 std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
@@ -41,15 +43,15 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
         *registers, serviceLocator.i2cClient, config.address
         );
 
-    // TODO configure notifier with correct ID
+    auto notifier = serviceLocator.notifierFactory.create(config.id);
 
     std::unique_ptr<DeviceRuntime> runtime = std::make_unique<DeviceRuntimeM>(
         *registers,
         *indicatorLeds,
-        serviceLocator.notifier
+        *notifier
         );
 
-    return std::make_unique<DeviceModuleM>(config, indicatorLeds, registers, registerRefresher, runtime);
+    return std::make_unique<DeviceModuleM>(config, indicatorLeds, registers, registerRefresher, runtime, notifier);
 }
 
 bool DeviceModuleFactoryM::matches(char deviceType) {

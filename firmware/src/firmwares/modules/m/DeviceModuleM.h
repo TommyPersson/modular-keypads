@@ -12,7 +12,8 @@ namespace devices::m {
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
             std::unique_ptr<RegisterManager>& registerManager,
             std::unique_ptr<RegisterRefresher>& registerRefresher,
-            std::unique_ptr<DeviceRuntime>& deviceRuntime
+            std::unique_ptr<DeviceRuntime>& deviceRuntime,
+            std::unique_ptr<Notifier>& notifier
         );
         ~DeviceModuleM() override;
 
@@ -27,5 +28,6 @@ namespace devices::m {
         std::unique_ptr<RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
         std::unique_ptr<DeviceRuntime> deviceRuntime;
+        std::unique_ptr<Notifier> notifier;
     };
 }
