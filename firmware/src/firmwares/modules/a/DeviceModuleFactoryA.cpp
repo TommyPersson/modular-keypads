@@ -7,6 +7,7 @@
 #include "DeviceRuntimeA.h"
 #include "LocalRegisterRefresherA.h"
 
+using namespace devices;
 using namespace devices::a;
 
 DeviceModuleFactoryA::~DeviceModuleFactoryA() = default;
@@ -24,6 +25,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
     auto notifier = serviceLocator.notifierFactory.create(config.id);
 
     std::unique_ptr<DeviceRuntime> runtime = std::make_unique<DeviceRuntimeA>(
+        config.id,
         *registers,
         *indicatorLeds,
         *notifier
@@ -47,6 +49,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createRemote(
     auto notifier = serviceLocator.notifierFactory.create(config.id);
 
     std::unique_ptr<DeviceRuntime> runtime = std::make_unique<DeviceRuntimeA>(
+        config.id,
         *registers,
         *indicatorLeds,
         *notifier

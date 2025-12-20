@@ -9,15 +9,9 @@ namespace {
     auto prefsKeyDeviceType = "device.type";
     auto prefsKeyDeviceName = "device.name";
 
-    String generateNewId() {
-        uint8_t newIdBytes[16];
-        esp_fill_random(newIdBytes, sizeof(newIdBytes));
-
-        char newId[sizeof(newIdBytes) * 2 + 1];
-        for (int i = 0; i < sizeof(newIdBytes); i++) {
-            sprintf(&newId[i * 2], "%02x", newIdBytes[i]);
-        }
-        newId[sizeof(newId) - 1] = '\0';
+    uint64_t generateNewId() {
+        uint64_t newId;
+        esp_fill_random(&newId, sizeof(newId));
 
         return newId;
     }
@@ -30,17 +24,17 @@ DeviceConfigurationManager::DeviceConfigurationManager(Preferences& preferences)
 void DeviceConfigurationManager::begin() const {
     this->preferences.begin(prefsNamespace, false);
 
-    const String existingId = preferences.getString(prefsKeyDeviceId);
-    if (existingId.isEmpty()) {
+    const uint64_t existingId = preferences.getULong64(prefsKeyDeviceId);
+    if (existingId == 0) {
         const auto newId = generateNewId();
-        const auto numWritten = this->preferences.putString(prefsKeyDeviceId, newId);
+        const auto numWritten = this->preferences.putULong64(prefsKeyDeviceId, newId);
         logger->info(
-            "generated new device ID = '%s' (numWritten = %i)",
-            newId.c_str(),
+            "generated new device ID = '%08llx' (numWritten = %i)",
+            newId,
             numWritten
             );
     } else {
-        logger->info("read existing device ID = '%s'", existingId.c_str());
+        logger->info("read existing device ID = '%08llx'", existingId);
     }
 
     const uint8_t existingAddress = preferences.getUChar(prefsKeyDeviceAddress);
@@ -59,12 +53,12 @@ void DeviceConfigurationManager::begin() const {
     this->preferences.end();
 }
 
-std::string DeviceConfigurationManager::getDeviceId() const {
+uint64_t DeviceConfigurationManager::getDeviceId() const {
     this->preferences.begin(prefsNamespace, true);
-    auto id = this->preferences.getString(prefsKeyDeviceId);
+    auto id = this->preferences.getULong64(prefsKeyDeviceId);
     this->preferences.end();
 
-    return std::string{id.c_str(), std::min(id.length(), 16u)};
+    return id;
 }
 
 std::string DeviceConfigurationManager::getDeviceVersion() const {

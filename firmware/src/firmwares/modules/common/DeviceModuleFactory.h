@@ -4,7 +4,7 @@
 
 #include "DeviceModule.h"
 
-namespace devices::common {
+namespace devices {
     class DeviceModuleFactory {
     public:
         virtual ~DeviceModuleFactory() = default;

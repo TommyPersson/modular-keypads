@@ -6,8 +6,6 @@
 #include "firmwares/common/runtimes/DeviceRuntime.h"
 #include "firmwares/common/i2c/I2cPins.h"
 
-#include "RegisterDescriptorsM.h"
-
 namespace devices::m::i2c {
     inline auto pins = ::i2c::Pins{
         .SDA = 2,
@@ -15,9 +13,10 @@ namespace devices::m::i2c {
     };
 }
 
-class DeviceRuntimeM final : public DeviceRuntime {
+class DeviceRuntimeM final : public devices::DeviceRuntime {
 public:
     explicit DeviceRuntimeM(
+        uint64_t deviceId,
         RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier

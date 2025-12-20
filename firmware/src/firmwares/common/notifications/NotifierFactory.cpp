@@ -5,6 +5,6 @@ NotifierFactory::NotifierFactory(Print& outputStream) : outputStream(outputStrea
 
 NotifierFactory::~NotifierFactory() = default;
 
-std::unique_ptr<Notifier> NotifierFactory::create(const std::string& deviceId) const {
+std::unique_ptr<Notifier> NotifierFactory::create(const uint64_t deviceId) const {
     return std::make_unique<Notifier>(deviceId, outputStream);
 }

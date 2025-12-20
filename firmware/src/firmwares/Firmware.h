@@ -27,18 +27,18 @@ public:
 
 protected:
     void addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const;
-    devices::common::DeviceModuleFactory* getModuleFactory(char deviceType) const;
+    devices::DeviceModuleFactory* getModuleFactory(char deviceType) const;
 
     DeviceConfigurationManager& deviceConfigurationManager;
     SerialPort& serialPort;
     TwoWire& i2c;
     ServiceLocator& serviceLocator;
 
-    std::unique_ptr<DeviceModule> deviceModule;
+    std::unique_ptr<devices::DeviceModule> deviceModule;
     std::optional<RegisterManager*> registers;
 
 private:
     std::unique_ptr<LineStreamer> lineStreamer;
     std::unique_ptr<CommandProcessor> commandProcessor;
-    std::vector<std::unique_ptr<devices::common::DeviceModuleFactory>> moduleFactories;
+    std::vector<std::unique_ptr<devices::DeviceModuleFactory>> moduleFactories;
 };

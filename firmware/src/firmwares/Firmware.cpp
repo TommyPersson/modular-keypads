@@ -45,7 +45,7 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     moduleFactories.emplace_back(std::make_unique<devices::a::DeviceModuleFactoryA>());
 }
 
-devices::common::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType) const {
+devices::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType) const {
     for (const auto& moduleFactory : moduleFactories) {
         if (moduleFactory->matches(deviceType)) {
             return moduleFactory.get();
@@ -57,6 +57,7 @@ devices::common::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType
 
 void Firmware::setup() {
     serialPort.begin(115200);
+    serviceLocator.usbConnection.setup();
     deviceConfigurationManager.begin();
 }
 

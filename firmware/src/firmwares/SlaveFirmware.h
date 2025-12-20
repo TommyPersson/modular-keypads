@@ -11,7 +11,7 @@ public:
     void loop() override;
 
 private:
-    std::unique_ptr<DeviceModule> device;
+    std::unique_ptr<devices::DeviceModule> device;
 
     i2c::SlavePort& slavePort;
 };

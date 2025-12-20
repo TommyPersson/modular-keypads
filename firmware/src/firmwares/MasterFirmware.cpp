@@ -1,8 +1,6 @@
 #include "MasterFirmware.h"
 
 #include "common/DeviceScanner.h"
-#include "modules/a/DeviceRuntimeA.h"
-#include "modules/m/DeviceRuntimeM.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
@@ -39,8 +37,7 @@ void MasterFirmware::setup() {
     auto scanResult = scanner.scan();
 
     for (const auto& device : scanResult) {
-        logger->info("Found device at %i: %s", device->getConfiguration().address, device->getConfiguration().id.c_str()
-            );
+        logger->info("Found device at %i: %08llx", device->getConfiguration().address, device->getConfiguration().id);
         logger->info("Device name: %s", device->getConfiguration().name.c_str());
         logger->info("Device type: %c", device->getConfiguration().type);
 
@@ -54,6 +51,10 @@ void MasterFirmware::setup() {
         remoteDevice->setup();
         devices.push_back(std::move(remoteDevice));
     }
+
+    for (const auto& device : devices) {
+        device->onSwitchEvent().addObserver(this);
+    }
 }
 
 void MasterFirmware::loop() {
@@ -62,4 +63,21 @@ void MasterFirmware::loop() {
     for (const auto& device : devices) {
         device->loop();
     }
+}
+
+struct KeyBinding {
+    uint64_t deviceId;
+    uint8_t switchNumber;
+};
+
+namespace {
+
+}
+
+void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
+    if (event.state == SwitchState::PRESSED) {
+        serviceLocator.usbConnection.sendAction(*usb::KeyPressAction::keyPress(0x24));
+    }
+
+    logger->info("Got key event: %08llx, %i, %i", event.deviceId, event.switchNumber, event.state);
 }

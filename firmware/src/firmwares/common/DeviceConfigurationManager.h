@@ -7,7 +7,7 @@
 
 
 struct DeviceConfiguration {
-    std::string id;
+    uint64_t id;
     std::string name;
     char type;
     uint8_t address;
@@ -20,7 +20,7 @@ public:
 
     void begin() const;
 
-    std::string getDeviceId() const;
+    uint64_t getDeviceId() const;
     std::string getDeviceVersion() const;
 
     uint8_t getDeviceAddress() const;

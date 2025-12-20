@@ -1,8 +1,8 @@
 #include "SlaveFirmware.h"
 
+#include <utils/strings.h>
+
 #include "common/i2c/EndpointStructs.h"
-#include "modules/m/DeviceRuntimeM.h"
-#include "modules/a/DeviceRuntimeA.h"
 
 namespace {
     auto logger = common::logging::createLogger("SlaveFirmware");
@@ -38,7 +38,7 @@ void SlaveFirmware::setup() {
         const auto deviceName = configuration.name;
 
         i2c::structs::DeviceInformation deviceInformationStruct;
-        std::memcpy(&deviceInformationStruct.deviceId, deviceId.data(), sizeof(deviceInformationStruct.deviceId));
+        deviceInformationStruct.deviceId = deviceId;
         deviceInformationStruct.deviceType = configuration.type;
 
         slavePort.updateEndpoint(

@@ -8,39 +8,55 @@
 #include "firmwares/common/monitors/RotationalEncoderMonitor.h"
 #include "firmwares/common/notifications/Notifier.h"
 
-enum class DeviceMode {
-    Local,
-    Remote
-};
+namespace devices {
+    enum class DeviceMode {
+        Local,
+        Remote
+    };
 
-class DeviceRuntime {
-public:
-    explicit DeviceRuntime(
-        RegisterManager& registers,
-        IndicatorLedManager& indicatorLeds,
-        Notifier& notifier
-    );
+    struct DeviceSwitchEvent {
+        const uint64_t deviceId;
+        const uint8_t switchNumber;
+        const SwitchState state;
+    };
 
-    virtual ~DeviceRuntime() = default;
+    class DeviceRuntime : protected Observer<SwitchEvent> {
+    public:
+        explicit DeviceRuntime(
+            uint64_t deviceId,
+            RegisterManager& registers,
+            IndicatorLedManager& indicatorLeds,
+            Notifier& notifier
+        );
 
-    virtual void begin();
-    virtual void loop();
+        ~DeviceRuntime() override = default;
 
-protected:
-    std::shared_ptr<Register> configureRegister(const RegisterDescriptor& descriptor) const;
+        virtual void begin();
+        virtual void loop();
 
-    void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex);
-    void attachRotationalEncoder(
-        uint8_t number,
-        const std::shared_ptr<BitReader>& aBitReader,
-        const std::shared_ptr<BitReader>& bBitReader
-    );
+        Observable<DeviceSwitchEvent>& onSwitchEvent() {
+            return deviceSwitchEventSubject;
+        }
 
-    std::vector<std::shared_ptr<RotationalEncoderMonitor>> rotationalEncoderMonitors;
-    std::vector<std::shared_ptr<SwitchMonitor>> switchMonitors;
+    protected:
+        std::shared_ptr<Register> configureRegister(const RegisterDescriptor& descriptor) const;
 
-    RegisterManager& registers;
-    IndicatorLedManager& indicatorLeds;
-    Notifier& notifier;
-    DeviceMode mode;
-};
+        void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex);
+        void attachRotationalEncoder(
+            uint8_t number,
+            const std::shared_ptr<BitReader>& aBitReader,
+            const std::shared_ptr<BitReader>& bBitReader
+        );
+
+        void observe(const SwitchEvent& event) override;
+
+        std::vector<std::shared_ptr<RotationalEncoderMonitor>> rotationalEncoderMonitors;
+        std::vector<std::shared_ptr<SwitchMonitor>> switchMonitors;
+        Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
+
+        uint64_t deviceId;
+        RegisterManager& registers;
+        IndicatorLedManager& indicatorLeds;
+        Notifier& notifier;
+    };
+}

@@ -1,12 +1,13 @@
 #include "DeviceRuntimeM.h"
 
+#include "RegisterDescriptorsM.h"
+
 DeviceRuntimeM::DeviceRuntimeM(
+    uint64_t deviceId,
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier
-    ) :
-    DeviceRuntime(registers, indicatorLeds, notifier) {
-
+) : DeviceRuntime(deviceId, registers, indicatorLeds, notifier) {
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
     encoderRotationNotifier = std::make_unique<EncoderRotationNotifier>(notifier);
 
@@ -24,7 +25,7 @@ DeviceRuntimeM::DeviceRuntimeM(
         1,
         BitReader::forRegister(*ioaReg, 0, BitReaderMode::Inverted),
         BitReader::forRegister(*ioaReg, 1, BitReaderMode::Inverted)
-        );
+    );
 }
 
 DeviceRuntimeM::~DeviceRuntimeM() {

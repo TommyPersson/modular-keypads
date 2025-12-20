@@ -1,4 +1,5 @@
 #pragma once
+
 #include <firmwares/common/DeviceConfigurationManager.h>
 #include <firmwares/common/runtimes/DeviceRuntime.h>
 #include <firmwares/common/runtimes/RegisterRefresher.h>
@@ -21,6 +22,11 @@ namespace devices::m {
         void loop() override;
 
         RegisterManager& getRegisters() override;
+
+    protected:
+        DeviceRuntime& getRuntime() override {
+            return *deviceRuntime;
+        }
 
     private:
         const DeviceConfiguration configuration;

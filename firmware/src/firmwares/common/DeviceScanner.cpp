@@ -1,5 +1,7 @@
 #include "DeviceScanner.h"
 
+#include <utils/strings.h>
+
 #include "i2c/Endpoint.h"
 #include "i2c/EndpointStructs.h"
 
@@ -27,7 +29,7 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
 
         const auto deviceInformation = client.readEndpoint<i2c::structs::DeviceInformation>(address);
 
-        const std::string id(deviceInformation->deviceId, 16);
+        const auto id = deviceInformation->deviceId;
         const char type = deviceInformation->deviceType;
 
         if (!client.setEndpoint(address, i2c::Endpoint::DeviceName)) {

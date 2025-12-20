@@ -10,7 +10,7 @@ public:
     explicit NotifierFactory(Print& outputStream);
     ~NotifierFactory();
 
-    std::unique_ptr<Notifier> create(const std::string& deviceId) const;
+    std::unique_ptr<Notifier> create(uint64_t deviceId) const;
 private:
     Print& outputStream;
 };

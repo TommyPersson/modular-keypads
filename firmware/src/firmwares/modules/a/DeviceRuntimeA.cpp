@@ -9,12 +9,12 @@ namespace {
 }
 
 DeviceRuntimeA::DeviceRuntimeA(
+    uint64_t deviceId,
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier
-    ) :
-    DeviceRuntime(registers, indicatorLeds, notifier) {
-
+)
+    : DeviceRuntime(deviceId, registers, indicatorLeds, notifier) {
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
 
     const auto& ioaReg = this->configureRegister(devices::a::registers::IOA);
@@ -33,8 +33,6 @@ DeviceRuntimeA::DeviceRuntimeA(
     attachSwitch(10, BitReader::forRegister(*ioaReg, 1), 7);
     attachSwitch(11, BitReader::forRegister(*ioaReg, 2), 5);
     attachSwitch(12, BitReader::forRegister(*ioaReg, 3), 6);
-
-    logger->info("Constructed");
 }
 
 DeviceRuntimeA::~DeviceRuntimeA() {
@@ -53,8 +51,6 @@ void DeviceRuntimeA::begin() {
 
     indicatorLeds.begin();
 }
-
-int i = 0;
 
 void DeviceRuntimeA::loop() {
     DeviceRuntime::loop();

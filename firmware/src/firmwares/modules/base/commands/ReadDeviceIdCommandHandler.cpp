@@ -1,5 +1,7 @@
 #include "ReadDeviceIdCommandHandler.h"
 
+#include <utils/allocations/ArenaUtils.h>
+
 
 ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(
     DeviceConfigurationManager& deviceConfigurationManager
@@ -17,10 +19,10 @@ void ReadDeviceIdCommandHandler::execute(
     Arena& arena
     ) {
     const auto deviceId = this->deviceConfigurationManager.getDeviceId();
-    if (deviceId.empty()) {
+    if (deviceId == 0) {
         responseWriter.writeLine("NAK");
         return;
     }
 
-    responseWriter.writeLine(deviceId);
+    responseWriter.writeLine(arena::strings::sprintf(arena, "%08llx", deviceId));
 }

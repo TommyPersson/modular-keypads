@@ -1,6 +1,6 @@
 #include "Notifier.h"
 
-Notifier::Notifier(const std::string& deviceId, Print& outputStream) :
+Notifier::Notifier(const uint64_t deviceId, Print& outputStream) :
     deviceId(deviceId), outputStream(outputStream) {
 }
 
@@ -8,7 +8,7 @@ Notifier::~Notifier() = default;
 
 void Notifier::notify(const Notification& notification) const {
     outputStream.print("!");
-    outputStream.print(deviceId.c_str());
+    outputStream.printf("%08llx", deviceId);
     outputStream.print(":");
     outputStream.print(notification.type.c_str());
     outputStream.print(":");

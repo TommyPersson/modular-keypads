@@ -6,12 +6,12 @@
 
 class Notifier {
 public:
-    explicit Notifier(const std::string& deviceId, Print& outputStream);
+    explicit Notifier(uint64_t deviceId, Print& outputStream);
     ~Notifier();
 
     void notify(const Notification& notification) const;
 
 private:
     Print& outputStream;
-    std::string deviceId;
+    uint64_t deviceId;
 };

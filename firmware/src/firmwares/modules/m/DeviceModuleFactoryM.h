@@ -6,7 +6,7 @@
 
 namespace devices::m {
 
-class DeviceModuleFactoryM final : public devices::common::DeviceModuleFactory {
+class DeviceModuleFactoryM final : public devices::DeviceModuleFactory {
 public:
     ~DeviceModuleFactoryM() override;
     std::unique_ptr<DeviceModule> createLocal(DeviceConfiguration& config, ServiceLocator& serviceLocator) override;

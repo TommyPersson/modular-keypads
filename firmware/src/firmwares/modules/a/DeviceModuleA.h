@@ -23,6 +23,11 @@ namespace devices::a {
 
         RegisterManager& getRegisters() override;
 
+    protected:
+        DeviceRuntime& getRuntime() override {
+            return *deviceRuntime;
+        };
+
     private:
         const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;

@@ -4,7 +4,7 @@
 
 namespace devices::a {
 
-class DeviceModuleFactoryA final : public devices::common::DeviceModuleFactory {
+class DeviceModuleFactoryA final : public devices::DeviceModuleFactory {
 public:
     ~DeviceModuleFactoryA() override;
     std::unique_ptr<DeviceModule> createLocal(DeviceConfiguration& config, ServiceLocator& serviceLocator) override;

@@ -12,9 +12,10 @@ namespace devices::a::i2c {
     };
 }
 
-class DeviceRuntimeA final : public DeviceRuntime {
+class DeviceRuntimeA final : public devices::DeviceRuntime {
 public:
     explicit DeviceRuntimeA(
+        uint64_t deviceId,
         RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier
