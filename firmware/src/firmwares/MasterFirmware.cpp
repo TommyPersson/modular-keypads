@@ -27,8 +27,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x7e2c1a823e6bac0c,
             .switchNumber = 1,
-            .action = usb::Action::keyPress({0xe1, 0x04}),
-            // a
+            .action = usb::Action::keyPress({0xe1, 0x04}), // a
         }
     );
 
@@ -36,8 +35,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x7e2c1a823e6bac0c,
             .switchNumber = 2,
-            .action = usb::Action::keyPress({0xe1, 0x05}),
-            // b
+            .action = usb::Action::keyPress({0xe1, 0x05}), // b
         }
     );
 
@@ -45,8 +43,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x7e2c1a823e6bac0c,
             .switchNumber = 3,
-            .action = usb::Action::keyPress({0xe1, 0x06}),
-            // c
+            .action = usb::Action::keyPress({0xe1, 0x06}), // c
         }
     );
 
@@ -54,8 +51,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x7e2c1a823e6bac0c,
             .switchNumber = 4,
-            .action = usb::Action::keyPress({0xe1, 0x07}),
-            // d
+            .action = usb::Action::keyPress({0xe1, 0x07}), // d
         }
     );
 
