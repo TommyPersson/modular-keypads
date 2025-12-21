@@ -180,6 +180,15 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return parseInt(addressHex, 16)
   }
 
+  async getTestMode(): Promise<boolean> {
+    const state = await this.sendSingleLineResponseCommand("get.test.mode")
+    return state == "true"
+  }
+
+  async setTestMode(enabled: boolean): Promise<void> {
+    await this.sendCommand("set.test.mode", [enabled ? "true" : "false"])
+  }
+
   private async sendCommand(str: string, args: string[] = []): Promise<string[]> {
     if (!this.commandExecutor) {
       throw new Error("Not connected")

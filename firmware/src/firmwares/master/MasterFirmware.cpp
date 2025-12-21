@@ -1,12 +1,14 @@
 #include "MasterFirmware.h"
 
+#include <esp_system.h>
+#include <soc/rtc_cntl_reg.h>
+#include <rom/usb/chip_usb_dw_wrapper.h>
+#include <rom/usb/usb_persist.h>
+
 #include "../common/DeviceScanner.h"
 #include "commands/ListConnectedDevices.h"
-
-#include "esp_system.h"
-#include "soc/rtc_cntl_reg.h"
-#include "rom/usb/chip_usb_dw_wrapper.h"
-#include "rom/usb/usb_persist.h"
+#include "commands/GetTestMode.h"
+#include "commands/SetTestMode.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
@@ -26,6 +28,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
 
     addCommandHandler(std::make_shared<ListConnectedDevices>(connectedDevices));
+    addCommandHandler(std::make_shared<GetTestMode>(testModeController));
+    addCommandHandler(std::make_shared<SetTestMode>(testModeController));
 
     keyBindings.push_back(
         {
@@ -139,6 +143,10 @@ void MasterFirmware::refreshConnectedDevices() {
 
 
 void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
+    if (testModeController.isEnabled()) {
+        return;
+    }
+
     if (event.state == SwitchState::PRESSED) {
         for (auto& binding : keyBindings) {
             if (binding.deviceId == event.deviceId && binding.switchNumber == event.switchNumber) {

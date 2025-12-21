@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../base/Firmware.h"
+#include "firmwares/base/Firmware.h"
 
 class SlaveFirmware final : public Firmware {
 public:

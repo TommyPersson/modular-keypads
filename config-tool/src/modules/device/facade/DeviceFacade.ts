@@ -24,6 +24,9 @@ export interface DeviceFacade {
   setDeviceAddress(address: number): Promise<void>
   setDeviceName(name: string): Promise<void>
 
+  getTestMode(): Promise<boolean>
+  setTestMode(enabled: boolean): Promise<void>
+
   resetDevice(): Promise<void>
 
   performPing(): Promise<string>
