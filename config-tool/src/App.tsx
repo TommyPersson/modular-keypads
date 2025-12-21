@@ -1,5 +1,6 @@
 import { DeviceDebuggerPage } from "@src/modules/device-debugger/ui"
 import { DeviceContextProvider } from "@src/modules/device/context"
+import { OverviewPage } from "@src/modules/overview/ui/pages"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router"
@@ -13,7 +14,11 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/device-debugger" replace />
+        element: <Navigate to="/overview" replace />
+      },
+      {
+        path: "overview",
+        Component: OverviewPage,
       },
       {
         path: "device-debugger",

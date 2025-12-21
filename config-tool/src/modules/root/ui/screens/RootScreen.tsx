@@ -1,10 +1,11 @@
 import BugReportIcon from "@mui/icons-material/BugReport"
+import HomeIcon from "@mui/icons-material/Home"
 import {
   Alert,
   AlertTitle,
   Box,
   Button,
-  CssBaseline,
+  CssBaseline, Divider,
   Drawer,
   Grid,
   List,
@@ -56,6 +57,12 @@ export const RootScreen = () => {
               </Alert>
             )}
             <List>
+              <NavItem
+                title={"Overview"}
+                link={"/overview"}
+                icon={<HomeIcon />}
+              />
+              <Divider />
               <NavItem
                 title={"Device Debugger"}
                 link={"/device-debugger"}
