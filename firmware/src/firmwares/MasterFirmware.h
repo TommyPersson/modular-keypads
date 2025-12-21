@@ -12,7 +12,9 @@ public:
     void loop() override;
 
 private:
+    void refreshConnectedDevices();
     void observe(const devices::DeviceSwitchEvent& event) override;
 
-    std::vector<std::unique_ptr<devices::DeviceModule>> devices;
+    std::unique_ptr<devices::DeviceModule> localDevice;
+    std::vector<std::unique_ptr<devices::DeviceModule>> connectedDevices;
 };
