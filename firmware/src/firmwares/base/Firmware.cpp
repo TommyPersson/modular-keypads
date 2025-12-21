@@ -1,6 +1,6 @@
 #include "Firmware.h"
 
-#include "common/ServiceLocator.h"
+#include "../common/ServiceLocator.h"
 #include "commands/ListRegistersCommandHandler.h"
 #include "commands/PingCommandHandler.h"
 #include "commands/ReadDeviceAddressCommandHandler.h"
@@ -13,10 +13,10 @@
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "commands/SetDeviceNameCommandHandler.h"
 #include "commands/SetDeviceTypeCommandHandler.h"
-#include "firmwares/MasterFirmware.h"
-#include "firmwares/SlaveFirmware.h"
-#include "modules/m/DeviceModuleFactoryM.h"
-#include "modules/a/DeviceModuleFactoryA.h"
+#include "../master/MasterFirmware.h"
+#include "../slave/SlaveFirmware.h"
+#include "../modules/m/DeviceModuleFactoryM.h"
+#include "../modules/a/DeviceModuleFactoryA.h"
 
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),

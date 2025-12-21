@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "firmwares/Firmware.h"
+#include "firmwares/base/Firmware.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/ServiceLocator.h"
 #include "firmwares/common/logging/Logger.h"

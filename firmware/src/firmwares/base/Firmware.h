@@ -2,14 +2,12 @@
 
 #include <Wire.h>
 #include <memory>
-#include <Registers/Registers.h>
 #include <SerialPort/SerialPort.h>
 
-#include "common/DeviceConfigurationManager.h"
-#include "common/LineStreamer.h"
-#include "common/ServiceLocator.h"
-#include "common/commands/CommandProcessor.h"
-#include "common/notifications/Notifier.h"
+#include "../common/DeviceConfigurationManager.h"
+#include "../common/LineStreamer.h"
+#include "../common/ServiceLocator.h"
+#include "../common/commands/CommandProcessor.h"
 
 #include "firmwares/modules/common/DeviceModule.h"
 #include "firmwares/modules/common/DeviceModuleFactory.h"

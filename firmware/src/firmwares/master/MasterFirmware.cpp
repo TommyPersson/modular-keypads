@@ -1,6 +1,6 @@
 #include "MasterFirmware.h"
 
-#include "common/DeviceScanner.h"
+#include "../common/DeviceScanner.h"
 
 #include "esp_system.h"
 #include "soc/rtc_cntl_reg.h"

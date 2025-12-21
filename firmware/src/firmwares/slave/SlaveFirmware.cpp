@@ -2,7 +2,7 @@
 
 #include <utils/strings.h>
 
-#include "common/i2c/EndpointStructs.h"
+#include "../common/i2c/EndpointStructs.h"
 
 namespace {
     auto logger = common::logging::createLogger("SlaveFirmware");
