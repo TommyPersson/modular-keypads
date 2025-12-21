@@ -22,6 +22,7 @@ namespace devices::m {
         void loop() override;
 
         RegisterManager& getRegisters() override;
+        const DeviceConfiguration& getConfiguration() const override { return configuration; }
 
     protected:
         DeviceRuntime& getRuntime() override {

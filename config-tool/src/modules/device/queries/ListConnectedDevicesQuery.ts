@@ -1,0 +1,10 @@
+import { type UseQueryOptions } from "@tanstack/react-query"
+import type { DeviceFacade, DeviceInformation } from "../facade/DeviceFacade"
+
+export const ListConnectedDevicesQuery: (deviceFacade: DeviceFacade) => UseQueryOptions<DeviceInformation[]> = (deviceFacade) => ({
+  queryKey: ["connected-devices"],
+  queryFn: async (): Promise<DeviceInformation[]> => {
+    return deviceFacade.listConnectedDevices()
+  },
+  enabled: deviceFacade.isConnected,
+})

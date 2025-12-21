@@ -117,6 +117,22 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return result
   }
 
+  async listConnectedDevices(): Promise<DeviceInformation[]> {
+    const lines = await this.sendCommand("list.connected.devices")
+
+    return lines.map(line => {
+      const [idHex, addressHex, type, name] = line.split(",")
+      return {
+        deviceId: idHex,
+        deviceFirmwareVersion: "0.0.1",
+        deviceType: type,
+        deviceAddress: parseInt(addressHex, 16),
+        deviceName: name,
+        deviceRegisterNames: [],
+      } satisfies DeviceInformation
+    })
+  }
+
   async getDeviceId(): Promise<string> {
     return await this.sendSingleLineResponseCommand("read.device.id")
   }

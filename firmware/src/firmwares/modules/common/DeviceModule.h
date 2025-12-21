@@ -13,6 +13,7 @@ namespace devices {
         virtual void loop() = 0;
 
         virtual RegisterManager& getRegisters() = 0;
+        virtual const DeviceConfiguration& getConfiguration() const = 0;
 
         Observable<DeviceSwitchEvent>& onSwitchEvent() {
             return getRuntime().onSwitchEvent();

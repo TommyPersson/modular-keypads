@@ -1,6 +1,7 @@
 #include "MasterFirmware.h"
 
 #include "../common/DeviceScanner.h"
+#include "commands/ListConnectedDevices.h"
 
 #include "esp_system.h"
 #include "soc/rtc_cntl_reg.h"
@@ -23,6 +24,9 @@ namespace {
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
+
+    addCommandHandler(std::make_shared<ListConnectedDevices>(connectedDevices));
+
     keyBindings.push_back(
         {
             .deviceId = 0x7e2c1a823e6bac0c,

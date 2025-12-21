@@ -18,6 +18,7 @@ export interface DeviceFacade {
 
   getDeviceInformation(): Promise<DeviceInformation>
   getDeviceRegisterValues(): Promise<DeviceRegisterValues>
+  listConnectedDevices(): Promise<DeviceInformation[]>
 
   setDeviceType(type: string): Promise<void>
   setDeviceAddress(address: number): Promise<void>

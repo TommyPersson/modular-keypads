@@ -1,4 +1,5 @@
 import { Grid, Stack } from "@mui/material"
+import { ConnectedDevicesCard } from "@src/modules/device-debugger/ui/components/ConnectedDevicesCard"
 import { DevicePreviewCard } from "@src/modules/device-debugger/ui/components/DevicePreviewCard"
 import { DeviceInformationCard, DeviceRegistersCard, DeviceTrafficLogsCard, PingCommandCard } from "../components"
 
@@ -9,6 +10,7 @@ export const DeviceDebuggerPage = () => {
         <Stack spacing={2}>
           <DeviceInformationCard />
           <DeviceRegistersCard />
+          <ConnectedDevicesCard />
           <PingCommandCard />
         </Stack>
       </Grid>
