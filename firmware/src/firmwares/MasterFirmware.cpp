@@ -6,8 +6,69 @@ namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
 }
 
-MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator) :
-    Firmware(serviceLocator) {
+namespace {
+    struct KeyBinding {
+        uint64_t deviceId;
+        uint8_t switchNumber;
+        std::shared_ptr<usb::Action> action;
+    };
+
+    std::vector<KeyBinding> keyBindings;
+}
+
+MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
+    : Firmware(serviceLocator) {
+    keyBindings.push_back(
+        {
+            .deviceId = 0x7e2c1a823e6bac0c,
+            .switchNumber = 1,
+            .action = usb::Action::keyPress({0xe1, 0x04}),
+            // a
+        }
+    );
+
+    keyBindings.push_back(
+        {
+            .deviceId = 0x7e2c1a823e6bac0c,
+            .switchNumber = 2,
+            .action = usb::Action::keyPress({0xe1, 0x05}),
+            // b
+        }
+    );
+
+    keyBindings.push_back(
+        {
+            .deviceId = 0x7e2c1a823e6bac0c,
+            .switchNumber = 3,
+            .action = usb::Action::keyPress({0xe1, 0x06}),
+            // c
+        }
+    );
+
+    keyBindings.push_back(
+        {
+            .deviceId = 0x7e2c1a823e6bac0c,
+            .switchNumber = 4,
+            .action = usb::Action::keyPress({0xe1, 0x07}),
+            // d
+        }
+        );
+
+    keyBindings.push_back(
+        {
+            .deviceId = 0x9ab574502dcdf51d,
+            .switchNumber = 2,
+            .action = usb::Action::keyPress({0xe2, 0x40}), // Alt+F7
+        }
+        );
+
+    keyBindings.push_back(
+        {
+            .deviceId = 0x9ab574502dcdf51d,
+            .switchNumber = 10,
+            .action = usb::Action::keyPress({0xe1, 0x3f}), // Shift+F6
+        }
+    );
 }
 
 MasterFirmware::~MasterFirmware() = default;
@@ -65,19 +126,13 @@ void MasterFirmware::loop() {
     }
 }
 
-struct KeyBinding {
-    uint64_t deviceId;
-    uint8_t switchNumber;
-};
-
-namespace {
-
-}
 
 void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
     if (event.state == SwitchState::PRESSED) {
-        serviceLocator.usbConnection.sendAction(*usb::KeyPressAction::keyPress(0x24));
+        for (auto& binding : keyBindings) {
+            if (binding.deviceId == event.deviceId && binding.switchNumber == event.switchNumber) {
+                serviceLocator.usbConnection.sendAction(*binding.action);
+            }
+        }
     }
-
-    logger->info("Got key event: %08llx, %i, %i", event.deviceId, event.switchNumber, event.state);
 }

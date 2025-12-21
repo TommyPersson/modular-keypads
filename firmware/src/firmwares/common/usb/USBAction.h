@@ -1,12 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 namespace usb {
     struct Action {
         virtual ~Action() = default;
 
-        static std::shared_ptr<Action> keyPress(uint8_t keyCode);
+        static std::shared_ptr<Action> keyPress(const std::vector<uint8_t>& keyCodes);
     };
 
     struct ConsumerControlAction final : Action {
@@ -15,13 +16,13 @@ namespace usb {
 
 
     struct KeyPressData {
-        uint8_t keyCode;
+        std::vector<uint8_t> keyCodes;
     };
 
     struct KeyPressAction final : Action {
         ~KeyPressAction() override = default;
 
-        explicit KeyPressAction(const KeyPressData data) : data(data) {}
+        explicit KeyPressAction(const KeyPressData& data) : data(data) {}
 
         KeyPressData data;
     };

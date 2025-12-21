@@ -14,6 +14,5 @@ public:
 private:
     void observe(const devices::DeviceSwitchEvent& event) override;
 
-private:
     std::vector<std::unique_ptr<devices::DeviceModule>> devices;
 };

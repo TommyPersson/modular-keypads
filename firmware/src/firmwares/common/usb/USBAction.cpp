@@ -2,6 +2,6 @@
 
 using namespace usb;
 
-std::shared_ptr<Action> Action::keyPress(uint8_t keyCode) {
-    return std::make_shared<KeyPressAction>(KeyPressData{ .keyCode = keyCode });
+std::shared_ptr<Action> Action::keyPress(const std::vector<uint8_t>& keyCodes) {
+    return std::make_shared<KeyPressAction>(KeyPressData{ .keyCodes = keyCodes });
 }
