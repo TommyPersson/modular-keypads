@@ -12,6 +12,23 @@ export type DeviceInformation = {
 
 export type DeviceRegisterValues = { [index: string]: number }
 
+export type BaseCapability = {
+  type: string
+  index: number
+}
+
+export type PushButtonCapability = BaseCapability & {
+  type: "PushButton"
+  number: number
+}
+
+export type RotaryEncoderCapability = BaseCapability & {
+  type: "RotaryEncoder"
+  number: number
+}
+
+export type DeviceCapability = PushButtonCapability | RotaryEncoderCapability
+
 export interface DeviceFacade {
   connect(): Promise<void>
   disconnect(): Promise<void>
@@ -19,6 +36,7 @@ export interface DeviceFacade {
   getDeviceInformation(): Promise<DeviceInformation>
   getDeviceRegisterValues(): Promise<DeviceRegisterValues>
   listConnectedDevices(): Promise<DeviceInformation[]>
+  listDeviceCapabilities(deviceId: string): Promise<DeviceCapability[]>
 
   setDeviceType(type: string): Promise<void>
   setDeviceAddress(address: number): Promise<void>

@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, Subject } from "rxjs"
 import { readLines } from "@src/utils/streams"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type {
+    DeviceCapability,
   DeviceFacade,
   DeviceInformation,
   DeviceRegisterValues,
@@ -131,6 +132,29 @@ export class DeviceFacadeImpl implements DeviceFacade {
         deviceRegisterNames: [],
       } satisfies DeviceInformation
     })
+  }
+
+  async listDeviceCapabilities(deviceId: string): Promise<DeviceCapability[]> {
+    const lines = await this.sendCommand("list.device.capabilities", [deviceId])
+
+    return lines.map((line, index) => {
+      const [type, ...rest] = line.split(",")
+      if (type == "PushButton") {
+        return {
+          index,
+          type,
+          number: parseInt(rest[0])
+        } satisfies DeviceCapability
+      } else if (type == "RotaryEncoder") {
+        return {
+          index,
+          type,
+          number: parseInt(rest[0])
+        } satisfies DeviceCapability
+      } else {
+        return null
+      }
+    }).filter(it => it) as DeviceCapability[]
   }
 
   async getDeviceId(): Promise<string> {

@@ -3,10 +3,10 @@
 #include <firmwares/common/commands/CommandHandler.h>
 #include <firmwares/modules/common/DeviceModule.h>
 
-class ListConnectedDevices : public CommandHandler {
+class ListDeviceCapabilities final : public CommandHandler {
 public:
-    explicit ListConnectedDevices(std::vector<devices::DeviceModule*>& devices);
-    ~ListConnectedDevices() override;
+    explicit ListDeviceCapabilities(std::vector<devices::DeviceModule*>& devices);
+    ~ListDeviceCapabilities() override;
 
     void execute(
         const std::span<const std::string_view>& args,

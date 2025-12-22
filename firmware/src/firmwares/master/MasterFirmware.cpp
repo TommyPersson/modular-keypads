@@ -1,14 +1,19 @@
 #include "MasterFirmware.h"
 
+#ifdef SOC_USB_OTG_SUPPORTED
+
 #include <esp_system.h>
 #include <soc/rtc_cntl_reg.h>
 #include <rom/usb/chip_usb_dw_wrapper.h>
 #include <rom/usb/usb_persist.h>
 
+#endif
+
 #include "../common/DeviceScanner.h"
 #include "commands/ListConnectedDevices.h"
 #include "commands/GetTestMode.h"
 #include "commands/SetTestMode.h"
+#include "commands/ListDeviceCapabilities.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
@@ -27,7 +32,8 @@ namespace {
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
 
-    addCommandHandler(std::make_shared<ListConnectedDevices>(connectedDevices));
+    addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));
+    addCommandHandler(std::make_shared<ListDeviceCapabilities>(allDevices));
     addCommandHandler(std::make_shared<GetTestMode>(testModeController));
     addCommandHandler(std::make_shared<SetTestMode>(testModeController));
 
@@ -96,6 +102,7 @@ void MasterFirmware::setup() {
     localDevice = localModuleFactory->createLocal(localDeviceConfiguration, serviceLocator);
     localDevice->setup();
     localDevice->onSwitchEvent().addObserver(this);
+    allDevices.push_back(localDevice.get());
 
     registers = &localDevice->getRegisters();
 
@@ -119,6 +126,8 @@ void MasterFirmware::refreshConnectedDevices() {
     DeviceScanner scanner(serviceLocator.i2cClient);
     auto scanResult = scanner.scan();
 
+    allDevices.clear();
+    allDevices.push_back(localDevice.get());
     connectedDevices.clear();
     for (const auto& device : scanResult) {
         logger->info("Found device at %i: %08llx", device->getConfiguration().address, device->getConfiguration().id);
@@ -137,6 +146,7 @@ void MasterFirmware::refreshConnectedDevices() {
     }
 
     for (const auto& device : connectedDevices) {
+        allDevices.push_back(device.get());
         device->onSwitchEvent().addObserver(this);
     }
 }
@@ -160,9 +170,11 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
         refreshConnectedDevices();
     }
 
+#ifdef SOC_USB_OTG_SUPPORTED
     if (event.state == SwitchState::PRESSED && event.switchNumber == 4 && event.deviceId == 0x7e2c1a823e6bac0c) {
         chip_usb_set_persist_flags(USBDC_BOOT_DFU);
         REG_WRITE(RTC_CNTL_OPTION1_REG, RTC_CNTL_FORCE_DOWNLOAD_BOOT);
         esp_restart();
     }
+#endif
 }

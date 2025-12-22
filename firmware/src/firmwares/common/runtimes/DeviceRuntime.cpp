@@ -7,15 +7,40 @@ DeviceRuntime::DeviceRuntime(
     RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier
-)
-    : deviceId(deviceId)
-    ,
-    registers(registers)
-    ,
-    indicatorLeds(indicatorLeds)
-    ,
-    notifier(notifier) {
+) : deviceId(deviceId),
+    registers(registers),
+    indicatorLeds(indicatorLeds),
+    notifier(notifier) {}
+
+void DeviceRuntime::configureCapabilities() {
+    const auto capabilities = getCapabilities();
+
+    for (const auto& capability : capabilities) {
+        if (
+            const auto pushButton = dynamic_cast<PushButtonCapability*>(capability.get());
+            pushButton != nullptr
+        ) {
+            const auto& reg = registers.get(pushButton->reg);
+
+            attachSwitch(pushButton->number, BitReader::forRegister(*reg, pushButton->regIndex), pushButton->ledIndex);
+        }
+
+        if (
+            const auto rotaryEncoder = dynamic_cast<RotaryEncoderCapability*>(capability.get());
+            rotaryEncoder != nullptr
+        ) {
+            const auto& reg = registers.get(rotaryEncoder->reg);
+
+            // TODO support inversion in capability?
+            attachRotationalEncoder(
+                rotaryEncoder->number,
+                BitReader::forRegister(*reg, rotaryEncoder->aRegIndex, BitReaderMode::Inverted),
+                BitReader::forRegister(*reg, rotaryEncoder->bRegIndex, BitReaderMode::Inverted)
+            );
+        }
+    }
 }
+
 
 void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex) {
     const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
@@ -40,15 +65,15 @@ void DeviceRuntime::attachRotationalEncoder(
 }
 
 
-std::shared_ptr<Register> DeviceRuntime::configureRegister(const RegisterDescriptor& descriptor) const {
-    return this->registers.configure(descriptor);
+void DeviceRuntime::configureRegister(const RegisterDescriptor& descriptor) const {
+    this->registers.configure(descriptor);
 }
 
 void DeviceRuntime::begin() {
+    configureCapabilities();
 }
 
-void DeviceRuntime::loop() {
-}
+void DeviceRuntime::loop() {}
 
 void DeviceRuntime::observe(const SwitchEvent& event) {
     auto deviceSwitchEvent = DeviceSwitchEvent{

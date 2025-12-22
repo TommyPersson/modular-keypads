@@ -1,11 +1,23 @@
 #pragma once
 
+#include <firmwares/common/DeviceCapabilities.h>
 #include <firmwares/common/DeviceConfigurationManager.h>
 #include <firmwares/common/runtimes/DeviceRuntime.h>
 #include <firmwares/common/runtimes/RegisterRefresher.h>
 #include <firmwares/modules/common/DeviceModule.h>
+#include "RegisterDescriptorsM.h"
 
 namespace devices::m {
+
+    inline const std::vector<std::shared_ptr<DeviceCapability>> capabilities = {
+        std::make_shared<PushButtonCapability>(1, registers::IOB, 0, 0),
+        std::make_shared<PushButtonCapability>(2, registers::IOB, 1, 1),
+        std::make_shared<PushButtonCapability>(3, registers::IOB, 2, 2),
+        std::make_shared<PushButtonCapability>(4, registers::IOB, 3, 3),
+        std::make_shared<PushButtonCapability>(5, registers::IOB, 4, -1),
+        std::make_shared<RotaryEncoderCapability>(1, registers::IOA, 0, 1),
+    };
+
     class DeviceModuleM final : public DeviceModule {
     public:
         DeviceModuleM(
@@ -23,6 +35,7 @@ namespace devices::m {
 
         RegisterManager& getRegisters() override;
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
+        const std::span<const std::shared_ptr<DeviceCapability>> getCapabilities() const override { return capabilities; }
 
     protected:
         DeviceRuntime& getRuntime() override {

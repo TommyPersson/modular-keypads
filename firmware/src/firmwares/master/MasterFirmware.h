@@ -20,4 +20,5 @@ private:
 
     std::unique_ptr<devices::DeviceModule> localDevice;
     std::vector<std::unique_ptr<devices::DeviceModule>> connectedDevices;
+    std::vector<devices::DeviceModule*> allDevices;
 };

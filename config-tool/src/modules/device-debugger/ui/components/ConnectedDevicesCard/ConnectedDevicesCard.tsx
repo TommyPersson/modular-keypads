@@ -10,9 +10,13 @@ import {
   TableHead,
   TableRow
 } from "@mui/material"
+import { PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
+import type { DeviceFacade, DeviceInformation } from "@src/modules/device/facade"
 import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
+import { ListDeviceCapabilitiesQuery } from "@src/modules/device/queries/ListDeviceCapabilitiesQuery"
 import { useQuery } from "@tanstack/react-query"
+
 
 export const ConnectedDevicesCard = () => {
   const { facade: deviceFacade } = useDeviceContext()
@@ -35,7 +39,7 @@ export const ConnectedDevicesCard = () => {
         }
       />
 
-      <CardContent>
+      <CardContent style={{ paddingLeft: 0, paddingRight: 0 }}>
         <Table size={"small"}>
           <TableHead>
             <TableRow>
@@ -48,17 +52,42 @@ export const ConnectedDevicesCard = () => {
           <TableBody>
             {
               connectedDevices.map(it => (
-                <TableRow key={it.deviceId}>
-                  <TableCell><code>{it.deviceId}</code></TableCell>
-                  <TableCell><code>{it.deviceAddress}</code></TableCell>
-                  <TableCell>{it.deviceName}</TableCell>
-                  <TableCell><code>{it.deviceType}</code></TableCell>
-                </TableRow>
+                <DeviceRow key={it.deviceId} device={it} deviceFacade={deviceFacade} />
               ))
             }
           </TableBody>
         </Table>
       </CardContent>
     </Card>
+  )
+}
+
+const DeviceRow = (props: { device: DeviceInformation, deviceFacade: DeviceFacade }) => {
+  const { device, deviceFacade } = props
+
+  const capabilitiesQuery = useQuery(ListDeviceCapabilitiesQuery(device.deviceId, deviceFacade))
+  const capabilities = capabilitiesQuery.data ?? []
+
+  const pushButtons = capabilities.filter(it => it.type === "PushButton")
+  const rotaryEncoders = capabilities.filter(it => it.type === "RotaryEncoder")
+
+  return (
+    <>
+      <TableRow>
+        <TableCell><code>{device.deviceId}</code></TableCell>
+        <TableCell><code>{device.deviceAddress}</code></TableCell>
+        <TableCell>{device.deviceName}</TableCell>
+        <TableCell><code>{device.deviceType}</code></TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell></TableCell>
+        <TableCell colSpan={3}>
+          <PropertyGroup horizontal>
+            <PropertyText title={"# Push Buttons"} subtitle={pushButtons.length} />
+            <PropertyText title={"# Rotary Encoders"} subtitle={rotaryEncoders.length} />
+          </PropertyGroup>
+        </TableCell>
+      </TableRow>
+    </>
   )
 }

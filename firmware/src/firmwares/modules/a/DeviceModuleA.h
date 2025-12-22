@@ -1,11 +1,29 @@
 #pragma once
 
 #include <firmwares/common/DeviceConfigurationManager.h>
+#include <firmwares/common/DeviceCapabilities.h>
 #include <firmwares/common/runtimes/DeviceRuntime.h>
 #include <firmwares/common/runtimes/RegisterRefresher.h>
 #include <firmwares/modules/common/DeviceModule.h>
 
+#include "RegisterDescriptorsA.h"
+
 namespace devices::a {
+    inline const std::vector<std::shared_ptr<DeviceCapability>> capabilities = {
+        std::make_shared<PushButtonCapability>(1, registers::IOB, 0, 0),
+        std::make_shared<PushButtonCapability>(2, registers::IOB, 1, 11),
+        std::make_shared<PushButtonCapability>(3, registers::IOB, 2, 1),
+        std::make_shared<PushButtonCapability>(4, registers::IOB, 3, 10),
+        std::make_shared<PushButtonCapability>(5, registers::IOB, 4, 2),
+        std::make_shared<PushButtonCapability>(6, registers::IOB, 5, 9),
+        std::make_shared<PushButtonCapability>(7, registers::IOB, 6, 3),
+        std::make_shared<PushButtonCapability>(8, registers::IOB, 7, 8),
+        std::make_shared<PushButtonCapability>(9, registers::IOA, 0, 4),
+        std::make_shared<PushButtonCapability>(10, registers::IOA, 1, 7),
+        std::make_shared<PushButtonCapability>(11, registers::IOA, 2, 5),
+        std::make_shared<PushButtonCapability>(12, registers::IOA, 3, 6),
+    };
+
     class DeviceModuleA final : public DeviceModule {
     public:
         DeviceModuleA(
@@ -23,11 +41,14 @@ namespace devices::a {
 
         RegisterManager& getRegisters() override;
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
+        const std::span<const std::shared_ptr<DeviceCapability>> getCapabilities() const override { return capabilities; }
 
     protected:
         DeviceRuntime& getRuntime() override {
             return *deviceRuntime;
         }
+
+    public:
 
     protected:;
 

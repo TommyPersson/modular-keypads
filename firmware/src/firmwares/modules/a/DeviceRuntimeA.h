@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DeviceModuleA.h"
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
@@ -21,6 +22,10 @@ public:
         Notifier& notifier
     );
     ~DeviceRuntimeA() override;
+
+    const std::vector<std::shared_ptr<devices::DeviceCapability>>& getCapabilities() const override {
+        return devices::a::capabilities;
+    }
 
     void begin() override;
     void loop() override;

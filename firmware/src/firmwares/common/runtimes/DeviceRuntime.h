@@ -1,5 +1,6 @@
 #pragma once
 
+#include <firmwares/common/DeviceCapabilities.h>
 #include <Registers/RegisterManager.h>
 
 #include "firmwares/common/bitreaders/BitReader.h"
@@ -34,12 +35,15 @@ namespace devices {
         virtual void begin();
         virtual void loop();
 
+        virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
+
         Observable<DeviceSwitchEvent>& onSwitchEvent() {
             return deviceSwitchEventSubject;
         }
 
     protected:
-        std::shared_ptr<Register> configureRegister(const RegisterDescriptor& descriptor) const;
+        void configureRegister(const RegisterDescriptor& descriptor) const;
+        void configureCapabilities();
 
         void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex);
         void attachRotationalEncoder(
@@ -58,5 +62,7 @@ namespace devices {
         RegisterManager& registers;
         IndicatorLedManager& indicatorLeds;
         Notifier& notifier;
+
+
     };
 }

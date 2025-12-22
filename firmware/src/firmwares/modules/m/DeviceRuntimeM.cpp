@@ -1,5 +1,8 @@
 #include "DeviceRuntimeM.h"
 
+#include <firmwares/common/DeviceCapabilities.h>
+
+#include "DeviceModuleM.h"
 #include "RegisterDescriptorsM.h"
 
 DeviceRuntimeM::DeviceRuntimeM(
@@ -11,21 +14,8 @@ DeviceRuntimeM::DeviceRuntimeM(
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
     encoderRotationNotifier = std::make_unique<EncoderRotationNotifier>(notifier);
 
-    const auto& ioaReg = this->configureRegister(devices::m::registers::IOA);
-    const auto& iobReg = this->configureRegister(devices::m::registers::IOB);
-
-    this->attachSwitch(1, BitReader::forRegister(*iobReg, 0), 0);
-    this->attachSwitch(2, BitReader::forRegister(*iobReg, 1), 1);
-    this->attachSwitch(3, BitReader::forRegister(*iobReg, 2), 2);
-    this->attachSwitch(4, BitReader::forRegister(*iobReg, 3), 3);
-
-    this->attachSwitch(5, BitReader::forRegister(*iobReg, 4), -1);
-
-    this->attachRotationalEncoder(
-        1,
-        BitReader::forRegister(*ioaReg, 0, BitReaderMode::Inverted),
-        BitReader::forRegister(*ioaReg, 1, BitReaderMode::Inverted)
-    );
+    configureRegister(devices::m::registers::IOA);
+    configureRegister(devices::m::registers::IOB);
 }
 
 DeviceRuntimeM::~DeviceRuntimeM() {

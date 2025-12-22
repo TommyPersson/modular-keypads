@@ -14,6 +14,7 @@ namespace devices {
 
         virtual RegisterManager& getRegisters() = 0;
         virtual const DeviceConfiguration& getConfiguration() const = 0;
+        virtual const std::span<const std::shared_ptr<DeviceCapability>> getCapabilities() const = 0;
 
         Observable<DeviceSwitchEvent>& onSwitchEvent() {
             return getRuntime().onSwitchEvent();
