@@ -1,9 +1,6 @@
 #include "DeviceRuntimeM.h"
 
-#include <firmwares/common/DeviceCapabilities.h>
-
 #include "DeviceModuleM.h"
-#include "RegisterDescriptorsM.h"
 
 DeviceRuntimeM::DeviceRuntimeM(
     uint64_t deviceId,
@@ -13,9 +10,6 @@ DeviceRuntimeM::DeviceRuntimeM(
 ) : DeviceRuntime(deviceId, registers, indicatorLeds, notifier) {
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
     encoderRotationNotifier = std::make_unique<EncoderRotationNotifier>(notifier);
-
-    configureRegister(devices::m::registers::IOA);
-    configureRegister(devices::m::registers::IOB);
 }
 
 DeviceRuntimeM::~DeviceRuntimeM() {

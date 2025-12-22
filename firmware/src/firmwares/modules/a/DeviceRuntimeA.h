@@ -27,6 +27,10 @@ public:
         return devices::a::capabilities;
     }
 
+    const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const override {
+        return devices::a::registers::all;
+    }
+
     void begin() override;
     void loop() override;
 

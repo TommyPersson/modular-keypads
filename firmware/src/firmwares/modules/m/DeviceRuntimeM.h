@@ -27,6 +27,11 @@ public:
     const std::vector<std::shared_ptr<devices::DeviceCapability>>& getCapabilities() const override {
         return devices::m::capabilities;
     }
+
+    const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const override {
+        return devices::m::registers::all;
+    }
+
     void begin() override;
     void loop() override;
 

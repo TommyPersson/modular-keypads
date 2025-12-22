@@ -13,14 +13,13 @@ DeviceModuleA::DeviceModuleA(
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier
-    ) :
+) :
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),
     registerManager(std::move(registerManager)),
     registerRefresher(std::move(registerRefresher)),
     deviceRuntime(std::move(deviceRuntime)),
-    notifier(std::move(notifier)) {
-}
+    notifier(std::move(notifier)) {}
 
 DeviceModuleA::~DeviceModuleA() = default;
 

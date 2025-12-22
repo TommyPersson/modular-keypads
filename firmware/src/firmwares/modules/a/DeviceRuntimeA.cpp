@@ -3,7 +3,6 @@
 #include <firmwares/common/logging/Logger.h>
 
 #include "DeviceModuleA.h"
-#include "RegisterDescriptorsA.h"
 
 namespace {
     auto logger = common::logging::createLogger("DeviceRuntimeA");
@@ -16,9 +15,6 @@ DeviceRuntimeA::DeviceRuntimeA(
     Notifier& notifier
 ) : DeviceRuntime(deviceId, registers, indicatorLeds, notifier) {
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
-
-    configureRegister(devices::a::registers::IOA);
-    configureRegister(devices::a::registers::IOB);
 }
 
 DeviceRuntimeA::~DeviceRuntimeA() {

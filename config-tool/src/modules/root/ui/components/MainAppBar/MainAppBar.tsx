@@ -5,7 +5,7 @@ import { useDeviceContext } from "@src/modules/device/context"
 import { GetTestModeQuery } from "@src/modules/device/queries/GetTestModeQuery"
 import { queryClient } from "@src/utils/queryClient"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
 export const MainAppBar = () => {
 
@@ -36,6 +36,10 @@ export const MainAppBar = () => {
   const handleTestModeToggled = useCallback(async () => {
     await toggleTestMode.mutateAsync({ enabled: !testMode })
   }, [testMode, toggleTestMode])
+
+  useEffect(() => {
+    queryClient.resetQueries().then() // TODO give all device queries a prefix
+  }, [isConnected])
 
   return (
     <AppBar position={"fixed"} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>

@@ -6,9 +6,14 @@
 #include <firmwares/common/runtimes/RegisterRefresher.h>
 #include <firmwares/modules/common/DeviceModule.h>
 
-#include "RegisterDescriptorsA.h"
-
 namespace devices::a {
+
+    namespace registers {
+        const RegisterDescriptor IOA{.name = "IOA", .index = 0};
+        const RegisterDescriptor IOB{.name = "IOB", .index = 1};
+        const inline std::vector all = {&IOA, &IOB};
+    }
+
     inline const std::vector<std::shared_ptr<DeviceCapability>> capabilities = {
         std::make_shared<PushButtonCapability>(1, registers::IOB, 0, 0),
         std::make_shared<PushButtonCapability>(2, registers::IOB, 1, 11),
@@ -40,17 +45,21 @@ namespace devices::a {
         void loop() override;
 
         RegisterManager& getRegisters() override;
+
+        const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() override { return registers::all; }
+
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
-        const std::span<const std::shared_ptr<DeviceCapability>> getCapabilities() const override { return capabilities; }
+
+        const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const override {
+            return capabilities;
+        }
 
     protected:
         DeviceRuntime& getRuntime() override {
             return *deviceRuntime;
         }
 
-    public:
-
-    protected:;
+    protected:
 
     private:
         const DeviceConfiguration configuration;

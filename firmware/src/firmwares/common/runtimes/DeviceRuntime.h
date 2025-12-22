@@ -36,13 +36,14 @@ namespace devices {
         virtual void loop();
 
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
+        virtual const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const = 0;
 
         Observable<DeviceSwitchEvent>& onSwitchEvent() {
             return deviceSwitchEventSubject;
         }
 
     protected:
-        void configureRegister(const RegisterDescriptor& descriptor) const;
+        void configureRegisters() const;
         void configureCapabilities();
 
         void attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex);

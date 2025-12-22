@@ -1,6 +1,6 @@
 #include "LocalRegisterRefresherA.h"
 
-#include <SPI.h>
+#include "DeviceModuleA.h"
 
 LocalRegisterRefresherA::LocalRegisterRefresherA(RegisterManager& registers) :
     RegisterRefresher(registers) {

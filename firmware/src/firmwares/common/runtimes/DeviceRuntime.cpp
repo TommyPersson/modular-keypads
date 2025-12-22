@@ -1,5 +1,7 @@
 #include "DeviceRuntime.h"
 
+#include <firmwares/modules/m/DeviceModuleM.h>
+
 using namespace devices;
 
 DeviceRuntime::DeviceRuntime(
@@ -11,6 +13,12 @@ DeviceRuntime::DeviceRuntime(
     registers(registers),
     indicatorLeds(indicatorLeds),
     notifier(notifier) {}
+
+void DeviceRuntime::configureRegisters() const {
+    for (const auto& descriptor : getRegisterDescriptors()) {
+        registers.configure(*descriptor);
+    }
+}
 
 void DeviceRuntime::configureCapabilities() {
     const auto capabilities = getCapabilities();
@@ -64,12 +72,8 @@ void DeviceRuntime::attachRotationalEncoder(
     );
 }
 
-
-void DeviceRuntime::configureRegister(const RegisterDescriptor& descriptor) const {
-    this->registers.configure(descriptor);
-}
-
 void DeviceRuntime::begin() {
+    configureRegisters();
     configureCapabilities();
 }
 
