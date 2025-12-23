@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, Grid, Paper, Typography } from "@mui/mat
 import { useDeviceFacade } from "@src/modules/device/context"
 import type { DeviceFacade, NotificationMessage } from "@src/modules/device/facade"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
+import { usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 import { useEffect, useReducer } from "react"
 
 import classes from "./DevicePreviewCard.module.css"
@@ -12,6 +13,7 @@ export const DevicePreviewCard = () => {
   const [deviceInformation] = useDeviceInformation()
 
   const deviceType = deviceInformation?.deviceType ?? null
+  const deviceId = deviceInformation?.deviceId ?? ""
 
   return (
     <Card>
@@ -20,21 +22,21 @@ export const DevicePreviewCard = () => {
         subheader={`Type ${deviceType}`}
       />
       <CardContent>
-        <PreviewCardContent deviceFacade={deviceFacade} deviceType={deviceType} />
+        <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
       </CardContent>
     </Card>
   )
 }
 
 const PreviewCardContent = (props: {
-  deviceFacade: DeviceFacade,
+  deviceId: string
   deviceType: string | null
 }) => {
-  const { deviceFacade, deviceType } = props
+  const { deviceId, deviceType } = props
 
   switch (deviceType) {
     case "a":
-      return <TypeAPreviewCardContent deviceFacade={deviceFacade} />
+      return <TypeAPreviewCardContent deviceId={deviceId} />
     default:
       return <NullPreviewCardContent />
   }
@@ -46,71 +48,56 @@ const NullPreviewCardContent = () => {
   )
 }
 
-type SwitchStates = { [index: number]: boolean }
-
 const TypeAPreviewCardContent = (props: {
-  deviceFacade: DeviceFacade
+  deviceId: string,
 }) => {
-  const { deviceFacade } = props
+  const { deviceId } = props
 
-  const [switchState, handleNotificationMessage] = useReducer<SwitchStates, [NotificationMessage]>((state, message) => {
-    if (message.type !== "switch.pressed" && message.type !== "switch.released") {
-      return state
-    }
-
-    const switchNumber = parseInt(message.args[0])
-    return { ...state, [switchNumber]: message.type === "switch.pressed" }
-  }, {})
-
-  useEffect(() => {
-    const subscription = deviceFacade.notifications$.subscribe(handleNotificationMessage)
-    return () => subscription.unsubscribe()
-    // eslint-disable-next-line
-  }, [handleNotificationMessage])
+  const pushButtonStates = usePushButtonStates(deviceId)
 
   return (
     <Paper elevation={5} className={classes.TypeAPreviewContainer} >
       <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={1} isPressed={switchState[1] ?? false} />
+          <SwitchStateIndicator switchNumber={1} isPressed={pushButtonStates[1] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={2} isPressed={switchState[2] ?? false} />
+          <SwitchStateIndicator switchNumber={2} isPressed={pushButtonStates[2] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={3} isPressed={switchState[3] ?? false} />
+          <SwitchStateIndicator switchNumber={3} isPressed={pushButtonStates[3] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={4} isPressed={switchState[4] ?? false} />
+          <SwitchStateIndicator switchNumber={4} isPressed={pushButtonStates[4] ?? false} />
         </Grid>
       </Grid>
       <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={5} isPressed={switchState[5] ?? false} />
+          <SwitchStateIndicator switchNumber={5} isPressed={pushButtonStates[5] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={6} isPressed={switchState[6] ?? false} />
+          <SwitchStateIndicator switchNumber={6} isPressed={pushButtonStates[6] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={7} isPressed={switchState[7] ?? false} />
+          <SwitchStateIndicator switchNumber={7} isPressed={pushButtonStates[7] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={8} isPressed={switchState[8] ?? false} />
+          <SwitchStateIndicator switchNumber={8} isPressed={pushButtonStates[8] ?? false} />
         </Grid>
       </Grid>
 
       <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={9} isPressed={switchState[9] ?? false} />
+          <SwitchStateIndicator switchNumber={9} isPressed={pushButtonStates[9] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={10} isPressed={switchState[10] ?? false} />
+          <SwitchStateIndicator switchNumber={10} isPressed={pushButtonStates[10] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={11} isPressed={switchState[11] ?? false} />
+          <SwitchStateIndicator switchNumber={11} isPressed={pushButtonStates[11] ?? false} />
         </Grid>
         <Grid size={6}>
-          <SwitchStateIndicator switchNumber={12} isPressed={switchState[12] ?? false} />
+          <SwitchStateIndicator switchNumber={12} isPressed={pushButtonStates[12] ?? false} />
         </Grid>
       </Grid>
     </Paper>

@@ -1,5 +1,7 @@
-import BugReportIcon from "@mui/icons-material/BugReport"
-import HomeIcon from "@mui/icons-material/Home"
+import BugReportOutlinedIcon from "@mui/icons-material/BugReportOutlined"
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined"
+import KeyboardOutlinedIcon from '@mui/icons-material/KeyboardOutlined';
+
 import {
   Alert,
   AlertTitle,
@@ -13,6 +15,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Stack,
   Toolbar
 } from "@mui/material"
 import { useDeviceContext } from "@src/modules/device/context"
@@ -40,7 +43,7 @@ export const RootScreen = () => {
       <MainAppBar />
 
       <Grid container>
-        <Grid size={'auto'}>
+        <Grid size={"auto"}>
           <Drawer
             variant={"permanent"}
             sx={{
@@ -60,21 +63,29 @@ export const RootScreen = () => {
               <NavItem
                 title={"Overview"}
                 link={"/overview"}
-                icon={<HomeIcon />}
+                icon={<HomeOutlinedIcon />}
+              />
+              <NavItem
+                title={"Key Bindings"}
+                link={"/key-bindings"}
+                icon={<KeyboardOutlinedIcon />}
               />
               <Divider />
               <NavItem
                 title={"Device Debugger"}
                 link={"/device-debugger"}
-                icon={<BugReportIcon />}
+                icon={<BugReportOutlinedIcon />}
               />
             </List>
           </Drawer>
         </Grid>
         <Grid size={"grow"}>
-          <Toolbar />
-
-          <Outlet />
+          <Stack style={{ height: "100vh", overflow: "hidden" }}>
+            <Toolbar />
+            <Stack flexGrow={1} overflow={"auto"}>
+              <Outlet />
+            </Stack>
+          </Stack>
         </Grid>
       </Grid>
     </Box>

@@ -1,5 +1,6 @@
 import { DeviceDebuggerPage } from "@src/modules/device-debugger/ui"
 import { DeviceContextProvider } from "@src/modules/device/context"
+import { KeyBindingsPage } from "@src/modules/key-bindings/ui"
 import { OverviewPage } from "@src/modules/overview/ui/pages"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: "overview",
         Component: OverviewPage,
+      },
+      {
+        path: "key-bindings",
+        Component: KeyBindingsPage,
       },
       {
         path: "device-debugger",

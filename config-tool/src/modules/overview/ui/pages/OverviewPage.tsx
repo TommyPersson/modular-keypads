@@ -1,20 +1,23 @@
 import { Grid, Stack } from "@mui/material"
+import { Page } from "@src/modules/common/components"
 import { ConnectedDevicesCard, MainDeviceCard } from "@src/modules/overview/ui/components"
 
 
 export const OverviewPage = () => {
   return (
-    <Grid container spacing={2} padding={2}>
-      <Grid size={4}>
-        <Stack spacing={2}>
-          <MainDeviceCard />
-        </Stack>
+    <Page>
+      <Grid container spacing={2}>
+        <Grid size={4}>
+          <Stack spacing={2}>
+            <MainDeviceCard />
+          </Stack>
+        </Grid>
+        <Grid size={4}>
+          <Stack spacing={2}>
+            <ConnectedDevicesCard />
+          </Stack>
+        </Grid>
       </Grid>
-      <Grid size={4}>
-        <Stack spacing={2}>
-          <ConnectedDevicesCard />
-        </Stack>
-      </Grid>
-    </Grid>
+    </Page>
   )
 }

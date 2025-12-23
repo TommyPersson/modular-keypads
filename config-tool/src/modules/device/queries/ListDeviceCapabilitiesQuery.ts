@@ -6,5 +6,5 @@ export const ListDeviceCapabilitiesQuery: (deviceId: string, deviceFacade: Devic
   queryFn: async (): Promise<DeviceCapability[]> => {
     return deviceFacade.listDeviceCapabilities(deviceId)
   },
-  enabled: deviceFacade.isConnected,
+  enabled: deviceFacade.isConnected && deviceId.length > 0,
 })
