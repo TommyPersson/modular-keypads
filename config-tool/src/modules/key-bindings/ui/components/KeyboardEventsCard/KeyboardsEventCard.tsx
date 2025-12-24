@@ -16,12 +16,12 @@ import {
   TableHead,
   TableRow,
   ToggleButton,
-  Tooltip, Typography
+  Tooltip
 } from "@mui/material"
-import { blue, deepPurple } from "@mui/material/colors"
-import { useDeviceFacade } from "@src/modules/device/context"
+import { EmptyTableRow } from "@src/modules/common/components"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import { DateTime } from "luxon"
+import * as React from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 const maxEventLogItems = 20
@@ -81,40 +81,59 @@ const KeyboardStateCardContent = (props: {
           <Table size={"small"}>
             <TableHead>
               <TableRow>
-                <TableCell style={{ width: 0, whiteSpace: "nowrap" }}>HID Code</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>HID Description</TableCell>
-                <TableCell style={{ width: 150, whiteSpace: "nowrap" }}>JS Code</TableCell>
-                <TableCell style={{ width: 200, whiteSpace: "nowrap" }} align={"right"}>Category</TableCell>
+                <TableCell style={{ width: 0, whiteSpace: "nowrap" }}>
+                  HID Code
+                </TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>
+                  HID Description
+                </TableCell>
+                <TableCell style={{ width: 150, whiteSpace: "nowrap" }}>
+                  JS Code
+                </TableCell>
+                <TableCell style={{ width: 200, whiteSpace: "nowrap" }} align={"right"}>
+                  Category
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {state.pressedKeyCodes.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <center>
-                      <em>There are currently no keys pressed.</em>
-                    </center>
-                  </TableCell>
-                </TableRow>
+                <EmptyTableRow>
+                  There are currently no keys pressed.
+                </EmptyTableRow>
               )}
-              {state.pressedKeyCodes.map(jsCode => {
-                const keyCode = keyboadKeyCodes.byJsCode[jsCode] ?? null
-                return (
-                  <TableRow key={jsCode}>
-                    <TableCell><code>0x{keyCode?.hidCode?.toString(16)?.padStart(2, "0") ?? "N/A"}</code></TableCell>
-                    <TableCell>{keyCode?.hidDescription ?? "N/A"}<br /><em>{keyCode?.note}</em></TableCell>
-                    <TableCell><code>{keyCode?.jsCode ?? jsCode}</code></TableCell>
-                    <TableCell style={{ whiteSpace: "nowrap" }}
-                               align={"right"}>{keyCode?.category ?? "Other"}</TableCell>
-                  </TableRow>)
-              })}
+              {state.pressedKeyCodes.map(jsCode => (
+                <PressedKeyRow key={jsCode} jsCode={jsCode} />
+              ))}
             </TableBody>
           </Table>
           <div style={{ flex: 1 }} />
         </Stack>
       </CardContent>
     </>
+  )
+}
 
+const PressedKeyRow = (props: {
+  jsCode: string
+}) => {
+  const { jsCode } = props
+  const keyCode = keyboadKeyCodes.byJsCode[jsCode] ?? null
+
+  return (
+    <TableRow hover>
+      <TableCell>
+        <code>0x{keyCode?.hidCode?.toString(16)?.padStart(2, "0") ?? "N/A"}</code>
+      </TableCell>
+      <TableCell>
+        {keyCode?.hidDescription ?? "N/A"}<br /><em>{keyCode?.note}</em>
+      </TableCell>
+      <TableCell>
+        <code>{keyCode?.jsCode ?? jsCode}</code>
+      </TableCell>
+      <TableCell style={{ whiteSpace: "nowrap" }} align={"right"}>
+        {keyCode?.category ?? "Other"}
+      </TableCell>
+    </TableRow>
   )
 }
 
@@ -125,71 +144,103 @@ const KeyboardLogCardContent = (props: {
   const logItems = useMemo(() => state.eventLog.toReversed(), [state.eventLog])
   return (
     <>
-      <CardHeader title={"Event Log"} subheader={`The last ${maxEventLogItems} events are shown. The most recent events are at the top.`} />
+      <CardHeader
+        title={"Event Log"}
+        subheader={`The last ${maxEventLogItems} events are shown. The most recent events are at the top.`}
+      />
       <CardContent style={{ paddingLeft: 0, paddingRight: 0 }}>
         <Stack spacing={2} style={{ height: 400, overflow: "auto" }}>
           <Table size={"small"}>
             <TableHead>
               <TableRow>
-                <TableCell style={{ width: 100, whiteSpace: "nowrap" }}>Time</TableCell>
-                <TableCell style={{ width: 0, whiteSpace: "nowrap" }}>Event</TableCell>
-                <TableCell style={{ width: 0, whiteSpace: "nowrap" }}>HID Code</TableCell>
-                <TableCell style={{ whiteSpace: "nowrap" }}>HID Description</TableCell>
-                <TableCell style={{ width: 150, whiteSpace: "nowrap" }}>JS Code</TableCell>
-                <TableCell style={{ width: 200, whiteSpace: "nowrap" }} align={"right"}>Category</TableCell>
+                <TableCell style={{ width: 100, whiteSpace: "nowrap" }}>
+                  Time
+                </TableCell>
+                <TableCell style={{ width: 0, whiteSpace: "nowrap" }}>
+                  Event
+                </TableCell>
+                <TableCell style={{ width: 0, whiteSpace: "nowrap" }}>
+                  HID Code
+                </TableCell>
+                <TableCell style={{ whiteSpace: "nowrap" }}>
+                  HID Description
+                </TableCell>
+                <TableCell style={{ width: 150, whiteSpace: "nowrap" }}>
+                  JS Code
+                </TableCell>
+                <TableCell style={{ width: 200, whiteSpace: "nowrap" }} align={"right"}>
+                  Category
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {logItems.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <center>
-                      <em>No events recorded yet.</em>
-                    </center>
-                  </TableCell>
-                </TableRow>
+                <EmptyTableRow>No events recorded yet.</EmptyTableRow>
               )}
-              {logItems.map(logItem => {
-                const jsCode = logItem.jsCode
-                const keyCode = keyboadKeyCodes.byJsCode[jsCode] ?? null
-                return (
-                  <TableRow key={logItem.timestamp.toMillis()}>
-                    <TableCell>
-                      {logItem.timestamp.toFormat("HH:mm:ss.SSS")}
-                    </TableCell>
-                    <TableCell style={{ whiteSpace: "nowrap" }}>
-                      <center>
-                        <Tooltip title={logItem.type}>
-                          <Avatar
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              bgcolor: logItem.type === "Pressed" ? blue["A400"] : deepPurple["A400"]
-                            }}
-                            variant={"circular"}
-                          >
-                            {logItem.type === "Pressed" ? <FileDownloadIcon fontSize={"small"} /> :
-                              <FileUploadIcon fontSize={"small"} />}
-                          </Avatar>
-                        </Tooltip>
-                      </center>
-                    </TableCell>
-                    <TableCell><code>0x{keyCode?.hidCode?.toString(16)?.padStart(2, "0") ?? "N/A"}</code></TableCell>
-                    <TableCell>{keyCode?.hidDescription ?? "N/A"}<br /><em>{keyCode?.note}</em></TableCell>
-                    <TableCell><code>{keyCode?.jsCode ?? jsCode}</code></TableCell>
-                    <TableCell style={{ whiteSpace: "nowrap" }}
-                               align={"right"}>{keyCode?.category ?? "Other"}</TableCell>
-                  </TableRow>)
-              })}
+              {logItems.map(logItem =>
+                <LogItemRow key={logItem.type + logItem.timestamp.toMillis()} logItem={logItem} />
+              )}
             </TableBody>
           </Table>
           <div style={{ flex: 1 }} />
         </Stack>
       </CardContent>
     </>
-
   )
 }
+
+const LogItemRow = React.memo((props: {
+  logItem: KeyboardEventLogItem
+}) => {
+  const { logItem } = props
+
+  const jsCode = logItem.jsCode
+  const keyCode = keyboadKeyCodes.byJsCode[jsCode] ?? null
+
+  return (
+    <TableRow hover>
+      <TableCell>
+        {logItem.timestamp.toFormat("HH:mm:ss")}
+        .
+        <strong>
+          {logItem.timestamp.toFormat("SSS")}
+        </strong>
+      </TableCell>
+      <TableCell style={{ whiteSpace: "nowrap" }}>
+        <center>
+          <Tooltip title={logItem.type}>
+            <Avatar
+              sx={{
+                width: 22,
+                height: 22,
+                bgcolor: logItem.type === "Pressed"
+                  ? "primary.main"//blue["A400"]
+                  : "warning.main" //orange["A400"]
+              }}
+              variant={"circular"}
+            >
+              {logItem.type === "Pressed"
+                ? <FileDownloadIcon fontSize={"small"} />
+                : <FileUploadIcon fontSize={"small"} />}
+            </Avatar>
+          </Tooltip>
+        </center>
+      </TableCell>
+      <TableCell>
+        <code>0x{keyCode?.hidCode?.toString(16)?.padStart(2, "0") ?? "N/A"}</code>
+      </TableCell>
+      <TableCell>
+        {keyCode?.hidDescription ?? "N/A"}<br /><em>{keyCode?.note}</em>
+      </TableCell>
+      <TableCell>
+        <code>{keyCode?.jsCode ?? jsCode}</code>
+      </TableCell>
+      <TableCell style={{ whiteSpace: "nowrap" }} align={"right"}>
+        {keyCode?.category ?? "Other"}
+      </TableCell>
+    </TableRow>
+  )
+})
 
 type KeyboardState = {
   pressedKeyCodes: string[]
@@ -214,8 +265,18 @@ function useKeyboardState(keyCaptureEnabled: boolean): KeyboardState {
 
   useEffect(() => {
     const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.code.length === 0) {
+        return
+      }
+
       if (!e.repeat) {
-        setPressedKeyCodes(s => [...s, e.code])
+        setPressedKeyCodes(s => {
+          if (!s.includes(e.code)) {
+            return [...s, e.code]
+          } else {
+            return s
+          }
+        })
 
         setEventLog(s => {
           const logItem = { timestamp: DateTime.now(), type: "Pressed", jsCode: e.code } satisfies KeyboardEventLogItem
@@ -232,6 +293,10 @@ function useKeyboardState(keyCaptureEnabled: boolean): KeyboardState {
     }
 
     const keyUpHandler = (e: KeyboardEvent) => {
+      if (e.code.length === 0) {
+        return
+      }
+
       setPressedKeyCodes(s => s.filter(it => it !== e.code))
       setEventLog(s => {
         const logItem = { timestamp: DateTime.now(), type: "Released", jsCode: e.code } satisfies KeyboardEventLogItem

@@ -41,7 +41,7 @@ const allHidKeyCodes = [
   { hidCode: 0x25, jsCode: "Digit8", hidDescription: "8 *", category: "Characters & Symbols" },
   { hidCode: 0x26, jsCode: "Digit9", hidDescription: "9 (", category: "Characters & Symbols" },
   { hidCode: 0x27, jsCode: "Digit0", hidDescription: "0 )", category: "Characters & Symbols" },
-  { hidCode: 0x28, jsCode: "Enter", hidDescription: "Return Enter" },
+  { hidCode: 0x28, jsCode: "Enter", hidDescription: "Enter" },
   { hidCode: 0x29, jsCode: "Escape", hidDescription: "Escape" },
   { hidCode: 0x2a, jsCode: "Backspace", hidDescription: "Backspace" },
   { hidCode: 0x2b, jsCode: "Tab", hidDescription: "Tab", category: "Characters & Symbols" },
@@ -226,12 +226,15 @@ const allHidKeyCodes = [
 
 export type KeyboardKeyCodes = {
   all: KeyboardKeyCode[],
-  byJsCode: { [index: string]: KeyboardKeyCode }
+  byJsCode: { [index: string]: KeyboardKeyCode },
+  byHidCode: { [index: string]: KeyboardKeyCode }
 }
 
 export const keyboadKeyCodes: KeyboardKeyCodes = {
   all: allHidKeyCodes,
   byJsCode: allHidKeyCodes
     .filter(it => it.jsCode !== null)
-    .reduce((acc, curr) => ({ ...acc, [curr.jsCode]: curr }), {})
+    .reduce((acc, curr) => ({ ...acc, [curr.jsCode]: curr }), {}),
+  byHidCode: allHidKeyCodes
+    .reduce((acc, curr) => ({ ...acc, [curr.hidCode]: curr }), {})
 }
