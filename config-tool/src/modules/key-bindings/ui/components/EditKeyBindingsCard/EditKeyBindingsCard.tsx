@@ -1,8 +1,16 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 
 import {
-  Divider, IconButton,
-  type SelectChangeEvent,
+  Card,
+  CardContent,
+  CardHeader,
+  FormControl,
+  IconButton,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+  type SelectChangeEvent, Stack,
   Table,
   TableBody,
   TableCell,
@@ -10,7 +18,6 @@ import {
   TableRow,
   Typography
 } from "@mui/material"
-import { Card, CardContent, CardHeader, FormControl, InputLabel, ListItemText, MenuItem, Select } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
 import { usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
@@ -41,26 +48,28 @@ export const EditKeyBindingsCard = () => {
 
   return (
     <Card>
-      <CardHeader title={"Key Bindings"} />
+      <CardHeader title={"Key Bindings"} subheader={"Bind pre-defined macros to specific buttons on your devices"} />
       <CardContent>
-        <FormControl fullWidth>
-          <InputLabel>Device</InputLabel>
-          <Select
-            label={"Device"}
-            value={selectedDeviceId}
-            onChange={handleSelectedDeviceIdChanged}
-            className={classes.DeviceSelect}
-          >
-            {devices.map(device => (
-              <MenuItem value={device.deviceId}>
-                <ListItemText>
-                  {device.deviceName}
-                </ListItemText>
-                <code>{device.deviceId}</code>
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Stack spacing={2}>
+          <FormControl fullWidth>
+            <InputLabel>Device</InputLabel>
+            <Select
+              label={"Device"}
+              value={selectedDeviceId}
+              onChange={handleSelectedDeviceIdChanged}
+              className={classes.DeviceSelect}
+            >
+              {devices.map(device => (
+                <MenuItem value={device.deviceId}>
+                  <ListItemText>
+                    {device.deviceName}
+                  </ListItemText>
+                  <code>{device.deviceId}</code>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
       </CardContent>
       {pushButtons.length > 0 && (
         <>
