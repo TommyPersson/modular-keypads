@@ -1,0 +1,13 @@
+
+.RecordButton {
+    &[data-recording=true] {
+        box-shadow: 0 0 17px #ff1744;
+        animation: pulsate 1s ease-out infinite;
+    }
+}
+
+@-webkit-keyframes pulsate {
+    0%   { box-shadow: 0 0 0 #ff1744; }
+    50%  { box-shadow: 0 0 17px #ff1744; }
+    100% { box-shadow: 0 0 0 #ff1744; }
+}

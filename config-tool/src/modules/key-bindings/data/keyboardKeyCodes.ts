@@ -222,7 +222,7 @@ const allHidKeyCodes = [
   { hidCode: 0xe5, jsCode: "ShiftRight", hidDescription: "RightShift", category: "Modifiers" },
   { hidCode: 0xe6, jsCode: "AltRight", hidDescription: "RightAlt", category: "Modifiers" },
   { hidCode: 0xe7, jsCode: "MetaRight", hidDescription: "Right GUI", category: "Modifiers" },
-]
+].map(it => ({ ...it, category: it.category ?? "Other" }))
 
 export type KeyboardKeyCodes = {
   all: KeyboardKeyCode[],

@@ -1,6 +1,12 @@
 import type { Shortcut } from "./Shortcut"
 
-export type MacroDefinitionType = "Shortcut" | "ShortcutSequence" | "HIDKeySequence"
+
+
+export enum MacroDefinitionType {
+  Shortcut = "Shortcut",
+  ShortcutSequence = "ShortcutSequence",
+  HIDKeySequence = "HIDKeySequence"
+}
 
 export type MacroDefinitionBase = {
   id: string
@@ -8,12 +14,12 @@ export type MacroDefinitionBase = {
 }
 
 export type ShortcutMacroDefinition = MacroDefinitionBase & {
-  type: "Shortcut"
+  type: MacroDefinitionType.Shortcut
   shortcut: Shortcut
 }
 
 export type ShortcutSequenceMacroDefinition = MacroDefinitionBase & {
-  type: "ShortcutSequence"
+  type: MacroDefinitionType.ShortcutSequence
   shortcuts: Shortcut[]
 }
 
@@ -26,7 +32,7 @@ export type HIDAction = {
 
 // TODO Should probably be replaced with a generic sequence containing both HID and ConsumerControl (and others) actions
 export type HIDKeySequenceMacroDefinition = MacroDefinitionBase & {
-  type: "HIDKeySequence"
+  type: MacroDefinitionType.HIDKeySequence
   sequence: HIDAction[]
 }
 

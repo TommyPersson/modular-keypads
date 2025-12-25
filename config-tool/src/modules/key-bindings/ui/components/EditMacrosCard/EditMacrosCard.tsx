@@ -1,4 +1,5 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined"
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
@@ -6,14 +7,15 @@ import FileUploadIcon from "@mui/icons-material/FileUpload"
 import FormatListNumberedOutlinedIcon from "@mui/icons-material/FormatListNumberedOutlined"
 import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
 import KeyboardOutlinedIcon from "@mui/icons-material/KeyboardOutlined"
+import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined"
 import TimesOneMobiledataOutlinedIcon from "@mui/icons-material/TimesOneMobiledataOutlined"
 
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
   Chip,
-  Divider,
   IconButton,
   List,
   ListItem,
@@ -26,39 +28,53 @@ import {
   Tooltip
 } from "@mui/material"
 import { EmptyTableRow } from "@src/modules/common/components"
+import { useDeviceFacade } from "@src/modules/device/context"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import {
   type HIDAction,
   type HIDKeySequenceMacroDefinition,
   type MacroDefinition,
   type MacroDefinitionType,
-  ModifierKey,
   type Shortcut,
   type ShortcutMacroDefinition,
   type ShortcutSequenceMacroDefinition
 } from "@src/modules/key-bindings/models"
+import { ListStoredMacrosQuery } from "@src/modules/key-bindings/queries/ListStoredMacrosQuery"
+import { EditMacroDialog } from "@src/modules/key-bindings/ui/components/EditMacrosCard/EditMacroDialog"
+import { useQuery } from "@tanstack/react-query"
 import { type ComponentProps, useCallback, useState } from "react"
 
 import classes from "./EditMacrosCard.module.css"
 
 export const EditMacrosCard = () => {
+  const deviceFacade = useDeviceFacade()
+
+  const storedMacrosQuery = useQuery(ListStoredMacrosQuery(deviceFacade))
+  const storedMacros = storedMacrosQuery.data ?? []
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false)
+
+  const handleOpenEditDialogClick = useCallback(() => {
+    setIsEditDialogOpen(true)
+  }, [setIsEditDialogOpen])
+
+  const handleEditDialogClosed = useCallback(() => {
+    setIsEditDialogOpen(false)
+  }, [setIsEditDialogOpen])
+
   return (
     <Card>
       <CardHeader
         title={"Macros"}
         subheader={"Create macros to be able to bind them to keys"}
+        action={
+          <>
+            <Button startIcon={<AddOutlinedIcon />} onClick={handleOpenEditDialogClick}>Create</Button>
+          </>
+        }
       />
-      <Divider />
-      <>
-        <CardHeader title={"Create Macro"}>
-
-        </CardHeader>
-        <CardContent>
-
-        </CardContent>
-      </>
-      <Divider />
-      <ExistingMacrosCardContent macros={testMacros} />
+      <EditMacroDialog isOpen={isEditDialogOpen} onClose={handleEditDialogClosed} />
+      <ExistingMacrosCardContent macros={storedMacros} />
     </Card>
   )
 }
@@ -114,7 +130,22 @@ const MacroDefinitionRow = (props: {
         <MacroTypeVisualization type={macro.type} />
       </TableCell>
       <TableCell>{definitionCellContent}</TableCell>
-      <TableCell style={{ verticalAlign }}>Edit yo</TableCell>
+      <TableCell style={{ verticalAlign }} align={"right"}>
+        <Stack direction={"row"}>
+          <Tooltip title={"Edit Macro"}>
+            <IconButton onClick={() => {
+            }} size={"small"}>
+              <EditOutlinedIcon fontSize={"small"} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Run Macro Now"}>
+            <IconButton onClick={() => {
+            }} size={"small"}>
+              <PlayCircleOutlinedIcon fontSize={"small"} />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </TableCell>
     </TableRow>
   )
 }
@@ -136,9 +167,9 @@ function isSequenceMacro(macro: MacroDefinition) {
   switch (macro.type) {
     case "ShortcutSequence":
     case "HIDKeySequence":
-      return true;
+      return true
     default:
-      return false;
+      return false
   }
 }
 
@@ -321,112 +352,3 @@ const MacroTypeVisualization = (props: {
       )
   }
 }
-
-const testMacros: MacroDefinition[] = [
-  {
-    id: "My First Macro",
-    type: "Shortcut",
-    shortcut: {
-      modifiers: [ModifierKey.Control, ModifierKey.Shift],
-      hidCode: 0x04 // A
-    }
-  },
-  {
-    id: "IntelliJ: Run",
-    type: "Shortcut",
-    shortcut: {
-      modifiers: [ModifierKey.Shift],
-      hidCode: 0x43 // F10
-    }
-  },
-  {
-    id: "IntelliJ: Debug",
-    type: "Shortcut",
-    shortcut: {
-      modifiers: [ModifierKey.Shift],
-      hidCode: 0x42 // F9
-    }
-  },
-  {
-    id: "IntelliJ: Stop",
-    type: "Shortcut",
-    shortcut: {
-      modifiers: [ModifierKey.Control],
-      hidCode: 0x3b // F2
-    }
-  },
-  {
-    id: "Vim: Save & Exit",
-    type: "ShortcutSequence",
-    shortcuts: [
-      {
-        modifiers: [],
-        hidCode: 0x29 // Escape
-      },
-      {
-        modifiers: [ModifierKey.Shift],
-        hidCode: 0x33 // ; :
-      },
-      {
-        modifiers: [],
-        hidCode: 0x1a // W
-      },
-      {
-        modifiers: [],
-        hidCode: 0x14 // Q
-      },
-      {
-        modifiers: [],
-        hidCode: 0x28 // Enter
-      }
-    ]
-  },
-  {
-    id: "Vim: Force Exit",
-    type: "ShortcutSequence",
-    shortcuts: [
-      {
-        modifiers: [],
-        hidCode: 0x29 // Escape
-      },
-      {
-        modifiers: [ModifierKey.Shift],
-        hidCode: 0x33 // ; :
-      },
-      {
-        modifiers: [],
-        hidCode: 0x14 // Q
-      },
-      {
-        modifiers: [ModifierKey.Shift],
-        hidCode: 0x1e // 1 !
-      },
-      {
-        modifiers: [],
-        hidCode: 0x28 // Enter
-      }
-    ]
-  },
-  {
-    id: "Raw HID Sequence",
-    type: "HIDKeySequence",
-    sequence: [
-      {
-        type: "Press",
-        hidCode: 0x29
-      },
-      {
-        type: "Press",
-        hidCode: 0x30
-      },
-      {
-        type: "Release",
-        hidCode: 0x30
-      },
-      {
-        type: "Release",
-        hidCode: 0x29
-      }
-    ]
-  }
-]

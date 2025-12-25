@@ -21,19 +21,28 @@ import {
 import { EmptyTableRow } from "@src/modules/common/components"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import { DateTime } from "luxon"
-import * as React from "react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const maxEventLogItems = 20
 
 export const KeyboardEventsCard = () => {
+  const [enabled, setEnabled] = useState(true)
   const [keyCaptureEnabled, setKeyCaptureEnabled] = useState(false)
 
-  const keyboardState = useKeyboardState(keyCaptureEnabled)
+  const keyboardState = useKeyboardState(enabled, keyCaptureEnabled)
 
   const handleKeyCaptureToggled = useCallback(() => {
     setKeyCaptureEnabled(s => !s)
   }, [setKeyCaptureEnabled])
+
+  const isAnyModalOpen = document.getElementsByClassName("MuiDialog-root").length > 0
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      setEnabled(false)
+    } else {
+      setEnabled(true)
+    }
+  }, [isAnyModalOpen, setEnabled])
 
   return (
     <Card>
@@ -69,7 +78,7 @@ export const KeyboardEventsCard = () => {
   )
 }
 
-const KeyboardStateCardContent = (props: {
+const KeyboardStateCardContent = memo((props: {
   state: KeyboardState
 }) => {
   const { state } = props
@@ -111,9 +120,9 @@ const KeyboardStateCardContent = (props: {
       </CardContent>
     </>
   )
-}
+})
 
-const PressedKeyRow = (props: {
+const PressedKeyRow = memo((props: {
   jsCode: string
 }) => {
   const { jsCode } = props
@@ -135,9 +144,9 @@ const PressedKeyRow = (props: {
       </TableCell>
     </TableRow>
   )
-}
+})
 
-const KeyboardLogCardContent = (props: {
+const KeyboardLogCardContent = memo((props: {
   state: KeyboardState
 }) => {
   const { state } = props
@@ -187,9 +196,9 @@ const KeyboardLogCardContent = (props: {
       </CardContent>
     </>
   )
-}
+})
 
-const LogItemRow = React.memo((props: {
+const LogItemRow = memo((props: {
   logItem: KeyboardEventLogItem
 }) => {
   const { logItem } = props
@@ -254,7 +263,7 @@ type KeyboardEventLogItem = {
   jsCode: string
 }
 
-function useKeyboardState(keyCaptureEnabled: boolean): KeyboardState {
+function useKeyboardState(enabled: boolean, keyCaptureEnabled: boolean): KeyboardState {
   const [pressedKeyCodes, setPressedKeyCodes] = useState<string[]>([])
   const [eventLog, setEventLog] = useState<KeyboardEventLogItem[]>([])
 
@@ -305,13 +314,20 @@ function useKeyboardState(keyCaptureEnabled: boolean): KeyboardState {
       })
     }
 
-    document.addEventListener("keydown", keyDownHandler)
-    document.addEventListener("keyup", keyUpHandler)
+    if (enabled) {
+      document.addEventListener("keydown", keyDownHandler)
+      document.addEventListener("keyup", keyUpHandler)
+    }
+
     return () => {
       document.removeEventListener("keydown", keyDownHandler)
       document.removeEventListener("keyup", keyUpHandler)
     }
-  }, [setPressedKeyCodes, setEventLog, keyCaptureEnabled])
+  }, [enabled, keyCaptureEnabled, setPressedKeyCodes, setEventLog])
+
+  useEffect(() => {
+    handleReset()
+  }, [enabled, handleReset])
 
   return {
     pressedKeyCodes,
