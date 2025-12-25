@@ -28,8 +28,8 @@ import {
   Tooltip
 } from "@mui/material"
 import { EmptyTableRow } from "@src/modules/common/components"
-import { useDeviceFacade } from "@src/modules/device/context"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
   type HIDAction,
   type HIDKeySequenceMacroDefinition,
@@ -39,20 +39,16 @@ import {
   type ShortcutMacroDefinition,
   type ShortcutSequenceMacroDefinition
 } from "@src/modules/key-bindings/models"
-import { ListStoredMacrosQuery } from "@src/modules/key-bindings/queries/ListStoredMacrosQuery"
 import { EditMacroDialog } from "@src/modules/key-bindings/ui/components/EditMacrosCard/EditMacroDialog"
-import { useQuery } from "@tanstack/react-query"
 import { type ComponentProps, useCallback, useState } from "react"
 
 import classes from "./EditMacrosCard.module.css"
 
 export const EditMacrosCard = () => {
-  const deviceFacade = useDeviceFacade()
-
-  const storedMacrosQuery = useQuery(ListStoredMacrosQuery(deviceFacade))
-  const storedMacros = storedMacrosQuery.data ?? []
+  const storedMacros = useStoredMacrosQuery().data ?? []
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false)
+  const [macroBeingEdited, setMacroBeingEdited] = useState<MacroDefinition | null>(null)
 
   const handleOpenEditDialogClick = useCallback(() => {
     setIsEditDialogOpen(true)
@@ -60,7 +56,13 @@ export const EditMacrosCard = () => {
 
   const handleEditDialogClosed = useCallback(() => {
     setIsEditDialogOpen(false)
-  }, [setIsEditDialogOpen])
+    setMacroBeingEdited(null)
+  }, [setIsEditDialogOpen, setMacroBeingEdited])
+
+  const handleEditClicked = useCallback((macro: MacroDefinition) => {
+    setMacroBeingEdited(macro)
+    setIsEditDialogOpen(true)
+  }, [setMacroBeingEdited, setIsEditDialogOpen])
 
   return (
     <Card>
@@ -73,17 +75,18 @@ export const EditMacrosCard = () => {
           </>
         }
       />
-      <EditMacroDialog isOpen={isEditDialogOpen} onClose={handleEditDialogClosed} />
-      <ExistingMacrosCardContent macros={storedMacros} />
+      <EditMacroDialog macro={macroBeingEdited} isOpen={isEditDialogOpen} onClose={handleEditDialogClosed} />
+      <ExistingMacrosCardContent macros={storedMacros} onEditClick={handleEditClicked} />
     </Card>
   )
 }
 
 const ExistingMacrosCardContent = (props: {
   macros: MacroDefinition[]
+  onEditClick: (macro: MacroDefinition) => void
 }) => {
 
-  const { macros } = props
+  const { macros, onEditClick } = props
 
   return (
     <>
@@ -105,7 +108,7 @@ const ExistingMacrosCardContent = (props: {
               </EmptyTableRow>
             )}
             {macros.map(macro =>
-              <MacroDefinitionRow key={macro.id} macro={macro} />
+              <MacroDefinitionRow key={macro.id} macro={macro} onEditClick={onEditClick} />
             )}
           </TableBody>
         </Table>
@@ -116,12 +119,17 @@ const ExistingMacrosCardContent = (props: {
 
 const MacroDefinitionRow = (props: {
   macro: MacroDefinition
+  onEditClick: (macro: MacroDefinition) => void
 }) => {
-  const { macro } = props
+  const { macro, onEditClick } = props
 
   const definitionCellContent = createMacroDefinitionCellContent(macro)
 
   const verticalAlign = isSequenceMacro(macro) ? "top" : undefined
+
+  const handleEditIconClick = useCallback(() => {
+    onEditClick(macro)
+  }, [macro, onEditClick])
 
   return (
     <TableRow hover>
@@ -133,8 +141,7 @@ const MacroDefinitionRow = (props: {
       <TableCell style={{ verticalAlign }} align={"right"}>
         <Stack direction={"row"}>
           <Tooltip title={"Edit Macro"}>
-            <IconButton onClick={() => {
-            }} size={"small"}>
+            <IconButton onClick={handleEditIconClick} size={"small"}>
               <EditOutlinedIcon fontSize={"small"} />
             </IconButton>
           </Tooltip>

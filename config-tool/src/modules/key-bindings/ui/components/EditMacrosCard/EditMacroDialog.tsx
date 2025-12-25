@@ -11,15 +11,20 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Fade,
   FormControl,
   Grid,
   InputLabel,
+  Paper,
+  Popper,
   RadioGroup,
   Stack,
-  TextField
+  TextField,
+  useTheme
 } from "@mui/material"
 import { RadioCard, TagSelect } from "@src/modules/common/components"
 import { jsModifierKeyNames, keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
   type KeyboardKeyCode,
   type MacroDefinition,
@@ -28,15 +33,79 @@ import {
   type Shortcut,
   type ShortcutMacroDefinition
 } from "@src/modules/key-bindings/models"
-import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useState } from "react"
+import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 import classes from "./EditMacroDialog.module.css"
 
-export const EditMacroDialog = (props: {
+const EmptyArray: any[] = []
+
+export type EditMacroDialogProps = {
+  macro?: MacroDefinition | null
   isOpen: boolean
   onClose: () => void
-}) => {
-  const { isOpen, onClose } = props
+}
+
+export const EditMacroDialog = (props: EditMacroDialogProps) => {
+  const state = useEditMacroDialogState(props)
+
+  return (
+    <Dialog open={props.isOpen} onClose={state.handleClose} fullWidth maxWidth={"lg"}>
+      <DialogTitle>{state.title}</DialogTitle>
+      <DialogContent>
+        <Stack gap={2}>
+          <MacroNameEditor
+            value={state.macroDefinition.id}
+            onChange={state.handleMacroNameChange}
+          />
+          {state.willOverwriteExistingMacro && (
+            <Alert severity={"warning"}>
+              There is already a macro named <strong>{state.macroDefinition.id}</strong>.
+              Saving will overwrite that macro.
+            </Alert>
+          )}
+        </Stack>
+      </DialogContent>
+      <Divider />
+      <DialogContent>
+        <MacroTypeSelector
+          value={state.macroDefinition.type}
+          onChange={state.handleMacroTypeChange} />
+      </DialogContent>
+      <Divider />
+      <DialogContent>
+        <Stack gap={2}>
+          <Alert severity={"info"}>
+            Keep in mind that the keys shown in HID code list are the raw HID descriptions. The values has not been
+            updated to match the current locale. For example, the <code>Q</code> key should be selected instead of
+            <code>A</code> in AZERTY layouts.
+          </Alert>
+          <MacroDefinitionEditor
+            value={state.macroDefinition}
+            onChange={state.handleMacroDefinitionChange}
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.onClose}>Cancel</Button>
+        <Button variant={"contained"} disabled={!state.canSave}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+type EditMacroDialogState = {
+  title: string
+  macroDefinition: MacroDefinition
+  willOverwriteExistingMacro: boolean
+  canSave: boolean
+  handleMacroNameChange: (name: string) => void
+  handleMacroTypeChange: (type: MacroDefinitionType) => void
+  handleMacroDefinitionChange: (definition: MacroDefinition) => void
+  handleClose: ComponentProps<typeof Dialog>["onClose"]
+}
+
+function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogState {
+  const { macro, isOpen, onClose } = props
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleClose = useCallback(((_, reason) => {
@@ -47,51 +116,48 @@ export const EditMacroDialog = (props: {
     onClose()
   }) satisfies ComponentProps<typeof Dialog>["onClose"], [onClose])
 
-  const [macroName, setMacroName] = useState<string>("New Macro")
-  const [macroType, setMacroType] = useState<MacroDefinitionType>(MacroDefinitionType.Shortcut)
-  const [macroDefinition, setMacroDefinition] = useState<MacroDefinition>(createDefaultMacroDefinition(macroType))
+  const initialMacro = props.macro ?? createDefaultMacroDefinition(MacroDefinitionType.Shortcut, "New Macro")
 
-  const willOverwriteExistingMacro = true // TODO implement
+  const [macroDefinition, setMacroDefinition] = useState<MacroDefinition>(initialMacro)
+
+  const handleMacroNameChange = useCallback((newName: string) => {
+    setMacroDefinition(s => ({ ...s, id: newName }))
+  }, [setMacroDefinition])
+
+  const handleMacroTypeChange = useCallback((newType: MacroDefinitionType) => {
+    if (macroDefinition.type !== newType) {
+      setMacroDefinition(s => createDefaultMacroDefinition(newType, s.id))
+    }
+  }, [setMacroDefinition, macroDefinition.type])
+
+  const storedMacros = useStoredMacrosQuery().data ?? EmptyArray
+
+  const willOverwriteExistingMacro = useMemo(
+    () => storedMacros.map(it => it.id).includes(macroDefinition.id) && macroDefinition.id !== macro?.id,
+    [storedMacros, macroDefinition.id, macro]
+  )
   const canSave = canSaveMacro(macroDefinition)
 
-  useEffect(() => {
-    setMacroDefinition(createDefaultMacroDefinition(macroType))
-  }, [macroType, setMacroDefinition])
+  const title = macroDefinition.isNew ? "Create Macro" : "Edit Macro"
 
-  return (
-    <Dialog open={isOpen} onClose={handleClose} fullWidth maxWidth={"lg"}>
-      <DialogTitle>Edit Macro</DialogTitle>
-      <DialogContent>
-        <Stack gap={2}>
-          <MacroNameEditor value={macroName} onChange={setMacroName} />
-          {willOverwriteExistingMacro && (
-            <Alert severity={"warning"}>
-              There is already a macro named <strong>{macroName}</strong>. Saving will overwrite that macro.
-            </Alert>
-          )}
-        </Stack>
-      </DialogContent>
-      <Divider />
-      <DialogContent>
-        <MacroTypeSelector value={macroType} onChange={setMacroType} />
-      </DialogContent>
-      <Divider />
-      <DialogContent>
-        <Stack gap={2}>
-          <Alert severity={"info"}>
-            Keep in mind that the keys shown in HID code list are the raw HID descriptions. The values has not been
-            updated to match the current locale. For example, the <code>Q</code> key should be selected instead of
-            <code>A</code> in AZERTY layouts.
-          </Alert>
-          <MacroDefinitionEditor value={macroDefinition} onChange={setMacroDefinition} />
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant={"contained"} disabled={!canSave}>Save</Button>
-      </DialogActions>
-    </Dialog>
-  )
+  useEffect(() => {
+    if (isOpen && macro) {
+      setMacroDefinition(macro)
+    } else {
+      setMacroDefinition(createDefaultMacroDefinition(MacroDefinitionType.Shortcut, "New Macro"))
+    }
+  }, [isOpen, macro, setMacroDefinition])
+
+  return {
+    title: title,
+    macroDefinition: macroDefinition,
+    willOverwriteExistingMacro: willOverwriteExistingMacro,
+    canSave: canSave,
+    handleMacroNameChange: handleMacroNameChange,
+    handleMacroTypeChange: handleMacroTypeChange,
+    handleMacroDefinitionChange: setMacroDefinition,
+    handleClose: handleClose,
+  }
 }
 
 function canSaveMacro(macro: MacroDefinition) {
@@ -103,16 +169,17 @@ function canSaveMacro(macro: MacroDefinition) {
   }
 }
 
-function createDefaultMacroDefinition(type: MacroDefinitionType) {
+function createDefaultMacroDefinition(type: MacroDefinitionType, name: string) {
   switch (type) {
     case MacroDefinitionType.Shortcut:
       return {
-        id: "",
+        id: name,
         type: MacroDefinitionType.Shortcut,
         shortcut: {
           modifiers: [],
           hidCode: 0
-        }
+        },
+        isNew: true
       } satisfies ShortcutMacroDefinition
     default:
       throw new Error(`Unsupported type: ${type}`)
@@ -352,6 +419,7 @@ const RecordShortcutButton = (props: {
   const { onRecorded } = props
 
   const [isRecording, setIsRecording] = useState(false)
+  const [buttonRef, setButtonRef] = useState<HTMLElement | null>(null)
 
   const icon = isRecording
     ? <StopCircleOutlinedIcon />
@@ -393,17 +461,40 @@ const RecordShortcutButton = (props: {
     }
   }, [isRecording, setIsRecording, onRecorded])
 
+  const theme = useTheme()
+
   return (
-    <Button
-      startIcon={icon}
-      color={color}
-      onClick={handleClick}
-      variant={'contained'}
-      data-recording={isRecording}
-      className={classes.RecordButton}
-    >
-      {label}
-    </Button>
+    <>
+      <Button
+        startIcon={icon}
+        color={color}
+        onClick={handleClick}
+        variant={"contained"}
+        data-recording={isRecording}
+        ref={setButtonRef}
+        className={classes.RecordButton}
+      >
+        {label}
+      </Button>
+      <Popper
+        id={"test"}
+        open={isRecording}
+        anchorEl={buttonRef}
+        placement={"bottom"}
+        transition
+        style={{ zIndex: theme.zIndex.modal + 1 }}
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <Box maxWidth={500} sx={{ margin: 1 }}>
+              <Paper sx={{ padding: 2, bgcolor: "info.main", color: "info.contrastText" }}>
+                Keep in mind that not all key combinations can be captured reliably due to browser behaviors.
+              </Paper>
+            </Box>
+          </Fade>
+        )}
+      </Popper>
+    </>
   )
 }
 

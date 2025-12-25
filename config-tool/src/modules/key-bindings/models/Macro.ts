@@ -1,7 +1,5 @@
 import type { Shortcut } from "./Shortcut"
 
-
-
 export enum MacroDefinitionType {
   Shortcut = "Shortcut",
   ShortcutSequence = "ShortcutSequence",
@@ -11,6 +9,7 @@ export enum MacroDefinitionType {
 export type MacroDefinitionBase = {
   id: string
   type: MacroDefinitionType
+  isNew?: boolean
 }
 
 export type ShortcutMacroDefinition = MacroDefinitionBase & {

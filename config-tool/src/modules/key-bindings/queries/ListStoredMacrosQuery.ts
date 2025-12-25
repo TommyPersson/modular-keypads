@@ -10,7 +10,6 @@ export const ListStoredMacrosQuery: (deviceFacade: DeviceFacade) => UseQueryOpti
   enabled: deviceFacade.isConnected,
 })
 
-
 const testMacros: MacroDefinition[] = [
   {
     id: "My First Macro",
