@@ -49,6 +49,7 @@ export interface DeviceFacade {
   // TODO allow other modules access to low level command interface instead
   // of forcing the facade to do everything. (Though "facade" implies a wide responsibility anyway...)
   saveMacro(macro: MacroDefinition): Promise<void>
+  getStoredMacros(): Promise<MacroDefinition[]>
 
   resetDevice(): Promise<void>
 

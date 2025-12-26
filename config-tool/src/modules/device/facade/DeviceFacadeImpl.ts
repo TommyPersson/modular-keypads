@@ -1,4 +1,10 @@
-import { createModifierFlags, type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
+import {
+  createModifierFlags,
+  type MacroDefinition,
+  MacroDefinitionType,
+  parseModifierFlags,
+  type ShortcutMacroDefinition
+} from "@src/modules/key-bindings/models"
 import { readLines } from "@src/utils/streams"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
@@ -8,8 +14,8 @@ import type {
   DeviceFacade,
   DeviceInformation,
   DeviceRegisterValues,
-  RawLogMessage,
-  NotificationMessage
+  NotificationMessage,
+  RawLogMessage
 } from "./DeviceFacade"
 
 export class DeviceFacadeImpl implements DeviceFacade {
@@ -232,6 +238,37 @@ export class DeviceFacadeImpl implements DeviceFacade {
       macro.name,
       ...dataArgs
     ])
+  }
+
+  async getStoredMacros(): Promise<MacroDefinition[]> {
+    const lines = await this.sendCommand("list.stored.macros")
+
+    const parseMacro = ((line: string): MacroDefinition | null => {
+      const [name, restLine] = line.split("=")
+      const [idStr, typeStr, ...restParts] = restLine.split(":")
+      const id = parseInt(idStr, 16)
+      const type = parseInt(typeStr, 16)
+
+      if (type === 0x01) {
+        const [modifiersStr, hidCodeStr] = restParts
+        const modifiers = parseModifierFlags(parseInt(modifiersStr, 16))
+        const hidCode = parseInt(hidCodeStr, 16)
+
+        return {
+          id,
+          name,
+          type: MacroDefinitionType.Shortcut,
+          shortcut: {
+            modifiers,
+            hidCode
+          }
+        } satisfies ShortcutMacroDefinition
+      }
+
+      return null
+    })
+
+    return lines.map(parseMacro).filter(it => it) as MacroDefinition[]
   }
 
   private async sendCommand(str: string, args: string[] = []): Promise<string[]> {

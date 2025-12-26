@@ -1,18 +1,20 @@
+import BugReportOutlinedIcon from "@mui/icons-material/BugReportOutlined"
 import DeleteSweepOutlinedIcon from "@mui/icons-material/DeleteSweepOutlined"
 import WysiwygOutlinedIcon from "@mui/icons-material/WysiwygOutlined"
-import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
 
 import {
   Alert,
+  Badge,
   Box,
   Button,
   CardContent,
   CardHeader,
   Collapse,
   Popover,
-  Stack, ToggleButton, ToggleButtonGroup,
-  Typography,
-  useTheme
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
 } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
 import type { RawLogMessage } from "@src/modules/device/facade"
@@ -21,15 +23,99 @@ import type { DateTime } from "luxon"
 import { type ComponentProps, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { TransitionGroup } from "react-transition-group"
 
+export const DeviceLogsDropDown = () => {
+  const state = useDeviceLogsDropDownState()
+
+  return (
+    <>
+      <Badge badgeContent={state.filteredLogMessages.length} color={"secondary"}>
+        <Button
+          variant={"outlined"}
+          color={"inherit"}
+          startIcon={<WysiwygOutlinedIcon />}
+          onClick={state.handleClick}
+          ref={state.setPopoverTargetEl}
+        >
+          Device Logs
+        </Button>
+      </Badge>
+      <Popover
+        id={"test"}
+        open={state.isOpen}
+        onClose={state.handleClose}
+        anchorEl={state.popoverTargetEl}
+        sx={{ mt: 1 }}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right"
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right"
+        }}
+      >
+        <CardHeader
+          title={"Log Messages"}
+          action={(
+            <Stack direction={"row"} gap={2}>
+              <ToggleButtonGroup color={"primary"} value={state.logLevels} onChange={state.handleLogLevelsChange}>
+                <ToggleButton value={"debug"}>Debug</ToggleButton>
+                <ToggleButton value={"info"}>Info</ToggleButton>
+                <ToggleButton value={"warning"}>Warning</ToggleButton>
+                <ToggleButton value={"error"}>Error</ToggleButton>
+              </ToggleButtonGroup>
+              <Button
+                startIcon={<DeleteSweepOutlinedIcon />}
+                onClick={state.handleClearClick}
+                children={"Clear"}
+              />
+            </Stack>
+          )}
+        />
+        <CardContent style={{ maxHeight: "80vh", overflow: "auto" }}>
+          {state.filteredLogMessages.length === 0 && (
+            state.logMessages.length > 0 ? (
+              <center><em>There are no messages matching the current filter.</em></center>
+            ) : (
+              <center><em>No log messages have been received, yet.</em></center>
+            )
+          )}
+          <TransitionGroup style={{ display: "flex", flexDirection: "column", gap: 8, width: 600, minHeight: 400 }}>
+            {state.filteredLogMessages.map(logMessage => {
+              return (
+                <Collapse>
+                  <LogMessageAlert
+                    key={logMessage.key}
+                    logMessage={logMessage}
+                    onClose={state.handleLogMessageClosed}
+                  />
+                </Collapse>
+              )
+            })}
+          </TransitionGroup>
+          {state.filteredLogMessages.length > 0 && state.filteredLogMessages.length < state.logMessages.length && (
+            <center style={{ marginTop: 8 }}>
+              <em>
+                Only showing <strong>{state.filteredLogMessages.length}</strong> out
+                of <strong>{state.logMessages.length}</strong> items.
+              </em>
+            </center>
+          )}
+        </CardContent>
+      </Popover>
+    </>
+  )
+}
+
 let nextMessageKey = 0
 
-const knownLevels = ["debug", "info", "warning", "error"]
+const initialLevels = ["info", "warning", "error"]
 
-export const DeviceLogsDropDown = () => {
+function useDeviceLogsDropDownState() {
   const deviceFacade = useDeviceFacade()
 
   const [logMessages, setLogMessages] = useState<ParsedLogMessage[]>([])
-  const [logLevels, setLogLevels] = useState<string[]>(knownLevels)
+  const [logLevels, setLogLevels] = useState<string[]>(initialLevels)
 
   const filteredLogMessages = useMemo(() => {
     return takeFirst(logMessages.filter(it => logLevels.includes(it.level)), 50)
@@ -50,7 +136,7 @@ export const DeviceLogsDropDown = () => {
   }, [deviceFacade, setLogMessages])
 
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [popperTargetEl, setPopperTargetEl] = useState<HTMLElement | null>(null)
+  const [popoverTargetEl, setPopoverTargetEl] = useState<HTMLElement | null>(null)
 
   const handleClick = useCallback(() => {
     setIsOpen(true)
@@ -72,85 +158,19 @@ export const DeviceLogsDropDown = () => {
     setLogMessages(s => s.filter(it => it !== logMessage))
   }, [setLogMessages])
 
-  const theme = useTheme()
-
-  return (
-    <>
-      <Button
-        variant={"outlined"}
-        color={"inherit"}
-        startIcon={<WysiwygOutlinedIcon />}
-        onClick={handleClick}
-        ref={setPopperTargetEl}
-      >
-        Device Logs
-      </Button>
-      <Popover
-        id={"test"}
-        open={isOpen}
-        onClose={handleClose}
-        anchorEl={popperTargetEl}
-        sx={{ zIndex: theme.zIndex.modal + 1, mt: 1 }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right"
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right"
-        }}
-      >
-        <CardHeader
-          title={"Log Messages"}
-          action={(
-            <Stack direction={"row"} gap={2}>
-              <ToggleButtonGroup color={"primary"} value={logLevels} onChange={handleLogLevelsChange}>
-                <ToggleButton value={"debug"}>Debug</ToggleButton>
-                <ToggleButton value={"info"}>Info</ToggleButton>
-                <ToggleButton value={"warning"}>Warning</ToggleButton>
-                <ToggleButton value={"error"}>Error</ToggleButton>
-              </ToggleButtonGroup>
-              <Button
-                startIcon={<DeleteSweepOutlinedIcon />}
-                onClick={handleClearClick}
-                children={"Clear"}
-              />
-            </Stack>
-          )}
-        />
-        <CardContent style={{ maxHeight: "80vh", overflow: "auto" }}>
-          {filteredLogMessages.length === 0 && (
-            logMessages.length > 0 ? (
-              <center><em>There are no messages matching the current filter.</em></center>
-              ) : (
-              <center><em>No log messages have been received, yet.</em></center>
-            )
-          )}
-          <TransitionGroup style={{ display: "flex", flexDirection: "column", gap: 8, width: 600, minHeight: 400 }}>
-            {filteredLogMessages.map(logMessage => {
-              return (
-                <Collapse>
-                  <LogMessageAlert
-                    key={logMessage.key}
-                    logMessage={logMessage}
-                    onClose={handleLogMessageClosed}
-                  />
-                </Collapse>
-              )
-            })}
-          </TransitionGroup>
-          {filteredLogMessages.length > 0 && filteredLogMessages.length < logMessages.length && (
-            <center style={{ marginTop: 8 }}>
-              <em>
-                Only showing <strong>{filteredLogMessages.length}</strong> out
-                of <strong>{logMessages.length}</strong> items.
-              </em>
-            </center>
-          )}
-        </CardContent>
-      </Popover>
-    </>
-  )
+  return {
+    logMessages,
+    filteredLogMessages,
+    isOpen,
+    logLevels,
+    popoverTargetEl: popoverTargetEl,
+    setPopoverTargetEl,
+    handleClick,
+    handleClose,
+    handleLogLevelsChange,
+    handleClearClick,
+    handleLogMessageClosed,
+  }
 }
 
 type ParsedLogMessage = {
@@ -162,7 +182,9 @@ type ParsedLogMessage = {
 }
 
 function parseLogMessage(rawMessage: RawLogMessage, key: number): ParsedLogMessage {
-  const [level, component, message] = rawMessage.message.substring(1).split(":")
+  const [level, component, ...messageParts] = rawMessage.message.substring(1).split(":")
+  const message = messageParts.length > 0 ? messageParts.join(":") : null
+
   return {
     key: key,
     timestamp: rawMessage.timestamp,
@@ -211,7 +233,6 @@ const LogMessageAlert = memo(forwardRef((props: {
           </Typography>
         </Stack>
       </Stack>
-
     </Alert>
   )
 }))

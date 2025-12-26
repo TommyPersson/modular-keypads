@@ -9,14 +9,22 @@
 
 #endif
 
+#include <utils/strings.h>
+#include <utils/allocations/ArenaUtils.h>
+
 #include "../common/DeviceScanner.h"
 #include "commands/ListConnectedDevices.h"
 #include "commands/GetTestMode.h"
 #include "commands/SetTestMode.h"
 #include "commands/ListDeviceCapabilities.h"
+#include "commands/SaveMacroCommandHandler.h"
+#include "commands/ListStoredMacrosCommandHandler.h"
+
+#include "../common/macros/MacroStorage.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
+    common::macros::MacroStorage macroStorage;
 }
 
 namespace {
@@ -31,17 +39,19 @@ namespace {
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
-
     addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));
     addCommandHandler(std::make_shared<ListDeviceCapabilities>(allDevices));
     addCommandHandler(std::make_shared<GetTestMode>(testModeController));
     addCommandHandler(std::make_shared<SetTestMode>(testModeController));
+    addCommandHandler(std::make_shared<SaveMacroCommandHandler>(macroStorage));
+    addCommandHandler(std::make_shared<ListStoredMacrosCommandHandler>(macroStorage));
 
     keyBindings.push_back(
         {
             .deviceId = 0x7e2c1a823e6bac0c,
             .switchNumber = 1,
-            .action = usb::Action::keyPress({0xe1, 0x04}), // a
+            .action = usb::Action::keyPress({0xe1, 0x04}),
+            // a
         }
     );
 
@@ -49,23 +59,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x7e2c1a823e6bac0c,
             .switchNumber = 2,
-            .action = usb::Action::keyPress({0xe1, 0x05}), // b
-        }
-    );
-
-    keyBindings.push_back(
-        {
-            .deviceId = 0x7e2c1a823e6bac0c,
-            .switchNumber = 3,
-            .action = usb::Action::keyPress({0xe1, 0x06}), // c
-        }
-    );
-
-    keyBindings.push_back(
-        {
-            .deviceId = 0x7e2c1a823e6bac0c,
-            .switchNumber = 4,
-            .action = usb::Action::keyPress({0xe1, 0x07}), // d
+            .action = usb::Action::keyPress({0xe1, 0x05}),
+            // b
         }
     );
 
@@ -73,7 +68,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x9ab574502dcdf51d,
             .switchNumber = 2,
-            .action = usb::Action::keyPress({0xe2, 0x40}), // Alt+F7
+            .action = usb::Action::keyPress({0xe2, 0x40}),
+            // Alt+F7
         }
     );
 
@@ -81,7 +77,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         {
             .deviceId = 0x9ab574502dcdf51d,
             .switchNumber = 10,
-            .action = usb::Action::keyPress({0xe1, 0x3f}), // Shift+F6
+            .action = usb::Action::keyPress({0xe1, 0x3f}),
+            // Shift+F6
         }
     );
 }
@@ -152,6 +149,11 @@ void MasterFirmware::refreshConnectedDevices() {
 }
 
 
+namespace {
+    int nextMacroId = 1;
+    Arena tempArena{100};
+}
+
 void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
     if (testModeController.isEnabled()) {
         return;
@@ -170,6 +172,21 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
         refreshConnectedDevices();
     }
 
+    if (event.state == SwitchState::PRESSED && event.switchNumber == 3 && event.deviceId == 0x7e2c1a823e6bac0c) {
+        logger->debug("Listing macros ...");
+        macroStorage.forEach(
+            [](const common::macros::Macro& macro) {
+                logger->debug(
+                    "Existing macro: %04x: (%s): %02x',",
+                    macro.data->id,
+                    macro.name.c_str(),
+                    macro.data->type
+                );
+            }
+        );
+        logger->debug("Done listing macros!");
+    }
+
 #ifdef SOC_USB_OTG_SUPPORTED
     if (event.state == SwitchState::PRESSED && event.switchNumber == 4 && event.deviceId == 0x7e2c1a823e6bac0c) {
         chip_usb_set_persist_flags(USBDC_BOOT_DFU);
@@ -177,4 +194,6 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
         esp_restart();
     }
 #endif
+
+    tempArena.reset();
 }
