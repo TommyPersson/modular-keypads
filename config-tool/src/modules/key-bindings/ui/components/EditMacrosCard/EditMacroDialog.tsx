@@ -23,13 +23,12 @@ import {
   useTheme
 } from "@mui/material"
 import { RadioCard, TagSelect } from "@src/modules/common/components"
-import { jsModifierKeyNames, keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
   type KeyboardKeyCode,
   type MacroDefinition,
   MacroDefinitionType,
-  ModifierKey,
   type Shortcut,
   type ShortcutMacroDefinition
 } from "@src/modules/key-bindings/models"
@@ -304,7 +303,7 @@ const ShortcutEditor = (props: {
 
   const selectedModifiers = value.modifiers
 
-  const handleModifiersChange = useCallback((values: ModifierKey[]) => {
+  const handleModifiersChange = useCallback((values: number[]) => {
     onChange({
       ...value,
       modifiers: values
@@ -336,24 +335,32 @@ const ShortcutEditor = (props: {
 }
 
 const ModifiersEditor = (props: {
-  values: ModifierKey[]
-  onChange: (values: ModifierKey[]) => void
+  values: number[]
+  onChange: (values: number[]) => void
 }) => {
   const { values, onChange } = props
 
-  const handleModifiersChange = useCallback((values: string[]) => {
-    onChange(values as ModifierKey[])
-  }, [onChange])
+  const availableModifiers = keyboadKeyCodes.modifiers
+  const modifierNames = availableModifiers.map(it => it.hidDescription)
+  const selectedModifierNames = values.map(hidCode =>
+    keyboadKeyCodes.modifiers.find(it => it.hidCode === hidCode)
+  ).filter(it => it).map(it => it!.hidDescription!)
 
-  const availableModifiers = Object.keys(ModifierKey)
+  const handleModifiersChange = useCallback((values: string[]) => {
+    const keyCodes = values.map(tagValue =>
+      keyboadKeyCodes.modifiers.find(it => it.hidDescription === tagValue)
+    ).filter(it => it).map(it => it!.hidCode)
+
+    onChange(keyCodes)
+  }, [onChange])
 
   return (
     <FormControl sx={{ minWidth: 400 }} variant={"filled"}>
       <InputLabel>Modifiers</InputLabel>
       <TagSelect
         label={"Modifiers"}
-        values={values}
-        availableValues={availableModifiers}
+        values={selectedModifierNames}
+        availableValues={modifierNames}
         onChange={handleModifiersChange}
         chipSize={"small"}
       />
@@ -438,6 +445,8 @@ const RecordShortcutButton = (props: {
   }, [setIsRecording])
 
   useEffect(() => {
+    const pressedModifierKeys = new Set<number>()
+
     const keyDownHandler = (e: KeyboardEvent) => {
       if (!isRecording) {
         return
@@ -447,17 +456,39 @@ const RecordShortcutButton = (props: {
       e.stopPropagation()
       e.stopImmediatePropagation()
 
-      const shortcut = getShortcutFromKeyEvent(e)
-      if (shortcut) {
-        onRecorded(shortcut)
+      const keyCode = keyboadKeyCodes.byJsCode[e.code];
+      if (keyCode.isModifier) {
+        pressedModifierKeys.add(keyCode.hidCode)
+      } else {
+        onRecorded({
+          modifiers: Array.from(pressedModifierKeys),
+          hidCode: keyCode.hidCode
+        })
         setIsRecording(false)
       }
     }
 
+    const keyUpHandler = (e: KeyboardEvent) => {
+      if (!isRecording) {
+        return
+      }
+
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+
+      const keyCode = keyboadKeyCodes.byJsCode[e.code];
+      if (keyCode.isModifier) {
+        pressedModifierKeys.delete(keyCode.hidCode)
+      }
+    }
+
     document.addEventListener("keydown", keyDownHandler)
+    document.addEventListener("keyup", keyUpHandler)
 
     return () => {
       document.removeEventListener("keydown", keyDownHandler)
+      document.removeEventListener("keyup", keyUpHandler)
     }
   }, [isRecording, setIsRecording, onRecorded])
 
@@ -496,31 +527,4 @@ const RecordShortcutButton = (props: {
       </Popper>
     </>
   )
-}
-
-function getShortcutFromKeyEvent(e: KeyboardEvent): Shortcut | null {
-  if (e.code.length === 0 || e.repeat) {
-    return null
-  }
-
-  if (jsModifierKeyNames.includes(e.key)) {
-    return null
-  }
-
-  const hidCode = keyboadKeyCodes.byJsCode[e.code]?.hidCode
-  if (!hidCode) {
-    return null
-  }
-
-  const modifiers = [
-    e.altKey ? ModifierKey.Alt : null,
-    e.ctrlKey ? ModifierKey.Control : null,
-    e.metaKey ? ModifierKey.Meta : null,
-    e.shiftKey ? ModifierKey.Shift : null,
-  ].filter(it => it) as ModifierKey[]
-
-  return {
-    modifiers,
-    hidCode
-  }
 }

@@ -1,6 +1,4 @@
-import type { ModifierKey } from "./ModifierKey"
-
 export type Shortcut = {
-  modifiers: ModifierKey[]
+  modifiers: number[]
   hidCode: number
 }

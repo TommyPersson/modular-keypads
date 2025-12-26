@@ -1,1 +1,0 @@
-export const jsModifierKeyNames = ["Alt", "AltRight", "Shift", "Control", "Meta"]

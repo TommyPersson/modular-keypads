@@ -20,29 +20,23 @@ import {
 } from "@mui/material"
 import { EmptyTableRow } from "@src/modules/common/components"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { useIsAnyModalOpen } from "@src/utils/hooks"
 import { DateTime } from "luxon"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const maxEventLogItems = 20
 
 export const KeyboardEventsCard = () => {
-  const [enabled, setEnabled] = useState(true)
   const [keyCaptureEnabled, setKeyCaptureEnabled] = useState(false)
 
+  const isAnyModalOpen = useIsAnyModalOpen()
+  const enabled = !isAnyModalOpen
   const keyboardState = useKeyboardState(enabled, keyCaptureEnabled)
 
   const handleKeyCaptureToggled = useCallback(() => {
     setKeyCaptureEnabled(s => !s)
   }, [setKeyCaptureEnabled])
 
-  const isAnyModalOpen = document.getElementsByClassName("MuiDialog-root").length > 0
-  useEffect(() => {
-    if (isAnyModalOpen) {
-      setEnabled(false)
-    } else {
-      setEnabled(true)
-    }
-  }, [isAnyModalOpen, setEnabled])
 
   return (
     <Card>
@@ -134,7 +128,7 @@ const PressedKeyRow = memo((props: {
         <code>0x{keyCode?.hidCode?.toString(16)?.padStart(2, "0") ?? "N/A"}</code>
       </TableCell>
       <TableCell>
-        {keyCode?.hidDescription ?? "N/A"}<br /><em>{keyCode?.note}</em>
+        <strong>{keyCode?.hidDescription ?? "N/A"}</strong><br /><em>{keyCode?.note}</em>
       </TableCell>
       <TableCell>
         <code>{keyCode?.jsCode ?? jsCode}</code>
@@ -239,7 +233,7 @@ const LogItemRow = memo((props: {
         <code>0x{keyCode?.hidCode?.toString(16)?.padStart(2, "0") ?? "N/A"}</code>
       </TableCell>
       <TableCell>
-        {keyCode?.hidDescription ?? "N/A"}<br /><em>{keyCode?.note}</em>
+        <strong>{keyCode?.hidDescription ?? "N/A"}</strong><br /><em>{keyCode?.note}</em>
       </TableCell>
       <TableCell>
         <code>{keyCode?.jsCode ?? jsCode}</code>

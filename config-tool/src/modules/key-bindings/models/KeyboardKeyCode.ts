@@ -5,5 +5,6 @@ export type KeyboardKeyCode = {
   hidDescription: string
   note?: string | null
   hidden?: boolean | null
+  isModifier?: boolean | null
   category?: string
 }

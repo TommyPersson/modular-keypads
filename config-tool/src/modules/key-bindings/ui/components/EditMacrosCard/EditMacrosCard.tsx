@@ -205,9 +205,9 @@ const ShortcutSequenceMacroCellContent = (props: {
         {macro.shortcuts.map((shortcut, i) => {
           const key = `${shortcut.modifiers.join("-")}-${shortcut.hidCode}-${i}`
           return (
-            <ListItem>
+            <ListItem key={key}>
               {i + 1}.&nbsp;
-              <ShortcutVisualization key={key} shortcut={shortcut} />
+              <ShortcutVisualization shortcut={shortcut} />
             </ListItem>
           )
         })}
@@ -241,9 +241,9 @@ const HIDKeySequenceMacroCellContent = (props: {
         {macro.sequence.map((action, i) => {
           const key = `${action.type}-${action.hidCode}-${i}`
           return (
-            <ListItem>
+            <ListItem key={key}>
               {i + 1}.&nbsp;
-              <HIDActionVisualization key={key} action={action} />
+              <HIDActionVisualization action={action} />
             </ListItem>
           )
         })}
@@ -266,7 +266,11 @@ const ShortcutVisualization = (props: {
 }) => {
   const { shortcut } = props
 
-  const modifiersLabel = shortcut.modifiers.join(" + ")
+  const modifiersLabel = shortcut.modifiers
+    .map(hidCode => keyboadKeyCodes.byHidCode[hidCode])
+    .map(it => it.hidDescription)
+    .join(" + ")
+
   const hidKeyCode = keyboadKeyCodes.byHidCode[shortcut.hidCode]
 
   const keyCodeLabel = (

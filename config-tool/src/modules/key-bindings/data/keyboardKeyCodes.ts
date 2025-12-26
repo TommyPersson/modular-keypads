@@ -214,27 +214,29 @@ const allHidKeyCodes = [
   { hidCode: 0xdc, jsCode: null, hidDescription: "Keypad Decimal", category: "Keypad Extra" },
   { hidCode: 0xdd, jsCode: null, hidDescription: "Keypad Hexadecimal", category: "Keypad Extra" },
   // DE-DF: reserved
-  { hidCode: 0xe0, jsCode: "ControlLeft", hidDescription: "LeftControl", category: "Modifiers" },
-  { hidCode: 0xe1, jsCode: "ShiftLeft", hidDescription: "LeftShift", category: "Modifiers" },
-  { hidCode: 0xe2, jsCode: "AltLeft", hidDescription: "LeftAlt", category: "Modifiers" },
-  { hidCode: 0xe3, jsCode: "MetaLeft", hidDescription: "Left GUI", category: "Modifiers" },
-  { hidCode: 0xe4, jsCode: "ControlRight", hidDescription: "RightControl", category: "Modifiers" },
-  { hidCode: 0xe5, jsCode: "ShiftRight", hidDescription: "RightShift", category: "Modifiers" },
-  { hidCode: 0xe6, jsCode: "AltRight", hidDescription: "RightAlt", category: "Modifiers" },
-  { hidCode: 0xe7, jsCode: "MetaRight", hidDescription: "Right GUI", category: "Modifiers" },
+  { hidCode: 0xe0, jsCode: "ControlLeft", hidDescription: "Control (L)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe1, jsCode: "ShiftLeft", hidDescription: "Shift (L)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe2, jsCode: "AltLeft", hidDescription: "Alt (L)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe3, jsCode: "MetaLeft", hidDescription: "Meta (L)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe4, jsCode: "ControlRight", hidDescription: "Control (R)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe5, jsCode: "ShiftRight", hidDescription: "Shift (R)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe6, jsCode: "AltRight", hidDescription: "Alt (R)", category: "Modifiers", isModifier: true },
+  { hidCode: 0xe7, jsCode: "MetaRight", hidDescription: "Meta (R)", category: "Modifiers", isModifier: true },
 ].map(it => ({ ...it, category: it.category ?? "Other" }))
 
 export type KeyboardKeyCodes = {
   all: KeyboardKeyCode[],
+  modifiers: KeyboardKeyCode[]
   byJsCode: { [index: string]: KeyboardKeyCode },
   byHidCode: { [index: string]: KeyboardKeyCode }
 }
 
 export const keyboadKeyCodes: KeyboardKeyCodes = {
   all: allHidKeyCodes,
+  modifiers: allHidKeyCodes.filter(it => it.isModifier),
   byJsCode: allHidKeyCodes
     .filter(it => it.jsCode !== null)
     .reduce((acc, curr) => ({ ...acc, [curr.jsCode]: curr }), {}),
   byHidCode: allHidKeyCodes
-    .reduce((acc, curr) => ({ ...acc, [curr.hidCode]: curr }), {})
+    .reduce((acc, curr) => ({ ...acc, [curr.hidCode]: curr }), {}),
 }
