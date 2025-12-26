@@ -1,15 +1,11 @@
 import { Card, CardContent, CardHeader, Grid, Paper, Typography } from "@mui/material"
-import { useDeviceFacade } from "@src/modules/device/context"
-import type { DeviceFacade, NotificationMessage } from "@src/modules/device/facade"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
 import { usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
-import { useEffect, useReducer } from "react"
 
 import classes from "./DevicePreviewCard.module.css"
 
 
 export const DevicePreviewCard = () => {
-  const deviceFacade = useDeviceFacade()
   const [deviceInformation] = useDeviceInformation()
 
   const deviceType = deviceInformation?.deviceType ?? null

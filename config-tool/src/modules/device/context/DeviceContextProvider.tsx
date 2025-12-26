@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { defaultDeviceContextValue, DeviceContext } from "./DeviceContext"
+import { defaultDeviceContextValue, DeviceContext, globalDeviceFacade } from "./DeviceContext"
 
 export const DeviceContextProvider = (props: { children: any }) => {
   const [value, setValue] = useState(defaultDeviceContextValue)
@@ -10,6 +10,8 @@ export const DeviceContextProvider = (props: { children: any }) => {
     const subscription = facade.isConnected$.subscribe(next => {
       setValue(s=> ({ ...s, isConnected: next }))
     })
+
+    globalDeviceFacade.value = facade
 
     return () => subscription.unsubscribe()
   }, [facade, setValue])

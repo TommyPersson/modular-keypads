@@ -20,6 +20,7 @@ import {
 } from "@mui/material"
 import { EmptyTableRow } from "@src/modules/common/components"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { takeLast } from "@src/utils/arrays"
 import { useIsAnyModalOpen } from "@src/utils/hooks"
 import { DateTime } from "luxon"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -328,8 +329,4 @@ function useKeyboardState(enabled: boolean, keyCaptureEnabled: boolean): Keyboar
     eventLog,
     reset: handleReset
   }
-}
-
-function takeLast<T>(arr: T[], count: number): T[] {
-  return arr.length > count ? arr.slice(arr.length - count) : arr
 }

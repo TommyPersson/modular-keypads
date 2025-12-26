@@ -1,3 +1,4 @@
+import type { MacroDefinition } from "@src/modules/key-bindings/models"
 import type { DateTime } from "luxon"
 import { Observable } from "rxjs"
 
@@ -45,18 +46,22 @@ export interface DeviceFacade {
   getTestMode(): Promise<boolean>
   setTestMode(enabled: boolean): Promise<void>
 
+  // TODO allow other modules access to low level command interface instead
+  // of forcing the facade to do everything. (Though "facade" implies a wide responsibility anyway...)
+  saveMacro(macro: MacroDefinition): Promise<void>
+
   resetDevice(): Promise<void>
 
   performPing(): Promise<string>
 
-  logs$: Observable<LogMessage>
+  logs$: Observable<RawLogMessage>
   notifications$: Observable<NotificationMessage>
 
   isConnected$: Observable<boolean>
   isConnected: boolean
 }
 
-export type LogMessage = {
+export type RawLogMessage = {
   direction: "to-device" | "to-host"
   message: string
   timestamp: DateTime

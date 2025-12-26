@@ -1,19 +1,20 @@
+import { createModifierFlags, type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
+import { readLines } from "@src/utils/streams"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
-import { readLines } from "@src/utils/streams"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type {
-    DeviceCapability,
+  DeviceCapability,
   DeviceFacade,
   DeviceInformation,
   DeviceRegisterValues,
-  LogMessage,
+  RawLogMessage,
   NotificationMessage
 } from "./DeviceFacade"
 
 export class DeviceFacadeImpl implements DeviceFacade {
 
-  private logsSubject = new Subject<LogMessage>()
+  private logsSubject = new Subject<RawLogMessage>()
   private notificationsSubject = new Subject<NotificationMessage>()
   private isConnectedSubject = new BehaviorSubject<boolean>(false)
   private _isConnected = false
@@ -213,6 +214,26 @@ export class DeviceFacadeImpl implements DeviceFacade {
     await this.sendCommand("set.test.mode", [enabled ? "true" : "false"])
   }
 
+  async saveMacro(macro: MacroDefinition) {
+    const dataArgs = (() => {
+      if (macro.type === MacroDefinitionType.Shortcut) {
+        return [
+          "0x01", // Shortcut
+          `0x${createModifierFlags(macro.shortcut.modifiers).toString(16).padStart(2, "0")}`,
+          `0x${macro.shortcut.hidCode.toString(16).padStart(2, "0")}`
+        ]
+      } else {
+        throw new Error("Unsupported macro type")
+      }
+    })()
+
+    await this.sendCommand("save.macro", [
+      macro.id.toString(),
+      macro.name,
+      ...dataArgs
+    ])
+  }
+
   private async sendCommand(str: string, args: string[] = []): Promise<string[]> {
     if (!this.commandExecutor) {
       throw new Error("Not connected")
@@ -245,7 +266,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.isConnectedSubject.next(false)
   }
 
-  get logs$(): Observable<LogMessage> {
+  get logs$(): Observable<RawLogMessage> {
     return this.logsSubject
   }
 

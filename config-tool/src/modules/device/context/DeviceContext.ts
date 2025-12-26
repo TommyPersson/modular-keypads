@@ -8,8 +8,12 @@ export type DeviceContextValue = {
 }
 
 export const defaultDeviceContextValue = {
-  facade: new DeviceFacadeImpl(),
+  facade: new DeviceFacadeImpl() as DeviceFacade,
   isConnected: false
+}
+
+export const globalDeviceFacade = {
+  value: defaultDeviceContextValue.facade
 }
 
 export const DeviceContext = createContext<DeviceContextValue>(defaultDeviceContextValue)

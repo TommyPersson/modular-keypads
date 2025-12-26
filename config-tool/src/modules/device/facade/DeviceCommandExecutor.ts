@@ -2,7 +2,7 @@ import { Deferred } from "@src/utils/Deferred"
 import { Mutex } from "@src/utils/Mutex"
 import { DateTime } from "luxon"
 import { Subject } from "rxjs"
-import type { LogMessage } from "./DeviceFacade"
+import type { RawLogMessage } from "./DeviceFacade"
 
 export class DeviceCommandExecutor {
 
@@ -17,7 +17,7 @@ export class DeviceCommandExecutor {
 
   constructor(
     private readonly writer: WritableStreamDefaultWriter,
-    private readonly logsSubject: Subject<LogMessage>,
+    private readonly logsSubject: Subject<RawLogMessage>,
   ) {
   }
 
@@ -35,6 +35,8 @@ export class DeviceCommandExecutor {
       await this.sendMutex.acquire(this.mutexTimeoutMs)
 
       const packet = this.formatPacket(commandId, str, args)
+
+      console.debug(`Sending packet: '${packet.text}'`)
 
       await writer.write(packet.bytes)
 
@@ -59,6 +61,8 @@ export class DeviceCommandExecutor {
     if (!line.startsWith("%")) {
       return
     }
+
+    console.debug("onLineReceived", line)
 
     try {
       const [responseHeader, ...rest] = line.substring(1).split(":")
