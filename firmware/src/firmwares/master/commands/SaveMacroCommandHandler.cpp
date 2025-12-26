@@ -22,6 +22,8 @@ namespace {
             return std::make_shared<ShortcutMacroData>(id, modifiers, hidCode);
         }
 
+        // TODO support the sequence type
+
         logger->error("Unsupported macro type: %.*s", typeArg.length(), typeArg.data());
 
         return nullptr;

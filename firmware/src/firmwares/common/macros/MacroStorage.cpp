@@ -2,11 +2,16 @@
 
 #include <Preferences.h>
 #include <FS.h>
-#include <SPIFFS.h>
 #include <LittleFS.h>
+
+#include "utils/strings.h"
+#include "utils/allocations/Arena.h"
+#include "utils/allocations/ArenaUtils.h"
+#include "utils/files.h"
 
 #include "firmwares/common/logging/Logger.h"
 
+using namespace common::macros;
 
 namespace {
     auto logger = common::logging::createLogger("MacroStorage");
@@ -14,159 +19,101 @@ namespace {
     bool hasBegun = false;
     bool hasRead = false;
     Preferences prefs;
-    auto filePath = "/macro-definitions.txt";
+    auto filePath = "/data/macro-definitions.txt";
 }
 
 namespace {
-    void listDir(const char* path) {
-        auto root = LittleFS.open(path);
-        if (!root) {
-            logger->error("Failed to open '%s' for reading!", path);
-            return;
+    std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, Arena& arena) {
+        ArenaAllocator<std::string_view> stringViewAllocator(arena);
+
+        auto parts = arena::strings::split(line, ':', stringViewAllocator, 10);
+
+        auto idPart = parts[0];
+        auto namePart = parts[1];
+        auto name = std::string(namePart); // TODO avoid allocation
+        auto typePart = parts[2];
+        auto type = static_cast<MacroType>(utils::strings::atol(typePart, 16));
+
+        if (type == SHORTCUT) {
+            auto dataPart = parts[3];
+            auto dataParts = arena::strings::split(dataPart, ',', stringViewAllocator, 2);
+            auto modifiersPart = dataParts[0];
+            auto hidCodePart = dataParts[1];
+
+            return std::make_shared<Macro>(
+                name,
+                std::make_shared<ShortcutMacroData>(
+                    utils::strings::atol(idPart, 10),
+                    utils::strings::atol(modifiersPart, 16),
+                    utils::strings::atol(hidCodePart, 16)
+                )
+            );
         }
 
-        logger->info("dir = %s", path);
+        // TODO the sequence type
 
-        auto nextFile = root.openNextFile();
-        while (nextFile) {
-            if (nextFile.isDirectory()) {
-                listDir(nextFile.path());
-            } else {
-                logger->info("file = %s", nextFile.name());
-            }
-
-            nextFile = root.openNextFile();
-        }
-    }
-
-    void checkForPath(const char* path) {
-        if (!LittleFS.exists(path)) {
-            logger->info("Path '%s' does NOT exist!", path);
-        } else {
-            logger->info("Path '%s' DOES exist!", path);
-        }
+        return nullptr;
     }
 }
 
 // TODO do we need to be careful with allocations here?
-void common::macros::MacroStorage::setup() {}
+void MacroStorage::setup() {
+}
 
-error_t common::macros::MacroStorage::write(const Macro& macro) {
+error_t MacroStorage::write(const Macro& macro) {
     if (!hasBegun) {
         beginResult = LittleFS.begin(false);
-        if (LittleFS.exists(filePath)) {
-            LittleFS.remove(filePath);
-        }
         hasBegun = true;
     }
 
     logger->debug("Would try to save macro '%s'", macro.name.c_str());
-/* TODO re-implement
-    auto file = LittleFS.open(filePath, "w", true);
-    if (!file) {
-        logger->error("Failed to open '%s' for writing!", filePath);
-        return -1;
-    }
+    /* TODO re-implement
+        auto file = LittleFS.open(filePath, "w", true);
+        if (!file) {
+            logger->error("Failed to open '%s' for writing!", filePath);
+            return -1;
+        }
 
-    cache.push_back(std::make_shared<Macro>(macro));
+        cache.push_back(std::make_shared<Macro>(macro));
 
-    for (const auto& macro : cache) {
-        logger->info("Writing \"%s=%s\"", macro->name.c_str(), macro->content.c_str());
-        file.printf("%s=%s\n", macro->name.c_str(), macro->content.c_str());
-    }
+        for (const auto& macro : cache) {
+            logger->info("Writing \"%s=%s\"", macro->name.c_str(), macro->content.c_str());
+            file.printf("%s=%s\n", macro->name.c_str(), macro->content.c_str());
+        }
 
-    file.close();
+        file.close();
 
-    */
+        */
 
     return 0;
 }
 
-std::vector<std::shared_ptr<common::macros::Macro>> common::macros::MacroStorage::readAll() {
-
-    return cache;
-    /*
+void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
     if (!hasBegun) {
-        beginResult = LittleFS.begin(false, "/data");
-        if (LittleFS.exists(filePath)) {
-            LittleFS.remove(filePath);
-        }
+        beginResult = LittleFS.begin(false);
         hasBegun = true;
     }
 
-    cache.clear();
-
-    logger->info(
+    logger->debug(
         "LittleFS begin = %i. Used = %i. Total = %i.",
         beginResult,
         LittleFS.usedBytes(),
         LittleFS.totalBytes()
     );
 
-    logger->info("Listing files");
-    listDir("/");
-    logger->info("Listing files complete");
+    Arena arena(1024);
 
-    if (!hasRead) {
-        auto file = LittleFS.open(filePath, "rw", false);
-        if (!file) {
-            logger->error("Failed to open '%s' for reading!", filePath);
-            return cache;
-        }
-
-        char nameBuffer[128];
-        uint nameIndex = 0;
-        char contentBuffer[256];
-        uint contentIndex = 0;
-
-        int state = 1;
-
-        while (file.available()) {
-            char c = file.read();
-
-            if (c == '=') {
-                state = 2;
-            } else if (c == '\n') {
-                auto name = std::string(nameBuffer, nameIndex);
-                auto content = std::string(contentBuffer, contentIndex);
-                cache.push_back(std::make_shared<Macro>(Macro{.name = name, .content = content}));
-                nameIndex = 0;
-                contentIndex = 0;
-                state = 1;
-            } else if (state == 1) {
-                nameBuffer[nameIndex++] = c;
-                if (nameIndex >= 128) {
-                    file.close();
-                    return cache;
-                }
-            } else if (state == 2) {
-                contentBuffer[contentIndex++] = c;
-                if (contentIndex >= 256) {
-                    file.close();
-                    return cache;
-                }
+    const auto rc = utils::files::iterateLines(
+        filePath,
+        [&](const std::string_view& line) {
+            const auto macro = deserializeStoredMacro(line, arena);
+            if (macro != nullptr) {
+                callback(*macro);
             }
         }
+    );
 
-        file.close();
-
-        //hasRead = true;
-    }
-
-    return cache;
-    */
-}
-
-namespace {
-    std::vector temp{
-        std::make_shared<common::macros::Macro>("IntelliJ - Run", std::make_shared<common::macros::ShortcutMacroData>(1, 0x10, 0x43)),
-        std::make_shared<common::macros::Macro>("IntelliJ - Debug", std::make_shared<common::macros::ShortcutMacroData>(2, 0x10, 0x42)),
-        std::make_shared<common::macros::Macro>("IntelliJ - Stop", std::make_shared<common::macros::ShortcutMacroData>(3, 0x10, 0x3b))
-    };
-}
-
-void common::macros::MacroStorage::forEach(const std::function<void(const Macro&)>& fn) {
-    for (auto& macro : temp) {
-        fn(*macro);
+    if (rc != 0) {
+        logger->error("Failed to read '%s' (%i)", filePath, rc);
     }
 }
