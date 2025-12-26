@@ -53,12 +53,12 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
       <DialogContent>
         <Stack gap={2}>
           <MacroNameEditor
-            value={state.macroDefinition.id}
+            value={state.macroDefinition.name}
             onChange={state.handleMacroNameChange}
           />
           {state.willOverwriteExistingMacro && (
             <Alert severity={"warning"}>
-              There is already a macro named <strong>{state.macroDefinition.id}</strong>.
+              There is already a macro named <strong>{state.macroDefinition.name}</strong>.
               Saving will overwrite that macro.
             </Alert>
           )}
@@ -120,24 +120,24 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
   const [macroDefinition, setMacroDefinition] = useState<MacroDefinition>(initialMacro)
 
   const handleMacroNameChange = useCallback((newName: string) => {
-    setMacroDefinition(s => ({ ...s, id: newName }))
+    setMacroDefinition(s => ({ ...s, name: newName }))
   }, [setMacroDefinition])
 
   const handleMacroTypeChange = useCallback((newType: MacroDefinitionType) => {
     if (macroDefinition.type !== newType) {
-      setMacroDefinition(s => createDefaultMacroDefinition(newType, s.id))
+      setMacroDefinition(s => createDefaultMacroDefinition(newType, s.name))
     }
   }, [setMacroDefinition, macroDefinition.type])
 
   const storedMacros = useStoredMacrosQuery().data ?? EmptyArray
 
   const willOverwriteExistingMacro = useMemo(
-    () => storedMacros.map(it => it.id).includes(macroDefinition.id) && macroDefinition.id !== macro?.id,
-    [storedMacros, macroDefinition.id, macro]
+    () => storedMacros.map(it => it.id).includes(macroDefinition.name) && macroDefinition.name !== macro?.name,
+    [storedMacros, macroDefinition.name, macro]
   )
   const canSave = canSaveMacro(macroDefinition)
 
-  const title = macroDefinition.isNew ? "Create Macro" : "Edit Macro"
+  const title = macroDefinition.id < 1 ? "Create Macro" : "Edit Macro"
 
   useEffect(() => {
     if (isOpen && macro) {
@@ -172,13 +172,13 @@ function createDefaultMacroDefinition(type: MacroDefinitionType, name: string) {
   switch (type) {
     case MacroDefinitionType.Shortcut:
       return {
-        id: name,
+        id: 0,
+        name: name,
         type: MacroDefinitionType.Shortcut,
         shortcut: {
           modifiers: [],
           hidCode: 0
         },
-        isNew: true
       } satisfies ShortcutMacroDefinition
     default:
       throw new Error(`Unsupported type: ${type}`)

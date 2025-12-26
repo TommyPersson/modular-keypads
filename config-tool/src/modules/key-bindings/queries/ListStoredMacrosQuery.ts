@@ -12,7 +12,8 @@ export const ListStoredMacrosQuery: (deviceFacade: DeviceFacade) => UseQueryOpti
 
 const testMacros: MacroDefinition[] = [
   {
-    id: "My First Macro",
+    id: 1,
+    name: "My First Macro",
     type: MacroDefinitionType.Shortcut,
     shortcut: {
       modifiers: [0xe0, 0xe1], // Control (L), Shift (L)
@@ -20,7 +21,8 @@ const testMacros: MacroDefinition[] = [
     }
   },
   {
-    id: "IntelliJ: Run",
+    id: 2,
+    name: "IntelliJ: Run",
     type: MacroDefinitionType.Shortcut,
     shortcut: {
       modifiers: [0xe1], // Shift (L)
@@ -28,7 +30,8 @@ const testMacros: MacroDefinition[] = [
     }
   },
   {
-    id: "IntelliJ: Debug",
+    id: 3,
+    name: "IntelliJ: Debug",
     type: MacroDefinitionType.Shortcut,
     shortcut: {
       modifiers: [0xe1], // Shift (L)
@@ -36,7 +39,8 @@ const testMacros: MacroDefinition[] = [
     }
   },
   {
-    id: "IntelliJ: Stop",
+    id: 4,
+    name: "IntelliJ: Stop",
     type: MacroDefinitionType.Shortcut,
     shortcut: {
       modifiers: [0xe0], // Control (L)
@@ -44,7 +48,8 @@ const testMacros: MacroDefinition[] = [
     }
   },
   {
-    id: "Vim: Save & Exit",
+    id: 5,
+    name: "Vim: Save & Exit",
     type: MacroDefinitionType.ShortcutSequence,
     shortcuts: [
       {
@@ -70,7 +75,8 @@ const testMacros: MacroDefinition[] = [
     ]
   },
   {
-    id: "Vim: Force Exit",
+    id: 6,
+    name: "Vim: Force Exit",
     type: MacroDefinitionType.ShortcutSequence,
     shortcuts: [
       {
@@ -96,7 +102,8 @@ const testMacros: MacroDefinition[] = [
     ]
   },
   {
-    id: "Raw HID Sequence",
+    id: 7,
+    name: "Raw HID Sequence",
     type: MacroDefinitionType.HIDKeySequence,
     sequence: [
       {

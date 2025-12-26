@@ -7,9 +7,9 @@ export enum MacroDefinitionType {
 }
 
 export type MacroDefinitionBase = {
-  id: string
+  id: number
+  name: string
   type: MacroDefinitionType
-  isNew?: boolean
 }
 
 export type ShortcutMacroDefinition = MacroDefinitionBase & {

@@ -96,6 +96,7 @@ const ExistingMacrosCardContent = (props: {
           <TableHead>
             <TableRow>
               <TableCell style={{ width: 0 }}>ID</TableCell>
+              <TableCell style={{ width: 0 }}>Name</TableCell>
               <TableCell style={{ width: 0 }}>Type</TableCell>
               <TableCell>Definition</TableCell>
               <TableCell style={{ width: 0 }} align={"right"}>Actions</TableCell>
@@ -108,7 +109,7 @@ const ExistingMacrosCardContent = (props: {
               </EmptyTableRow>
             )}
             {macros.map(macro =>
-              <MacroDefinitionRow key={macro.id} macro={macro} onEditClick={onEditClick} />
+              <MacroDefinitionRow key={macro.name} macro={macro} onEditClick={onEditClick} />
             )}
           </TableBody>
         </Table>
@@ -134,6 +135,7 @@ const MacroDefinitionRow = (props: {
   return (
     <TableRow hover>
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>{macro.id}</TableCell>
+      <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>{macro.name}</TableCell>
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>
         <MacroTypeVisualization type={macro.type} />
       </TableCell>
