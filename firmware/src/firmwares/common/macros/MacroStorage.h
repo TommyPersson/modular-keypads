@@ -13,6 +13,7 @@ namespace common::macros {
         void setup();
 
         error_t write(const Macro& macro);
+        error_t remove(uint16_t id);
 
         void forEach(const std::function<void(const Macro&)>& callback);
 

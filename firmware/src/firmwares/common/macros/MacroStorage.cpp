@@ -14,7 +14,6 @@ using namespace common::macros;
 
 namespace {
     auto logger = common::logging::createLogger("MacroStorage");
-    bool beginResult = false;
     bool hasBegun = false;
     auto filePath = "/data/macro-definitions.txt";
     auto tempFilePath = "/data/macro-definitions.txt.tmp";
@@ -112,6 +111,39 @@ error_t MacroStorage::write(const Macro& macro) {
         auto serializedMacro = serializeStoredMacro(macro, arena);
         tempOutputFile.println(serializedMacro.data());
     }
+
+    tempOutputFile.close();
+
+    LittleFS.remove(filePath);
+    LittleFS.rename(tempFilePath, filePath);
+
+    return 0;
+}
+
+error_t MacroStorage::remove(uint16_t id) {
+    if (!hasBegun) {
+        if (!LittleFS.begin(false)) {
+            return -2;
+        }
+        hasBegun = true;
+    }
+
+    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+    if (!tempOutputFile) {
+        logger->error("Failed to open '%s'", tempFilePath);
+        return -1;
+    }
+
+    Arena arena(2048);
+
+    forEach([&](const Macro& storedMacro) {
+        if (storedMacro.data->id != id) {
+            auto serializedMacro = serializeStoredMacro(storedMacro, arena);
+            tempOutputFile.println(serializedMacro.data());
+        }
+
+        arena.reset();
+    });
 
     tempOutputFile.close();
 

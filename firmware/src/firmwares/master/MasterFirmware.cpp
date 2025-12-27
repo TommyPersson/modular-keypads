@@ -21,6 +21,7 @@
 #include "commands/ListStoredMacrosCommandHandler.h"
 
 #include "../common/macros/MacroStorage.h"
+#include "commands/DeleteMacroCommandHandler.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
@@ -44,6 +45,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<GetTestMode>(testModeController));
     addCommandHandler(std::make_shared<SetTestMode>(testModeController));
     addCommandHandler(std::make_shared<SaveMacroCommandHandler>(macroStorage));
+    addCommandHandler(std::make_shared<DeleteMacroCommandHandler>(macroStorage));
     addCommandHandler(std::make_shared<ListStoredMacrosCommandHandler>(macroStorage));
 
     keyBindings.push_back(

@@ -240,6 +240,10 @@ export class DeviceFacadeImpl implements DeviceFacade {
     ])
   }
 
+  async deleteMacro(id: number): Promise<void> {
+    await this.sendCommand("delete.macro", [id.toString()])
+  }
+
   async getStoredMacros(): Promise<MacroDefinition[]> {
     const lines = await this.sendCommand("list.stored.macros")
 
