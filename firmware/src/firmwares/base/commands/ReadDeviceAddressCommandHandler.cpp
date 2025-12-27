@@ -1,5 +1,7 @@
 #include "ReadDeviceAddressCommandHandler.h"
 
+#include <utils/allocations/ArenaUtils.h>
+
 ReadDeviceAddressCommandHandler::ReadDeviceAddressCommandHandler(
     DeviceConfigurationManager& deviceConfigurationManager
     ) :
@@ -16,8 +18,7 @@ void ReadDeviceAddressCommandHandler::execute(
     Arena& arena
     ) {
     auto address = this->deviceConfigurationManager.getDeviceAddress();
-    char addressStr[5];
-    snprintf(addressStr, sizeof(addressStr), "0x%02x", address);
+    auto addressStr = arena::strings::sprintf(arena, "0x%02x", address);
 
     responseWriter.writeLine(addressStr);
 }

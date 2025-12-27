@@ -111,4 +111,6 @@ namespace arena {
     using list = std::list<T, ArenaAllocator<T>>;
 
     typedef std::basic_ostringstream<char, std::char_traits<char>, ArenaAllocator<char>> ostringstream;
+
+    typedef std::basic_string<char, std::char_traits<char>, ArenaAllocator<char>> string;
 }

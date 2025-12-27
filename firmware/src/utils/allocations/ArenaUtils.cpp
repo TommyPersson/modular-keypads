@@ -11,8 +11,7 @@ namespace arena::strings {
         const char delimiter,
         const ArenaAllocator<std::string_view>& allocator,
         const int initialCapacity
-        ) {
-
+    ) {
         vector parts(allocator);
         parts.reserve(initialCapacity);
 
@@ -41,7 +40,7 @@ std::string arena::strings::join(
     const std::span<const std::string_view>& strings,
     const std::string& delimiter,
     Arena& arena
-    ) {
+) {
     const ArenaAllocator<char> allocator(arena);
 
     ostringstream ss(std::ios_base::out, allocator);
@@ -60,7 +59,7 @@ std::string arena::strings::join(
     const std::span<const std::string>& strings,
     const std::string& delimiter,
     Arena& arena
-    ) {
+) {
     const ArenaAllocator<char> allocator(arena);
 
     ostringstream ss(std::ios_base::out, allocator);
@@ -75,16 +74,17 @@ std::string arena::strings::join(
     return std::string(ss.str());
 }
 
-std::string arena::strings::sprintf(Arena& arena, const char* format, ...) {
+std::string_view arena::strings::sprintf(Arena& arena, const char* format, ...) {
     va_list args;
     va_start(args, format);
 
-    const auto bufferSize = vsnprintf(nullptr, 0, format, args) + 1;
+    const auto bufferSize = static_cast<size_t>(vsnprintf(nullptr, 0, format, args) + 1);
     const auto buffer = reinterpret_cast<char*>(arena.allocate(bufferSize));
 
     std::vsnprintf(buffer, bufferSize, format, args);
 
     va_end(args);
 
-    return std::string{buffer};
+    // ReSharper disable once CppDFALocalValueEscapesFunction
+    return {buffer, bufferSize};
 }

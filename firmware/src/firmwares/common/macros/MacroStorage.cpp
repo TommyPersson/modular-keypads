@@ -1,6 +1,5 @@
 #include "MacroStorage.h"
 
-#include <Preferences.h>
 #include <FS.h>
 #include <LittleFS.h>
 
@@ -17,9 +16,8 @@ namespace {
     auto logger = common::logging::createLogger("MacroStorage");
     bool beginResult = false;
     bool hasBegun = false;
-    bool hasRead = false;
-    Preferences prefs;
     auto filePath = "/data/macro-definitions.txt";
+    auto tempFilePath = "/data/macro-definitions.txt.tmp";
 }
 
 namespace {
@@ -40,7 +38,7 @@ namespace {
             auto modifiersPart = dataParts[0];
             auto hidCodePart = dataParts[1];
 
-            return std::make_shared<Macro>(
+            auto macro = std::make_shared<Macro>(
                 name,
                 std::make_shared<ShortcutMacroData>(
                     utils::strings::atol(idPart, 10),
@@ -48,58 +46,88 @@ namespace {
                     utils::strings::atol(hidCodePart, 16)
                 )
             );
+
+            return macro;
         }
 
         // TODO the sequence type
 
         return nullptr;
     }
+
+    std::string_view serializeStoredMacro(const Macro& macro, Arena& arena) {
+        const auto& shortcutData = std::dynamic_pointer_cast<ShortcutMacroData>(macro.data);
+        if (shortcutData != nullptr) {
+            return arena::strings::sprintf(
+                arena,
+                "%i:%s:0x%02x:0x%02x,0x%02x",
+                shortcutData->id,
+                macro.name.c_str(),
+                shortcutData->type,
+                shortcutData->modifiers,
+                shortcutData->hidKeyCode
+            );
+        } else {
+            // TODO the sequence type
+            return "";
+        }
+    }
 }
 
-// TODO do we need to be careful with allocations here?
 void MacroStorage::setup() {
 }
 
 error_t MacroStorage::write(const Macro& macro) {
     if (!hasBegun) {
-        beginResult = LittleFS.begin(false);
+        if (!LittleFS.begin(false)) {
+            return -2;
+        }
         hasBegun = true;
     }
 
-    logger->debug("Would try to save macro '%s'", macro.name.c_str());
-    /* TODO re-implement
-        auto file = LittleFS.open(filePath, "w", true);
-        if (!file) {
-            logger->error("Failed to open '%s' for writing!", filePath);
-            return -1;
-        }
+    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+    if (!tempOutputFile) {
+        logger->error("Failed to open '%s'", tempFilePath);
+        return -1;
+    }
 
-        cache.push_back(std::make_shared<Macro>(macro));
+    Arena arena(2048);
 
-        for (const auto& macro : cache) {
-            logger->info("Writing \"%s=%s\"", macro->name.c_str(), macro->content.c_str());
-            file.printf("%s=%s\n", macro->name.c_str(), macro->content.c_str());
-        }
+    uint16_t highestIdSeen = 0;
 
-        file.close();
+    forEach([&](const Macro& storedMacro) {
+        auto serializedMacro = storedMacro.data->id == macro.data->id
+            ? serializeStoredMacro(macro, arena) // Overwrite with new
+            : serializeStoredMacro(storedMacro, arena); // Re-write existing
 
-        */
+        highestIdSeen = std::max(highestIdSeen, storedMacro.data->id);
+
+        tempOutputFile.println(serializedMacro.data());
+
+        arena.reset();
+    });
+
+    if (macro.data->id <= 0) {
+        macro.data->id = highestIdSeen + 1;
+        auto serializedMacro = serializeStoredMacro(macro, arena);
+        tempOutputFile.println(serializedMacro.data());
+    }
+
+    tempOutputFile.close();
+
+    LittleFS.remove(filePath);
+    LittleFS.rename(tempFilePath, filePath);
 
     return 0;
 }
 
 void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
     if (!hasBegun) {
-        beginResult = LittleFS.begin(false);
+        if (!LittleFS.begin(false)) {
+            return;
+        }
         hasBegun = true;
     }
-
-    logger->debug(
-        "LittleFS begin = %i. Used = %i. Total = %i.",
-        beginResult,
-        LittleFS.usedBytes(),
-        LittleFS.totalBytes()
-    );
 
     Arena arena(1024);
 

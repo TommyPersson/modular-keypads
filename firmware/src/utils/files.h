@@ -14,8 +14,12 @@ namespace utils::files {
 
             if (c == '\n') {
                 std::string_view line{buffer, lineLength};
+
+                if (line.length() > 0) {
+                    callback(line);
+                }
+
                 lineLength = 0;
-                callback(line);
             } else {
                 if (lineLength <= lineBufferSize) {
                     buffer[lineLength] = c;

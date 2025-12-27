@@ -15,7 +15,7 @@ namespace common::macros {
 
         virtual ~MacroData() = default;
 
-        const uint16_t id;
+        uint16_t id;
         const MacroType type;
     };
 

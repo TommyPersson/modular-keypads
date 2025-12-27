@@ -25,5 +25,5 @@ namespace arena::strings {
         Arena& arena
     );
 
-    std::string sprintf(Arena& arena, const char* format, ...) __attribute__((format(printf, 2, 3)));
+    std::string_view sprintf(Arena& arena, const char* format, ...) __attribute__((format(printf, 2, 3)));
 }

@@ -10,8 +10,8 @@ public:
     CommandResponseWriter(int commandId, Print& outputStream);
     ~CommandResponseWriter();
 
-    void writeLine(const std::string& line) {
-        writeLineF("%s", line.c_str());
+    void writeLine(const std::string_view& line) {
+        writeLineF("%.*s", line.length(), line.data());
     }
 
     void writeLineF(const char* format, ...) __attribute__((format(printf, 2, 3))) {
