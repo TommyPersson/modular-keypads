@@ -1,3 +1,4 @@
+import { ConfirmProvider } from "@src/modules/common/components"
 import { DeviceDebuggerPage } from "@src/modules/device-debugger/ui"
 import { DeviceContextProvider } from "@src/modules/device/context"
 import { KeyBindingsPage } from "@src/modules/key-bindings/ui"
@@ -38,7 +39,9 @@ export const App = () => {
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools />
       <DeviceContextProvider>
-        <RouterProvider router={router} />
+        <ConfirmProvider>
+          <RouterProvider router={router} />
+        </ConfirmProvider>
       </DeviceContextProvider>
     </QueryClientProvider>
   )

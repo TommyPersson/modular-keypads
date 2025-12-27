@@ -22,8 +22,8 @@ import {
   TextField,
   useTheme
 } from "@mui/material"
-import { RadioCard, TagSelect } from "@src/modules/common/components"
-import { SaveMacroMutation } from "@src/modules/key-bindings/commands"
+import { CommandButton, RadioCard, TagSelect } from "@src/modules/common/components"
+import { SaveMacroCommand } from "@src/modules/key-bindings/commands"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
@@ -33,7 +33,6 @@ import {
   type Shortcut,
   type ShortcutMacroDefinition
 } from "@src/modules/key-bindings/models"
-import { useMutation } from "@tanstack/react-query"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 import classes from "./EditMacroDialog.module.css"
@@ -86,14 +85,14 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
           />
         </Stack>
       </DialogContent>
-      {state.saveError && (
-        <DialogContent>
-          <Alert severity={"error"}>{state.saveError.toString()}</Alert>
-        </DialogContent>
-      )}
       <DialogActions>
         <Button onClick={props.onClose}>Cancel</Button>
-        <Button variant={"contained"} disabled={!state.canSave} onClick={state.handleSave}>Save</Button>
+        <CommandButton
+          command={SaveMacroCommand}
+          args={{ macro: state.macroDefinition }}
+          onSuccess={props.onClose}
+          variant={"contained"}
+        />
       </DialogActions>
     </Dialog>
   )
@@ -104,11 +103,9 @@ type EditMacroDialogState = {
   macroDefinition: MacroDefinition
   willOverwriteExistingMacro: boolean
   canSave: boolean
-  saveError: Error | null
   handleMacroNameChange: (name: string) => void
   handleMacroTypeChange: (type: MacroDefinitionType) => void
   handleMacroDefinitionChange: (definition: MacroDefinition) => void
-  handleSave: () => void
   handleClose: ComponentProps<typeof Dialog>["onClose"]
 }
 
@@ -146,14 +143,6 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
   )
   const canSave = canSaveMacro(macroDefinition)
 
-  const saveMacroMutation = useMutation(SaveMacroMutation)
-
-  const handleSave = useCallback(async () => {
-    await saveMacroMutation.mutateAsync({ macro: macroDefinition })
-    onClose()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [macroDefinition, onClose])
-
   const title = macroDefinition.id < 1 ? "Create Macro" : "Edit Macro"
 
   useEffect(() => {
@@ -169,11 +158,9 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
     macroDefinition: macroDefinition,
     willOverwriteExistingMacro: willOverwriteExistingMacro,
     canSave: canSave,
-    saveError: saveMacroMutation.error,
     handleMacroNameChange: handleMacroNameChange,
     handleMacroTypeChange: handleMacroTypeChange,
     handleMacroDefinitionChange: setMacroDefinition,
-    handleSave: handleSave,
     handleClose: handleClose,
   }
 }

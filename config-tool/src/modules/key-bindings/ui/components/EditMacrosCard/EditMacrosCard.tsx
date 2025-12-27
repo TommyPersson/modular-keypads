@@ -9,7 +9,6 @@ import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandK
 import KeyboardOutlinedIcon from "@mui/icons-material/KeyboardOutlined"
 import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined"
 import TimesOneMobiledataOutlinedIcon from "@mui/icons-material/TimesOneMobiledataOutlined"
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 
 import {
   Button,
@@ -28,8 +27,8 @@ import {
   TableRow,
   Tooltip
 } from "@mui/material"
-import { EmptyTableRow } from "@src/modules/common/components"
-import { DeleteMacroMutation } from "@src/modules/key-bindings/commands"
+import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
+import { DeleteMacroCommand } from "@src/modules/key-bindings/commands"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
@@ -42,7 +41,6 @@ import {
   type ShortcutSequenceMacroDefinition
 } from "@src/modules/key-bindings/models"
 import { EditMacroDialog } from "@src/modules/key-bindings/ui/components/EditMacrosCard/EditMacroDialog"
-import { useMutation } from "@tanstack/react-query"
 import { type ComponentProps, useCallback, useState } from "react"
 
 import classes from "./EditMacrosCard.module.css"
@@ -139,12 +137,6 @@ const MacroDefinitionRow = (props: {
     onEditClick(macro)
   }, [macro, onEditClick])
 
-  const deleteMacroMutation = useMutation(DeleteMacroMutation)
-  const handleDeleteIconClick = useCallback(async () => {
-    await deleteMacroMutation.mutateAsync({ id: macro.id })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [macro, deleteMacroMutation.mutateAsync])
-
   return (
     <TableRow hover>
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>{macro.id}</TableCell>
@@ -166,11 +158,12 @@ const MacroDefinitionRow = (props: {
               <PlayCircleOutlinedIcon fontSize={"small"} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Delete Macro"}>
-            <IconButton onClick={handleDeleteIconClick} size={"small"}>
-              <DeleteForeverOutlinedIcon fontSize={"small"} />
-            </IconButton>
-          </Tooltip>
+          <CommandButton
+            command={DeleteMacroCommand}
+            args={{ macro }}
+            size={"small"}
+            iconOnly
+          />
         </Stack>
       </TableCell>
     </TableRow>
