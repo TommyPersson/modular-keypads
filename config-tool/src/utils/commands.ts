@@ -1,6 +1,7 @@
-import { type ButtonProps,  type IconProps } from "@mui/material"
-import type { UseConfirmResult } from "@src/utils/hooks/useConfirm"
-import { type UseMutationOptions, type UseMutationResult } from "@tanstack/react-query"
+import { type ButtonProps, type IconProps } from "@mui/material"
+import { useConfirm, type UseConfirmResult } from "@src/utils/hooks/useConfirm"
+import { useMutation, type UseMutationOptions, type UseMutationResult } from "@tanstack/react-query"
+import { useCallback } from "react"
 import * as React from "react"
 
 export type Command<TArgs> = {
@@ -51,4 +52,33 @@ export async function executeCommand<TArgs>(options: {
 
   await mutation.mutateAsync(args)
   onSuccess?.()
+}
+
+export type UseCommandHook<TArgs> = {
+  executeAsync: (args: TArgs) => Promise<void>
+  isPending: boolean
+  error: Error | null
+}
+
+export type UseCommandOptions = {
+  onSuccess?: () => void
+}
+
+export function useCommand<TArgs>(command: Command<TArgs>, options: UseCommandOptions = {}): UseCommandHook<TArgs> {
+  const { onSuccess } = options
+
+  const mutation = useMutation(command.mutationOptions)
+
+  const confirm = useConfirm()
+
+  const executeAsync = useCallback(async (args: TArgs) => {
+    await executeCommand({ command, mutation, args, confirm, onSuccess })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [command, onSuccess])
+
+  return {
+    executeAsync,
+    isPending: mutation.isPending,
+    error: mutation.error,
+  }
 }

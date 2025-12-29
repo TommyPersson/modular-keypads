@@ -1,4 +1,4 @@
-import type { MacroDefinition } from "@src/modules/key-bindings/models"
+import type { KeyBinding, KeyBindingTrigger, MacroDefinition } from "@src/modules/key-bindings/models"
 import type { DateTime } from "luxon"
 import { Observable } from "rxjs"
 
@@ -51,6 +51,10 @@ export interface DeviceFacade {
   saveMacro(macro: MacroDefinition): Promise<void>
   deleteMacro(id: number): Promise<void>
   getStoredMacros(): Promise<MacroDefinition[]>
+
+  listKeyBindings(deviceId: string): Promise<KeyBinding[]>
+  clearKeyBinding(trigger: KeyBindingTrigger): Promise<void>
+  setKeyBinding(trigger: KeyBindingTrigger, macroId: number): Promise<void>
 
   resetDevice(): Promise<void>
 

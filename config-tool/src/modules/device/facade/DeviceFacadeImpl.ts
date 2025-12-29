@@ -1,11 +1,13 @@
+import { Error } from "@mui/icons-material"
 import {
-  createModifierFlags,
+  createModifierFlags, type KeyBinding, type KeyBindingTrigger, KeyBindingTriggerType,
   type MacroDefinition,
   MacroDefinitionType,
   parseModifierFlags,
   type ShortcutMacroDefinition
 } from "@src/modules/key-bindings/models"
 import { readLines } from "@src/utils/streams"
+import { dequal } from "dequal"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
@@ -273,6 +275,27 @@ export class DeviceFacadeImpl implements DeviceFacade {
     })
 
     return lines.map(parseMacro).filter(it => it) as MacroDefinition[]
+  }
+
+  private keyBindings: { [deviceId: string]: KeyBinding[] } = {}
+
+  async listKeyBindings(deviceId: string): Promise<KeyBinding[]> {
+    // TODO implement command
+    console.log("reading keybindings", this.keyBindings)
+    return this.keyBindings[deviceId] ?? []
+  }
+
+  async clearKeyBinding(trigger: KeyBindingTrigger): Promise<void> {
+    // TODO implement command
+    this.keyBindings[trigger.deviceId] = this.keyBindings[trigger.deviceId]?.filter(it => !dequal(it.trigger, trigger)) ?? []
+    console.log("stored keybindings", this.keyBindings)
+  }
+
+  async setKeyBinding(trigger: KeyBindingTrigger, macroId: number): Promise<void> {
+    // TODO implement command
+    await this.clearKeyBinding(trigger)
+    this.keyBindings[trigger.deviceId] = [...this.keyBindings[trigger.deviceId], { trigger, macroId }]
+    console.log("stored keybindings", this.keyBindings)
   }
 
   private async sendCommand(str: string, args: string[] = []): Promise<string[]> {
