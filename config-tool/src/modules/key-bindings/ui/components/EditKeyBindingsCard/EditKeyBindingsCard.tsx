@@ -206,6 +206,8 @@ const PushButtonBindingRow = (props: {
   const setKeyBindingCommand = useCommand(SetKeyBindingCommand)
   const clearKeyBindingCommand = useCommand(ClearKeyBindingCommand)
 
+  const disabled = setKeyBindingCommand.isPending || clearKeyBindingCommand.isPending
+
   const handleMacroSelection = useCallback(async (macro: MacroDefinition | null) => {
     if (!macro) {
       await clearKeyBindingCommand.executeAsync({ trigger })
@@ -227,6 +229,7 @@ const PushButtonBindingRow = (props: {
           macros={macros}
           label={"Press Action"}
           selected={boundMacro}
+          disabled={disabled}
           onSelect={handleMacroSelection}
         />
       </TableCell>
@@ -322,6 +325,8 @@ const RotaryEncoderBindingsRow = (props: {
   const setKeyBindingCommand = useCommand(SetKeyBindingCommand)
   const clearKeyBindingCommand = useCommand(ClearKeyBindingCommand)
 
+  const disabled = setKeyBindingCommand.isPending || clearKeyBindingCommand.isPending
+
   const handleMacroSelection = useCallback(async (macro: MacroDefinition | null, direction: RotaryEncoderDirection) => {
     const trigger: RotaryEncoderKeyBindingTrigger = {
       type: KeyBindingTriggerType.RotaryEncoder,
@@ -359,6 +364,7 @@ const RotaryEncoderBindingsRow = (props: {
             macros={macros}
             label={"Clockwise Action"}
             selected={boundMacroCW}
+            disabled={disabled}
             onSelect={handleMacroSelectionCW}
           />
         </TableCell>
@@ -370,6 +376,7 @@ const RotaryEncoderBindingsRow = (props: {
             macros={macros}
             label={"Counterclockwise Action"}
             selected={boundMacroCCW}
+            disabled={disabled}
             onSelect={handleMacroSelectionCCW}
           />
         </TableCell>
@@ -395,9 +402,10 @@ const MacroAutocomplete = (props: {
   macros: MacroDefinition[]
   label: string
   selected: MacroDefinition | null
+  disabled?: boolean
   onSelect?: (macro: MacroDefinition | null) => void
 }) => {
-  const { macros, label, selected, onSelect } = props
+  const { macros, label, selected, disabled, onSelect } = props
 
   const handleChange = useCallback((_: any, value: AutocompleteValue<MacroDefinition, unknown, unknown, unknown>) => {
     onSelect?.(value)
@@ -428,6 +436,7 @@ const MacroAutocomplete = (props: {
       value={selected}
       onChange={handleChange}
       onInputChange={handleInputChange}
+      disabled={disabled}
     />
   )
 }

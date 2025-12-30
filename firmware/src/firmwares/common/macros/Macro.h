@@ -33,6 +33,8 @@ namespace common::macros {
         const uint8_t hidKeyCode;
     };
 
+    // TODO sequence data
+
     struct Macro {
         const std::string name;
         const std::shared_ptr<MacroData> data;

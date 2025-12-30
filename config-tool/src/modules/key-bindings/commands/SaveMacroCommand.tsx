@@ -1,7 +1,10 @@
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined"
 import { globalDeviceFacade } from "@src/modules/device/context"
 import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
-import { ListStoredMacrosQueryKey } from "@src/modules/key-bindings/queries"
+import {
+  ListKeyBindingsQueryKey,
+  ListStoredMacrosQueryKey
+} from "@src/modules/key-bindings/queries"
 import type { Command } from "@src/utils/commands"
 import { queryClient } from "@src/utils/queryClient"
 
@@ -13,6 +16,7 @@ export const SaveMacroCommand: Command<{ macro: MacroDefinition }> = {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ListStoredMacrosQueryKey })
+      await queryClient.invalidateQueries({ queryKey: ListKeyBindingsQueryKey })
     },
   }),
   label: "Save Macro",

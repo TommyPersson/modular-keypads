@@ -114,6 +114,8 @@ error_t MacroStorage::write(const Macro& macro) {
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
 
+    onMacroSavedSubject.notify({ .macroId = macro.data->id });
+
     return 0;
 }
 
@@ -139,6 +141,8 @@ error_t MacroStorage::remove(uint16_t id) {
 
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
+
+    onMacroRemovedSubject.notify({ .macroId = id });
 
     return 0;
 }

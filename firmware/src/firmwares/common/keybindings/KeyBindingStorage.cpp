@@ -107,6 +107,8 @@ error_t KeyBindingStorage::write(const KeyBinding& keyBinding) {
 
     outputFile.close();
 
+    onKeyBindingSetSubject.notify({});
+
     return 0;
 }
 
@@ -117,11 +119,11 @@ error_t KeyBindingStorage::remove(const Trigger& trigger) {
         return -1;
     }
 
-    Arena arena(2048);
+    Arena arena(512);
 
     forEach([&](const KeyBinding& keyBinding) {
         if (*keyBinding.trigger != trigger) {
-            auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
+            const auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
             tempOutputFile.println(serializedKeyBinding.data());
         }
 
@@ -132,6 +134,36 @@ error_t KeyBindingStorage::remove(const Trigger& trigger) {
 
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
+
+    onKeyBindingClearedSubject.notify({});
+
+    return 0;
+}
+
+error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
+    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+    if (!tempOutputFile) {
+        logger->error("Failed to open '%s'", tempFilePath);
+        return -1;
+    }
+
+    Arena arena(512);
+
+    forEach([&](const KeyBinding& keyBinding) {
+        if (keyBinding.macroId != macroId) {
+            const auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
+            tempOutputFile.println(serializedKeyBinding.data());
+        }
+
+        arena.reset();
+    });
+
+    tempOutputFile.close();
+
+    LittleFS.remove(filePath);
+    LittleFS.rename(tempFilePath, filePath);
+
+    onKeyBindingClearedSubject.notify({});
 
     return 0;
 }

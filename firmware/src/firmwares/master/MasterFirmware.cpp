@@ -29,69 +29,25 @@
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
-    common::macros::MacroStorage macroStorage;
-    common::keybindings::KeyBindingStorage keyBindingStorage;
-}
-
-namespace {
-    struct KeyBinding {
-        uint64_t deviceId;
-        uint8_t switchNumber;
-        std::shared_ptr<usb::Action> action;
-    };
-
-    std::vector<KeyBinding> keyBindings;
 }
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
 
+    macroStorage = std::make_unique<common::macros::MacroStorage>();
+    keyBindingStorage = std::make_unique<common::keybindings::KeyBindingStorage>();
+    keyBindingSubSystem = std::make_unique<KeyBindingSubSystem>(*macroStorage, *keyBindingStorage, testModeController, serviceLocator.usbConnection);
+
     addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));
     addCommandHandler(std::make_shared<ListDeviceCapabilities>(allDevices));
     addCommandHandler(std::make_shared<GetTestMode>(testModeController));
     addCommandHandler(std::make_shared<SetTestMode>(testModeController));
-    addCommandHandler(std::make_shared<SaveMacroCommandHandler>(macroStorage));
-    addCommandHandler(std::make_shared<DeleteMacroCommandHandler>(macroStorage));
-    addCommandHandler(std::make_shared<ListStoredMacrosCommandHandler>(macroStorage));
-    addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(keyBindingStorage));
-    addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(keyBindingStorage));
-    addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(keyBindingStorage));
-
-    keyBindings.push_back(
-        {
-            .deviceId = 0x7e2c1a823e6bac0c,
-            .switchNumber = 1,
-            .action = usb::Action::keyPress({0xe1, 0x04}),
-            // a
-        }
-    );
-
-    keyBindings.push_back(
-        {
-            .deviceId = 0x7e2c1a823e6bac0c,
-            .switchNumber = 2,
-            .action = usb::Action::keyPress({0xe1, 0x05}),
-            // b
-        }
-    );
-
-    keyBindings.push_back(
-        {
-            .deviceId = 0x9ab574502dcdf51d,
-            .switchNumber = 2,
-            .action = usb::Action::keyPress({0xe2, 0x40}),
-            // Alt+F7
-        }
-    );
-
-    keyBindings.push_back(
-        {
-            .deviceId = 0x9ab574502dcdf51d,
-            .switchNumber = 10,
-            .action = usb::Action::keyPress({0xe1, 0x3f}),
-            // Shift+F6
-        }
-    );
+    addCommandHandler(std::make_shared<SaveMacroCommandHandler>(*macroStorage));
+    addCommandHandler(std::make_shared<DeleteMacroCommandHandler>(*macroStorage));
+    addCommandHandler(std::make_shared<ListStoredMacrosCommandHandler>(*macroStorage));
+    addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(*keyBindingStorage));
+    addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(*keyBindingStorage));
+    addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(*keyBindingStorage));
 }
 
 MasterFirmware::~MasterFirmware() = default;
@@ -99,8 +55,9 @@ MasterFirmware::~MasterFirmware() = default;
 void MasterFirmware::setup() {
     Firmware::setup();
 
-    macroStorage.setup();
-    keyBindingStorage.setup();
+    macroStorage->setup();
+    keyBindingStorage->setup();
+    keyBindingSubSystem->setup();
 
     auto localDeviceConfiguration = deviceConfigurationManager.getDeviceConfiguration();
 
@@ -130,6 +87,8 @@ void MasterFirmware::loop() {
     for (const auto& device : connectedDevices) {
         device->loop();
     }
+
+    keyBindingSubSystem->loop();
 }
 
 // TODO allow connected devices to use open drain outputs to signal their presence?
@@ -163,36 +122,11 @@ void MasterFirmware::refreshConnectedDevices() {
 }
 
 void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
-    if (testModeController.isEnabled()) {
-        return;
-    }
-
-    if (event.state == SwitchState::PRESSED) {
-        for (auto& binding : keyBindings) {
-            if (binding.deviceId == event.deviceId && binding.switchNumber == event.switchNumber) {
-                serviceLocator.usbConnection.sendAction(*binding.action);
-            }
-        }
-    }
+    keyBindingSubSystem->observe(event);
 
     // TODO temporary debugging
     if (event.state == SwitchState::PRESSED && event.switchNumber == 5 && event.deviceId == 0x7e2c1a823e6bac0c) {
         refreshConnectedDevices();
-    }
-
-    if (event.state == SwitchState::PRESSED && event.switchNumber == 3 && event.deviceId == 0x7e2c1a823e6bac0c) {
-        logger->debug("Listing macros ...");
-        macroStorage.forEach(
-            [](const common::macros::Macro& macro) {
-                logger->debug(
-                    "Existing macro: %04x: (%s): %02x',",
-                    macro.data->id,
-                    macro.name.c_str(),
-                    macro.data->type
-                );
-            }
-        );
-        logger->debug("Done listing macros!");
     }
 
 #ifdef SOC_USB_OTG_SUPPORTED
