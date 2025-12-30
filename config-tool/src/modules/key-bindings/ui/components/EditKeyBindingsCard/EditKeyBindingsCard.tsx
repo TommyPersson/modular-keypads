@@ -107,7 +107,7 @@ const DeviceSelectionSection = (props: {
           <InputLabel>Device</InputLabel>
           <Select
             label={"Device"}
-            value={selectedDeviceId}
+            value={selectedDeviceId ?? ""}
             onChange={handleSelectedDeviceIdChanged}
             className={classes.DeviceSelect}
           >

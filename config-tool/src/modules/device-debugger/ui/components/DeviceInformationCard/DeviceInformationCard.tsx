@@ -22,7 +22,7 @@ import {
   type SelectChangeEvent
 } from "@mui/material"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { type ChangeEvent, useCallback, useEffect, useState } from "react"
+import { type ChangeEvent, Fragment, useCallback, useEffect, useState } from "react"
 import { queryClient } from "@src/utils/queryClient"
 import { PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
@@ -100,7 +100,7 @@ export const DeviceInformationCard = () => {
           />
           <PropertyText
             title={"Register Names"}
-            subtitle={(deviceInformation?.deviceRegisterNames ?? []).map(it => <><code key={it}>{it}</code><br/></>)}
+            subtitle={(deviceInformation?.deviceRegisterNames ?? []).map(it => <Fragment key={it}><code>{it}</code><br/></Fragment>)}
           />
         </PropertyGroup>
       </CardContent>

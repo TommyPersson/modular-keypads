@@ -14,7 +14,7 @@ export type CommandButtonProps<TArgs> = {
 } & ButtonProps
 
 export const CommandButton = <TArgs, >(props: CommandButtonProps<TArgs>) => {
-  const { command, args, onSuccess, ...buttonProps } = props
+  const { command, args, onSuccess, iconOnly, ...buttonProps } = props
 
   const confirm = useConfirm()
 

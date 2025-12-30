@@ -36,11 +36,11 @@ export const TagSelect = (props: {
       multiple
       value={values}
       onChange={handleChange}
-      renderValue={(modifiers) => {
+      renderValue={(tags) => {
         return (
           <Stack direction={"row"} spacing={0.5}>
-            {modifiers.map(modifier => (
-              <TagItem value={modifier} onDelete={handleTagDeleted} size={props.chipSize} />
+            {tags.map(tag => (
+              <TagItem key={tag} value={tag} onDelete={handleTagDeleted} size={props.chipSize} />
             ))}
           </Stack>
         )
