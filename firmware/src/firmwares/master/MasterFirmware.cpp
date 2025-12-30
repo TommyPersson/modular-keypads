@@ -19,13 +19,18 @@
 #include "commands/ListDeviceCapabilities.h"
 #include "commands/SaveMacroCommandHandler.h"
 #include "commands/ListStoredMacrosCommandHandler.h"
+#include "commands/DeleteMacroCommandHandler.h"
+#include "commands/ListKeyBindingsCommandHandler.h"
+#include "commands/SetKeyBindingCommandHandler.h"
+#include "commands/ClearKeyBindingCommandHandler.h"
 
 #include "../common/macros/MacroStorage.h"
-#include "commands/DeleteMacroCommandHandler.h"
+#include "../common/keybindings/KeyBindingStorage.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
     common::macros::MacroStorage macroStorage;
+    common::keybindings::KeyBindingStorage keyBindingStorage;
 }
 
 namespace {
@@ -40,6 +45,7 @@ namespace {
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
+
     addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));
     addCommandHandler(std::make_shared<ListDeviceCapabilities>(allDevices));
     addCommandHandler(std::make_shared<GetTestMode>(testModeController));
@@ -47,6 +53,9 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<SaveMacroCommandHandler>(macroStorage));
     addCommandHandler(std::make_shared<DeleteMacroCommandHandler>(macroStorage));
     addCommandHandler(std::make_shared<ListStoredMacrosCommandHandler>(macroStorage));
+    addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(keyBindingStorage));
+    addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(keyBindingStorage));
+    addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(keyBindingStorage));
 
     keyBindings.push_back(
         {
@@ -150,12 +159,6 @@ void MasterFirmware::refreshConnectedDevices() {
     }
 }
 
-
-namespace {
-    int nextMacroId = 1;
-    Arena tempArena{100};
-}
-
 void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
     if (testModeController.isEnabled()) {
         return;
@@ -196,6 +199,4 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
         esp_restart();
     }
 #endif
-
-    tempArena.reset();
 }

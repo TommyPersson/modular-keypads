@@ -8,17 +8,17 @@ export enum RotaryEncoderDirection {
   CounterClockwise = "CounterClockwise",
 }
 
-export type KeyBindingTriggerBase<TTriggerType> = {
+export type KeyBindingTriggerBase = {
   deviceId: string
-  type: TTriggerType
+  type: KeyBindingTriggerType
 }
 
-export type PushButtonKeyBindingTrigger = KeyBindingTriggerBase<KeyBindingTriggerType.PushButton> & {
+export type PushButtonKeyBindingTrigger = KeyBindingTriggerBase & {
   type: KeyBindingTriggerType.PushButton,
   number: number
 }
 
-export type RotaryEncoderKeyBindingTrigger = KeyBindingTriggerBase<KeyBindingTriggerType.RotaryEncoder> & {
+export type RotaryEncoderKeyBindingTrigger = KeyBindingTriggerBase & {
   type: KeyBindingTriggerType.RotaryEncoder,
   number: number
   direction: RotaryEncoderDirection

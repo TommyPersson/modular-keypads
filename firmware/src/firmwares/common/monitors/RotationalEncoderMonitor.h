@@ -4,9 +4,9 @@
 #include "utils/observables/Subject.h"
 
 enum class RotationalEncoderDirection {
-    Clockwise,
-    CounterClockwise,
-    None,
+    Clockwise = 0x01,
+    CounterClockwise = 0x02,
+    None = 0xff,
 };
 
 struct EncoderRotatedEvent {

@@ -5,7 +5,7 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query"
 
 // TODO keep these simple hooks in the same file as the query?
 
-export function useKeyBindingsQuery(deviceId: string): UseQueryResult<KeyBinding[], Error> {
+export function useKeyBindingsQuery(): UseQueryResult<KeyBinding[], Error> {
   const deviceFacade = useDeviceFacade()
-  return useQuery(ListKeyBindingsQuery(deviceFacade, deviceId))
+  return useQuery(ListKeyBindingsQuery(deviceFacade))
 }

@@ -52,7 +52,7 @@ export interface DeviceFacade {
   deleteMacro(id: number): Promise<void>
   getStoredMacros(): Promise<MacroDefinition[]>
 
-  listKeyBindings(deviceId: string): Promise<KeyBinding[]>
+  listKeyBindings(): Promise<KeyBinding[]>
   clearKeyBinding(trigger: KeyBindingTrigger): Promise<void>
   setKeyBinding(trigger: KeyBindingTrigger, macroId: number): Promise<void>
 

@@ -1,13 +1,15 @@
-import { Error } from "@mui/icons-material"
 import {
-  createModifierFlags, type KeyBinding, type KeyBindingTrigger, KeyBindingTriggerType,
+  createModifierFlags,
+  type KeyBinding,
+  type KeyBindingTrigger,
+  KeyBindingTriggerType,
   type MacroDefinition,
   MacroDefinitionType,
   parseModifierFlags,
+  RotaryEncoderDirection,
   type ShortcutMacroDefinition
 } from "@src/modules/key-bindings/models"
 import { readLines } from "@src/utils/streams"
-import { dequal } from "dequal"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
@@ -235,7 +237,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
       }
     })()
 
-    await this.sendCommand("save.macro", [
+    await this.sendWriteCommand("save.macro", [
       macro.id.toString(),
       macro.name,
       ...dataArgs
@@ -243,7 +245,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async deleteMacro(id: number): Promise<void> {
-    await this.sendCommand("delete.macro", [id.toString()])
+    await this.sendWriteCommand("delete.macro", [id.toString()])
   }
 
   async getStoredMacros(): Promise<MacroDefinition[]> {
@@ -277,25 +279,94 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return lines.map(parseMacro).filter(it => it) as MacroDefinition[]
   }
 
-  private keyBindings: { [deviceId: string]: KeyBinding[] } = {}
+  async listKeyBindings(): Promise<KeyBinding[]> {
+    const responsLines = await this.sendCommand("list.key.bindings", [])
 
-  async listKeyBindings(deviceId: string): Promise<KeyBinding[]> {
-    // TODO implement command
-    console.log("reading keybindings", this.keyBindings)
-    return this.keyBindings[deviceId] ?? []
+    return responsLines.map(line => {
+      const parts = line.split(":")
+      const type = parseInt(parts[0], 16)
+      const deviceId = parts[1]
+
+      if (type == 0x01) { // PushButton
+        const number = parseInt(parts[2], 16)
+        const macroId = parseInt(parts[3], 16)
+
+        return {
+          macroId,
+          trigger: {
+            type: KeyBindingTriggerType.PushButton,
+            deviceId,
+            number
+          }
+        }
+      } else if (type == 0x02) { // RotaryEncoder
+        const number = parseInt(parts[2], 16)
+        const direction = parseInt(parts[3], 16)
+        const macroId = parseInt(parts[4], 16)
+
+        return {
+          macroId,
+          trigger: {
+            type: KeyBindingTriggerType.RotaryEncoder,
+            deviceId,
+            number,
+            direction: direction === 0x01 ? RotaryEncoderDirection.Clockwise : RotaryEncoderDirection.CounterClockwise
+          }
+        }
+      }
+    }).filter(it => it) as KeyBinding[]
   }
 
   async clearKeyBinding(trigger: KeyBindingTrigger): Promise<void> {
-    // TODO implement command
-    this.keyBindings[trigger.deviceId] = this.keyBindings[trigger.deviceId]?.filter(it => !dequal(it.trigger, trigger)) ?? []
-    console.log("stored keybindings", this.keyBindings)
+    let args: string[]  = []
+    if (trigger.type === KeyBindingTriggerType.PushButton) {
+      args = [
+        "0x01",
+        trigger.deviceId,
+        `0x${trigger.number.toString(16).padStart(2, "0")}`
+      ]
+    } else if (trigger.type === KeyBindingTriggerType.RotaryEncoder) {
+      const directionNumber = trigger.direction === RotaryEncoderDirection.Clockwise ? 1 : 2
+      args = [
+        "0x02",
+        trigger.deviceId,
+        `0x${trigger.number.toString(16).padStart(2, "0")}`,
+        `0x${directionNumber.toString(16).padStart(2, "0")}`
+      ]
+    }
+
+    if (args.length === 0) {
+      throw new Error("Unknown key binding trigger type")
+    }
+
+    await this.sendWriteCommand("clear.key.binding", args)
   }
 
   async setKeyBinding(trigger: KeyBindingTrigger, macroId: number): Promise<void> {
-    // TODO implement command
-    await this.clearKeyBinding(trigger)
-    this.keyBindings[trigger.deviceId] = [...this.keyBindings[trigger.deviceId], { trigger, macroId }]
-    console.log("stored keybindings", this.keyBindings)
+    let args: string[]  = []
+    if (trigger.type === KeyBindingTriggerType.PushButton) {
+      args = [
+        "0x01",
+        trigger.deviceId,
+        `0x${trigger.number.toString(16).padStart(2, "0")}`,
+        `0x${macroId.toString(16).padStart(4, "0")}`,
+      ]
+    } else if (trigger.type === KeyBindingTriggerType.RotaryEncoder) {
+      const directionNumber = trigger.direction === RotaryEncoderDirection.Clockwise ? 1 : 2
+      args = [
+        "0x02",
+        trigger.deviceId,
+        `0x${trigger.number.toString(16).padStart(2, "0")}`,
+        `0x${directionNumber.toString(16).padStart(2, "0")}`,
+        `0x${macroId.toString(16).padStart(4, "0")}`,
+      ]
+    }
+
+    if (args.length === 0) {
+      throw new Error("Unknown key binding trigger type")
+    }
+
+    await this.sendWriteCommand("set.key.binding", args)
   }
 
   private async sendCommand(str: string, args: string[] = []): Promise<string[]> {

@@ -134,7 +134,7 @@ const PushButtonsSection = (props: {
 }) => {
   const { deviceId, pushButtons, pushButtonStates, macros } = props
 
-  const keyBindingsQuery = useKeyBindingsQuery(deviceId)
+  const keyBindingsQuery = useKeyBindingsQuery()
   const keyBindings = keyBindingsQuery.data ?? []
 
   if (pushButtons.length === 0) {
@@ -239,7 +239,7 @@ const RotaryEncodersSection = (props: {
 
   const rotaryEncoderStates = useRotaryEncoderStates(deviceId)
 
-  const keyBindingsQuery = useKeyBindingsQuery(deviceId)
+  const keyBindingsQuery = useKeyBindingsQuery()
   const keyBindings = keyBindingsQuery.data ?? []
 
   if (rotaryEncoders.length === 0) {

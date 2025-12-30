@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include <string>
+#include <memory>
 
 namespace common::macros {
     enum MacroType : uint8_t {
