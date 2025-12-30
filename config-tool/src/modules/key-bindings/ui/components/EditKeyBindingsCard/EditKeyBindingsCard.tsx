@@ -40,7 +40,7 @@ import {
 } from "@src/modules/key-bindings/models"
 import { useCommand } from "@src/utils/commands"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import classes from "./EditKeyBindingsCard.module.css"
 
@@ -99,6 +99,10 @@ const DeviceSelectionSection = (props: {
   const handleSelectedDeviceIdChanged = useCallback((e: SelectChangeEvent<string | null>) => {
     onSelectionChange(e.target.value)
   }, [onSelectionChange])
+
+  useEffect(() => {
+    onSelectionChange(devices[0]?.deviceId ?? null)
+  }, [devices, onSelectionChange])
 
   return (
     <CardContent>

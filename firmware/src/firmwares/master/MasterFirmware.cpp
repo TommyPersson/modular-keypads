@@ -99,6 +99,9 @@ MasterFirmware::~MasterFirmware() = default;
 void MasterFirmware::setup() {
     Firmware::setup();
 
+    macroStorage.setup();
+    keyBindingStorage.setup();
+
     auto localDeviceConfiguration = deviceConfigurationManager.getDeviceConfiguration();
 
     auto localModuleFactory = getModuleFactory(localDeviceConfiguration.type);

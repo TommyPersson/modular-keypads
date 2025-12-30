@@ -11,6 +11,10 @@ namespace utils::strings {
         return ::strtoull(string.data(), nullptr, base);
     }
 
+    inline uint16_t atou16(const std::string_view& string, const int base = 10) {
+        return ::strtoul(string.data(), nullptr, base);
+    }
+
     inline int atol(const std::string_view& string, int& intLength) {
         char* endPtr;
         long result = ::strtol(string.data(), &endPtr, 10);

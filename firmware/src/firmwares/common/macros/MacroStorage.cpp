@@ -14,7 +14,6 @@ using namespace common::macros;
 
 namespace {
     auto logger = common::logging::createLogger("MacroStorage");
-    bool hasBegun = false;
     auto filePath = "/data/macro-definitions.txt";
     auto tempFilePath = "/data/macro-definitions.txt.tmp";
 }
@@ -22,6 +21,7 @@ namespace {
 namespace {
     std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, Arena& arena) {
         ArenaAllocator<std::string_view> stringViewAllocator(arena);
+        ArenaAllocator<Macro> macroAllocator(arena);
 
         auto parts = arena::strings::split(line, ':', stringViewAllocator, 10);
 
@@ -37,7 +37,8 @@ namespace {
             auto modifiersPart = dataParts[0];
             auto hidCodePart = dataParts[1];
 
-            auto macro = std::make_shared<Macro>(
+            auto macro = std::allocate_shared<Macro>(
+                macroAllocator,
                 name,
                 std::make_shared<ShortcutMacroData>(
                     utils::strings::atol(idPart, 10),
@@ -74,16 +75,12 @@ namespace {
 }
 
 void MacroStorage::setup() {
+    if (!LittleFS.begin(false)) {
+        logger->error("Unable to initialize file system");
+    }
 }
 
 error_t MacroStorage::write(const Macro& macro) {
-    if (!hasBegun) {
-        if (!LittleFS.begin(false)) {
-            return -2;
-        }
-        hasBegun = true;
-    }
-
     fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
     if (!tempOutputFile) {
         logger->error("Failed to open '%s'", tempFilePath);
@@ -121,13 +118,6 @@ error_t MacroStorage::write(const Macro& macro) {
 }
 
 error_t MacroStorage::remove(uint16_t id) {
-    if (!hasBegun) {
-        if (!LittleFS.begin(false)) {
-            return -2;
-        }
-        hasBegun = true;
-    }
-
     fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
     if (!tempOutputFile) {
         logger->error("Failed to open '%s'", tempFilePath);
@@ -154,13 +144,6 @@ error_t MacroStorage::remove(uint16_t id) {
 }
 
 void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
-    if (!hasBegun) {
-        if (!LittleFS.begin(false)) {
-            return;
-        }
-        hasBegun = true;
-    }
-
     Arena arena(1024);
 
     const auto rc = utils::files::iterateLines(
@@ -170,6 +153,8 @@ void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
             if (macro != nullptr) {
                 callback(*macro);
             }
+
+            arena.reset();
         }
     );
 
