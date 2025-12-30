@@ -12,7 +12,8 @@ DeviceRuntime::DeviceRuntime(
 ) : deviceId(deviceId),
     registers(registers),
     indicatorLeds(indicatorLeds),
-    notifier(notifier) {}
+    notifier(notifier) {
+}
 
 void DeviceRuntime::configureRegisters() const {
     for (const auto& descriptor : getRegisterDescriptors()) {
@@ -67,9 +68,9 @@ void DeviceRuntime::attachRotationalEncoder(
     const std::shared_ptr<BitReader>& aBitReader,
     const std::shared_ptr<BitReader>& bBitReader
 ) {
-    this->rotationalEncoderMonitors.emplace_back(
-        std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader)
-    );
+    auto rotaryEncoderMonitor = std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader);
+    rotaryEncoderMonitor->onEncoderRotated().addObserver(this);
+    this->rotationalEncoderMonitors.emplace_back(rotaryEncoderMonitor);
 }
 
 void DeviceRuntime::begin() {
@@ -77,7 +78,8 @@ void DeviceRuntime::begin() {
     configureCapabilities();
 }
 
-void DeviceRuntime::loop() {}
+void DeviceRuntime::loop() {
+}
 
 void DeviceRuntime::observe(const SwitchEvent& event) {
     auto deviceSwitchEvent = DeviceSwitchEvent{
@@ -87,4 +89,14 @@ void DeviceRuntime::observe(const SwitchEvent& event) {
     };
 
     deviceSwitchEventSubject.notify(deviceSwitchEvent);
+}
+
+void DeviceRuntime::observe(const EncoderRotatedEvent& event) {
+    auto deviceRotaryEncoderEvent = DeviceRotaryEncoderEvent{
+        .deviceId = deviceId,
+        .encoderNumber = event.encoderNumber,
+        .direction = event.direction,
+    };
+
+    deviceRotaryEncoderEventSubject.notify(deviceRotaryEncoderEvent);
 }

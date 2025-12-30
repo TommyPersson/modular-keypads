@@ -17,9 +17,8 @@ namespace devices {
         virtual const DeviceConfiguration& getConfiguration() const = 0;
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
-        Observable<DeviceSwitchEvent>& onSwitchEvent() {
-            return getRuntime().onSwitchEvent();
-        };
+        Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); };
+        Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return getRuntime().onRotaryEncoderEvent(); };
 
         static std::unique_ptr<DeviceModule> local(
             DeviceConfiguration& config,

@@ -3,29 +3,29 @@
 #ifdef SOC_USB_OTG_SUPPORTED
 
 #include <esp_system.h>
-#include <soc/rtc_cntl_reg.h>
 #include <rom/usb/chip_usb_dw_wrapper.h>
 #include <rom/usb/usb_persist.h>
+#include <soc/rtc_cntl_reg.h>
 
 #endif
 
 #include <utils/strings.h>
 #include <utils/allocations/ArenaUtils.h>
 
-#include "../common/DeviceScanner.h"
-#include "commands/ListConnectedDevices.h"
-#include "commands/GetTestMode.h"
-#include "commands/SetTestMode.h"
-#include "commands/ListDeviceCapabilities.h"
-#include "commands/SaveMacroCommandHandler.h"
-#include "commands/ListStoredMacrosCommandHandler.h"
-#include "commands/DeleteMacroCommandHandler.h"
-#include "commands/ListKeyBindingsCommandHandler.h"
-#include "commands/SetKeyBindingCommandHandler.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
+#include "commands/DeleteMacroCommandHandler.h"
+#include "commands/GetTestMode.h"
+#include "commands/ListConnectedDevices.h"
+#include "commands/ListDeviceCapabilities.h"
+#include "commands/ListKeyBindingsCommandHandler.h"
+#include "commands/ListStoredMacrosCommandHandler.h"
+#include "commands/SaveMacroCommandHandler.h"
+#include "commands/SetKeyBindingCommandHandler.h"
+#include "commands/SetTestMode.h"
 
-#include "../common/macros/MacroStorage.h"
+#include "../common/DeviceScanner.h"
 #include "../common/keybindings/KeyBindingStorage.h"
+#include "../common/macros/MacroStorage.h"
 
 namespace {
     auto logger = common::logging::createLogger("MasterFirmware");
@@ -33,10 +33,14 @@ namespace {
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
-
     macroStorage = std::make_unique<common::macros::MacroStorage>();
     keyBindingStorage = std::make_unique<common::keybindings::KeyBindingStorage>();
-    keyBindingSubSystem = std::make_unique<KeyBindingSubSystem>(*macroStorage, *keyBindingStorage, testModeController, serviceLocator.usbConnection);
+    keyBindingSubSystem = std::make_unique<KeyBindingSubSystem>(
+        *macroStorage,
+        *keyBindingStorage,
+        testModeController,
+        serviceLocator.usbConnection
+    );
 
     addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));
     addCommandHandler(std::make_shared<ListDeviceCapabilities>(allDevices));
@@ -70,6 +74,7 @@ void MasterFirmware::setup() {
     localDevice = localModuleFactory->createLocal(localDeviceConfiguration, serviceLocator);
     localDevice->setup();
     localDevice->onSwitchEvent().addObserver(this);
+    localDevice->onRotaryEncoderEvent().addObserver(this);
     allDevices.push_back(localDevice.get());
 
     registers = &localDevice->getRegisters();
@@ -118,6 +123,7 @@ void MasterFirmware::refreshConnectedDevices() {
     for (const auto& device : connectedDevices) {
         allDevices.push_back(device.get());
         device->onSwitchEvent().addObserver(this);
+        device->onRotaryEncoderEvent().addObserver(this);
     }
 }
 
@@ -136,4 +142,8 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
         esp_restart();
     }
 #endif
+}
+
+void MasterFirmware::observe(const devices::DeviceRotaryEncoderEvent& event) {
+    keyBindingSubSystem->observe(event);
 }

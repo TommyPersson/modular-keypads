@@ -115,32 +115,55 @@ void KeyBindingSubSystem::observe(const KeyBindingCleared& event) {
 }
 
 void KeyBindingSubSystem::observe(const devices::DeviceSwitchEvent& event) {
-    if (testModeController.isEnabled()) {
-        return;
-    }
+    executeMacroFor(findKeyBinding(event));
+}
 
+void KeyBindingSubSystem::observe(const devices::DeviceRotaryEncoderEvent& event) {
+    executeMacroFor(findKeyBinding(event));
+}
+
+std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const devices::DeviceSwitchEvent& event) {
     if (event.state != SwitchState::PRESSED) {
-        return;
+        return nullptr;
     }
 
-    std::shared_ptr<KeyBinding> foundKeyBinding = nullptr;
     for (const auto& keyBinding : keyBindings) {
         if (keyBinding->trigger->type == PUSH_BUTTON) {
             const auto& trigger = dynamic_cast<PushButtonTrigger&>(*keyBinding->trigger);
             if (trigger.deviceId == event.deviceId && trigger.number == event.switchNumber) {
-                foundKeyBinding = std::make_shared<KeyBinding>(*keyBinding);
+                return std::make_shared<KeyBinding>(*keyBinding);
             }
         }
     }
 
-    if (!foundKeyBinding) {
+    return nullptr;
+}
+
+std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const devices::DeviceRotaryEncoderEvent& event) {
+    for (const auto& keyBinding : keyBindings) {
+        if (keyBinding->trigger->type == ROTARY_ENCODER) {
+            const auto& trigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding->trigger);
+            if (trigger.deviceId == event.deviceId && trigger.number == event.encoderNumber && trigger.direction == event.direction) {
+                return std::make_shared<KeyBinding>(*keyBinding);
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+
+void KeyBindingSubSystem::executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding) {
+    if (testModeController.isEnabled()) {
         return;
     }
 
-    uint16_t macroId = foundKeyBinding->macroId;
+    if (keyBinding == nullptr) {
+        return;
+    }
 
     for (const auto& macro : macros) {
-        if (macro->macroId == macroId) {
+        if (macro->macroId == keyBinding->macroId) {
             for (const auto& action : macro->actions) {
                 usbConnection.sendAction(*action);
             }

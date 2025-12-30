@@ -16,7 +16,8 @@ class KeyBindingSubSystem
       Observer<common::macros::MacroRemoved>,
       Observer<common::keybindings::KeyBindingSet>,
       Observer<common::keybindings::KeyBindingCleared>,
-      Observer<devices::DeviceSwitchEvent> {
+      Observer<devices::DeviceSwitchEvent>,
+      Observer<devices::DeviceRotaryEncoderEvent> {
 public:
     KeyBindingSubSystem(
         common::macros::MacroStorage& macroStorage,
@@ -34,10 +35,16 @@ public:
     void observe(const common::keybindings::KeyBindingSet& event) override;
     void observe(const common::keybindings::KeyBindingCleared& event) override;
     void observe(const devices::DeviceSwitchEvent& event) override;
+    void observe(const devices::DeviceRotaryEncoderEvent& event) override;
 
 private:
     void refreshCompiledMacros();
     void refreshKeyBindings();
+
+    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const devices::DeviceSwitchEvent& event);
+    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const devices::DeviceRotaryEncoderEvent& event);
+
+    void executeMacroFor(const std::shared_ptr<common::keybindings::KeyBinding>& keyBinding);
 
     bool macrosNeedRefresh = true;
     bool keyBindingsNeedRefresh = true;
