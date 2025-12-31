@@ -2,6 +2,7 @@
 
 #include "../common/ServiceLocator.h"
 #include "commands/ListRegistersCommandHandler.h"
+#include "commands/ListRegisterValuesCommandHandler.h"
 #include "commands/PingCommandHandler.h"
 #include "commands/ReadDeviceAddressCommandHandler.h"
 #include "commands/ReadDeviceFirmwareVersionCommandHandler.h"
@@ -41,6 +42,7 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));
+    this->addCommandHandler(std::make_shared<ListRegisterValuesCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>());
 
     moduleFactories.emplace_back(std::make_unique<devices::m::DeviceModuleFactoryM>());

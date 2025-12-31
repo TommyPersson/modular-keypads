@@ -3,6 +3,7 @@ import UsbOutlinedIcon from "@mui/icons-material/UsbOutlined"
 import { AppBar, Button, Chip, FormControlLabel, Stack, Switch, Toolbar, Tooltip, Typography } from "@mui/material"
 import { DeviceLogsDropDown, DeviceMetricsDropDown } from "@src/modules/device-debugger/ui"
 import { useDeviceContext } from "@src/modules/device/context"
+import { SetTestModeDeviceCommand } from "@src/modules/device/facade/device-commands/SetTestModeDeviceCommand"
 import { GetTestModeQuery } from "@src/modules/device/queries/GetTestModeQuery"
 import { queryClient } from "@src/utils/queryClient"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -26,7 +27,7 @@ export const MainAppBar = () => {
 
   const toggleTestMode = useMutation({
       mutationFn: async (args: { enabled: boolean }) => {
-        await deviceFacade.setTestMode(args.enabled)
+        await deviceFacade.executeCommand(new SetTestModeDeviceCommand(args.enabled))
       },
       onSuccess: async () => {
         await queryClient.invalidateQueries({ queryKey: ["test-mode-state"] })

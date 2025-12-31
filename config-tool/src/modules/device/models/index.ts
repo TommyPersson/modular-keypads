@@ -1,4 +1,7 @@
 
+export * from "./NotificationMessage"
+export * from "./RawLogMessage"
+
 export type DeviceInformation = {
   readonly deviceId: string
   readonly deviceFirmwareVersion: string
@@ -8,7 +11,10 @@ export type DeviceInformation = {
   readonly deviceRegisterNames: string[]
 }
 
-export type DeviceRegisterValues = { [index: string]: number }
+export type DeviceRegisterValue = {
+  name: string
+  value: number
+}
 
 export type BaseCapability = {
   type: string

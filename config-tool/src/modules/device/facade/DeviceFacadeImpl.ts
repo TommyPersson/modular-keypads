@@ -1,25 +1,10 @@
-import type { DeviceCommand } from "@src/modules/device/facade/commands/DeviceCommand"
-import type { DeviceCapability, DeviceInformation, DeviceRegisterValues } from "@src/modules/device/models"
-import {
-  createModifierFlags,
-  type KeyBinding,
-  type KeyBindingTrigger,
-  KeyBindingTriggerType,
-  type MacroDefinition,
-  MacroDefinitionType,
-  parseModifierFlags,
-  RotaryEncoderDirection,
-  type ShortcutMacroDefinition
-} from "@src/modules/key-bindings/models"
+import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
 import { readLines } from "@src/utils/streams"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
+import type { DeviceInformation, NotificationMessage, RawLogMessage } from "../models"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
-import type {
-  DeviceFacade,
-  NotificationMessage,
-  RawLogMessage
-} from "./DeviceFacade"
+import type { DeviceFacade } from "./DeviceFacade"
 
 export class DeviceFacadeImpl implements DeviceFacade {
 
@@ -94,13 +79,6 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.disconnectAbortController?.abort("disconnecting")
   }
 
-  async resetDevice(): Promise<void> {
-    await this.sendWriteCommand("reset.device").catch(() => {
-    })
-
-    return
-  }
-
   async getDeviceInformation(): Promise<DeviceInformation> {
     return {
       deviceId: await this.getDeviceId(),
@@ -110,57 +88,6 @@ export class DeviceFacadeImpl implements DeviceFacade {
       deviceName: await this.getDeviceName(),
       deviceRegisterNames: await this.getDeviceRegisterNames(),
     }
-  }
-
-  async getDeviceRegisterValues(): Promise<DeviceRegisterValues> {
-    const registerNames = await this.getDeviceRegisterNames()
-
-    const result: DeviceRegisterValues = {}
-
-    for (const name of registerNames) {
-      result[name] = await this.getDeviceRegisterValue(name)
-    }
-
-    return result
-  }
-
-  async listConnectedDevices(): Promise<DeviceInformation[]> {
-    const lines = await this.sendCommand("list.connected.devices")
-
-    return lines.map(line => {
-      const [idHex, addressHex, type, name] = line.split(",")
-      return {
-        deviceId: idHex,
-        deviceFirmwareVersion: "0.0.1",
-        deviceType: type,
-        deviceAddress: parseInt(addressHex, 16),
-        deviceName: name,
-        deviceRegisterNames: [],
-      } satisfies DeviceInformation
-    })
-  }
-
-  async listDeviceCapabilities(deviceId: string): Promise<DeviceCapability[]> {
-    const lines = await this.sendCommand("list.device.capabilities", [deviceId])
-
-    return lines.map((line, index) => {
-      const [type, ...rest] = line.split(",")
-      if (type == "PushButton") {
-        return {
-          index,
-          type,
-          number: parseInt(rest[0])
-        } satisfies DeviceCapability
-      } else if (type == "RotaryEncoder") {
-        return {
-          index,
-          type,
-          number: parseInt(rest[0])
-        } satisfies DeviceCapability
-      } else {
-        return null
-      }
-    }).filter(it => it) as DeviceCapability[]
   }
 
   async getDeviceId(): Promise<string> {
@@ -175,193 +102,17 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return await this.sendSingleLineResponseCommand("read.device.type")
   }
 
-  async setDeviceType(type: string) {
-    await this.sendWriteCommand("set.device.type", [type])
-  }
-
   async getDeviceAddress(): Promise<number> {
     const addressHex = await this.sendSingleLineResponseCommand("read.device.address")
     return parseInt(addressHex, 16)
-  }
-
-  async setDeviceAddress(address: number) {
-    const addressHex = "0x" + address.toString(16)
-    await this.sendWriteCommand("set.device.address", [addressHex])
   }
 
   async getDeviceName(): Promise<string> {
     return await this.sendSingleLineResponseCommand("read.device.name")
   }
 
-  async setDeviceName(name: string) {
-    await this.sendWriteCommand("set.device.name", [name])
-  }
-
-  private async sendWriteCommand(str: string, args: string[] = []): Promise<void> {
-    await this.sendSingleLineResponseCommand(str, args)
-  }
-
   async getDeviceRegisterNames(): Promise<string[]> {
     return await this.sendCommand("list.registers")
-  }
-
-  async getDeviceRegisterValue(register: string): Promise<number> {
-    const addressHex = await this.sendSingleLineResponseCommand("read.register", [register])
-    return parseInt(addressHex, 16)
-  }
-
-  async getTestMode(): Promise<boolean> {
-    const state = await this.sendSingleLineResponseCommand("get.test.mode")
-    return state == "true"
-  }
-
-  async setTestMode(enabled: boolean): Promise<void> {
-    await this.sendCommand("set.test.mode", [enabled ? "true" : "false"])
-  }
-
-  async saveMacro(macro: MacroDefinition) {
-    const dataArgs = (() => {
-      if (macro.type === MacroDefinitionType.Shortcut) {
-        return [
-          "0x01", // Shortcut
-          `0x${createModifierFlags(macro.shortcut.modifiers).toString(16).padStart(2, "0")}`,
-          `0x${macro.shortcut.hidCode.toString(16).padStart(2, "0")}`
-        ]
-      } else {
-        throw new Error("Unsupported macro type")
-      }
-    })()
-
-    await this.sendWriteCommand("save.macro", [
-      macro.id.toString(),
-      macro.name,
-      ...dataArgs
-    ])
-  }
-
-  async deleteMacro(id: number): Promise<void> {
-    await this.sendWriteCommand("delete.macro", [id.toString()])
-  }
-
-  async getStoredMacros(): Promise<MacroDefinition[]> {
-    const lines = await this.sendCommand("list.stored.macros")
-
-    const parseMacro = ((line: string): MacroDefinition | null => {
-      const [name, restLine] = line.split("=")
-      const [idStr, typeStr, ...restParts] = restLine.split(":")
-      const id = parseInt(idStr, 16)
-      const type = parseInt(typeStr, 16)
-
-      if (type === 0x01) {
-        const [modifiersStr, hidCodeStr] = restParts
-        const modifiers = parseModifierFlags(parseInt(modifiersStr, 16))
-        const hidCode = parseInt(hidCodeStr, 16)
-
-        return {
-          id,
-          name,
-          type: MacroDefinitionType.Shortcut,
-          shortcut: {
-            modifiers,
-            hidCode
-          }
-        } satisfies ShortcutMacroDefinition
-      }
-
-      return null
-    })
-
-    return lines.map(parseMacro).filter(it => it) as MacroDefinition[]
-  }
-
-  async listKeyBindings(): Promise<KeyBinding[]> {
-    const responsLines = await this.sendCommand("list.key.bindings", [])
-
-    return responsLines.map(line => {
-      const parts = line.split(":")
-      const type = parseInt(parts[0], 16)
-      const deviceId = parts[1]
-
-      if (type == 0x01) { // PushButton
-        const number = parseInt(parts[2], 16)
-        const macroId = parseInt(parts[3], 16)
-
-        return {
-          macroId,
-          trigger: {
-            type: KeyBindingTriggerType.PushButton,
-            deviceId,
-            number
-          }
-        }
-      } else if (type == 0x02) { // RotaryEncoder
-        const number = parseInt(parts[2], 16)
-        const direction = parseInt(parts[3], 16)
-        const macroId = parseInt(parts[4], 16)
-
-        return {
-          macroId,
-          trigger: {
-            type: KeyBindingTriggerType.RotaryEncoder,
-            deviceId,
-            number,
-            direction: direction === 0x01 ? RotaryEncoderDirection.Clockwise : RotaryEncoderDirection.CounterClockwise
-          }
-        }
-      }
-    }).filter(it => it) as KeyBinding[]
-  }
-
-  async clearKeyBinding(trigger: KeyBindingTrigger): Promise<void> {
-    let args: string[]  = []
-    if (trigger.type === KeyBindingTriggerType.PushButton) {
-      args = [
-        "0x01",
-        trigger.deviceId,
-        `0x${trigger.number.toString(16).padStart(2, "0")}`
-      ]
-    } else if (trigger.type === KeyBindingTriggerType.RotaryEncoder) {
-      const directionNumber = trigger.direction === RotaryEncoderDirection.Clockwise ? 1 : 2
-      args = [
-        "0x02",
-        trigger.deviceId,
-        `0x${trigger.number.toString(16).padStart(2, "0")}`,
-        `0x${directionNumber.toString(16).padStart(2, "0")}`
-      ]
-    }
-
-    if (args.length === 0) {
-      throw new Error("Unknown key binding trigger type")
-    }
-
-    await this.sendWriteCommand("clear.key.binding", args)
-  }
-
-  async setKeyBinding(trigger: KeyBindingTrigger, macroId: number): Promise<void> {
-    let args: string[]  = []
-    if (trigger.type === KeyBindingTriggerType.PushButton) {
-      args = [
-        "0x01",
-        trigger.deviceId,
-        `0x${trigger.number.toString(16).padStart(2, "0")}`,
-        `0x${macroId.toString(16).padStart(4, "0")}`,
-      ]
-    } else if (trigger.type === KeyBindingTriggerType.RotaryEncoder) {
-      const directionNumber = trigger.direction === RotaryEncoderDirection.Clockwise ? 1 : 2
-      args = [
-        "0x02",
-        trigger.deviceId,
-        `0x${trigger.number.toString(16).padStart(2, "0")}`,
-        `0x${directionNumber.toString(16).padStart(2, "0")}`,
-        `0x${macroId.toString(16).padStart(4, "0")}`,
-      ]
-    }
-
-    if (args.length === 0) {
-      throw new Error("Unknown key binding trigger type")
-    }
-
-    await this.sendWriteCommand("set.key.binding", args)
   }
 
   async executeCommand<TResult>(command: DeviceCommand<TResult>): Promise<TResult> {
@@ -370,9 +121,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
     const response = await this.sendCommand(type, args)
 
-    const result = command.parseResponse(response)
-
-    return result
+    return command.parseResponse(response)
   }
 
   private async sendCommand(type: string, args: string[] = []): Promise<string[]> {

@@ -17,7 +17,7 @@ import {
   Typography
 } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
-import type { RawLogMessage } from "@src/modules/device/facade"
+import type { RawLogMessage } from "@src/modules/device/models"
 import { takeFirst } from "@src/utils/arrays"
 import type { DateTime } from "luxon"
 import { type ComponentProps, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"

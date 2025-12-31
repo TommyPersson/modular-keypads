@@ -1,16 +1,6 @@
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined"
 
-import {
-  Button,
-  CardContent,
-  CardHeader,
-  Popover,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@mui/material"
+import { Button, CardContent, Popover, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
 import type { DeviceMetric } from "@src/modules/device/models"
 import { ListDeviceMetricsQuery } from "@src/modules/device/queries/ListDeviceMetricsQuery"

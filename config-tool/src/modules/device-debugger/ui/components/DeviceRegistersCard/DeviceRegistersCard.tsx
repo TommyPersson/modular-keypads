@@ -18,12 +18,7 @@ export const DeviceRegistersCard = () => {
   const { facade: deviceFacade } = useDeviceContext()
 
   const deviceRegisterValuesQuery = useQuery(GetDeviceRegisterValuesQuery(deviceFacade))
-
-  const deviceRegisterValues = deviceRegisterValuesQuery.data ?? {}
-
-  const deviceRegisterValuesList = Object.entries(deviceRegisterValues).map(it => ({ name: it[0], value: it[1] }))
-
-  console.log(deviceRegisterValues, deviceRegisterValuesList)
+  const deviceRegisterValues = deviceRegisterValuesQuery.data ?? []
 
   return (
     <Card>
@@ -50,7 +45,7 @@ export const DeviceRegistersCard = () => {
           </TableHead>
           <TableBody>
             {
-              deviceRegisterValuesList.map(it => (
+              deviceRegisterValues.map(it => (
                 <TableRow key={it.name}>
                   <TableCell><code>{it.name}</code></TableCell>
                   <TableCell><code>0x{it.value.toString(16).padStart(2, '0')}</code></TableCell>

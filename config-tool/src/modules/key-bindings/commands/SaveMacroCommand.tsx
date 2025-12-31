@@ -1,5 +1,6 @@
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined"
 import { globalDeviceFacade } from "@src/modules/device/context"
+import { SaveMacroDeviceCommand } from "@src/modules/device/facade/device-commands/SaveMacroDeviceCommand"
 import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
 import {
   ListKeyBindingsQueryKey,
@@ -12,7 +13,7 @@ export const SaveMacroCommand: Command<{ macro: MacroDefinition }> = {
   mutationOptions: ({
     mutationKey: ["key-bindings", "SaveMacroCommand"],
     mutationFn: async ({ macro }) => {
-      await globalDeviceFacade.value.saveMacro(macro)
+      await globalDeviceFacade.value.executeCommand(new SaveMacroDeviceCommand(macro))
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ListStoredMacrosQueryKey })

@@ -1,6 +1,6 @@
 import { Button, Card, CardContent, Typography } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
-import { PingDeviceCommand } from "@src/modules/device/facade/commands/PingDeviceCommand"
+import { PingDeviceCommand } from "@src/modules/device/facade/device-commands/PingDeviceCommand"
 import { useCallback, useState } from "react"
 
 

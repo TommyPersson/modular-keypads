@@ -1,4 +1,4 @@
-import { ReadMetricsDeviceCommand } from "@src/modules/device/facade/commands/ReadMetricsDeviceCommand"
+import { ReadMetricsDeviceCommand } from "@src/modules/device/facade/device-commands/ReadMetricsDeviceCommand"
 import { type UseQueryOptions } from "@tanstack/react-query"
 import type { DeviceFacade } from "../facade/DeviceFacade"
 import type { DeviceMetric } from "../models"

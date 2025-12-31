@@ -22,6 +22,10 @@ import {
 import { PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceFacade } from "@src/modules/device/facade"
+import { ResetDeviceDeviceCommand } from "@src/modules/device/facade/device-commands/ResetDeviceDeviceCommand"
+import { SetDeviceAddressDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceAddressDeviceCommand"
+import { SetDeviceNameDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceNameDeviceCommand"
+import { SetDeviceTypeDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceTypeDeviceCommand"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { GetDeviceInformationQuery } from "@src/modules/device/queries"
 import { queryClient } from "@src/utils/queryClient"
@@ -157,10 +161,10 @@ const UpdateDeviceConfigurationDialog = (props: {
 
   const saveMutation = useMutation({
     mutationFn: async (args: {deviceTypeCode: string, deviceAddress: number, deviceName: string}) => {
-      await deviceFacade.setDeviceType(args.deviceTypeCode)
-      await deviceFacade.setDeviceAddress(args.deviceAddress)
-      await deviceFacade.setDeviceName(args.deviceName)
-      await deviceFacade.resetDevice()
+      await deviceFacade.executeCommand(new SetDeviceTypeDeviceCommand(args.deviceTypeCode))
+      await deviceFacade.executeCommand(new SetDeviceAddressDeviceCommand(args.deviceAddress))
+      await deviceFacade.executeCommand(new SetDeviceNameDeviceCommand(args.deviceName))
+      await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {})
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["device-information"] })

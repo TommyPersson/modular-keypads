@@ -2,7 +2,7 @@ import { Deferred } from "@src/utils/Deferred"
 import { Mutex } from "@src/utils/Mutex"
 import { DateTime } from "luxon"
 import { Subject } from "rxjs"
-import type { RawLogMessage } from "./DeviceFacade"
+import type { RawLogMessage } from "../models"
 
 export class DeviceCommandExecutor {
 

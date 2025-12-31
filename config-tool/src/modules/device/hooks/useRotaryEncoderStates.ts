@@ -1,5 +1,5 @@
 import { useDeviceFacade } from "@src/modules/device/context"
-import type { NotificationMessage } from "@src/modules/device/facade"
+import type { NotificationMessage } from "@src/modules/device/models"
 import { useCallback, useEffect, useState } from "react"
 
 export type RotaryEncoderState = {
