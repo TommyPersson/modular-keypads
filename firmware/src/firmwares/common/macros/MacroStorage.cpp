@@ -50,6 +50,21 @@ namespace {
             return macro;
         }
 
+        if (type == CONSUMER_CONTROL) {
+            auto usageIdPart = parts[3];
+
+            auto macro = std::allocate_shared<Macro>(
+                macroAllocator,
+                name,
+                std::make_shared<ConsumerControlMacroData>(
+                    utils::strings::atol(idPart, 10),
+                    utils::strings::atou16(usageIdPart, 16)
+                )
+            );
+
+            return macro;
+        }
+
         // TODO the sequence type
 
         return nullptr;
@@ -67,10 +82,22 @@ namespace {
                 shortcutData->modifiers,
                 shortcutData->hidKeyCode
             );
-        } else {
-            // TODO the sequence type
-            return "";
         }
+
+        const auto& consumerControlData = std::dynamic_pointer_cast<ConsumerControlMacroData>(macro.data);
+        if (consumerControlData != nullptr) {
+            return arena::strings::sprintf(
+                arena,
+                "%i:%s:0x%02x:0x%04x",
+                consumerControlData->id,
+                macro.name.c_str(),
+                consumerControlData->type,
+                consumerControlData->usageId
+            );
+        }
+
+        // TODO the sequence type
+        return "";
     }
 }
 
@@ -93,8 +120,8 @@ error_t MacroStorage::write(const Macro& macro) {
 
     forEach([&](const Macro& storedMacro) {
         auto serializedMacro = storedMacro.data->id == macro.data->id
-            ? serializeStoredMacro(macro, arena) // Overwrite with new
-            : serializeStoredMacro(storedMacro, arena); // Re-write existing
+                                   ? serializeStoredMacro(macro, arena) // Overwrite with new
+                                   : serializeStoredMacro(storedMacro, arena); // Re-write existing
 
         highestIdSeen = std::max(highestIdSeen, storedMacro.data->id);
 
@@ -114,7 +141,7 @@ error_t MacroStorage::write(const Macro& macro) {
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
 
-    onMacroSavedSubject.notify({ .macroId = macro.data->id });
+    onMacroSavedSubject.notify({.macroId = macro.data->id});
 
     return 0;
 }
@@ -142,7 +169,7 @@ error_t MacroStorage::remove(uint16_t id) {
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
 
-    onMacroRemovedSubject.notify({ .macroId = id });
+    onMacroRemovedSubject.notify({.macroId = id});
 
     return 0;
 }

@@ -66,6 +66,12 @@ void usb::RealConnection::sendAction(Action& action) {
 
         keyboard.releaseAll();
     }
+
+    const auto consumerControlAction = dynamic_cast<ConsumerControlAction*>(&action);
+    if (consumerControlAction != nullptr) {
+        consumerControl.press(consumerControlAction->usageId);
+        consumerControl.release();
+    }
 }
 
 #endif

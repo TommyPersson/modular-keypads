@@ -6,7 +6,7 @@
 namespace common::macros {
     enum MacroType : uint8_t {
         SHORTCUT = 0x01,
-        SEQUENCE = 0x02,
+        CONSUMER_CONTROL = 0x02,
     };
 
     struct MacroData {
@@ -31,6 +31,17 @@ namespace common::macros {
 
         const uint8_t modifiers;
         const uint8_t hidKeyCode;
+    };
+
+    struct ConsumerControlMacroData final : MacroData {
+        ConsumerControlMacroData(uint16_t id, uint16_t usageId)
+            : MacroData(id, MacroType::CONSUMER_CONTROL),
+              usageId(usageId) {
+        }
+
+        ~ConsumerControlMacroData() override = default;
+
+        const uint16_t usageId;
     };
 
     // TODO sequence data

@@ -1,7 +1,7 @@
 import { Autocomplete, Box, FormControl, Stack, TextField } from "@mui/material"
 import { consumerControlCodes } from "@src/modules/key-bindings/data/consumerControlCodes"
 import type { ConsumerControlCode, ConsumerControlMacroDefinition } from "@src/modules/key-bindings/models"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 
 export const ConsumerControlMacroDefinitionEditor = (props: {
   value: ConsumerControlMacroDefinition
@@ -26,8 +26,10 @@ export const ConsumerControlCodeEditor = (props: {
 
   const selectedCode = consumerControlCodes.byUsageId[value ?? 0] ?? null
 
-  const sortedCodes = consumerControlCodes.usable
-    .toSorted((a, b) => a.section.localeCompare(b.section))
+  const sortedCodes = useMemo(() => {
+    return consumerControlCodes.usable
+      .toSorted((a, b) => a.section.localeCompare(b.section))
+  }, [])
 
   const handleCodeChange = useCallback((_: any, code: ConsumerControlCode | null) => {
     onChange(code?.usageId ?? null)

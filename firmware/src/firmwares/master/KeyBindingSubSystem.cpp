@@ -51,8 +51,14 @@ namespace {
                 .macroId = macro.data->id,
                 .actions = sequence,
             });
-        } else if (macro.data->type == SEQUENCE) {
-            return nullptr;
+        }
+
+        if (macro.data->type == CONSUMER_CONTROL) {
+            const auto& data = dynamic_cast<ConsumerControlMacroData&>(*macro.data);
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = std::vector{usb::Action::consumerControl(data.usageId)},
+            });
         }
 
         return nullptr;

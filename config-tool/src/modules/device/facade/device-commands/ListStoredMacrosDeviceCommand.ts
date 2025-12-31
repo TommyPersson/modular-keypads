@@ -1,4 +1,5 @@
 import {
+  type ConsumerControlMacroDefinition,
   type MacroDefinition,
   MacroDefinitionType,
   parseModifierFlags,
@@ -30,6 +31,18 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
             hidCode
           }
         } satisfies ShortcutMacroDefinition
+      }
+
+      if (type === 0x02) {
+        const usageIdPart = restParts[0]
+        const usageId = parseInt(usageIdPart, 16)
+
+        return {
+          id,
+          name,
+          type: MacroDefinitionType.ConsumerControl,
+          usageId
+        } satisfies ConsumerControlMacroDefinition
       }
 
       return null

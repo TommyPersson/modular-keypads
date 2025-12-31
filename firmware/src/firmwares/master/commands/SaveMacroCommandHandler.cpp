@@ -22,6 +22,12 @@ namespace {
             return std::make_shared<ShortcutMacroData>(id, modifiers, hidCode);
         }
 
+        if (typeArg == "0x02") {
+            auto consumerControlCode = utils::strings::atou16(args[3], 16);
+
+            return std::make_shared<ConsumerControlMacroData>(id, consumerControlCode);
+        }
+
         // TODO support the sequence type
 
         logger->error("Unsupported macro type: %.*s", typeArg.length(), typeArg.data());

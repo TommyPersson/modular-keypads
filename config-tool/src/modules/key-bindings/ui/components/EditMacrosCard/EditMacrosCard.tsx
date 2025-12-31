@@ -7,8 +7,8 @@ import FileUploadIcon from "@mui/icons-material/FileUpload"
 import FormatListNumberedOutlinedIcon from "@mui/icons-material/FormatListNumberedOutlined"
 import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
 import KeyboardOutlinedIcon from "@mui/icons-material/KeyboardOutlined"
-import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined"
 import TimesOneMobiledataOutlinedIcon from "@mui/icons-material/TimesOneMobiledataOutlined"
+import EmojiPeopleOutlinedIcon from '@mui/icons-material/EmojiPeopleOutlined';
 
 import {
   Button,
@@ -30,12 +30,14 @@ import {
 import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
 import { DeleteMacroCommand } from "@src/modules/key-bindings/commands"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { consumerControlCodes } from "@src/modules/key-bindings/data/consumerControlCodes"
 import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
+  type ConsumerControlMacroDefinition,
   type HIDAction,
   type HIDKeySequenceMacroDefinition,
   type MacroDefinition,
-  type MacroDefinitionType,
+  MacroDefinitionType,
   type Shortcut,
   type ShortcutMacroDefinition,
   type ShortcutSequenceMacroDefinition
@@ -152,12 +154,6 @@ const MacroDefinitionRow = (props: {
               <EditOutlinedIcon fontSize={"small"} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Run Macro Now"}>
-            <IconButton onClick={() => {
-            }} size={"small"}>
-              <PlayCircleOutlinedIcon fontSize={"small"} />
-            </IconButton>
-          </Tooltip>
           <CommandButton
             command={DeleteMacroCommand}
             args={{ macro }}
@@ -172,12 +168,14 @@ const MacroDefinitionRow = (props: {
 
 function createMacroDefinitionCellContent(macro: MacroDefinition) {
   switch (macro.type) {
-    case "Shortcut":
+    case MacroDefinitionType.Shortcut:
       return <ShortcutMacroCellContent macro={macro} />
-    case "ShortcutSequence":
+    case  MacroDefinitionType.ShortcutSequence:
       return <ShortcutSequenceMacroCellContent macro={macro} />
-    case "HIDKeySequence":
+    case  MacroDefinitionType.HIDKeySequence:
       return <HIDKeySequenceMacroCellContent macro={macro} />
+    case MacroDefinitionType.ConsumerControl:
+      return <ConsumerControlMacroCellContent macro={macro} />
     default:
       return null
   }
@@ -343,6 +341,24 @@ const HIDActionVisualization = (props: {
   )
 }
 
+
+const ConsumerControlMacroCellContent = (props: {
+  macro: ConsumerControlMacroDefinition
+}) => {
+  const { macro } = props
+  const code = consumerControlCodes.byUsageId[macro.usageId]
+  if (!code) {
+    return null
+  }
+  return (
+    <Chip
+      label={<><strong>{code.usageName}</strong> (0x{macro.usageId.toString(16)})</>}
+      size={"small"}
+      color={"primary"}
+    />
+  )
+}
+
 const MacroTypeVisualization = (props: {
   type: MacroDefinitionType
 }) => {
@@ -372,6 +388,12 @@ const MacroTypeVisualization = (props: {
             <KeyboardOutlinedIcon fontSize={"small"} />
             <FormatListNumberedOutlinedIcon fontSize={"small"} />
           </Stack>
+        </Tooltip>
+      )
+    case MacroDefinitionType.ConsumerControl:
+      return (
+        <Tooltip title={"Consumer Control"}>
+          <EmojiPeopleOutlinedIcon fontSize={"small"} />
         </Tooltip>
       )
   }

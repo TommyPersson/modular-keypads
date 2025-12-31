@@ -85,7 +85,6 @@ type EditMacroDialogState = {
   title: string
   macroDefinition: MacroDefinition
   willOverwriteExistingMacro: boolean
-  canSave: boolean
   handleMacroNameChange: (name: string) => void
   handleMacroTypeChange: (type: MacroDefinitionType) => void
   handleMacroDefinitionChange: (definition: MacroDefinition) => void
@@ -124,7 +123,6 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
     () => storedMacros.map(it => it.id).includes(macroDefinition.name) && macroDefinition.name !== macro?.name,
     [storedMacros, macroDefinition.name, macro]
   )
-  const canSave = canSaveMacro(macroDefinition)
 
   const title = macroDefinition.id < 1 ? "Create Macro" : "Edit Macro"
 
@@ -140,20 +138,10 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
     title: title,
     macroDefinition: macroDefinition,
     willOverwriteExistingMacro: willOverwriteExistingMacro,
-    canSave: canSave,
     handleMacroNameChange: handleMacroNameChange,
     handleMacroTypeChange: handleMacroTypeChange,
     handleMacroDefinitionChange: setMacroDefinition,
     handleClose: handleClose,
-  }
-}
-
-function canSaveMacro(macro: MacroDefinition) {
-  switch (macro.type) {
-    case MacroDefinitionType.Shortcut:
-      return macro.shortcut.hidCode > 0
-    default:
-      return false
   }
 }
 
