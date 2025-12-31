@@ -3,7 +3,8 @@ import type { Shortcut } from "./Shortcut"
 export enum MacroDefinitionType {
   Shortcut = "Shortcut",
   ShortcutSequence = "ShortcutSequence",
-  HIDKeySequence = "HIDKeySequence"
+  ConsumerControl = "ConsumerControl",
+  HIDKeySequence = "HIDKeySequence",
 }
 
 export type MacroDefinitionBase = {
@@ -22,6 +23,11 @@ export type ShortcutSequenceMacroDefinition = MacroDefinitionBase & {
   shortcuts: Shortcut[]
 }
 
+export type ConsumerControlMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.ConsumerControl
+  usageId: number
+}
+
 export type HIDActionType = "Press" | "Release"
 
 export type HIDAction = {
@@ -37,5 +43,6 @@ export type HIDKeySequenceMacroDefinition = MacroDefinitionBase & {
 
 export type MacroDefinition =
   | ShortcutMacroDefinition
+  | ConsumerControlMacroDefinition
   | ShortcutSequenceMacroDefinition
   | HIDKeySequenceMacroDefinition
