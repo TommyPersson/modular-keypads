@@ -1,34 +1,8 @@
+import type { DeviceCommand } from "@src/modules/device/facade/commands/DeviceCommand"
 import type { KeyBinding, KeyBindingTrigger, MacroDefinition } from "@src/modules/key-bindings/models"
 import type { DateTime } from "luxon"
 import { Observable } from "rxjs"
-
-export type DeviceInformation = {
-  readonly deviceId: string
-  readonly deviceFirmwareVersion: string
-  readonly deviceType: string
-  readonly deviceAddress: number
-  readonly deviceName: string
-  readonly deviceRegisterNames: string[]
-}
-
-export type DeviceRegisterValues = { [index: string]: number }
-
-export type BaseCapability = {
-  type: string
-  index: number
-}
-
-export type PushButtonCapability = BaseCapability & {
-  type: "PushButton"
-  number: number
-}
-
-export type RotaryEncoderCapability = BaseCapability & {
-  type: "RotaryEncoder"
-  number: number
-}
-
-export type DeviceCapability = PushButtonCapability | RotaryEncoderCapability
+import type { DeviceCapability, DeviceInformation, DeviceRegisterValues } from "../models"
 
 export interface DeviceFacade {
   connect(): Promise<void>
@@ -58,7 +32,7 @@ export interface DeviceFacade {
 
   resetDevice(): Promise<void>
 
-  performPing(): Promise<string>
+  executeCommand<TResult>(command: DeviceCommand<TResult>): Promise<TResult>
 
   logs$: Observable<RawLogMessage>
   notifications$: Observable<NotificationMessage>

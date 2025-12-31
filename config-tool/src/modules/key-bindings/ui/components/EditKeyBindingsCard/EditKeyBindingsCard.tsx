@@ -21,9 +21,9 @@ import {
   Typography
 } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
-import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/facade"
 import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 import { type RotaryEncoderState, useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
+import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/models"
 import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
 import { ListDeviceCapabilitiesQuery } from "@src/modules/device/queries/ListDeviceCapabilitiesQuery"
 import { ClearKeyBindingCommand } from "@src/modules/key-bindings/commands"

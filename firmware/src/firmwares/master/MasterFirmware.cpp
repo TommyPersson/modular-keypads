@@ -98,12 +98,12 @@ void MasterFirmware::loop() {
 
 // TODO allow connected devices to use open drain outputs to signal their presence?
 void MasterFirmware::refreshConnectedDevices() {
-    DeviceScanner scanner(serviceLocator.i2cClient);
-    auto scanResult = scanner.scan();
-
     allDevices.clear();
     allDevices.push_back(localDevice.get());
     connectedDevices.clear();
+
+    DeviceScanner scanner(serviceLocator.i2cClient);
+    auto scanResult = scanner.scan();
     for (const auto& device : scanResult) {
         logger->info("Found device at %i: %08llx", device->getConfiguration().address, device->getConfiguration().id);
         logger->info("Device name: %s", device->getConfiguration().name.c_str());

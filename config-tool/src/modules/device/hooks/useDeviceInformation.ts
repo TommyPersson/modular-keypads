@@ -1,5 +1,5 @@
 import { useDeviceFacade } from "@src/modules/device/context"
-import type { DeviceInformation } from "@src/modules/device/facade"
+import type { DeviceInformation } from "@src/modules/device/models"
 import { GetDeviceInformationQuery } from "@src/modules/device/queries"
 import { useQuery } from "@tanstack/react-query"
 

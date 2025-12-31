@@ -21,12 +21,13 @@ import {
   InputLabel,
   type SelectChangeEvent
 } from "@mui/material"
+import type { DeviceInformation } from "@src/modules/device/models"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { type ChangeEvent, Fragment, useCallback, useEffect, useState } from "react"
 import { queryClient } from "@src/utils/queryClient"
 import { PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
-import type { DeviceFacade, DeviceInformation } from "@src/modules/device/facade"
+import type { DeviceFacade } from "@src/modules/device/facade"
 import { GetDeviceInformationQuery } from "@src/modules/device/queries"
 
 export const DeviceInformationCard = () => {

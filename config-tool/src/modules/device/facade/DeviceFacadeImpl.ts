@@ -1,3 +1,5 @@
+import type { DeviceCommand } from "@src/modules/device/facade/commands/DeviceCommand"
+import type { DeviceCapability, DeviceInformation, DeviceRegisterValues } from "@src/modules/device/models"
 import {
   createModifierFlags,
   type KeyBinding,
@@ -14,10 +16,7 @@ import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type {
-  DeviceCapability,
   DeviceFacade,
-  DeviceInformation,
-  DeviceRegisterValues,
   NotificationMessage,
   RawLogMessage
 } from "./DeviceFacade"
@@ -93,10 +92,6 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
   async disconnect(): Promise<void> {
     this.disconnectAbortController?.abort("disconnecting")
-  }
-
-  async performPing(): Promise<string> {
-    return await this.sendSingleLineResponseCommand("ping", ["a", "b", "c"])
   }
 
   async resetDevice(): Promise<void> {
@@ -369,12 +364,23 @@ export class DeviceFacadeImpl implements DeviceFacade {
     await this.sendWriteCommand("set.key.binding", args)
   }
 
-  private async sendCommand(str: string, args: string[] = []): Promise<string[]> {
+  async executeCommand<TResult>(command: DeviceCommand<TResult>): Promise<TResult> {
+    const type = command.type
+    const args = command.arguments
+
+    const response = await this.sendCommand(type, args)
+
+    const result = command.parseResponse(response)
+
+    return result
+  }
+
+  private async sendCommand(type: string, args: string[] = []): Promise<string[]> {
     if (!this.commandExecutor) {
       throw new Error("Not connected")
     }
 
-    return this.commandExecutor?.sendCommand(str, args)
+    return this.commandExecutor?.sendCommand(type, args)
   }
 
   private async sendSingleLineResponseCommand(str: string, args: string[] = []): Promise<string> {

@@ -21,7 +21,7 @@ export class DeviceCommandExecutor {
   ) {
   }
 
-  async sendCommand(str: string, args: string[]): Promise<string[]> {
+  async sendCommand(type: string, args: string[]): Promise<string[]> {
     const writer = this.writer
     if (!writer) {
       throw new Error("Not connected")
@@ -34,7 +34,7 @@ export class DeviceCommandExecutor {
     try {
       await this.sendMutex.acquire(this.mutexTimeoutMs)
 
-      const packet = this.formatPacket(commandId, str, args)
+      const packet = this.formatPacket(commandId, type, args)
 
       console.debug(`Sending packet: '${packet.text}'`)
 
@@ -101,9 +101,9 @@ export class DeviceCommandExecutor {
     return commandId
   }
 
-  private formatPacket(commandId: number, str: string, args: string[]): CommandPacket {
+  private formatPacket(commandId: number, type: string, args: string[]): CommandPacket {
     const encoder = new TextEncoder()
-    let text = `${commandId}:${str}`
+    let text = `${commandId}:${type}`
     if (args.length > 0) {
       text += `:${args.join(",")}`
     }

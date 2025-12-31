@@ -9,6 +9,7 @@
 #include "commands/ReadDeviceNameCommandHandler.h"
 #include "commands/ReadDeviceTypeCommandHandler.h"
 #include "commands/ReadRegisterCommandHandler.h"
+#include "commands/ReadMetricsCommandHandler.h"
 #include "commands/ResetDeviceCommandHandler.h"
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "commands/SetDeviceNameCommandHandler.h"
@@ -40,6 +41,7 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));
+    this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>());
 
     moduleFactories.emplace_back(std::make_unique<devices::m::DeviceModuleFactoryM>());
     moduleFactories.emplace_back(std::make_unique<devices::a::DeviceModuleFactoryA>());

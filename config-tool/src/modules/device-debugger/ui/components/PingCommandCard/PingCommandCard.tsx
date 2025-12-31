@@ -1,5 +1,6 @@
 import { Button, Card, CardContent, Typography } from "@mui/material"
 import { useDeviceFacade } from "@src/modules/device/context"
+import { PingDeviceCommand } from "@src/modules/device/facade/commands/PingDeviceCommand"
 import { useCallback, useState } from "react"
 
 
@@ -10,7 +11,7 @@ export const PingCommandCard = () => {
 
   const handleClick = useCallback(async () => {
     setResponse(null)
-    const response = await deviceFacade.performPing()
+    const response = await deviceFacade.executeCommand(new PingDeviceCommand())
     setResponse(response)
   }, [deviceFacade, setResponse])
 
