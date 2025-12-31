@@ -1,7 +1,7 @@
 import UsbOffOutlinedIcon from "@mui/icons-material/UsbOffOutlined"
 import UsbOutlinedIcon from "@mui/icons-material/UsbOutlined"
 import { AppBar, Button, Chip, FormControlLabel, Stack, Switch, Toolbar, Tooltip, Typography } from "@mui/material"
-import { DeviceLogsDropDown } from "@src/modules/device-debugger/ui"
+import { DeviceLogsDropDown, DeviceMetricsDropDown } from "@src/modules/device-debugger/ui"
 import { useDeviceContext } from "@src/modules/device/context"
 import { GetTestModeQuery } from "@src/modules/device/queries/GetTestModeQuery"
 import { queryClient } from "@src/utils/queryClient"
@@ -62,6 +62,7 @@ export const MainAppBar = () => {
         <div style={{ flexGrow: 1 }} />
 
         <Stack direction={"row"} spacing={2} alignItems={"center"}>
+          <DeviceMetricsDropDown />
           <DeviceLogsDropDown />
 
           <Chip
