@@ -4,6 +4,7 @@ export enum MacroDefinitionType {
   Shortcut = "Shortcut",
   ShortcutSequence = "ShortcutSequence",
   ConsumerControl = "ConsumerControl",
+  SystemControl = "SystemControl",
   HIDKeySequence = "HIDKeySequence",
 }
 
@@ -28,6 +29,11 @@ export type ConsumerControlMacroDefinition = MacroDefinitionBase & {
   usageId: number
 }
 
+export type SystemControlMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.SystemControl
+  code: number
+}
+
 export type HIDActionType = "Press" | "Release"
 
 export type HIDAction = {
@@ -45,4 +51,5 @@ export type MacroDefinition =
   | ShortcutMacroDefinition
   | ConsumerControlMacroDefinition
   | ShortcutSequenceMacroDefinition
+  | SystemControlMacroDefinition
   | HIDKeySequenceMacroDefinition

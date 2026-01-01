@@ -15,7 +15,7 @@ namespace {
     std::vector<uint8_t> getKeyCodesFromModifierFlags(const uint8_t modifiers) {
         std::vector<uint8_t> result(8);
 
-        std::bitset<8> flags(modifiers);
+        const std::bitset<8> flags(modifiers);
 
         if (flags.test(0)) result.push_back(0xe0); // Control (L)
         if (flags.test(1)) result.push_back(0xe1); // Shift (L)
@@ -58,6 +58,14 @@ namespace {
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
                 .actions = std::vector{usb::Action::consumerControl(data.usageId)},
+            });
+        }
+
+        if (macro.data->type == SYSTEM_CONTROL) {
+            const auto& data = dynamic_cast<SystemControlMacroData&>(*macro.data);
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = std::vector{usb::Action::systemControl(data.code)},
             });
         }
 

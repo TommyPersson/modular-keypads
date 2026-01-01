@@ -47,8 +47,6 @@ namespace {
             return std::allocate_shared<Macro>(macroAllocator, name, macroData);
         }
 
-        // TODO the sequence type
-
         return nullptr;
     }
 
@@ -74,7 +72,6 @@ namespace {
             );
         }
 
-        // TODO the sequence type
         return "";
     }
 }

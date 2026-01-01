@@ -72,6 +72,12 @@ void usb::RealConnection::sendAction(Action& action) {
         consumerControl.press(consumerControlAction->usageId);
         consumerControl.release();
     }
+
+    const auto systemControlAction = dynamic_cast<SystemControlAction*>(&action);
+    if (systemControlAction != nullptr) {
+        systemControl.press(systemControlAction->code);
+        systemControl.release();
+    }
 }
 
 #endif

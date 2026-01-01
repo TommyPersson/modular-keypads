@@ -4,7 +4,7 @@ namespace common::macros {
     class ConsumerControlMacroDataSerializer final
         : public MacroDataStorageSerializer<ConsumerControlMacroData> {
     public:
-        bool handles(MacroType type) override {
+        bool handles(const MacroType type) override {
             return type == CONSUMER_CONTROL;
         };
 
@@ -21,7 +21,8 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             Arena& arena
         ) override {
-            auto usageIdPart = parts[0];
+            const auto usageIdPart = parts[0];
+
             return std::make_shared<ConsumerControlMacroData>(
                 macroId,
                 utils::strings::atou16(usageIdPart, 16)
@@ -32,7 +33,7 @@ namespace common::macros {
     class ShortcutMacroDataSerializer final
         : public MacroDataStorageSerializer<ShortcutMacroData> {
     public:
-        bool handles(MacroType type) override {
+        bool handles(const MacroType type) override {
             return type == SHORTCUT;
         };
 
@@ -50,8 +51,8 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             Arena& arena
         ) override {
-            auto modifiersPart = parts[0];
-            auto hidCodePart = parts[1];
+            const auto modifiersPart = parts[0];
+            const auto hidCodePart = parts[1];
 
             return std::make_shared<ShortcutMacroData>(
                 macroId,
@@ -61,8 +62,38 @@ namespace common::macros {
         }
     };
 
+    class SystemControlDataSerializer final
+        : public MacroDataStorageSerializer<SystemControlMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == SYSTEM_CONTROL;
+        };
+
+        std::string_view serialize(const SystemControlMacroData& data, Arena& arena) override {
+            return arena::strings::sprintf(
+                arena,
+                "0x%02x",
+                data.code
+            );
+        }
+
+        std::shared_ptr<SystemControlMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            Arena& arena
+        ) override {
+            const auto codePart = parts[0];
+
+            return std::make_shared<SystemControlMacroData>(
+                macroId,
+                utils::strings::atol(codePart, 16)
+            );
+        }
+    };
+
     std::vector<void*> macroDataSerializers{
         new ShortcutMacroDataSerializer{},
         new ConsumerControlMacroDataSerializer{},
+        new SystemControlDataSerializer{},
     };
 }

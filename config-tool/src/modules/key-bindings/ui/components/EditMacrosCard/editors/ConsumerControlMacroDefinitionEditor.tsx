@@ -9,13 +9,13 @@ export const ConsumerControlMacroDefinitionEditor = (props: {
 }) => {
   const { value, onChange } = props
 
-  const code = value?.usageId ?? null
+  const usageId = value?.usageId ?? null
 
   const handleCodeChange = useCallback((usageId: number | null) => {
     onChange({ ...value, usageId: usageId ?? 0 })
   }, [value, onChange])
 
-  return <ConsumerControlCodeEditor value={code} onChange={handleCodeChange} />
+  return <ConsumerControlCodeEditor value={usageId} onChange={handleCodeChange} />
 }
 
 export const ConsumerControlCodeEditor = (props: {

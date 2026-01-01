@@ -1,4 +1,5 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
+import ComputerOutlinedIcon from "@mui/icons-material/ComputerOutlined"
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 import EmojiPeopleOutlinedIcon from "@mui/icons-material/EmojiPeopleOutlined"
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined"
@@ -30,6 +31,7 @@ import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
 import { DeleteMacroCommand } from "@src/modules/key-bindings/commands"
 import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import { consumerControlCodes } from "@src/modules/key-bindings/data/consumerControlCodes"
+import { systemControlCodes } from "@src/modules/key-bindings/data/systemControlCodes"
 import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import {
   type ConsumerControlMacroDefinition,
@@ -39,7 +41,8 @@ import {
   MacroDefinitionType,
   type Shortcut,
   type ShortcutMacroDefinition,
-  type ShortcutSequenceMacroDefinition
+  type ShortcutSequenceMacroDefinition,
+  type SystemControlMacroDefinition
 } from "@src/modules/key-bindings/models"
 import { EditMacroDialog } from "@src/modules/key-bindings/ui/components/EditMacrosCard/EditMacroDialog"
 import { type ComponentProps, useCallback, useState } from "react"
@@ -169,12 +172,14 @@ function createMacroDefinitionCellContent(macro: MacroDefinition) {
   switch (macro.type) {
     case MacroDefinitionType.Shortcut:
       return <ShortcutMacroCellContent macro={macro} />
-    case  MacroDefinitionType.ShortcutSequence:
+    case MacroDefinitionType.ShortcutSequence:
       return <ShortcutSequenceMacroCellContent macro={macro} />
-    case  MacroDefinitionType.HIDKeySequence:
+    case MacroDefinitionType.HIDKeySequence:
       return <HIDKeySequenceMacroCellContent macro={macro} />
     case MacroDefinitionType.ConsumerControl:
       return <ConsumerControlMacroCellContent macro={macro} />
+    case MacroDefinitionType.SystemControl:
+      return <SystemControlMacroCellContent macro={macro} />
     default:
       return null
   }
@@ -340,7 +345,6 @@ const HIDActionVisualization = (props: {
   )
 }
 
-
 const ConsumerControlMacroCellContent = (props: {
   macro: ConsumerControlMacroDefinition
 }) => {
@@ -352,6 +356,23 @@ const ConsumerControlMacroCellContent = (props: {
   return (
     <Chip
       label={<><strong>{code.usageName}</strong> (0x{macro.usageId.toString(16)})</>}
+      size={"small"}
+      color={"primary"}
+    />
+  )
+}
+
+const SystemControlMacroCellContent = (props: {
+  macro: SystemControlMacroDefinition
+}) => {
+  const { macro } = props
+  const code = systemControlCodes.byCode[macro.code]
+  if (!code) {
+    return null
+  }
+  return (
+    <Chip
+      label={<><strong>{code.description}</strong></>}
       size={"small"}
       color={"primary"}
     />
@@ -392,6 +413,12 @@ const MacroTypeVisualization = (props: {
       return (
         <Tooltip title={"Consumer Control"}>
           <EmojiPeopleOutlinedIcon fontSize={"small"} />
+        </Tooltip>
+      )
+    case MacroDefinitionType.SystemControl:
+      return (
+        <Tooltip title={"System Control"}>
+          <ComputerOutlinedIcon fontSize={"small"} />
         </Tooltip>
       )
   }

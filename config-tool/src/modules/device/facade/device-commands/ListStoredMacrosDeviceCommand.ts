@@ -3,7 +3,7 @@ import {
   type MacroDefinition,
   MacroDefinitionType,
   parseModifierFlags,
-  type ShortcutMacroDefinition
+  type ShortcutMacroDefinition, type SystemControlMacroDefinition
 } from "@src/modules/key-bindings/models"
 import { DeviceCommand } from "./DeviceCommand"
 
@@ -43,6 +43,18 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
           type: MacroDefinitionType.ConsumerControl,
           usageId
         } satisfies ConsumerControlMacroDefinition
+      }
+
+      if (type === 0x03) {
+        const codePart = restParts[0]
+        const code = parseInt(codePart, 16)
+
+        return {
+          id,
+          name,
+          type: MacroDefinitionType.SystemControl,
+          code
+        } satisfies SystemControlMacroDefinition
       }
 
       return null

@@ -23,6 +23,9 @@ import { ShortcutMacroDefinitionEditor } from "@src/modules/key-bindings/ui/comp
 import {
   ConsumerControlMacroDefinitionEditor
 } from "@src/modules/key-bindings/ui/components/EditMacrosCard/editors/ConsumerControlMacroDefinitionEditor"
+import {
+  SystemControlMacroDefinitionEditor
+} from "@src/modules/key-bindings/ui/components/EditMacrosCard/editors/SystemControlMacroDefinitionEditor"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const EmptyArray: any[] = []
@@ -164,6 +167,13 @@ function createDefaultMacroDefinition(type: MacroDefinitionType, name: string): 
         type: MacroDefinitionType.ConsumerControl,
         usageId: 0
       }
+    case MacroDefinitionType.SystemControl:
+      return {
+        id: 0,
+        name: name,
+        type: MacroDefinitionType.SystemControl,
+        code: 0
+      }
     default:
       throw new Error(`Unsupported type: ${type}`)
   }
@@ -237,6 +247,19 @@ const MacroTypeSelector = memo((props: {
         </Grid>
         <Grid size={4}>
           <RadioCard
+            label={"System Control"}
+            value={MacroDefinitionType.SystemControl}
+            onClick={onChange}
+            description={
+              <>
+                The <strong>System Control</strong> specification lists a few system power related controls.
+              </>
+            }
+            fillHeight
+          />
+        </Grid>
+        <Grid size={4}>
+          <RadioCard
             label={"Shortcut Sequence"}
             value={MacroDefinitionType.ShortcutSequence}
             onClick={onChange}
@@ -292,6 +315,10 @@ const MacroDefinitionEditor = (props: {
           </Alert>
           <ConsumerControlMacroDefinitionEditor value={value} onChange={onChange} />
         </>
+      )
+    case MacroDefinitionType.SystemControl:
+      return (
+        <SystemControlMacroDefinitionEditor value={value} onChange={onChange} />
       )
     default:
       return null // TODO
