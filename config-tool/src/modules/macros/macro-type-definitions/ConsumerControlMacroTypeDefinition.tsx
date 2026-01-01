@@ -1,7 +1,10 @@
 import EmojiPeopleOutlinedIcon from "@mui/icons-material/EmojiPeopleOutlined"
 import { Alert, Tooltip } from "@mui/material"
-import { type ConsumerControlMacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
-import type { MacroTypeDefinition } from "@src/modules/macro-types/MacroTypeDefinition"
+import {
+  type ConsumerControlMacroDefinition,
+  MacroDefinitionType,
+  type MacroTypeDefinition
+} from "@src/modules/macros/models"
 import { ConsumerControlMacroCellContent } from "./components/ConsumerControlMacroCellContent"
 import { ConsumerControlMacroDefinitionEditor } from "./components/ConsumerControlMacroDefinitionEditor"
 

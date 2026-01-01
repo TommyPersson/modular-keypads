@@ -1,4 +1,4 @@
-import type { ConsumerControlCode } from "@src/modules/key-bindings/models"
+import type { ConsumerControlCode } from "../models"
 
 export const allConsumerControlCodes: ConsumerControlCode[] = [
   // @formatter:off

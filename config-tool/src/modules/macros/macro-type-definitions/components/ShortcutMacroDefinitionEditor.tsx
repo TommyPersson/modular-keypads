@@ -14,8 +14,8 @@ import {
   useTheme
 } from "@mui/material"
 import { TagSelect } from "@src/modules/common/components"
-import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
-import type { KeyboardKeyCode, Shortcut, ShortcutMacroDefinition } from "@src/modules/key-bindings/models"
+import { keyboadKeyCodes } from "@src/modules/macros/data"
+import type { KeyboardKeyCode, Shortcut, ShortcutMacroDefinition } from "@src/modules/macros/models"
 import { type ComponentProps, useCallback, useEffect, useState } from "react"
 
 import classes from "./ShortcutMacroDefinitionEditor.module.css"

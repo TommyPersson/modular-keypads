@@ -1,6 +1,6 @@
 import { Autocomplete, Box, FormControl, Stack, TextField } from "@mui/material"
-import { systemControlCodes } from "@src/modules/key-bindings/data/systemControlCodes"
-import type { SystemControlCode, SystemControlMacroDefinition } from "@src/modules/key-bindings/models"
+import { systemControlCodes } from "@src/modules/macros/data/systemControlCodes"
+import type { SystemControlCode, SystemControlMacroDefinition } from "@src/modules/macros/models"
 import { useCallback } from "react"
 
 export const SystemControlMacroDefinitionEditor = (props: {

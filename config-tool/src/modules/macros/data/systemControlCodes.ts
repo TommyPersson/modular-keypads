@@ -1,4 +1,4 @@
-import type { SystemControlCode } from "@src/modules/key-bindings/models"
+import type { SystemControlCode } from "../models"
 
 // These codes are specified by the ESP library, rather than the actual USB HID spec.
 

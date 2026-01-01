@@ -1,6 +1,6 @@
 import { Autocomplete, Box, FormControl, Stack, TextField } from "@mui/material"
-import { consumerControlCodes } from "@src/modules/key-bindings/data/consumerControlCodes"
-import type { ConsumerControlCode, ConsumerControlMacroDefinition } from "@src/modules/key-bindings/models"
+import { consumerControlCodes } from "@src/modules/macros/data/consumerControlCodes"
+import type { ConsumerControlCode, ConsumerControlMacroDefinition } from "@src/modules/macros/models"
 import { useCallback, useMemo } from "react"
 
 export const ConsumerControlMacroDefinitionEditor = (props: {

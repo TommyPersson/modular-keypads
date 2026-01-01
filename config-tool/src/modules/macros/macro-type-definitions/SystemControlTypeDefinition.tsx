@@ -1,11 +1,12 @@
 import ComputerOutlinedIcon from "@mui/icons-material/ComputerOutlined"
 import { Tooltip } from "@mui/material"
-import { MacroDefinitionType, type SystemControlMacroDefinition } from "@src/modules/key-bindings/models"
-import { SystemControlMacroCellContent } from "@src/modules/macro-types/components/SystemControlMacroCellContent"
 import {
-  SystemControlMacroDefinitionEditor
-} from "@src/modules/macro-types/components/SystemControlMacroDefinitionEditor"
-import type { MacroTypeDefinition } from "@src/modules/macro-types/MacroTypeDefinition"
+  MacroDefinitionType,
+  type MacroTypeDefinition,
+  type SystemControlMacroDefinition
+} from "@src/modules/macros/models"
+import { SystemControlMacroCellContent } from "./components/SystemControlMacroCellContent"
+import { SystemControlMacroDefinitionEditor } from "./components/SystemControlMacroDefinitionEditor"
 
 
 export const SystemControlTypeDefinition: MacroTypeDefinition<SystemControlMacroDefinition> = {

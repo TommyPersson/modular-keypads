@@ -16,11 +16,11 @@ import {
   Tooltip
 } from "@mui/material"
 import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
-import { DeleteMacroCommand } from "@src/modules/key-bindings/commands"
-import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
-import { EditMacroDialog } from "@src/modules/key-bindings/ui/components/EditMacrosCard/EditMacroDialog"
-import { macroTypeDefinitionsByType } from "@src/modules/macro-types"
+import { DeleteMacroCommand } from "@src/modules/macros/commands"
+import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
+import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { EditMacroDialog } from "@src/modules/macros/ui/components/EditMacrosCard/EditMacroDialog"
 import { useCallback, useState } from "react"
 
 export const EditMacrosCard = () => {
@@ -54,8 +54,15 @@ export const EditMacrosCard = () => {
           </>
         }
       />
-      <EditMacroDialog macro={macroBeingEdited} isOpen={isEditDialogOpen} onClose={handleEditDialogClosed} />
-      <ExistingMacrosCardContent macros={storedMacros} onEditClick={handleEditClicked} />
+      <EditMacroDialog
+        macro={macroBeingEdited}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClosed}
+      />
+      <ExistingMacrosCardContent
+        macros={storedMacros}
+        onEditClick={handleEditClicked}
+      />
     </Card>
   )
 }
@@ -143,7 +150,7 @@ const MacroDefinitionRow = (props: {
 }
 
 function createMacroDefinitionCellContent(macro: MacroDefinition) {
-  const typeDefinition = macroTypeDefinitionsByType[macro.type]
+  const typeDefinition = macroTypeDefinitions.byType[macro.type]
   if (typeDefinition) {
     return <typeDefinition.macroTableCellComponent macro={macro} />
   }
@@ -163,7 +170,7 @@ const MacroTypeVisualization = (props: {
 }) => {
   const { type } = props
 
-  const typeDefinition = macroTypeDefinitionsByType[type]
+  const typeDefinition = macroTypeDefinitions.byType[type]
   if (typeDefinition) {
     return <typeDefinition.typeVisualizationComponent />
   }

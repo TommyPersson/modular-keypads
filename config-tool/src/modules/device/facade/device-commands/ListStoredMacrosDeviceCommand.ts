@@ -1,5 +1,5 @@
-import { type MacroDefinition } from "@src/modules/key-bindings/models"
-import { macroTypeDefinitionsByCode } from "@src/modules/macro-types"
+import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
+import type { MacroDefinition } from "@src/modules/macros/models"
 import { DeviceCommand } from "./DeviceCommand"
 
 export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition[]> {
@@ -14,9 +14,9 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
 
       const dataArgs = restParts
 
-      const typeDefinition = macroTypeDefinitionsByCode[type]
+      const typeDefinition = macroTypeDefinitions.byCode[type]
       if (typeDefinition) {
-        return typeDefinition.parseDeviceResponse(id, name,dataArgs)
+        return typeDefinition.parseDeviceResponse(id, name, dataArgs)
       }
 
       return null

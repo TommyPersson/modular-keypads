@@ -1,7 +1,7 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import { Chip, Stack } from "@mui/material"
-import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
-import type { Shortcut } from "@src/modules/key-bindings/models"
+import { keyboadKeyCodes } from "@src/modules/macros/data"
+import type { Shortcut } from "@src/modules/macros/models"
 
 export const ShortcutVisualization = (props: {
   shortcut: Shortcut

@@ -1,6 +1,6 @@
 import { Chip } from "@mui/material"
-import { consumerControlCodes } from "@src/modules/key-bindings/data/consumerControlCodes"
-import type { ConsumerControlMacroDefinition } from "@src/modules/key-bindings/models"
+import { consumerControlCodes } from "@src/modules/macros/data/consumerControlCodes"
+import type { ConsumerControlMacroDefinition } from "@src/modules/macros/models"
 
 export const ConsumerControlMacroCellContent = (props: {
   macro: ConsumerControlMacroDefinition

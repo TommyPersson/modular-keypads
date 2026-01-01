@@ -1,1 +1,1 @@
-export * from "./useStoredMacrosQuery"
+export * from "./useKeyBindingsQuery"

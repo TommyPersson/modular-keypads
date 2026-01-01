@@ -1,6 +1,6 @@
 import { Chip } from "@mui/material"
-import { systemControlCodes } from "@src/modules/key-bindings/data/systemControlCodes"
-import type { SystemControlMacroDefinition } from "@src/modules/key-bindings/models"
+import { systemControlCodes } from "@src/modules/macros/data/systemControlCodes"
+import type { SystemControlMacroDefinition } from "@src/modules/macros/models"
 
 export const SystemControlMacroCellContent = (props: {
   macro: SystemControlMacroDefinition

@@ -1,6 +1,7 @@
 import { Grid } from "@mui/material"
 import { Page } from "@src/modules/common/components"
-import { EditKeyBindingsCard, EditMacrosCard, KeyboardEventsCard } from "@src/modules/key-bindings/ui/components"
+import { EditKeyBindingsCard, KeyboardEventsCard } from "@src/modules/key-bindings/ui/components"
+import { EditMacrosCard } from "@src/modules/macros/ui"
 
 
 export const KeyBindingsPage = () => {

@@ -2,12 +2,13 @@ import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandK
 import { Alert, Tooltip } from "@mui/material"
 import {
   createModifierFlags,
-  MacroDefinitionType, parseModifierFlags,
+  MacroDefinitionType,
+  type MacroTypeDefinition,
+  parseModifierFlags,
   type ShortcutMacroDefinition
-} from "@src/modules/key-bindings/models"
-import { ShortcutMacroCellContent } from "@src/modules/macro-types/components/ShortcutMacroCellContent"
-import { ShortcutMacroDefinitionEditor } from "@src/modules/macro-types/components/ShortcutMacroDefinitionEditor"
-import type { MacroTypeDefinition } from "@src/modules/macro-types/MacroTypeDefinition"
+} from "@src/modules/macros/models"
+import { ShortcutMacroCellContent } from "./components/ShortcutMacroCellContent"
+import { ShortcutMacroDefinitionEditor } from "./components/ShortcutMacroDefinitionEditor"
 
 
 export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefinition> = {

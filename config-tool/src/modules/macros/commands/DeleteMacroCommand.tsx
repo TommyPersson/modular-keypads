@@ -1,14 +1,14 @@
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined"
 import { globalDeviceFacade } from "@src/modules/device/context"
 import { DeleteMacroDeviceCommand } from "@src/modules/device/facade/device-commands/DeleteMacroDeviceCommand"
-import type { MacroDefinition } from "@src/modules/key-bindings/models"
-import { ListStoredMacrosQueryKey } from "@src/modules/key-bindings/queries"
+import type { MacroDefinition } from "@src/modules/macros/models"
+import { ListStoredMacrosQueryKey } from "@src/modules/macros/queries"
 import type { Command } from "@src/utils/commands"
 import { queryClient } from "@src/utils/queryClient"
 
 export const DeleteMacroCommand: Command<{ macro: MacroDefinition }> = {
   mutationOptions: ({
-    mutationKey: ["key-bindings", "DeleteMacroCommand"],
+    mutationKey: ["macros", "DeleteMacroCommand"],
     mutationFn: async ({ macro }) => {
       await globalDeviceFacade.value.executeCommand(new DeleteMacroDeviceCommand(macro.id))
     },

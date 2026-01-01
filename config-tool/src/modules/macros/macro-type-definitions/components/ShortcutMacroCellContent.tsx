@@ -1,4 +1,4 @@
-import type { ShortcutMacroDefinition } from "@src/modules/key-bindings/models"
+import type { ShortcutMacroDefinition } from "@src/modules/macros/models"
 import { ShortcutVisualization } from "./ShortcutVisualization"
 
 export const ShortcutMacroCellContent = (props: {

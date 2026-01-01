@@ -1,17 +1,15 @@
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined"
 import { globalDeviceFacade } from "@src/modules/device/context"
 import { SaveMacroDeviceCommand } from "@src/modules/device/facade/device-commands/SaveMacroDeviceCommand"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
-import {
-  ListKeyBindingsQueryKey,
-  ListStoredMacrosQueryKey
-} from "@src/modules/key-bindings/queries"
+import { ListKeyBindingsQueryKey } from "@src/modules/key-bindings/queries"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { ListStoredMacrosQueryKey } from "@src/modules/macros/queries"
 import type { Command } from "@src/utils/commands"
 import { queryClient } from "@src/utils/queryClient"
 
 export const SaveMacroCommand: Command<{ macro: MacroDefinition }> = {
   mutationOptions: ({
-    mutationKey: ["key-bindings", "SaveMacroCommand"],
+    mutationKey: ["macros", "SaveMacroCommand"],
     mutationFn: async ({ macro }) => {
       await globalDeviceFacade.value.executeCommand(new SaveMacroDeviceCommand(macro))
     },

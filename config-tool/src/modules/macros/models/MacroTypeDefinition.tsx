@@ -1,4 +1,4 @@
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import * as React from "react"
 
 export type MacroTypeDefinition<TMacroDefinition extends MacroDefinition> = {

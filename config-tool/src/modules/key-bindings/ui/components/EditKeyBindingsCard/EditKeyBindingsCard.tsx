@@ -28,16 +28,16 @@ import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConne
 import { ListDeviceCapabilitiesQuery } from "@src/modules/device/queries/ListDeviceCapabilitiesQuery"
 import { ClearKeyBindingCommand } from "@src/modules/key-bindings/commands"
 import { SetKeyBindingCommand } from "@src/modules/key-bindings/commands/SetKeyBindingCommand"
-import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
 import { useKeyBindingsQuery } from "@src/modules/key-bindings/hooks/useKeyBindingsQuery"
 import {
   type KeyBinding,
   KeyBindingTriggerType,
-  type MacroDefinition,
   type PushButtonKeyBindingTrigger,
   RotaryEncoderDirection,
   type RotaryEncoderKeyBindingTrigger
 } from "@src/modules/key-bindings/models"
+import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
+import type { MacroDefinition } from "@src/modules/macros/models"
 import { useCommand } from "@src/utils/commands"
 import { useQuery } from "@tanstack/react-query"
 import { useCallback, useEffect, useMemo, useState } from "react"

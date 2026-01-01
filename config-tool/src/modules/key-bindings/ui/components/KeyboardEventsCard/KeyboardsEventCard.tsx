@@ -19,7 +19,7 @@ import {
   Tooltip
 } from "@mui/material"
 import { EmptyTableRow } from "@src/modules/common/components"
-import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
+import { keyboadKeyCodes } from "@src/modules/macros/data"
 import { takeLast } from "@src/utils/arrays"
 import { useIsAnyModalOpen } from "@src/utils/hooks"
 import { DateTime } from "luxon"

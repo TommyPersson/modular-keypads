@@ -1,5 +1,5 @@
-import { type MacroDefinition } from "@src/modules/key-bindings/models"
-import { macroTypeDefinitionsByType } from "@src/modules/macro-types"
+import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
+import type { MacroDefinition } from "@src/modules/macros/models"
 import { DeviceCommand } from "./DeviceCommand"
 
 export class SaveMacroDeviceCommand extends DeviceCommand<void> {
@@ -13,7 +13,7 @@ export class SaveMacroDeviceCommand extends DeviceCommand<void> {
 
   override get arguments(): string[] {
     const dataArgs = (() => {
-      const typeDefinition = macroTypeDefinitionsByType[this.macro.type]
+      const typeDefinition = macroTypeDefinitions.byType[this.macro.type]
       if (typeDefinition) {
         return typeDefinition.serializeDeviceArguments(this.macro)
       }

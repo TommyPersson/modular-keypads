@@ -12,10 +12,10 @@ import {
   TextField
 } from "@mui/material"
 import { CommandButton, RadioCard } from "@src/modules/common/components"
-import { SaveMacroCommand } from "@src/modules/key-bindings/commands"
-import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
-import { allMacroTypeDefinitions, macroTypeDefinitionsByType } from "@src/modules/macro-types"
+import { SaveMacroCommand } from "@src/modules/macros/commands"
+import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
+import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const EmptyArray: any[] = []
@@ -140,7 +140,7 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
 }
 
 function createDefaultMacroDefinition(type: MacroDefinitionType, name: string): MacroDefinition {
-  const typeDefinition = macroTypeDefinitionsByType[type]
+  const typeDefinition = macroTypeDefinitions.byType[type]
   if (typeDefinition) {
     return typeDefinition.createDefaultMacroDefinition(name)
   }
@@ -186,7 +186,7 @@ const MacroTypeSelector = memo((props: {
       onChange={handleTypeChange}
     >
       <Grid container spacing={2}>
-        {allMacroTypeDefinitions.map(it => (
+        {macroTypeDefinitions.all.map(it => (
           <Grid size={4} key={it.numericCode}>
             <RadioCard
               label={it.displayName}
@@ -209,7 +209,7 @@ const MacroDefinitionEditor = (props: {
   const { value, onChange } = props
   const type = value.type
 
-  const typeDefinition = macroTypeDefinitionsByType[type]
+  const typeDefinition = macroTypeDefinitions.byType[type]
   if (typeDefinition) {
     return (
       <>
