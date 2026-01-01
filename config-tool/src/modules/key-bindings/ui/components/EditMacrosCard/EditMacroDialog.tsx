@@ -14,18 +14,8 @@ import {
 import { CommandButton, RadioCard } from "@src/modules/common/components"
 import { SaveMacroCommand } from "@src/modules/key-bindings/commands"
 import { useStoredMacrosQuery } from "@src/modules/key-bindings/hooks"
-import {
-  type MacroDefinition,
-  MacroDefinitionType,
-  type ShortcutMacroDefinition
-} from "@src/modules/key-bindings/models"
-import { ShortcutMacroDefinitionEditor } from "@src/modules/key-bindings/ui/components/EditMacrosCard/editors"
-import {
-  ConsumerControlMacroDefinitionEditor
-} from "@src/modules/key-bindings/ui/components/EditMacrosCard/editors/ConsumerControlMacroDefinitionEditor"
-import {
-  SystemControlMacroDefinitionEditor
-} from "@src/modules/key-bindings/ui/components/EditMacrosCard/editors/SystemControlMacroDefinitionEditor"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/key-bindings/models"
+import { allMacroTypeDefinitions, macroTypeDefinitionsByType } from "@src/modules/macro-types"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const EmptyArray: any[] = []
@@ -60,7 +50,8 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
       <DialogContent>
         <MacroTypeSelector
           value={state.macroDefinition.type}
-          onChange={state.handleMacroTypeChange} />
+          onChange={state.handleMacroTypeChange}
+        />
       </DialogContent>
       <Divider />
       <DialogContent>
@@ -149,34 +140,12 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
 }
 
 function createDefaultMacroDefinition(type: MacroDefinitionType, name: string): MacroDefinition {
-  switch (type) {
-    case MacroDefinitionType.Shortcut:
-      return {
-        id: 0,
-        name: name,
-        type: MacroDefinitionType.Shortcut,
-        shortcut: {
-          modifiers: [],
-          hidCode: 0
-        },
-      } satisfies ShortcutMacroDefinition
-    case MacroDefinitionType.ConsumerControl:
-      return {
-        id: 0,
-        name: name,
-        type: MacroDefinitionType.ConsumerControl,
-        usageId: 0
-      }
-    case MacroDefinitionType.SystemControl:
-      return {
-        id: 0,
-        name: name,
-        type: MacroDefinitionType.SystemControl,
-        code: 0
-      }
-    default:
-      throw new Error(`Unsupported type: ${type}`)
+  const typeDefinition = macroTypeDefinitionsByType[type]
+  if (typeDefinition) {
+    return typeDefinition.createDefaultMacroDefinition(name)
   }
+
+  throw new Error(`Unsupported type: ${type}`)
 }
 
 const MacroNameEditor = (props: {
@@ -217,71 +186,17 @@ const MacroTypeSelector = memo((props: {
       onChange={handleTypeChange}
     >
       <Grid container spacing={2}>
-        <Grid size={4}>
-          <RadioCard
-            label={"Shortcut"}
-            value={MacroDefinitionType.Shortcut}
-            onClick={onChange}
-            description={
-              <>
-                A <strong>Shortcut</strong> is a single regular key press, possibly combined with
-                modifiers.
-              </>
-            }
-            fillHeight
-          />
-        </Grid>
-        <Grid size={4}>
-          <RadioCard
-            label={"Consumer Control"}
-            value={MacroDefinitionType.ConsumerControl}
-            onClick={onChange}
-            description={
-              <>
-                The <strong>Consumer Control</strong> specification lists many special purpose buttons,
-                including media controls.
-              </>
-            }
-            fillHeight
-          />
-        </Grid>
-        <Grid size={4}>
-          <RadioCard
-            label={"System Control"}
-            value={MacroDefinitionType.SystemControl}
-            onClick={onChange}
-            description={
-              <>
-                The <strong>System Control</strong> specification lists a few system power related controls.
-              </>
-            }
-            fillHeight
-          />
-        </Grid>
-        <Grid size={4}>
-          <RadioCard
-            label={"Shortcut Sequence"}
-            value={MacroDefinitionType.ShortcutSequence}
-            onClick={onChange}
-            description={
-              <>A series of <strong>Shortcuts</strong> executed in sequence.</>
-            }
-            fillHeight
-            disabled
-          />
-        </Grid>
-        <Grid size={4}>
-          <RadioCard
-            label={"HID Sequence"}
-            value={MacroDefinitionType.HIDKeySequence}
-            onClick={onChange}
-            description={
-              <>A series of raw <strong>HID events</strong> executed in sequence.</>
-            }
-            fillHeight
-            disabled
-          />
-        </Grid>
+        {allMacroTypeDefinitions.map(it => (
+          <Grid size={4} key={it.numericCode}>
+            <RadioCard
+              label={it.displayName}
+              value={it.type}
+              onClick={onChange}
+              description={it.description}
+              fillHeight
+            />
+          </Grid>
+        ))}
       </Grid>
     </RadioGroup>
   )
@@ -294,33 +209,15 @@ const MacroDefinitionEditor = (props: {
   const { value, onChange } = props
   const type = value.type
 
-  switch (type) {
-    case MacroDefinitionType.Shortcut:
-      return (
-        <>
-          <Alert severity={"info"}>
-            Keep in mind that the keys shown in HID code list are the raw HID descriptions. The values has not been
-            updated to match the current locale. For example, the <code>Q</code> key should be selected instead of
-            <code>A</code> in AZERTY layouts.
-          </Alert>
-          <ShortcutMacroDefinitionEditor value={value} onChange={onChange} />
-        </>
-      )
-    case MacroDefinitionType.ConsumerControl:
-      return (
-        <>
-          <Alert severity={"info"}>
-            Keep in mind that, while the specification includes a lot of seemingly useful codes, very few of them are
-            usable in most operating systems without dedicated application support.
-          </Alert>
-          <ConsumerControlMacroDefinitionEditor value={value} onChange={onChange} />
-        </>
-      )
-    case MacroDefinitionType.SystemControl:
-      return (
-        <SystemControlMacroDefinitionEditor value={value} onChange={onChange} />
-      )
-    default:
-      return null // TODO
+  const typeDefinition = macroTypeDefinitionsByType[type]
+  if (typeDefinition) {
+    return (
+      <>
+        <typeDefinition.editorInformationComponent />
+        <typeDefinition.editorComponent value={value} onChange={onChange} />
+      </>
+    )
   }
+
+  return null
 }

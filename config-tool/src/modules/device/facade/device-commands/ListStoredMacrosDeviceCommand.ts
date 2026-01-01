@@ -1,10 +1,5 @@
-import {
-  type ConsumerControlMacroDefinition,
-  type MacroDefinition,
-  MacroDefinitionType,
-  parseModifierFlags,
-  type ShortcutMacroDefinition, type SystemControlMacroDefinition
-} from "@src/modules/key-bindings/models"
+import { type MacroDefinition } from "@src/modules/key-bindings/models"
+import { macroTypeDefinitionsByCode } from "@src/modules/macro-types"
 import { DeviceCommand } from "./DeviceCommand"
 
 export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition[]> {
@@ -17,44 +12,11 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
       const id = parseInt(idStr, 16)
       const type = parseInt(typeStr, 16)
 
-      if (type === 0x01) {
-        const [modifiersStr, hidCodeStr] = restParts
-        const modifiers = parseModifierFlags(parseInt(modifiersStr, 16))
-        const hidCode = parseInt(hidCodeStr, 16)
+      const dataArgs = restParts
 
-        return {
-          id,
-          name,
-          type: MacroDefinitionType.Shortcut,
-          shortcut: {
-            modifiers,
-            hidCode
-          }
-        } satisfies ShortcutMacroDefinition
-      }
-
-      if (type === 0x02) {
-        const usageIdPart = restParts[0]
-        const usageId = parseInt(usageIdPart, 16)
-
-        return {
-          id,
-          name,
-          type: MacroDefinitionType.ConsumerControl,
-          usageId
-        } satisfies ConsumerControlMacroDefinition
-      }
-
-      if (type === 0x03) {
-        const codePart = restParts[0]
-        const code = parseInt(codePart, 16)
-
-        return {
-          id,
-          name,
-          type: MacroDefinitionType.SystemControl,
-          code
-        } satisfies SystemControlMacroDefinition
+      const typeDefinition = macroTypeDefinitionsByCode[type]
+      if (typeDefinition) {
+        return typeDefinition.parseDeviceResponse(id, name,dataArgs)
       }
 
       return null

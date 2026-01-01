@@ -18,7 +18,7 @@ import { keyboadKeyCodes } from "@src/modules/key-bindings/data"
 import type { KeyboardKeyCode, Shortcut, ShortcutMacroDefinition } from "@src/modules/key-bindings/models"
 import { type ComponentProps, useCallback, useEffect, useState } from "react"
 
-import classes from "../EditMacroDialog.module.css"
+import classes from "./ShortcutMacroDefinitionEditor.module.css"
 
 export const ShortcutMacroDefinitionEditor = (props: {
   value: ShortcutMacroDefinition
