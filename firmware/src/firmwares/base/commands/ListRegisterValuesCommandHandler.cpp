@@ -12,13 +12,13 @@ ListRegisterValuesCommandHandler::ListRegisterValuesCommandHandler(const std::op
 ListRegisterValuesCommandHandler::~ListRegisterValuesCommandHandler() = default;
 
 
-void ListRegisterValuesCommandHandler::execute(
+utils::void_result ListRegisterValuesCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
 ) {
     if (!registers.has_value()) {
-        return;
+        return utils::void_result::error("registers.not.available");
     }
 
     const auto& registerDescriptors = (*(this->registers))->list();
@@ -26,4 +26,6 @@ void ListRegisterValuesCommandHandler::execute(
         const auto value = (*registers)->read(reg);
         responseWriter.writeLineF("%s:%02x", reg.name.c_str(), value);
     }
+
+    return utils::void_result::success();
 }

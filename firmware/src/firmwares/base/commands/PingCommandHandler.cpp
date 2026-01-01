@@ -11,7 +11,7 @@ PingCommandHandler::PingCommandHandler() :
 
 PingCommandHandler::~PingCommandHandler() = default;
 
-void PingCommandHandler::execute(
+utils::void_result PingCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -21,4 +21,6 @@ void PingCommandHandler::execute(
     }
 
     responseWriter.writeLine("pong");
+
+    return utils::void_result::success();
 }

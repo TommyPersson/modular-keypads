@@ -9,7 +9,6 @@ namespace {
     auto logger = common::logging::createLogger("SaveMacroCommandHandler");
 
     std::shared_ptr<MacroData> createData(const std::span<const std::string_view>& args, Arena& arena) {
-
         auto& macroIdArg = args[0];
         auto macroId = utils::strings::atol(macroIdArg);
         auto& typeArg = args[2];
@@ -35,7 +34,7 @@ SaveMacroCommandHandler::SaveMacroCommandHandler(MacroStorage& macroStorage)
 
 SaveMacroCommandHandler::~SaveMacroCommandHandler() = default;
 
-void SaveMacroCommandHandler::execute(
+utils::void_result SaveMacroCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -50,6 +49,8 @@ void SaveMacroCommandHandler::execute(
     if (macro.data != nullptr) {
         macroStorage.write(macro);
     } else {
-        logger->error("Unable to save macro.");
+        return utils::void_result::error("unable.to.save.macro");
     }
+
+    return utils::void_result::success();
 }

@@ -5,11 +5,12 @@
 
 ListDeviceCapabilities::ListDeviceCapabilities(
     std::vector<devices::DeviceModule*>& devices
-) : CommandHandler("list.device.capabilities"), devices(devices) {}
+) : CommandHandler("list.device.capabilities"), devices(devices) {
+}
 
 ListDeviceCapabilities::~ListDeviceCapabilities() = default;
 
-void ListDeviceCapabilities::execute(
+utils::void_result ListDeviceCapabilities::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -25,7 +26,7 @@ void ListDeviceCapabilities::execute(
     }
 
     if (foundDevice == nullptr) {
-        return;
+        return utils::void_result::error("device.not.found");
     }
 
     const auto& capabilities = foundDevice->getCapabilities();
@@ -45,4 +46,6 @@ void ListDeviceCapabilities::execute(
             responseWriter.writeLineF("RotaryEncoder,%i", rotaryEncoder->number);
         }
     }
+
+    return utils::void_result::success();
 }

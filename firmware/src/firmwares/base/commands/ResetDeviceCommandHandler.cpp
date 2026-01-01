@@ -2,18 +2,18 @@
 
 ResetDeviceCommandHandler::ResetDeviceCommandHandler(
     DeviceConfigurationManager& deviceConfigurationManager
-    ) :
-    CommandHandler("reset.device"),
+) : CommandHandler("reset.device"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }
 
 ResetDeviceCommandHandler::~ResetDeviceCommandHandler() = default;
 
-void ResetDeviceCommandHandler::execute(
+utils::void_result ResetDeviceCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
-    ) {
+) {
     ESP.restart();
-    responseWriter.writeLine("ACK");
+
+    return utils::void_result::success();
 }

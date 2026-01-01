@@ -13,28 +13,24 @@ SetDeviceTypeCommandHandler::SetDeviceTypeCommandHandler(
 
 SetDeviceTypeCommandHandler::~SetDeviceTypeCommandHandler() = default;
 
-void SetDeviceTypeCommandHandler::execute(
+utils::void_result SetDeviceTypeCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
     ) {
     if (args.size() != 1) {
-        logger->error("execute: wrong number of arguments");
-        responseWriter.writeLine("NAK");
-        return;
+        return utils::void_result::error("incorrect.number.of.arguments");
     }
 
     if (args[0].size() != 1) {
-        logger->error("execute: wrong number of characters for device type");
-        responseWriter.writeLine("NAK");
-        return;
+        return utils::void_result::error("incorrect.argument.length");
     }
 
     const auto deviceTypeCode = args[0][0];
 
     if (!deviceConfigurationManager.setDeviceType(deviceTypeCode)) {
-        logger->error("execute: unable to set device type");
-        responseWriter.writeLine("NAK");
-        return;
+        return utils::void_result::error("unable.to.set.device.type");
     }
+
+    return utils::void_result::success();
 }

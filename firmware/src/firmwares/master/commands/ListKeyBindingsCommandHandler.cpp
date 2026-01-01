@@ -9,7 +9,7 @@ ListKeyBindingsCommandHandler::ListKeyBindingsCommandHandler(
 
 ListKeyBindingsCommandHandler::~ListKeyBindingsCommandHandler() = default;
 
-void ListKeyBindingsCommandHandler::execute(
+utils::void_result ListKeyBindingsCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -38,4 +38,6 @@ void ListKeyBindingsCommandHandler::execute(
             );
         }
     });
+
+    return utils::void_result::success();
 }

@@ -11,7 +11,7 @@ ClearKeyBindingCommandHandler::ClearKeyBindingCommandHandler(
 
 ClearKeyBindingCommandHandler::~ClearKeyBindingCommandHandler() = default;
 
-void ClearKeyBindingCommandHandler::execute(
+utils::void_result ClearKeyBindingCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -33,4 +33,6 @@ void ClearKeyBindingCommandHandler::execute(
 
         keyBindingStorage.remove(trigger);
     }
+
+    return utils::void_result::success();
 }

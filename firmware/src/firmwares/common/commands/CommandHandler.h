@@ -6,9 +6,9 @@
 #include <utility>
 
 #include "utils/allocations/Arena.h"
+#include "utils/result.h"
 
 #include "CommandResponseWriter.h"
-#include "../logging/Logger.h"
 
 
 class CommandHandler {
@@ -20,7 +20,7 @@ public:
         return this->commandType;
     };
 
-    virtual void execute(
+    virtual utils::void_result execute(
         const std::span<const std::string_view>& args,
         CommandResponseWriter& responseWriter,
         Arena& arena

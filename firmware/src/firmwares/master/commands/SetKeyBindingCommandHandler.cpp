@@ -11,7 +11,7 @@ SetKeyBindingCommandHandler::SetKeyBindingCommandHandler(
 
 SetKeyBindingCommandHandler::~SetKeyBindingCommandHandler() = default;
 
-void SetKeyBindingCommandHandler::execute(
+utils::void_result SetKeyBindingCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -40,5 +40,9 @@ void SetKeyBindingCommandHandler::execute(
         };
 
         keyBindingStorage.write(keyBinding);
+    } else {
+        return utils::void_result::error("unknown.key.binding.type");
     }
+
+    return utils::void_result::success();
 }

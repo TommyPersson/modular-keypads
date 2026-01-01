@@ -6,14 +6,13 @@ SetTestMode::SetTestMode(TestModeController& testModeController)
 
 SetTestMode::~SetTestMode() = default;
 
-void SetTestMode::execute(
+utils::void_result SetTestMode::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
 ) {
     if (args.size() != 1) {
-        responseWriter.writeLine("NAK");
-        return;
+        return utils::void_result::error("incorrect.number.of.arguments");
     }
 
     const auto& arg = args[0];
@@ -22,4 +21,6 @@ void SetTestMode::execute(
     } else {
         testModeController.disable();
     }
+
+    return utils::void_result::success();
 }

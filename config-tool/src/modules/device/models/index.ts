@@ -1,4 +1,3 @@
-
 export * from "./NotificationMessage"
 export * from "./RawLogMessage"
 
@@ -36,4 +35,13 @@ export type DeviceCapability = PushButtonCapability | RotaryEncoderCapability
 export type DeviceMetric = {
   name: string,
   value: number
+}
+
+export class DeviceCommandError extends Error {
+  constructor(
+    readonly commandId: number,
+    readonly errorCode: string
+  ) {
+    super(errorCode)
+  }
 }

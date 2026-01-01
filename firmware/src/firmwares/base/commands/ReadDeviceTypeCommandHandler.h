@@ -7,7 +7,7 @@ class ReadDeviceTypeCommandHandler final : public CommandHandler {
 public:
     explicit ReadDeviceTypeCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceTypeCommandHandler() override;
-    void execute(
+    utils::void_result execute(
         const std::span<const std::string_view>& args,
         CommandResponseWriter& responseWriter,
         Arena& arena

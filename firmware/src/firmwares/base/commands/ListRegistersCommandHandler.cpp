@@ -11,17 +11,19 @@ ListRegistersCommandHandler::ListRegistersCommandHandler(const std::optional<Reg
 ListRegistersCommandHandler::~ListRegistersCommandHandler() = default;
 
 
-void ListRegistersCommandHandler::execute(
+utils::void_result ListRegistersCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
     ) {
 
     if (!registers.has_value()) {
-        return;
+        return utils::void_result::error("registers.not.available");
     }
 
     for (auto& descriptor : (*registers)->list()) {
         responseWriter.writeLine(descriptor.name);
     }
+
+    return utils::void_result::success();
 }

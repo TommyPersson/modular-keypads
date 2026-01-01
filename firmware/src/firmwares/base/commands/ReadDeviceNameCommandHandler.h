@@ -8,7 +8,7 @@ public:
     explicit ReadDeviceNameCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceNameCommandHandler() override;
 
-    void execute(
+    utils::void_result execute(
         const std::span<const std::string_view>& args,
         CommandResponseWriter& responseWriter,
         Arena& arena

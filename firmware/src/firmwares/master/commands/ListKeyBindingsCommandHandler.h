@@ -8,7 +8,7 @@ public:
     explicit ListKeyBindingsCommandHandler(common::keybindings::KeyBindingStorage& keyBindingStorage);
     ~ListKeyBindingsCommandHandler() override;
 
-    void execute(
+    utils::void_result execute(
         const std::span<const std::string_view>& args,
         CommandResponseWriter& responseWriter,
         Arena& arena

@@ -19,7 +19,7 @@ import {
   Stack,
   TextField
 } from "@mui/material"
-import { PropertyGroup, PropertyText } from "@src/modules/common/components"
+import { ErrorAlert, PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceFacade } from "@src/modules/device/facade"
 import { ResetDeviceDeviceCommand } from "@src/modules/device/facade/device-commands/ResetDeviceDeviceCommand"
@@ -31,6 +31,8 @@ import { GetDeviceInformationQuery } from "@src/modules/device/queries"
 import { queryClient } from "@src/utils/queryClient"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { type ChangeEvent, useCallback, useEffect, useState } from "react"
+
+// TODO fix duplication with device debugger
 
 export const MainDeviceCard = () => {
   const { facade: deviceFacade } = useDeviceContext()
@@ -136,12 +138,6 @@ const UpdateDeviceConfigurationDialog = (props: {
   const [deviceAddress, setDeviceAddress] = useState(deviceInformation.deviceAddress)
   const [deviceName, setDeviceName] = useState(deviceInformation.deviceName)
 
-  useEffect(() => {
-    setDeviceTypeCode(deviceInformation.deviceType)
-    setDeviceAddress(deviceInformation.deviceAddress)
-    setDeviceName(deviceInformation.deviceName)
-  }, [deviceInformation, isOpen])
-
   const handleDeviceTypeCodeChanged = useCallback((event: SelectChangeEvent) => {
     setDeviceTypeCode(event.target.value)
   }, [setDeviceTypeCode])
@@ -167,7 +163,7 @@ const UpdateDeviceConfigurationDialog = (props: {
       await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {})
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["device-information"] })
+      await queryClient.invalidateQueries({ queryKey: ["device", "information"] })
     }
   })
 
@@ -175,6 +171,14 @@ const UpdateDeviceConfigurationDialog = (props: {
     await saveMutation.mutateAsync({ deviceTypeCode, deviceAddress, deviceName })
     onClose()
   }, [deviceTypeCode, deviceAddress, deviceName, saveMutation, onClose])
+
+  useEffect(() => {
+    setDeviceTypeCode(deviceInformation.deviceType)
+    setDeviceAddress(deviceInformation.deviceAddress)
+    setDeviceName(deviceInformation.deviceName)
+    saveMutation.reset()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceInformation, isOpen])
 
   const isDirty = deviceTypeCode !== deviceInformation.deviceType
     || deviceAddress !== deviceInformation.deviceAddress
@@ -218,6 +222,7 @@ const UpdateDeviceConfigurationDialog = (props: {
           <Alert severity={"info"}>
             The device will be reset upon saving. You may need to reconnect.
           </Alert>
+          <ErrorAlert error={saveMutation.error} />
         </Stack>
 
       </DialogContent>

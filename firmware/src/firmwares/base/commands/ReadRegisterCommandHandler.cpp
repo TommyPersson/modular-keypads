@@ -11,18 +11,20 @@ ReadRegisterCommandHandler::ReadRegisterCommandHandler(const std::optional<Regis
 ReadRegisterCommandHandler::~ReadRegisterCommandHandler() = default;
 
 
-void ReadRegisterCommandHandler::execute(
+utils::void_result ReadRegisterCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
 ) {
     if (!registers.has_value()) {
         responseWriter.writeLine("0x00");
-        return;
+        return utils::void_result::success();
     }
 
     const auto registerName = std::string(args[0]);
     const auto value = (*registers)->read(registerName);
 
     responseWriter.writeLineF("0x%02x", value);
+
+    return utils::void_result::success();
 }

@@ -15,7 +15,7 @@ DeleteMacroCommandHandler::DeleteMacroCommandHandler(MacroStorage& macroStorage)
 
 DeleteMacroCommandHandler::~DeleteMacroCommandHandler() = default;
 
-void DeleteMacroCommandHandler::execute(
+utils::void_result DeleteMacroCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -26,4 +26,6 @@ void DeleteMacroCommandHandler::execute(
     macroStorage.remove(id);
 
     logger->debug("Deleted macro: %i", id);
+
+    return utils::void_result::success();
 }

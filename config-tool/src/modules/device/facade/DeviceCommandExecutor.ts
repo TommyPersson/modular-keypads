@@ -2,7 +2,7 @@ import { Deferred } from "@src/utils/Deferred"
 import { Mutex } from "@src/utils/Mutex"
 import { DateTime } from "luxon"
 import { Subject } from "rxjs"
-import type { RawLogMessage } from "../models"
+import { DeviceCommandError, type RawLogMessage } from "../models"
 
 export class DeviceCommandExecutor {
 
@@ -86,7 +86,11 @@ export class DeviceCommandExecutor {
         this.activeCommands[commandId]?.resolve(commandResponses)
         this.activeCommandResponses.delete(commandId)
       } else if (isNaN(sequenceNumber)) {
-        this.activeCommands[commandId]?.resolve([commandResponse])
+        if (sequenceNumberStr == "e") {
+          this.activeCommands[commandId]?.reject(new DeviceCommandError(commandId, commandResponse));
+        } else {
+          this.activeCommands[commandId]?.resolve([commandResponse])
+        }
       }
     } catch {
       // ignore, promise already resolved or rejected

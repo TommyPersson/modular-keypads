@@ -16,7 +16,7 @@ ListStoredMacrosCommandHandler::ListStoredMacrosCommandHandler(MacroStorage& mac
 
 ListStoredMacrosCommandHandler::~ListStoredMacrosCommandHandler() = default;
 
-void ListStoredMacrosCommandHandler::execute(
+utils::void_result ListStoredMacrosCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -44,4 +44,6 @@ void ListStoredMacrosCommandHandler::execute(
             }
         }
     );
+
+    return utils::void_result::success();
 }

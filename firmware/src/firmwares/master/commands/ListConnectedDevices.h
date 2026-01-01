@@ -8,7 +8,7 @@ public:
     explicit ListConnectedDevices(std::vector<devices::DeviceModule*>& devices);
     ~ListConnectedDevices() override;
 
-    void execute(
+    utils::void_result execute(
         const std::span<const std::string_view>& args,
         CommandResponseWriter& responseWriter,
         Arena& arena

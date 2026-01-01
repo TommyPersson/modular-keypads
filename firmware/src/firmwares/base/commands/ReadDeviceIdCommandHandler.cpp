@@ -6,20 +6,22 @@
 ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(
     DeviceConfigurationManager& deviceConfigurationManager
 ) : CommandHandler("read.device.id"),
-    deviceConfigurationManager(deviceConfigurationManager) {}
+    deviceConfigurationManager(deviceConfigurationManager) {
+}
 
 ReadDeviceIdCommandHandler::~ReadDeviceIdCommandHandler() = default;
 
-void ReadDeviceIdCommandHandler::execute(
+utils::void_result ReadDeviceIdCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
 ) {
     const auto deviceId = this->deviceConfigurationManager.getDeviceId();
     if (deviceId == 0) {
-        responseWriter.writeLine("NAK");
-        return;
+        return utils::void_result::error("unable.to.read.device.id");
     }
 
     responseWriter.writeLineF("%08llx", deviceId);
+
+    return utils::void_result::success();
 }

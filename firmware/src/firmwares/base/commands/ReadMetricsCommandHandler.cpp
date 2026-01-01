@@ -14,7 +14,7 @@ ReadMetricsCommandHandler::ReadMetricsCommandHandler()
 ReadMetricsCommandHandler::~ReadMetricsCommandHandler() = default;
 
 
-void ReadMetricsCommandHandler::execute(
+utils::void_result ReadMetricsCommandHandler::execute(
     const std::span<const std::string_view>& args,
     CommandResponseWriter& responseWriter,
     Arena& arena
@@ -28,4 +28,6 @@ void ReadMetricsCommandHandler::execute(
     responseWriter.writeLineF("esp.memory.malloc_cap.total_free_bytes:%lu", static_cast<unsigned long>(info.total_free_bytes));
     responseWriter.writeLineF("esp.memory.malloc_cap.minimum_free_bytes:%lu", static_cast<unsigned long>(info.minimum_free_bytes));
     responseWriter.writeLineF("esp.memory.malloc_cap.largest_free_block:%lu",  static_cast<unsigned long>(info.largest_free_block));
+
+    return utils::void_result::success();
 }
