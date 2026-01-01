@@ -1,5 +1,6 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
+import EmojiPeopleOutlinedIcon from "@mui/icons-material/EmojiPeopleOutlined"
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined"
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
@@ -7,8 +8,6 @@ import FileUploadIcon from "@mui/icons-material/FileUpload"
 import FormatListNumberedOutlinedIcon from "@mui/icons-material/FormatListNumberedOutlined"
 import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
 import KeyboardOutlinedIcon from "@mui/icons-material/KeyboardOutlined"
-import TimesOneMobiledataOutlinedIcon from "@mui/icons-material/TimesOneMobiledataOutlined"
-import EmojiPeopleOutlinedIcon from '@mui/icons-material/EmojiPeopleOutlined';
 
 import {
   Button,
@@ -365,10 +364,9 @@ const MacroTypeVisualization = (props: {
   switch (props.type) {
     case "Shortcut":
       return (
-        <Tooltip title={"Single Shortcut"}>
+        <Tooltip title={"Shortcut"}>
           <Stack direction={"row"}>
             <KeyboardCommandKeyOutlinedIcon fontSize={"small"} />
-            <TimesOneMobiledataOutlinedIcon fontSize={"small"} />
           </Stack>
         </Tooltip>
       )

@@ -1,5 +1,6 @@
 #include "ListStoredMacrosCommandHandler.h"
 
+#include <firmwares/common/macros/MacroDataSerializers.h>
 #include <utils/strings.h>
 
 using namespace common::macros;
@@ -22,26 +23,23 @@ void ListStoredMacrosCommandHandler::execute(
 ) {
     macroStorage.forEach(
         [&](const Macro& macro) {
-            if (macro.data->type == MacroType::SHORTCUT) {
-                const auto& data = std::dynamic_pointer_cast<ShortcutMacroData>(macro.data);
-                responseWriter.writeLineF(
-                    "%s=0x%04x:0x%02x:0x%02x:0x%02x",
-                    macro.name.c_str(),
-                    data->id,
-                    data->type,
-                    data->modifiers,
-                    data->hidKeyCode
-                );
+            std::string_view dataPart;
+
+            for (auto serializer : macroDataSerializers) {
+                auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
+                if (typedSerializer->handles(macro.data->type)) {
+                    dataPart = typedSerializer->serialize(*macro.data, arena);
+                }
             }
 
-            if (macro.data->type == MacroType::CONSUMER_CONTROL) {
-                const auto& data = std::dynamic_pointer_cast<ConsumerControlMacroData>(macro.data);
+            if (!dataPart.empty()) {
                 responseWriter.writeLineF(
-                    "%s=0x%04x:0x%02x:0x%04x",
+                    "%s=0x%04x:0x%02x:%.*s",
                     macro.name.c_str(),
-                    data->id,
-                    data->type,
-                    data->usageId
+                    macro.data->id,
+                    macro.data->type,
+                    dataPart.length(),
+                    dataPart.data()
                 );
             }
         }

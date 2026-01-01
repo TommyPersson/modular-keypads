@@ -13,10 +13,12 @@ export class SaveMacroDeviceCommand extends DeviceCommand<void> {
   override get arguments(): string[] {
     const dataArgs = (() => {
       if (this.macro.type === MacroDefinitionType.Shortcut) {
+        const modifiersStr = `0x${createModifierFlags(this.macro.shortcut.modifiers).toString(16).padStart(2, "0")}`
+        const hidCodeStr = `0x${this.macro.shortcut.hidCode.toString(16).padStart(2, "0")}`
         return [
           "0x01", // Shortcut
-          `0x${createModifierFlags(this.macro.shortcut.modifiers).toString(16).padStart(2, "0")}`,
-          `0x${this.macro.shortcut.hidCode.toString(16).padStart(2, "0")}`
+          `${modifiersStr}`,
+          `${hidCodeStr}`,
         ]
       }
 

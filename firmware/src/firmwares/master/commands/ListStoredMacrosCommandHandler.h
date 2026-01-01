@@ -2,7 +2,6 @@
 
 #include "firmwares/common/commands/CommandHandler.h"
 #include "firmwares/common/macros/MacroStorage.h"
-#include "firmwares/modules/common/DeviceModule.h"
 
 class ListStoredMacrosCommandHandler : public CommandHandler {
 public:

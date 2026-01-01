@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cerrno>
 #include <functional>
+#include <utils/allocations/ArenaUtils.h>
 
 #include "utils/observables/Observable.h"
 #include "utils/observables/Subject.h"
@@ -9,7 +9,6 @@
 #include "Macro.h"
 
 namespace common::macros {
-
     struct MacroSaved {
         uint16_t macroId;
     };

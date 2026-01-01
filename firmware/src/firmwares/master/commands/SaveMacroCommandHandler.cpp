@@ -1,5 +1,6 @@
 #include "SaveMacroCommandHandler.h"
 
+#include <firmwares/common/macros/MacroDataSerializers.h>
 #include <utils/strings.h>
 
 using namespace common::macros;
@@ -7,28 +8,19 @@ using namespace common::macros;
 namespace {
     auto logger = common::logging::createLogger("SaveMacroCommandHandler");
 
-    std::shared_ptr<MacroData> createData(const std::span<const std::string_view>& args) {
-        auto& idArg = args[0];
-        auto id = utils::strings::atol(idArg);
+    std::shared_ptr<MacroData> createData(const std::span<const std::string_view>& args, Arena& arena) {
 
+        auto& macroIdArg = args[0];
+        auto macroId = utils::strings::atol(macroIdArg);
         auto& typeArg = args[2];
-        if (typeArg == "0x01") {
-            auto& modifiersArg = args[3];
-            auto& hidCodeArg = args[4];
+        auto type = static_cast<MacroType>(utils::strings::atol(typeArg, 16));
 
-            auto modifiers = utils::strings::atol(modifiersArg, 16);
-            auto hidCode = utils::strings::atol(hidCodeArg, 16);
-
-            return std::make_shared<ShortcutMacroData>(id, modifiers, hidCode);
+        for (auto serializer : macroDataSerializers) {
+            auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
+            if (typedSerializer->handles(type)) {
+                return typedSerializer->deserialize(macroId, args, arena);
+            }
         }
-
-        if (typeArg == "0x02") {
-            auto consumerControlCode = utils::strings::atou16(args[3], 16);
-
-            return std::make_shared<ConsumerControlMacroData>(id, consumerControlCode);
-        }
-
-        // TODO support the sequence type
 
         logger->error("Unsupported macro type: %.*s", typeArg.length(), typeArg.data());
 
@@ -52,7 +44,7 @@ void SaveMacroCommandHandler::execute(
 
     const Macro macro{
         .name = std::string(nameArg),
-        .data = createData(args)
+        .data = createData(args, arena)
     };
 
     if (macro.data != nullptr) {

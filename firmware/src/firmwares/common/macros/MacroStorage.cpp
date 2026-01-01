@@ -10,6 +10,8 @@
 
 #include "firmwares/common/logging/Logger.h"
 
+#include "MacroDataSerializers.h"
+
 using namespace common::macros;
 
 namespace {
@@ -25,44 +27,24 @@ namespace {
 
         auto parts = arena::strings::split(line, ':', stringViewAllocator, 10);
 
-        auto idPart = parts[0];
+        auto macroIdPart = parts[0];
+        auto macroId = utils::strings::atou16(macroIdPart);
         auto namePart = parts[1];
         auto name = std::string(namePart); // TODO avoid allocation
         auto typePart = parts[2];
         auto type = static_cast<MacroType>(utils::strings::atol(typePart, 16));
 
-        if (type == SHORTCUT) {
-            auto dataPart = parts[3];
-            auto dataParts = arena::strings::split(dataPart, ',', stringViewAllocator, 2);
-            auto modifiersPart = dataParts[0];
-            auto hidCodePart = dataParts[1];
+        std::shared_ptr<MacroData> macroData = nullptr;
 
-            auto macro = std::allocate_shared<Macro>(
-                macroAllocator,
-                name,
-                std::make_shared<ShortcutMacroData>(
-                    utils::strings::atol(idPart, 10),
-                    utils::strings::atol(modifiersPart, 16),
-                    utils::strings::atol(hidCodePart, 16)
-                )
-            );
-
-            return macro;
+        for (auto serializer : macroDataSerializers) {
+            auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
+            if (typedSerializer->handles(type)) {
+                macroData = typedSerializer->deserialize(macroId, parts, arena);
+            }
         }
 
-        if (type == CONSUMER_CONTROL) {
-            auto usageIdPart = parts[3];
-
-            auto macro = std::allocate_shared<Macro>(
-                macroAllocator,
-                name,
-                std::make_shared<ConsumerControlMacroData>(
-                    utils::strings::atol(idPart, 10),
-                    utils::strings::atou16(usageIdPart, 16)
-                )
-            );
-
-            return macro;
+        if (macroData != nullptr) {
+            return std::allocate_shared<Macro>(macroAllocator, name, macroData);
         }
 
         // TODO the sequence type
@@ -71,28 +53,24 @@ namespace {
     }
 
     std::string_view serializeStoredMacro(const Macro& macro, Arena& arena) {
-        const auto& shortcutData = std::dynamic_pointer_cast<ShortcutMacroData>(macro.data);
-        if (shortcutData != nullptr) {
-            return arena::strings::sprintf(
-                arena,
-                "%i:%s:0x%02x:0x%02x,0x%02x",
-                shortcutData->id,
-                macro.name.c_str(),
-                shortcutData->type,
-                shortcutData->modifiers,
-                shortcutData->hidKeyCode
-            );
+        std::string_view dataPart;
+
+        for (auto serializer : macroDataSerializers) {
+            auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
+            if (typedSerializer->handles(macro.data->type)) {
+                dataPart = typedSerializer->serialize(*macro.data, arena);
+            }
         }
 
-        const auto& consumerControlData = std::dynamic_pointer_cast<ConsumerControlMacroData>(macro.data);
-        if (consumerControlData != nullptr) {
+        if (!dataPart.empty()) {
             return arena::strings::sprintf(
                 arena,
-                "%i:%s:0x%02x:0x%04x",
-                consumerControlData->id,
+                "%i:%s:0x%02x:%.*s",
+                macro.data->id,
                 macro.name.c_str(),
-                consumerControlData->type,
-                consumerControlData->usageId
+                macro.data->type,
+                dataPart.length(),
+                dataPart.data()
             );
         }
 
