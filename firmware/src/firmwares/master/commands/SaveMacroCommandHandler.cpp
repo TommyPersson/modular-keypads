@@ -18,7 +18,7 @@ namespace {
         for (auto serializer : macroDataSerializers) {
             auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
             if (typedSerializer->handles(type)) {
-                return typedSerializer->deserialize(macroId, args, arena);
+                return typedSerializer->deserialize(macroId, args.subspan(3), arena);
             }
         }
 

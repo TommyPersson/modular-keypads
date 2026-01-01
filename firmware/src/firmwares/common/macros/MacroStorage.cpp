@@ -39,7 +39,7 @@ namespace {
         for (auto serializer : macroDataSerializers) {
             auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
             if (typedSerializer->handles(type)) {
-                macroData = typedSerializer->deserialize(macroId, parts, arena);
+                macroData = typedSerializer->deserialize(macroId, std::span(parts).subspan(3), arena);
             }
         }
 

@@ -21,7 +21,7 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             Arena& arena
         ) override {
-            auto usageIdPart = parts[3];
+            auto usageIdPart = parts[0];
             return std::make_shared<ConsumerControlMacroData>(
                 macroId,
                 utils::strings::atou16(usageIdPart, 16)
@@ -50,8 +50,8 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             Arena& arena
         ) override {
-            auto modifiersPart = parts[3];
-            auto hidCodePart = parts[4];
+            auto modifiersPart = parts[0];
+            auto hidCodePart = parts[1];
 
             return std::make_shared<ShortcutMacroData>(
                 macroId,
