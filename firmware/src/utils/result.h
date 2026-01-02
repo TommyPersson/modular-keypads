@@ -1,6 +1,6 @@
 #pragma once
 
-#include <variant>
+// <expected> is not available in this compiler version, so we just do something simple for now.
 
 namespace utils {
 

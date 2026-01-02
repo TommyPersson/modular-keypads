@@ -7,7 +7,7 @@
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "i2c/I2cClient.h"
 #include "i2c/SlavePort.h"
-#include "usb/USBConnection.h"
+#include "utils/usb/USBConnection.h"
 
 struct ServiceLocator {
     DeviceConfigurationManager& deviceConfigurationManager;

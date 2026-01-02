@@ -2,7 +2,7 @@
 
 #include <bitset>
 
-#include "firmwares/common/logging/Logger.h"
+#include "utils/logging/Logger.h"
 
 using namespace common::macros;
 using namespace common::keybindings;

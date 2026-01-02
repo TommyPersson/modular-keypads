@@ -1,6 +1,6 @@
 #include "DeviceRuntimeA.h"
 
-#include <firmwares/common/logging/Logger.h>
+#include <utils/logging/Logger.h>
 
 #include "DeviceModuleA.h"
 

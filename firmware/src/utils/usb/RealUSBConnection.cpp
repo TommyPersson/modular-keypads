@@ -8,7 +8,7 @@
 #include <USBHIDKeyboard.h>
 #include <USBHIDConsumerControl.h>
 #include <USBHIDSystemControl.h>
-#include <firmwares/common/logging/Logger.h>
+#include <utils/logging/Logger.h>
 
 namespace {
     auto logger = common::logging::createLogger("RealUSBConnection");

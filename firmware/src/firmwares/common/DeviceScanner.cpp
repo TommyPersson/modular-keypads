@@ -1,9 +1,9 @@
 #include "DeviceScanner.h"
 
-#include <utils/strings.h>
-
 #include "i2c/Endpoint.h"
 #include "i2c/EndpointStructs.h"
+#include "utils/strings.h"
+#include "utils/logging/Logger.h"
 
 namespace {
     auto logger = common::logging::createLogger("DeviceScanner");
@@ -13,8 +13,7 @@ DeviceScanner::DeviceScanner(I2cClient& client) :
     client(client) {
 }
 
-DeviceScanner::~DeviceScanner() {
-}
+DeviceScanner::~DeviceScanner() = default;
 
 std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
     std::vector<std::shared_ptr<DeviceProxy>> result;

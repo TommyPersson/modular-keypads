@@ -1,5 +1,7 @@
 #include "DeviceConfigurationManager.h"
 
+#include "utils/logging/Logger.h"
+
 namespace {
     auto logger = common::logging::createLogger("DeviceConfigurationManager");
 

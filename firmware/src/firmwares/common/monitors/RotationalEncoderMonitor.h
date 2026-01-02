@@ -1,6 +1,6 @@
 #pragma once
 
-#include "firmwares/common/bitreaders/BitReader.h"
+#include "utils/bitreaders/BitReader.h"
 #include "utils/observables/Subject.h"
 
 enum class RotationalEncoderDirection {

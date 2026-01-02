@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../bitreaders/BitReader.h"
+#include "utils/bitreaders/BitReader.h"
 #include "utils/observables/Observable.h"
 #include "utils/observables/Subject.h"
 

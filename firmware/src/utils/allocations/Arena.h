@@ -5,7 +5,7 @@
 #include <cstring>
 #include <sstream>
 
-#include "firmwares/common/logging/Logger.h"
+#include "utils/logging/Logger.h"
 
 class Arena {
 public:
@@ -55,16 +55,14 @@ struct ArenaAllocator {
     using size_type = std::size_t;
     using propagate_on_container_move_assignment = std::true_type;
 
-    ArenaAllocator(Arena& arena) noexcept
+    explicit ArenaAllocator(Arena& arena) noexcept
         : arena(&arena) {
     }
 
-    ArenaAllocator(const ArenaAllocator& other) noexcept
-        : arena(other.arena) {
-    }
+    ArenaAllocator(const ArenaAllocator& other) noexcept = default;
 
     template <class U>
-    ArenaAllocator(const ArenaAllocator<U>& other) noexcept
+    explicit ArenaAllocator(const ArenaAllocator<U>& other) noexcept
         : arena(other.arena) {
     }
 

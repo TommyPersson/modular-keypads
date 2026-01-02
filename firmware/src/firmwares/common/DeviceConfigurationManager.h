@@ -3,9 +3,6 @@
 #include <string>
 #include <Preferences.h>
 
-#include "logging/Logger.h"
-
-
 struct DeviceConfiguration {
     uint64_t id;
     std::string name;

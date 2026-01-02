@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#include <SPI.h>
 #include <Preferences.h>
+#include <SPI.h>
 #include <Wire.h>
 
 #include <SerialPort/SerialPort.h>
@@ -11,9 +11,9 @@
 #include "firmwares/base/Firmware.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/ServiceLocator.h"
-#include "firmwares/common/logging/Logger.h"
 #include "firmwares/common/notifications/NotifierFactory.h"
-#include "firmwares/common/usb/USB.h"
+#include "utils/logging/Logger.h"
+#include "utils/usb/USB.h"
 
 
 std::unique_ptr<Firmware> firmware;

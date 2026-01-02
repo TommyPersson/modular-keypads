@@ -7,7 +7,7 @@
 #include "utils/allocations/Arena.h"
 #include "utils/allocations/ArenaUtils.h"
 
-#include "firmwares/common/logging/Logger.h"
+#include "utils/logging/Logger.h"
 
 using namespace common::keybindings;
 

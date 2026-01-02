@@ -3,7 +3,7 @@
 #include <firmwares/common/DeviceCapabilities.h>
 #include <Registers/RegisterManager.h>
 
-#include "firmwares/common/bitreaders/BitReader.h"
+#include "utils/bitreaders/BitReader.h"
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
 #include "firmwares/common/monitors/SwitchMonitor.h"
 #include "firmwares/common/monitors/RotationalEncoderMonitor.h"
