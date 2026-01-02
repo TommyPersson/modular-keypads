@@ -35,8 +35,9 @@ utils::void_result ListStoredMacrosCommandHandler::execute(
 
             if (!dataPart.empty()) {
                 responseWriter.writeLineF(
-                    "%s=0x%04x:0x%02x:%.*s",
-                    macro.name.c_str(),
+                    "%.*s=0x%04x:0x%02x:%.*s",
+                    macro.name.length(),
+                    macro.name.data(),
                     macro.data->id,
                     macro.data->type,
                     dataPart.length(),

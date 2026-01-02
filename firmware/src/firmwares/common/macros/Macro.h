@@ -59,7 +59,7 @@ namespace common::macros {
     // TODO sequence data
 
     struct Macro {
-        const std::string name;
+        const std::string_view name;
         const std::shared_ptr<MacroData> data;
     };
 }

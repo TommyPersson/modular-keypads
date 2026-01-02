@@ -21,9 +21,12 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             utils::allocations::Arena& arena
         ) override {
+            const utils::allocations::ArenaAllocator<ConsumerControlMacroData> allocator(arena);
+
             const auto usageIdPart = parts[0];
 
-            return std::make_shared<ConsumerControlMacroData>(
+            return std::allocate_shared<ConsumerControlMacroData>(
+                allocator,
                 macroId,
                 utils::strings::atou16(usageIdPart, 16)
             );
@@ -51,10 +54,13 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             utils::allocations::Arena& arena
         ) override {
+            const utils::allocations::ArenaAllocator<ShortcutMacroData> allocator(arena);
+
             const auto modifiersPart = parts[0];
             const auto hidCodePart = parts[1];
 
-            return std::make_shared<ShortcutMacroData>(
+            return std::allocate_shared<ShortcutMacroData>(
+                allocator,
                 macroId,
                 utils::strings::atol(modifiersPart, 16),
                 utils::strings::atol(hidCodePart, 16)
@@ -82,9 +88,12 @@ namespace common::macros {
             const std::span<const std::string_view>& parts,
             utils::allocations::Arena& arena
         ) override {
+            const utils::allocations::ArenaAllocator<SystemControlMacroData> allocator(arena);
+
             const auto codePart = parts[0];
 
-            return std::make_shared<SystemControlMacroData>(
+            return std::allocate_shared<SystemControlMacroData>(
+                allocator,
                 macroId,
                 utils::strings::atol(codePart, 16)
             );

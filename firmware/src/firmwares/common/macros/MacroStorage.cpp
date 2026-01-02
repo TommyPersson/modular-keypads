@@ -29,8 +29,7 @@ namespace {
 
         auto macroIdPart = parts[0];
         auto macroId = utils::strings::atou16(macroIdPart);
-        auto namePart = parts[1];
-        auto name = std::string(namePart); // TODO avoid allocation
+        auto name = parts[1];
         auto typePart = parts[2];
         auto type = static_cast<MacroType>(utils::strings::atol(typePart, 16));
 
@@ -63,9 +62,10 @@ namespace {
         if (!dataPart.empty()) {
             return utils::allocations::arena::strings::sprintf(
                 arena,
-                "%i:%s:0x%02x:%.*s",
+                "%i:%.*s:0x%02x:%.*s",
                 macro.data->id,
-                macro.name.c_str(),
+                macro.name.length(),
+                macro.name.data(),
                 macro.data->type,
                 dataPart.length(),
                 dataPart.data()
