@@ -19,7 +19,7 @@ struct SwitchEvent {
 
 class SwitchMonitor {
 public:
-    SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<BitReader>& bitReader);
+    SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<utils::bitreaders::BitReader>& bitReader);
     SwitchMonitor(const SwitchMonitor&) = delete;
     ~SwitchMonitor();
 
@@ -36,7 +36,7 @@ private:
     SwitchState readState() const;
 
     const std::uint8_t switchNumber;
-    const std::shared_ptr<BitReader> bitReader;
+    const std::shared_ptr<utils::bitreaders::BitReader> bitReader;
 
     std::unique_ptr<utils::observables::Subject<SwitchEvent>> keySwitchStateChangedSubject;
 

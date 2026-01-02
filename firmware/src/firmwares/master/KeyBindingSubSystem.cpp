@@ -29,15 +29,15 @@ namespace {
         return result;
     }
 
-    std::vector<std::shared_ptr<usb::Action>> getActionSequence(const ShortcutMacroData& data) {
-        std::vector<std::shared_ptr<usb::Action>> actions;
+    std::vector<std::shared_ptr<utils::usb::Action>> getActionSequence(const ShortcutMacroData& data) {
+        std::vector<std::shared_ptr<utils::usb::Action>> actions;
 
         std::vector<uint8_t> keyCodes(9);
         auto modifierKeyCodes = getKeyCodesFromModifierFlags(data.modifiers);
         keyCodes.insert(keyCodes.begin(), modifierKeyCodes.begin(), modifierKeyCodes.end());
         keyCodes.push_back(data.hidKeyCode);
 
-        actions.push_back(usb::Action::keyPress(keyCodes));
+        actions.push_back(utils::usb::Action::keyPress(keyCodes));
 
         return actions;
     }
@@ -57,7 +57,7 @@ namespace {
             const auto& data = dynamic_cast<ConsumerControlMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{usb::Action::consumerControl(data.usageId)},
+                .actions = std::vector{utils::usb::Action::consumerControl(data.usageId)},
             });
         }
 
@@ -65,7 +65,7 @@ namespace {
             const auto& data = dynamic_cast<SystemControlMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{usb::Action::systemControl(data.code)},
+                .actions = std::vector{utils::usb::Action::systemControl(data.code)},
             });
         }
 
@@ -77,7 +77,7 @@ KeyBindingSubSystem::KeyBindingSubSystem(
     MacroStorage& macroStorage,
     KeyBindingStorage& keyBindingStorage,
     TestModeController& testModeController,
-    usb::Connection& usbConnection
+    utils::usb::Connection& usbConnection
 ) : macroStorage(macroStorage),
     keyBindingStorage(keyBindingStorage),
     testModeController(testModeController),

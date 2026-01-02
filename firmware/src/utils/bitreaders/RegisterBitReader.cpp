@@ -2,17 +2,27 @@
 
 #include <Registers/Register.h>
 
-std::shared_ptr<BitReader> BitReader::forRegister(const Register& reg, const std::uint8_t bitNumber, const BitReaderMode mode) {
+using namespace utils::bitreaders;
+
+std::shared_ptr<BitReader> BitReader::forRegister(
+    const Register& reg,
+    const std::uint8_t bitNumber,
+    const BitReaderMode mode
+) {
     return std::make_shared<RegisterBitReader>(reg, bitNumber, mode);
 }
 
-RegisterBitReader::RegisterBitReader(const Register& reg, const std::uint8_t bitNumber, const BitReaderMode mode) :
-    reg(reg), bitNumber(bitNumber), mode(mode) {
+RegisterBitReader::RegisterBitReader(
+    const Register& reg,
+    const std::uint8_t bitNumber,
+    const BitReaderMode mode
+) : reg(reg),
+    bitNumber(bitNumber),
+    mode(mode) {
     assert(bitNumber < 8);
 }
 
-RegisterBitReader::~RegisterBitReader() { // NOLINT(*-use-equals-default)
-}
+RegisterBitReader::~RegisterBitReader() = default;
 
 bool RegisterBitReader::read() {
     const auto value = reg.read();

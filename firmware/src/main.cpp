@@ -23,7 +23,7 @@ std::unique_ptr<NotifierFactory> notifierFactory;
 std::unique_ptr<DeviceConfigurationManager> deviceConfigurationManager;
 std::unique_ptr<I2cClient> i2cClient;
 std::unique_ptr<i2c::SlavePort> i2cSlavePort;
-std::unique_ptr<usb::Connection> usbConnection;
+std::unique_ptr<utils::usb::Connection> usbConnection;
 
 std::unique_ptr<ServiceLocator> serviceLocator;
 
@@ -44,7 +44,7 @@ void setup() {
     notifierFactory = std::make_unique<NotifierFactory>(TheSerial);
     i2cClient = std::make_unique<I2cClient>(Wire);
     i2cSlavePort = std::make_unique<i2c::SlavePort>(Wire);
-    usbConnection = usb::Connection::create();
+    usbConnection = utils::usb::Connection::create();
 
     serviceLocator = std::make_unique<ServiceLocator>(ServiceLocator{
         .deviceConfigurationManager = *deviceConfigurationManager,

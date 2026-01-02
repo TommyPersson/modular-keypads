@@ -4,16 +4,18 @@
 
 #include <Registers/Registers.h>
 
-class RegisterBitReader final : public BitReader {
-public:
-    RegisterBitReader(const Register& reg, std::uint8_t bitNumber, BitReaderMode mode);
-    ~RegisterBitReader() override;
+namespace utils::bitreaders {
+    class RegisterBitReader final : public BitReader {
+    public:
+        RegisterBitReader(const Register& reg, std::uint8_t bitNumber, BitReaderMode mode);
+        ~RegisterBitReader() override;
 
-    bool read() override;
+        bool read() override;
 
-private:
+    private:
 
-    const Register& reg;
-    const std::uint8_t bitNumber;
-    const BitReaderMode mode;
-};
+        const Register& reg;
+        const std::uint8_t bitNumber;
+        const BitReaderMode mode;
+    };
+}

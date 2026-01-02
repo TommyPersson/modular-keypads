@@ -16,5 +16,5 @@ struct ServiceLocator {
     I2cClient& i2cClient;
     i2c::SlavePort& i2cSlavePort;
     TwoWire& i2c;
-    usb::Connection& usbConnection;
+    utils::usb::Connection& usbConnection;
 };

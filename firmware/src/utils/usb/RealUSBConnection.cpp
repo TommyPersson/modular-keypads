@@ -37,7 +37,7 @@ namespace {
     }
 }
 
-void usb::RealConnection::setup() {
+void utils::usb::RealConnection::setup() {
     USB.onEvent(usbEventCallback);
 
     USB.productName("tommy-product");
@@ -53,11 +53,11 @@ void usb::RealConnection::setup() {
     keyboard.releaseAll();
 }
 
-bool usb::RealConnection::isConnected() {
+bool utils::usb::RealConnection::isConnected() {
     return ::isConnected;
 }
 
-void usb::RealConnection::sendAction(Action& action) {
+void utils::usb::RealConnection::sendAction(Action& action) {
     const auto keyPressAction = dynamic_cast<KeyPressAction*>(&action);
     if (keyPressAction != nullptr) {
         for (auto keyCode : keyPressAction->data.keyCodes) {

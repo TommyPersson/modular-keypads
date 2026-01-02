@@ -9,7 +9,7 @@
 #include "RealUSBConnection.h"
 #endif
 
-using namespace usb;
+using namespace utils::usb;
 
 std::unique_ptr<Connection> Connection::create() {
     #ifdef SOC_USB_OTG_SUPPORTED

@@ -2,8 +2,8 @@
 
 RotationalEncoderMonitor::RotationalEncoderMonitor(
     const std::uint8_t encoderNumber,
-    const std::shared_ptr<BitReader>& aBitReader,
-    const std::shared_ptr<BitReader>& bBitReader
+    const std::shared_ptr<utils::bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<utils::bitreaders::BitReader>& bBitReader
     ) :
     encoderNumber(encoderNumber),
     aBitReader(aBitReader),

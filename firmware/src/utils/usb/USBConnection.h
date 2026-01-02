@@ -3,7 +3,7 @@
 #include <memory>
 #include "USBAction.h"
 
-namespace usb {
+namespace utils::usb {
     class Connection {
     public:
         virtual ~Connection() = default;

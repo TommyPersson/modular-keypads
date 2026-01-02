@@ -1,11 +1,11 @@
 #include "NoOpUSBConnection.h"
 
-void usb::NoOpConnection::setup() {
+void utils::usb::NoOpConnection::setup() {
 }
 
-bool usb::NoOpConnection::isConnected() {
+bool utils::usb::NoOpConnection::isConnected() {
     return false;
 }
 
-void usb::NoOpConnection::sendAction(Action& action) {
+void utils::usb::NoOpConnection::sendAction(Action& action) {
 }

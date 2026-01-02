@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace usb {
+namespace utils::usb {
     struct Action {
         virtual ~Action() = default;
 

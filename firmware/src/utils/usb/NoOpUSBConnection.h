@@ -2,7 +2,7 @@
 
 #include "USBConnection.h"
 
-namespace usb {
+namespace utils::usb {
     class NoOpConnection final : public Connection {
     public:
         void setup() override;

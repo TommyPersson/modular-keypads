@@ -3,6 +3,7 @@
 #include <firmwares/modules/m/DeviceModuleM.h>
 
 using namespace devices;
+using namespace utils::bitreaders;
 
 DeviceRuntime::DeviceRuntime(
     uint64_t deviceId,
@@ -51,7 +52,7 @@ void DeviceRuntime::configureCapabilities() {
 }
 
 
-void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader>& bitReader, int8_t ledIndex) {
+void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<utils::bitreaders::BitReader>& bitReader, int8_t ledIndex) {
     const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
 
     switchMonitor->onSwitchStateChanged().addObserver(this);
@@ -65,8 +66,8 @@ void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<BitReader
 
 void DeviceRuntime::attachRotationalEncoder(
     const uint8_t number,
-    const std::shared_ptr<BitReader>& aBitReader,
-    const std::shared_ptr<BitReader>& bBitReader
+    const std::shared_ptr<utils::bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<utils::bitreaders::BitReader>& bBitReader
 ) {
     auto rotaryEncoderMonitor = std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader);
     rotaryEncoderMonitor->onEncoderRotated().addObserver(this);
