@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 class OutputPin {
 public:
     explicit OutputPin(std::uint8_t pinNumber);

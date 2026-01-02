@@ -14,8 +14,7 @@ PhysicalInputPin::PhysicalInputPin(const std::uint8_t pinNumber, const std::uint
     modeFlags(modeFlags) {
 }
 
-PhysicalInputPin::~PhysicalInputPin() {
-}
+PhysicalInputPin::~PhysicalInputPin() = default;
 
 void PhysicalInputPin::init() const {
     pinMode(pinNumber, INPUT | modeFlags);
