@@ -201,8 +201,21 @@ void KeyBindingSubSystem::refreshCompiledMacros() {
 void KeyBindingSubSystem::refreshKeyBindings() {
     keyBindings.clear();
 
+    // TODO large fixed arena for keybinding data?
+
     keyBindingStorage.forEach([&](const KeyBinding& keyBinding) {
-        keyBindings.push_back(std::make_shared<KeyBinding>(keyBinding));
+        std::shared_ptr<Trigger> triggerCopy = nullptr;
+        if (keyBinding.trigger->type == PUSH_BUTTON) {
+            auto pushButtonTrigger = dynamic_cast<PushButtonTrigger&>(*keyBinding.trigger);
+            triggerCopy = std::make_shared<PushButtonTrigger>(pushButtonTrigger);
+        } else if (keyBinding.trigger->type == ROTARY_ENCODER) {
+            auto rotaryEncoderTrigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding.trigger);
+            triggerCopy = std::make_shared<RotaryEncoderTrigger>(rotaryEncoderTrigger);
+        }
+
+        auto keyBindingCopy = std::make_shared<KeyBinding>(triggerCopy, keyBinding.macroId);
+
+        keyBindings.push_back(keyBindingCopy);
     });
 
     logger->info("Reloaded key bindings. # Found = %i", keyBindings.size());

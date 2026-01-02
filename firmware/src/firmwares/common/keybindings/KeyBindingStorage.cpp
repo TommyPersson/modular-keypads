@@ -22,6 +22,8 @@ namespace {
     std::shared_ptr<KeyBinding> deserializeKeyBinding(const std::string_view& line, utils::allocations::Arena& arena) {
         utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
         utils::allocations::ArenaAllocator<KeyBinding> keyBindingAllocator(arena);
+        utils::allocations::ArenaAllocator<PushButtonTrigger> pushButtonTriggerAllocator(arena);
+        utils::allocations::ArenaAllocator<RotaryEncoderTrigger> rotaryEncoderTriggerAllocator(arena);
 
         auto parts = utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
 
@@ -34,7 +36,7 @@ namespace {
 
             return std::allocate_shared<KeyBinding>(
                 keyBindingAllocator,
-                std::make_shared<PushButtonTrigger>(deviceId, number),
+                std::allocate_shared<PushButtonTrigger>(pushButtonTriggerAllocator, deviceId, number),
                 macroId
             );
         }
@@ -46,7 +48,7 @@ namespace {
 
             return std::allocate_shared<KeyBinding>(
                 keyBindingAllocator,
-                std::make_shared<RotaryEncoderTrigger>(deviceId, number, direction),
+                std::allocate_shared<RotaryEncoderTrigger>(rotaryEncoderTriggerAllocator, deviceId, number, direction),
                 macroId
             );
         }
