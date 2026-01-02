@@ -1,9 +1,10 @@
 #include "SetDeviceNameCommandHandler.h"
 
-#include <utils/strings.h>
+#include "utils/strings.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("SetDeviceNameCommandHandler");
+    auto logger = utils::logging::createLogger("SetDeviceNameCommandHandler");
 }
 
 SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(
@@ -16,8 +17,8 @@ SetDeviceNameCommandHandler::~SetDeviceNameCommandHandler() = default;
 
 utils::void_result SetDeviceNameCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     const auto name = args[0];
 

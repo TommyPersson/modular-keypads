@@ -3,15 +3,15 @@
 #include "utils/commands/CommandHandler.h"
 #include "firmwares/common/keybindings/KeyBindingStorage.h"
 
-class ListKeyBindingsCommandHandler : public CommandHandler {
+class ListKeyBindingsCommandHandler : public utils::commands::CommandHandler {
 public:
     explicit ListKeyBindingsCommandHandler(common::keybindings::KeyBindingStorage& keyBindingStorage);
     ~ListKeyBindingsCommandHandler() override;
 
     utils::void_result execute(
         const std::span<const std::string_view>& args,
-        CommandResponseWriter& responseWriter,
-        Arena& arena
+        utils::commands::CommandResponseWriter& responseWriter,
+        utils::allocations::Arena& arena
     ) override;
 
 private:

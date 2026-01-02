@@ -8,27 +8,29 @@
 #include "utils/allocations/Arena.h"
 #include "utils/observables/Observer.h"
 
-struct ParsedCommand {
-    int id;
-    std::string_view type;
-    arena::vector<std::string_view> args;
-};
+namespace utils::commands {
+    struct ParsedCommand {
+        int id;
+        std::string_view type;
+        utils::allocations::arena::vector<std::string_view> args;
+    };
 
-class CommandProcessor final : public Observer<LineEvent> {
-public:
-    explicit CommandProcessor(Print& outputStream);
-    ~CommandProcessor() override;
+    class CommandProcessor final : public observables::Observer<streams::LineEvent> {
+    public:
+        explicit CommandProcessor(Print& outputStream);
+        ~CommandProcessor() override;
 
-    void addHandler(const std::shared_ptr<CommandHandler>& handler);
+        void addHandler(const std::shared_ptr<CommandHandler>& handler);
 
-    void observe(const LineEvent& value) override;
+        void observe(const streams::LineEvent& value) override;
 
-private:
-    std::shared_ptr<CommandHandler> findHandler(const std::string_view& commandType);
+    private:
+        std::shared_ptr<CommandHandler> findHandler(const std::string_view& commandType);
 
-    ParsedCommand parseCommand(const std::string_view& rawCommand);
+        ParsedCommand parseCommand(const std::string_view& rawCommand);
 
-    std::list<std::shared_ptr<CommandHandler>> handlers;
-    Print& outputStream;
-    Arena arena;
-};
+        std::list<std::shared_ptr<CommandHandler>> handlers;
+        Print& outputStream;
+        utils::allocations::Arena arena;
+    };
+}

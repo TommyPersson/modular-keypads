@@ -11,7 +11,7 @@
 #include <utils/logging/Logger.h>
 
 namespace {
-    auto logger = common::logging::createLogger("RealUSBConnection");
+    auto logger = utils::logging::createLogger("RealUSBConnection");
 
     USBHIDKeyboard keyboard;
     USBHIDConsumerControl consumerControl;

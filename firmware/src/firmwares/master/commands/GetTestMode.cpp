@@ -9,8 +9,8 @@ GetTestMode::~GetTestMode() = default;
 
 utils::void_result GetTestMode::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     responseWriter.writeLine(testModeController.isEnabled() ? "true" : "false");
 

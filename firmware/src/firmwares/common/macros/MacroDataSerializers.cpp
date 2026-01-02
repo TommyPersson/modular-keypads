@@ -8,8 +8,8 @@ namespace common::macros {
             return type == CONSUMER_CONTROL;
         };
 
-        std::string_view serialize(const ConsumerControlMacroData& data, Arena& arena) override {
-            return arena::strings::sprintf(
+        std::string_view serialize(const ConsumerControlMacroData& data, utils::allocations::Arena& arena) override {
+            return utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%04x",
                 data.usageId
@@ -19,7 +19,7 @@ namespace common::macros {
         std::shared_ptr<ConsumerControlMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            Arena& arena
+            utils::allocations::Arena& arena
         ) override {
             const auto usageIdPart = parts[0];
 
@@ -37,8 +37,8 @@ namespace common::macros {
             return type == SHORTCUT;
         };
 
-        std::string_view serialize(const ShortcutMacroData& data, Arena& arena) override {
-            return arena::strings::sprintf(
+        std::string_view serialize(const ShortcutMacroData& data, utils::allocations::Arena& arena) override {
+            return utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:0x%02x",
                 data.modifiers,
@@ -49,7 +49,7 @@ namespace common::macros {
         std::shared_ptr<ShortcutMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            Arena& arena
+            utils::allocations::Arena& arena
         ) override {
             const auto modifiersPart = parts[0];
             const auto hidCodePart = parts[1];
@@ -69,8 +69,8 @@ namespace common::macros {
             return type == SYSTEM_CONTROL;
         };
 
-        std::string_view serialize(const SystemControlMacroData& data, Arena& arena) override {
-            return arena::strings::sprintf(
+        std::string_view serialize(const SystemControlMacroData& data, utils::allocations::Arena& arena) override {
+            return utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x",
                 data.code
@@ -80,7 +80,7 @@ namespace common::macros {
         std::shared_ptr<SystemControlMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            Arena& arena
+            utils::allocations::Arena& arena
         ) override {
             const auto codePart = parts[0];
 

@@ -28,8 +28,8 @@ namespace devices {
     };
 
     class DeviceRuntime
-        : Observer<SwitchEvent>,
-          Observer<EncoderRotatedEvent> {
+        : utils::observables::Observer<SwitchEvent>,
+          utils::observables::Observer<EncoderRotatedEvent> {
     public:
         explicit DeviceRuntime(
             uint64_t deviceId,
@@ -46,8 +46,8 @@ namespace devices {
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
         virtual const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const = 0;
 
-        Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
-        Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return deviceRotaryEncoderEventSubject; }
+        utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
+        utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return deviceRotaryEncoderEventSubject; }
 
     protected:
         void configureRegisters() const;
@@ -66,8 +66,8 @@ namespace devices {
         std::vector<std::shared_ptr<RotationalEncoderMonitor>> rotationalEncoderMonitors;
         std::vector<std::shared_ptr<SwitchMonitor>> switchMonitors;
 
-        Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
-        Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
+        utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
+        utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
 
         uint64_t deviceId;
         RegisterManager& registers;

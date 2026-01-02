@@ -12,8 +12,8 @@ ReadDeviceFirmwareVersionCommandHandler::~ReadDeviceFirmwareVersionCommandHandle
 
 utils::void_result ReadDeviceFirmwareVersionCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
     ) {
     const auto deviceVersion = this->deviceConfigurationManager.getDeviceVersion();
     if (deviceVersion.empty()) {

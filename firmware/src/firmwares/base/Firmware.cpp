@@ -26,8 +26,8 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     i2c(serviceLocator.i2c),
     serviceLocator(serviceLocator) {
 
-    this->lineStreamer = std::make_unique<LineStreamer>(serialPort.stream());
-    this->commandProcessor = std::make_unique<CommandProcessor>(serialPort.stream());
+    this->lineStreamer = std::make_unique<utils::streams::LineStreamer>(serialPort.stream());
+    this->commandProcessor = std::make_unique<utils::commands::CommandProcessor>(serialPort.stream());
     this->lineStreamer->addObserver(this->commandProcessor.get());
 
     this->addCommandHandler(std::make_shared<PingCommandHandler>());
@@ -70,7 +70,7 @@ void Firmware::loop() {
     lineStreamer->update();
 }
 
-void Firmware::addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const {
+void Firmware::addCommandHandler(const std::shared_ptr<utils::commands::CommandHandler>& commandHandler) const {
     this->commandProcessor->addHandler(commandHandler);
 }
 

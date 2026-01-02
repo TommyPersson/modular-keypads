@@ -13,8 +13,8 @@ ReadDeviceIdCommandHandler::~ReadDeviceIdCommandHandler() = default;
 
 utils::void_result ReadDeviceIdCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     const auto deviceId = this->deviceConfigurationManager.getDeviceId();
     if (deviceId == 0) {

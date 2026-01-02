@@ -23,7 +23,7 @@ public:
     );
     ~RotationalEncoderMonitor();
 
-    Observable<EncoderRotatedEvent>& onEncoderRotated() const;
+    utils::observables::Observable<EncoderRotatedEvent>& onEncoderRotated() const;
 
     std::uint8_t getEncoderNumber() const;
 
@@ -37,7 +37,7 @@ private:
     const std::shared_ptr<BitReader> aBitReader;
     const std::shared_ptr<BitReader> bBitReader;
 
-    const std::unique_ptr<Subject<EncoderRotatedEvent>> encoderRotatedSubject;
+    const std::unique_ptr<utils::observables::Subject<EncoderRotatedEvent>> encoderRotatedSubject;
 
     std::uint8_t previousState;
     RotationalEncoderDirection previousDirection = RotationalEncoderDirection::None;

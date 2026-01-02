@@ -4,9 +4,10 @@
 
 #include "I2cPins.h"
 #include "Operation.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("SlavePort");
+    auto logger = utils::logging::createLogger("SlavePort");
 }
 
 i2c::SlavePort::SlavePort(TwoWire& twoWire) :

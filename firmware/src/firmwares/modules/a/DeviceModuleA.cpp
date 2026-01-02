@@ -1,7 +1,9 @@
 #include "DeviceModuleA.h"
 
+#include "utils/logging/Logger.h"
+
 namespace {
-    auto logger = common::logging::createLogger("DeviceModuleA");
+    auto logger = utils::logging::createLogger("DeviceModuleA");
 }
 
 using namespace devices::a;

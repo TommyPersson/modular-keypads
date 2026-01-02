@@ -10,7 +10,7 @@ using namespace common::keybindings;
 // TODO lots of allocation stuff to optimize
 
 namespace {
-    auto logger = common::logging::createLogger("KeyBindingSubSystem");
+    auto logger = utils::logging::createLogger("KeyBindingSubSystem");
 
     std::vector<uint8_t> getKeyCodesFromModifierFlags(const uint8_t modifiers) {
         std::vector<uint8_t> result(8);

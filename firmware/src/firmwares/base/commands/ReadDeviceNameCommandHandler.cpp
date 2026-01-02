@@ -12,8 +12,8 @@ ReadDeviceNameCommandHandler::~ReadDeviceNameCommandHandler() = default;
 
 utils::void_result ReadDeviceNameCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
     ) {
     auto name = this->deviceConfigurationManager.getDeviceName();
 

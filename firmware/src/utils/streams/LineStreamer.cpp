@@ -1,5 +1,7 @@
 #include "LineStreamer.h"
 
+using namespace utils::streams;
+
 LineStreamer::LineStreamer(Stream& inputStream, size_t bufferSize) :
     inputStream(inputStream),
     bufferSize(bufferSize),
@@ -53,11 +55,11 @@ std::shared_ptr<std::string> LineStreamer::processReceiveBuffer() {
     return nullptr;
 }
 
-void LineStreamer::addObserver(Observer<LineEvent>* observer) {
+void LineStreamer::addObserver(observables::Observer<LineEvent>* observer) {
     this->lineSubject.addObserver(observer);
 }
 
-void LineStreamer::removeObserver(Observer<LineEvent>* observer) {
+void LineStreamer::removeObserver(observables::Observer<LineEvent>* observer) {
     this->lineSubject.removeObserver(observer);
 }
 

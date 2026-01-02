@@ -10,26 +10,25 @@
 
 #include "CommandResponseWriter.h"
 
+namespace utils::commands {
+    class CommandHandler {
+    public:
+        explicit CommandHandler(std::string commandType) : commandType(std::move(commandType)) {
+        }
 
-class CommandHandler {
-public:
-    explicit CommandHandler(std::string commandType);
-    virtual ~CommandHandler() = default;
+        virtual ~CommandHandler() = default;
 
-    const std::string& getCommandType() const {
-        return this->commandType;
+        const std::string& getCommandType() const {
+            return this->commandType;
+        };
+
+        virtual void_result execute(
+            const std::span<const std::string_view>& args,
+            CommandResponseWriter& responseWriter,
+            utils::allocations::Arena& arena
+        ) = 0;
+
+    private:
+        std::string commandType;
     };
-
-    virtual utils::void_result execute(
-        const std::span<const std::string_view>& args,
-        CommandResponseWriter& responseWriter,
-        Arena& arena
-    ) = 0;
-
-private:
-    std::string commandType;
-};
-
-inline CommandHandler::CommandHandler(std::string commandType)
-    : commandType(std::move(commandType)) {
 }

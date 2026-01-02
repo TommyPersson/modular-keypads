@@ -1,9 +1,10 @@
 #include "SetDeviceAddressCommandHandler.h"
 
-#include <utils/strings.h>
+#include "utils/strings.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("SetDeviceAddressCommandHandler");
+    auto logger = utils::logging::createLogger("SetDeviceAddressCommandHandler");
 }
 
 SetDeviceAddressCommandHandler::SetDeviceAddressCommandHandler(
@@ -16,8 +17,8 @@ SetDeviceAddressCommandHandler::~SetDeviceAddressCommandHandler() = default;
 
 utils::void_result SetDeviceAddressCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     const auto addressStr = args[0];
 

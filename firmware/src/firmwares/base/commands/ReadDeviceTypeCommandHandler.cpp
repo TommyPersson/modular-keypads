@@ -10,8 +10,8 @@ ReadDeviceTypeCommandHandler::~ReadDeviceTypeCommandHandler() = default;
 
 utils::void_result ReadDeviceTypeCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     auto deviceId = this->deviceConfigurationManager.getDeviceType();
     if (deviceId == 0) {

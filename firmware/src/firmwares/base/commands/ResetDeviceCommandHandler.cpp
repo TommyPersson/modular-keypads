@@ -10,8 +10,8 @@ ResetDeviceCommandHandler::~ResetDeviceCommandHandler() = default;
 
 utils::void_result ResetDeviceCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     ESP.restart();
 

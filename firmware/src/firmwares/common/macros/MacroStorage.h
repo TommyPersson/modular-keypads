@@ -26,11 +26,11 @@ namespace common::macros {
 
         void forEach(const std::function<void(const Macro&)>& callback);
 
-        Observable<MacroSaved>& onMacroSaved() { return onMacroSavedSubject; };
-        Observable<MacroRemoved>& onMacroRemoved() { return onMacroRemovedSubject; };
+        utils::observables::Observable<MacroSaved>& onMacroSaved() { return onMacroSavedSubject; };
+        utils::observables::Observable<MacroRemoved>& onMacroRemoved() { return onMacroRemovedSubject; };
 
     private:
-        Subject<MacroSaved> onMacroSavedSubject;
-        Subject<MacroRemoved> onMacroRemovedSubject;
+        utils::observables::Subject<MacroSaved> onMacroSavedSubject;
+        utils::observables::Subject<MacroRemoved> onMacroRemovedSubject;
     };
 }

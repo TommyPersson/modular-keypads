@@ -4,7 +4,7 @@
 #include "firmwares/common/monitors/RotationalEncoderMonitor.h"
 #include "utils/observables/Observable.h"
 
-class EncoderRotationNotifier : public Observer<EncoderRotatedEvent> {
+class EncoderRotationNotifier : public utils::observables::Observer<EncoderRotatedEvent> {
 public:
     explicit EncoderRotationNotifier(Notifier& notifier);
     ~EncoderRotationNotifier() override;

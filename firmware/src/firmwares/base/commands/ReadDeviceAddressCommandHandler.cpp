@@ -12,11 +12,11 @@ ReadDeviceAddressCommandHandler::~ReadDeviceAddressCommandHandler() = default;
 
 utils::void_result ReadDeviceAddressCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     auto address = this->deviceConfigurationManager.getDeviceAddress();
-    auto addressStr = arena::strings::sprintf(arena, "0x%02x", address);
+    auto addressStr = utils::allocations::arena::strings::sprintf(arena, "0x%02x", address);
 
     responseWriter.writeLine(addressStr);
 

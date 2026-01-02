@@ -14,13 +14,13 @@ namespace common::macros {
 
         virtual std::string_view serialize(
             const T& data,
-            Arena& arena
+            utils::allocations::Arena& arena
         ) = 0;
 
         virtual std::shared_ptr<T> deserialize(
             uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            Arena& arena
+            utils::allocations::Arena& arena
         ) = 0;
     };
 

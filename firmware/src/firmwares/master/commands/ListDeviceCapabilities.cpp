@@ -12,8 +12,8 @@ ListDeviceCapabilities::~ListDeviceCapabilities() = default;
 
 utils::void_result ListDeviceCapabilities::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     const auto& deviceIdStr = args[0];
     const auto deviceId = utils::strings::atou64(deviceIdStr, 16);

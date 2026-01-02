@@ -2,6 +2,8 @@
 
 // <expected> is not available in this compiler version, so we just do something simple for now.
 
+#include <cstdint>
+
 namespace utils {
 
     template <typename T>

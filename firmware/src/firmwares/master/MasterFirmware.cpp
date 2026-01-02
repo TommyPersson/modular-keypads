@@ -9,9 +9,9 @@
 
 #endif
 
-#include <utils/strings.h>
-#include <utils/allocations/ArenaUtils.h>
-
+#include "../common/DeviceScanner.h"
+#include "../common/keybindings/KeyBindingStorage.h"
+#include "../common/macros/MacroStorage.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
 #include "commands/DeleteMacroCommandHandler.h"
 #include "commands/GetTestMode.h"
@@ -22,13 +22,12 @@
 #include "commands/SaveMacroCommandHandler.h"
 #include "commands/SetKeyBindingCommandHandler.h"
 #include "commands/SetTestMode.h"
-
-#include "../common/DeviceScanner.h"
-#include "../common/keybindings/KeyBindingStorage.h"
-#include "../common/macros/MacroStorage.h"
+#include "utils/strings.h"
+#include "utils/allocations/ArenaUtils.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("MasterFirmware");
+    auto logger = utils::logging::createLogger("MasterFirmware");
 }
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)

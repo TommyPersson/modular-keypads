@@ -26,7 +26,7 @@ public:
     void begin();
     void update();
 
-    Observable<SwitchEvent>& onSwitchStateChanged() const;
+    utils::observables::Observable<SwitchEvent>& onSwitchStateChanged() const;
 
     std::uint8_t getSwitchNumber() const;
     SwitchState getCurrentState() const;
@@ -38,7 +38,7 @@ private:
     const std::uint8_t switchNumber;
     const std::shared_ptr<BitReader> bitReader;
 
-    std::unique_ptr<Subject<SwitchEvent>> keySwitchStateChangedSubject;
+    std::unique_ptr<utils::observables::Subject<SwitchEvent>> keySwitchStateChangedSubject;
 
     SwitchState currentState = SwitchState::UNKNOWN;
     SwitchState previousState = SwitchState::UNKNOWN;

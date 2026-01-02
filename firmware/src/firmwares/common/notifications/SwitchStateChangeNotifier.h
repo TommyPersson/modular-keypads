@@ -4,7 +4,7 @@
 #include "firmwares/common/monitors/SwitchMonitor.h"
 #include "utils/observables/Observable.h"
 
-class SwitchStateChangeNotifier : public Observer<SwitchEvent> {
+class SwitchStateChangeNotifier : public utils::observables::Observer<SwitchEvent> {
 public:
     explicit SwitchStateChangeNotifier(Notifier& notifier);
     ~SwitchStateChangeNotifier() override;

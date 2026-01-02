@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <Wire.h>
 #include <SerialPort/SerialPort.h>
 
@@ -25,7 +26,7 @@ public:
     static std::unique_ptr<Firmware> create(ServiceLocator& serviceLocator);
 
 protected:
-    void addCommandHandler(const std::shared_ptr<CommandHandler>& commandHandler) const;
+    void addCommandHandler(const std::shared_ptr<utils::commands::CommandHandler>& commandHandler) const;
     devices::DeviceModuleFactory* getModuleFactory(char deviceType) const;
 
     DeviceConfigurationManager& deviceConfigurationManager;
@@ -37,7 +38,7 @@ protected:
     std::optional<RegisterManager*> registers;
 
 private:
-    std::unique_ptr<LineStreamer> lineStreamer;
-    std::unique_ptr<CommandProcessor> commandProcessor;
+    std::unique_ptr<utils::streams::LineStreamer> lineStreamer;
+    std::unique_ptr<utils::commands::CommandProcessor> commandProcessor;
     std::vector<std::unique_ptr<devices::DeviceModuleFactory>> moduleFactories;
 };

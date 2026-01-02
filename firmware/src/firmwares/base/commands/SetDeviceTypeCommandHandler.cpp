@@ -1,7 +1,9 @@
 #include "SetDeviceTypeCommandHandler.h"
 
+#include "utils/logging/Logger.h"
+
 namespace {
-    auto logger = common::logging::createLogger("SetDeviceTypeCommandHandler");
+    auto logger = utils::logging::createLogger("SetDeviceTypeCommandHandler");
 }
 
 SetDeviceTypeCommandHandler::SetDeviceTypeCommandHandler(
@@ -15,8 +17,8 @@ SetDeviceTypeCommandHandler::~SetDeviceTypeCommandHandler() = default;
 
 utils::void_result SetDeviceTypeCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
     ) {
     if (args.size() != 1) {
         return utils::void_result::error("incorrect.number.of.arguments");

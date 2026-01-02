@@ -3,14 +3,14 @@
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "utils/commands/CommandHandler.h"
 
-class SetDeviceTypeCommandHandler final : public CommandHandler {
+class SetDeviceTypeCommandHandler final : public utils::commands::CommandHandler {
 public:
     explicit SetDeviceTypeCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~SetDeviceTypeCommandHandler() override;
     utils::void_result execute(
         const std::span<const std::string_view>& args,
-        CommandResponseWriter& responseWriter,
-        Arena& arena
+        utils::commands::CommandResponseWriter& responseWriter,
+        utils::allocations::Arena& arena
     ) override;
 
 private:

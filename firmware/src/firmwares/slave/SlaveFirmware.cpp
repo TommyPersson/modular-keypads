@@ -1,11 +1,11 @@
 #include "SlaveFirmware.h"
 
-#include <utils/strings.h>
-
 #include "../common/i2c/EndpointStructs.h"
+#include "utils/strings.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("SlaveFirmware");
+    auto logger = utils::logging::createLogger("SlaveFirmware");
 }
 
 SlaveFirmware::SlaveFirmware(ServiceLocator& serviceLocator) :

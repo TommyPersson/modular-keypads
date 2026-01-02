@@ -1,12 +1,11 @@
 #include "DeviceModuleM.h"
 
-#include <firmwares/common/runtimes/RemoteRegisterRefresher.h>
-
 #include "DeviceRuntimeM.h"
 #include "LocalRegisterRefresherM.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("DeviceModuleM");
+    auto logger = utils::logging::createLogger("DeviceModuleM");
 }
 
 using namespace devices::m;

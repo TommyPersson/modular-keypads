@@ -13,8 +13,8 @@ SetKeyBindingCommandHandler::~SetKeyBindingCommandHandler() = default;
 
 utils::void_result SetKeyBindingCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     const auto type = utils::strings::atol(args[0], 16);
     const auto deviceId = utils::strings::atou64(args[1], 16);

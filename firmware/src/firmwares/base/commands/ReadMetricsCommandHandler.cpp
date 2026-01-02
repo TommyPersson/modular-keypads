@@ -17,8 +17,8 @@ ReadMetricsCommandHandler::~ReadMetricsCommandHandler() = default;
 
 utils::void_result ReadMetricsCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     responseWriter.writeLineF("esp.memory.global.free_heap_size:%lu", esp_get_free_heap_size());
     responseWriter.writeLineF("esp.memory.global.free_internal_heap_size:%lu", esp_get_free_internal_heap_size());

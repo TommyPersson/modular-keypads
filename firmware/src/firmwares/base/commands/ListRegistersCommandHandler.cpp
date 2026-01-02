@@ -13,8 +13,8 @@ ListRegistersCommandHandler::~ListRegistersCommandHandler() = default;
 
 utils::void_result ListRegistersCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
     ) {
 
     if (!registers.has_value()) {

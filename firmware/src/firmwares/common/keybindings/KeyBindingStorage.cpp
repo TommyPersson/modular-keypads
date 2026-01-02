@@ -12,18 +12,18 @@
 using namespace common::keybindings;
 
 namespace {
-    auto logger = common::logging::createLogger("KeyBindingStorage");
+    auto logger = utils::logging::createLogger("KeyBindingStorage");
 
     auto filePath = "/data/key-bindings.txt";
     auto tempFilePath = "/data/key-bindings.txt.tmp";
 }
 
 namespace {
-    std::shared_ptr<KeyBinding> deserializeKeyBinding(const std::string_view& line, Arena& arena) {
-        ArenaAllocator<std::string_view> stringViewAllocator(arena);
-        ArenaAllocator<KeyBinding> keyBindingAllocator(arena);
+    std::shared_ptr<KeyBinding> deserializeKeyBinding(const std::string_view& line, utils::allocations::Arena& arena) {
+        utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
+        utils::allocations::ArenaAllocator<KeyBinding> keyBindingAllocator(arena);
 
-        auto parts = arena::strings::split(line, ':', stringViewAllocator, 10);
+        auto parts = utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
 
         auto type = static_cast<TriggerType>(utils::strings::atol(parts[0], 16));
         auto deviceId = utils::strings::atou64(parts[1], 16);
@@ -54,10 +54,10 @@ namespace {
         return nullptr;
     }
 
-    std::string_view serializeKeyBinding(const KeyBinding& keyBinding, Arena& arena) {
+    std::string_view serializeKeyBinding(const KeyBinding& keyBinding, utils::allocations::Arena& arena) {
         if (keyBinding.trigger->type == PUSH_BUTTON) {
             const auto& trigger = dynamic_cast<PushButtonTrigger&>(*keyBinding.trigger);
-            return arena::strings::sprintf(
+            return utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:%08llx:0x%02x:0x%04x",
                 trigger.type,
@@ -69,7 +69,7 @@ namespace {
 
         if (keyBinding.trigger->type == ROTARY_ENCODER) {
             const auto& trigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding.trigger);
-            return arena::strings::sprintf(
+            return utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:%08llx:0x%02x:0x%02x:0x%04x",
                 trigger.type,
@@ -99,7 +99,7 @@ error_t KeyBindingStorage::write(const KeyBinding& keyBinding) {
         return -1;
     }
 
-    Arena arena(512);
+    utils::allocations::Arena arena(512);
 
     auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
 
@@ -119,7 +119,7 @@ error_t KeyBindingStorage::remove(const Trigger& trigger) {
         return -1;
     }
 
-    Arena arena(512);
+    utils::allocations::Arena arena(512);
 
     forEach([&](const KeyBinding& keyBinding) {
         if (*keyBinding.trigger != trigger) {
@@ -147,7 +147,7 @@ error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
         return -1;
     }
 
-    Arena arena(512);
+    utils::allocations::Arena arena(512);
 
     forEach([&](const KeyBinding& keyBinding) {
         if (keyBinding.macroId != macroId) {
@@ -169,7 +169,7 @@ error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
 }
 
 void KeyBindingStorage::forEach(const std::function<void(const KeyBinding&)>& callback) {
-    Arena arena(1024);
+    utils::allocations::Arena arena(1024);
 
     const auto rc = utils::files::iterateLines(
         filePath,

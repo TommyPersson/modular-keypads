@@ -6,7 +6,7 @@
 #include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("DeviceScanner");
+    auto logger = utils::logging::createLogger("DeviceScanner");
 }
 
 DeviceScanner::DeviceScanner(I2cClient& client) :

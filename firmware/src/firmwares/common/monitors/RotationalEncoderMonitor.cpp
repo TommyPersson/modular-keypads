@@ -8,13 +8,13 @@ RotationalEncoderMonitor::RotationalEncoderMonitor(
     encoderNumber(encoderNumber),
     aBitReader(aBitReader),
     bBitReader(bBitReader),
-    encoderRotatedSubject(std::make_unique<Subject<EncoderRotatedEvent>>()),
+    encoderRotatedSubject(std::make_unique<utils::observables::Subject<EncoderRotatedEvent>>()),
     previousState(0) {
 }
 
 RotationalEncoderMonitor::~RotationalEncoderMonitor() = default;
 
-Observable<EncoderRotatedEvent>& RotationalEncoderMonitor::onEncoderRotated() const {
+utils::observables::Observable<EncoderRotatedEvent>& RotationalEncoderMonitor::onEncoderRotated() const {
     return *encoderRotatedSubject;
 }
 

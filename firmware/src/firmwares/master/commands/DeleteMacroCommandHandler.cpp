@@ -1,11 +1,12 @@
 #include "DeleteMacroCommandHandler.h"
 
-#include <utils/strings.h>
+#include "utils/strings.h"
+#include "utils/logging/Logger.h"
 
 using namespace common::macros;
 
 namespace {
-    auto logger = common::logging::createLogger("DeleteMacroCommandHandler");
+    auto logger = utils::logging::createLogger("DeleteMacroCommandHandler");
 }
 
 DeleteMacroCommandHandler::DeleteMacroCommandHandler(MacroStorage& macroStorage)
@@ -17,8 +18,8 @@ DeleteMacroCommandHandler::~DeleteMacroCommandHandler() = default;
 
 utils::void_result DeleteMacroCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     auto& idArg = args[0];
     auto id = utils::strings::atol(idArg);

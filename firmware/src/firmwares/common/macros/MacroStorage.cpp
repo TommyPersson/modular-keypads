@@ -15,17 +15,17 @@
 using namespace common::macros;
 
 namespace {
-    auto logger = common::logging::createLogger("MacroStorage");
+    auto logger = utils::logging::createLogger("MacroStorage");
     auto filePath = "/data/macro-definitions.txt";
     auto tempFilePath = "/data/macro-definitions.txt.tmp";
 }
 
 namespace {
-    std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, Arena& arena) {
-        ArenaAllocator<std::string_view> stringViewAllocator(arena);
-        ArenaAllocator<Macro> macroAllocator(arena);
+    std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, utils::allocations::Arena& arena) {
+        utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
+        utils::allocations::ArenaAllocator<Macro> macroAllocator(arena);
 
-        auto parts = arena::strings::split(line, ':', stringViewAllocator, 10);
+        auto parts = utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
 
         auto macroIdPart = parts[0];
         auto macroId = utils::strings::atou16(macroIdPart);
@@ -50,7 +50,7 @@ namespace {
         return nullptr;
     }
 
-    std::string_view serializeStoredMacro(const Macro& macro, Arena& arena) {
+    std::string_view serializeStoredMacro(const Macro& macro, utils::allocations::Arena& arena) {
         std::string_view dataPart;
 
         for (auto serializer : macroDataSerializers) {
@@ -61,7 +61,7 @@ namespace {
         }
 
         if (!dataPart.empty()) {
-            return arena::strings::sprintf(
+            return utils::allocations::arena::strings::sprintf(
                 arena,
                 "%i:%s:0x%02x:%.*s",
                 macro.data->id,
@@ -89,7 +89,7 @@ error_t MacroStorage::write(const Macro& macro) {
         return -1;
     }
 
-    Arena arena(2048);
+    utils::allocations::Arena arena(2048);
 
     uint16_t highestIdSeen = 0;
 
@@ -128,7 +128,7 @@ error_t MacroStorage::remove(uint16_t id) {
         return -1;
     }
 
-    Arena arena(2048);
+    utils::allocations::Arena arena(2048);
 
     forEach([&](const Macro& storedMacro) {
         if (storedMacro.data->id != id) {
@@ -150,7 +150,7 @@ error_t MacroStorage::remove(uint16_t id) {
 }
 
 void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
-    Arena arena(1024);
+    utils::allocations::Arena arena(1024);
 
     const auto rc = utils::files::iterateLines(
         filePath,

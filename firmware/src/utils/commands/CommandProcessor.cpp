@@ -4,10 +4,14 @@
 
 #include "utils/strings.h"
 #include "utils/allocations/ArenaUtils.h"
+#include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("CommandProcessor");
+    auto logger = utils::logging::createLogger("CommandProcessor");
 }
+
+using namespace utils::commands;
+using namespace utils::streams;
 
 CommandProcessor::CommandProcessor(Print& outputStream) :
     outputStream(outputStream),
@@ -49,15 +53,15 @@ void CommandProcessor::observe(const LineEvent& value) {
 }
 
 ParsedCommand CommandProcessor::parseCommand(const std::string_view& rawCommand) {
-    ArenaAllocator<std::string_view> allocator(this->arena);
+    utils::allocations::ArenaAllocator<std::string_view> allocator(this->arena);
 
-    const auto commandParts = arena::strings::split(rawCommand, ':', allocator);
+    const auto commandParts = utils::allocations::arena::strings::split(rawCommand, ':', allocator);
 
-    const auto commandId = utils::strings::atol(commandParts[0]);
+    const auto commandId = strings::atol(commandParts[0]);
     const auto command = commandParts[1];
     auto args = commandParts.size() > 2
-                    ? arena::strings::split(commandParts[2], ',', allocator)
-                    : arena::vector(allocator);
+                    ? utils::allocations::arena::strings::split(commandParts[2], ',', allocator)
+                    : utils::allocations::arena::vector(allocator);
 
     return ParsedCommand{
         .id = commandId,

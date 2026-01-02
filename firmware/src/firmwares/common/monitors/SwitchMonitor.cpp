@@ -6,7 +6,7 @@ SwitchMonitor::SwitchMonitor(
     ) :
     switchNumber(switchNumber),
     bitReader(bitReader),
-    keySwitchStateChangedSubject(std::make_unique<Subject<SwitchEvent>>()) {
+    keySwitchStateChangedSubject(std::make_unique<utils::observables::Subject<SwitchEvent>>()) {
 }
 
 SwitchMonitor::~SwitchMonitor() = default;
@@ -25,7 +25,7 @@ void SwitchMonitor::update() {
     }
 }
 
-Observable<SwitchEvent>& SwitchMonitor::onSwitchStateChanged() const {
+utils::observables::Observable<SwitchEvent>& SwitchMonitor::onSwitchStateChanged() const {
     return *keySwitchStateChangedSubject;
 }
 

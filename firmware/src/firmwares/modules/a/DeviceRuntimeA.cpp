@@ -5,7 +5,7 @@
 #include "DeviceModuleA.h"
 
 namespace {
-    auto logger = common::logging::createLogger("DeviceRuntimeA");
+    auto logger = utils::logging::createLogger("DeviceRuntimeA");
 }
 
 DeviceRuntimeA::DeviceRuntimeA(

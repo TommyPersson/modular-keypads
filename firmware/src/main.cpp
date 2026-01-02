@@ -35,7 +35,7 @@ USBCDC TheSerial;
 #endif
 
 void setup() {
-    common::logging::initialize(&TheSerial);
+    utils::logging::initialize(&TheSerial);
 
 
     serialPort = SerialPort::from(TheSerial);

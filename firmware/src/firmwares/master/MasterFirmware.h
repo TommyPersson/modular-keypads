@@ -5,8 +5,8 @@
 #include "KeyBindingSubSystem.h"
 
 class MasterFirmware final : public Firmware,
-                             Observer<devices::DeviceSwitchEvent>,
-                             Observer<devices::DeviceRotaryEncoderEvent> {
+                             utils::observables::Observer<devices::DeviceSwitchEvent>,
+                             utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
 public:
     explicit MasterFirmware(ServiceLocator& serviceLocator);
     ~MasterFirmware() override;

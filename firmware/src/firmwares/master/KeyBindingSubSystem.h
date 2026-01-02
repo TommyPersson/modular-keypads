@@ -12,12 +12,12 @@ struct CompiledMacro {
 };
 
 class KeyBindingSubSystem
-    : Observer<common::macros::MacroSaved>,
-      Observer<common::macros::MacroRemoved>,
-      Observer<common::keybindings::KeyBindingSet>,
-      Observer<common::keybindings::KeyBindingCleared>,
-      Observer<devices::DeviceSwitchEvent>,
-      Observer<devices::DeviceRotaryEncoderEvent> {
+    : utils::observables::Observer<common::macros::MacroSaved>,
+      utils::observables::Observer<common::macros::MacroRemoved>,
+      utils::observables::Observer<common::keybindings::KeyBindingSet>,
+      utils::observables::Observer<common::keybindings::KeyBindingCleared>,
+      utils::observables::Observer<devices::DeviceSwitchEvent>,
+      utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
 public:
     KeyBindingSubSystem(
         common::macros::MacroStorage& macroStorage,

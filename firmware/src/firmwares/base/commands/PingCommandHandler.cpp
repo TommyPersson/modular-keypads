@@ -1,8 +1,10 @@
 #include "PingCommandHandler.h"
 
+#include "utils/logging/Logger.h"
+
 
 namespace {
-    auto logger = common::logging::createLogger("PingCommandHandler");
+    auto logger = utils::logging::createLogger("PingCommandHandler");
 }
 
 PingCommandHandler::PingCommandHandler() :
@@ -13,8 +15,8 @@ PingCommandHandler::~PingCommandHandler() = default;
 
 utils::void_result PingCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
     ) {
     for (auto& arg : args) {
         logger->debug("arg = %.*s", arg.length(), arg.data());

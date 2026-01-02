@@ -3,15 +3,15 @@
 #include <utils/commands/CommandHandler.h>
 #include <firmwares/modules/common/DeviceModule.h>
 
-class ListConnectedDevices : public CommandHandler {
+class ListConnectedDevices : public utils::commands::CommandHandler {
 public:
     explicit ListConnectedDevices(std::vector<devices::DeviceModule*>& devices);
     ~ListConnectedDevices() override;
 
     utils::void_result execute(
         const std::span<const std::string_view>& args,
-        CommandResponseWriter& responseWriter,
-        Arena& arena
+        utils::commands::CommandResponseWriter& responseWriter,
+        utils::allocations::Arena& arena
     ) override;
 
 private:

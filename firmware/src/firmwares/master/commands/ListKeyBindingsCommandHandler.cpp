@@ -11,8 +11,8 @@ ListKeyBindingsCommandHandler::~ListKeyBindingsCommandHandler() = default;
 
 utils::void_result ListKeyBindingsCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    CommandResponseWriter& responseWriter,
-    Arena& arena
+    utils::commands::CommandResponseWriter& responseWriter,
+    utils::allocations::Arena& arena
 ) {
     keyBindingStorage.forEach([&](const KeyBinding& keyBinding) {
         if (keyBinding.trigger->type == PUSH_BUTTON) {

@@ -3,7 +3,7 @@
 #include "utils/logging/Logger.h"
 
 namespace {
-    auto logger = common::logging::createLogger("DeviceConfigurationManager");
+    auto logger = utils::logging::createLogger("DeviceConfigurationManager");
 
     auto prefsNamespace = "device";
     auto prefsKeyDeviceId = "device.id";

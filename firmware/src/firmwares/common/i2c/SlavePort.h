@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <Wire.h>
 
 #include "utils/allocations/Arena.h"
@@ -32,7 +33,7 @@ namespace i2c {
 
         TwoWire& twoWire;
 
-        Arena receiveArena;
+        utils::allocations::Arena receiveArena;
 
         mutable std::mutex lock;
     };

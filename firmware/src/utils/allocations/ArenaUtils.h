@@ -5,7 +5,7 @@
 
 #include "Arena.h"
 
-namespace arena::strings {
+namespace utils::allocations::arena::strings {
     vector<std::string_view> split(
         const std::string_view& str,
         char delimiter,
