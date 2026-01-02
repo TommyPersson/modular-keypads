@@ -41,7 +41,7 @@ export const DeviceMetricsDropDown = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Metric</TableCell>
-                <TableCell>Value</TableCell>
+                <TableCell align={"right"}>Value</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -3,6 +3,7 @@
 #include <string>
 #include <esp_heap_caps.h>
 #include <esp_system.h>
+#include <LittleFS.h>
 
 #include "utils/allocations/ArenaUtils.h"
 
@@ -28,6 +29,13 @@ utils::void_result ReadMetricsCommandHandler::execute(
     responseWriter.writeLineF("esp.memory.malloc_cap.total_free_bytes:%lu", static_cast<unsigned long>(info.total_free_bytes));
     responseWriter.writeLineF("esp.memory.malloc_cap.minimum_free_bytes:%lu", static_cast<unsigned long>(info.minimum_free_bytes));
     responseWriter.writeLineF("esp.memory.malloc_cap.largest_free_block:%lu",  static_cast<unsigned long>(info.largest_free_block));
+
+    size_t totalBytes = LittleFS.totalBytes();
+    size_t usedBytes = LittleFS.usedBytes();
+    auto freeBytes = totalBytes - usedBytes;
+    responseWriter.writeLineF("littlefs.total_bytes:%u", totalBytes);
+    responseWriter.writeLineF("littlefs.used_bytes:%u", usedBytes);
+    responseWriter.writeLineF("littlefs.free_bytes:%u", freeBytes);
 
     return utils::void_result::success();
 }
