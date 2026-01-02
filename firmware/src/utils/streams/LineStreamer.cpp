@@ -38,6 +38,7 @@ std::shared_ptr<std::string> LineStreamer::processReceiveBuffer() {
         char c = this->receiveBuffer[receiveBufferIndex];
         if (c == '\n') {
             receiveBufferIndex += 1;
+            // TODO stack/pre-allocated strings instead
             auto line = std::make_shared<std::string>(this->lineBuffer);
             memset(this->lineBuffer, 0, this->bufferSize);
             return line;

@@ -2,7 +2,7 @@
 
 #include <Stream.h>
 
-#include "firmwares/common/commands/CommandHandler.h"
+#include "utils/commands/CommandHandler.h"
 
 class PingCommandHandler final : public CommandHandler {
 public:

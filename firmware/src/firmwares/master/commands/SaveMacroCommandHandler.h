@@ -1,6 +1,6 @@
 #pragma once
 
-#include "firmwares/common/commands/CommandHandler.h"
+#include "utils/commands/CommandHandler.h"
 #include "firmwares/common/macros/MacroStorage.h"
 
 class SaveMacroCommandHandler : public CommandHandler {

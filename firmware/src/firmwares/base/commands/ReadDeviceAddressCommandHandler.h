@@ -1,7 +1,7 @@
 #pragma once
 
 #include "firmwares/common/DeviceConfigurationManager.h"
-#include "firmwares/common/commands/CommandHandler.h"
+#include "utils/commands/CommandHandler.h"
 
 class ReadDeviceAddressCommandHandler final : public CommandHandler {
 public:

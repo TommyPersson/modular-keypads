@@ -1,13 +1,14 @@
 #pragma once
 
-#include <Wire.h>
 #include <memory>
+#include <Wire.h>
 #include <SerialPort/SerialPort.h>
 
 #include "../common/DeviceConfigurationManager.h"
-#include "../common/LineStreamer.h"
 #include "../common/ServiceLocator.h"
-#include "../common/commands/CommandProcessor.h"
+
+#include "utils/commands/CommandProcessor.h"
+#include "utils/streams/LineStreamer.h"
 
 #include "firmwares/modules/common/DeviceModule.h"
 #include "firmwares/modules/common/DeviceModuleFactory.h"

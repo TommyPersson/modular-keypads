@@ -2,7 +2,7 @@
 
 #include <Registers/Registers.h>
 
-#include "firmwares/common/commands/CommandHandler.h"
+#include "utils/commands/CommandHandler.h"
 
 class ListRegisterValuesCommandHandler final : public CommandHandler {
 public:

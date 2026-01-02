@@ -4,8 +4,7 @@
 #include <SerialPort/SerialPort.h>
 
 #include "CommandHandler.h"
-#include "utils/logging/Logger.h"
-#include "firmwares/common/LineStreamer.h"
+#include "utils/streams/LineStreamer.h"
 #include "utils/allocations/Arena.h"
 #include "utils/observables/Observer.h"
 

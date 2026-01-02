@@ -2,7 +2,7 @@
 
 #include <Registers/Registers.h>
 
-#include "firmwares/common/commands/CommandHandler.h"
+#include "utils/commands/CommandHandler.h"
 
 class ReadMetricsCommandHandler final : public CommandHandler {
 public:

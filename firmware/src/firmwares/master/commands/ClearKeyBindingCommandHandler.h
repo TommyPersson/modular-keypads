@@ -1,6 +1,6 @@
 #pragma once
 
-#include "firmwares/common/commands/CommandHandler.h"
+#include "utils/commands/CommandHandler.h"
 #include "firmwares/common/keybindings/KeyBindingStorage.h"
 
 class ClearKeyBindingCommandHandler : public CommandHandler {
