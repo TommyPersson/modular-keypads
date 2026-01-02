@@ -2,26 +2,28 @@
 
 #include <span>
 
-uint8_t RegisterStorage::read(const RegisterDescriptor& descriptor) const {
-    std::lock_guard guard(lock);
+namespace utils::registers {
+    uint8_t RegisterStorage::read(const RegisterDescriptor& descriptor) const {
+        std::lock_guard guard(lock);
 
-    return values.at(descriptor.index);
-}
+        return values.at(descriptor.index);
+    }
 
-void RegisterStorage::write(const RegisterDescriptor& descriptor, uint8_t value) {
-    std::lock_guard guard(lock);
+    void RegisterStorage::write(const RegisterDescriptor& descriptor, uint8_t value) {
+        std::lock_guard guard(lock);
 
-    values.at(descriptor.index) = value;
-}
+        values.at(descriptor.index) = value;
+    }
 
-const std::array<uint8_t, 30>& RegisterStorage::readAll() const {
-    std::lock_guard guard(lock);
+    const std::array<uint8_t, 30>& RegisterStorage::readAll() const {
+        std::lock_guard guard(lock);
 
-    return values;
-}
+        return values;
+    }
 
-void RegisterStorage::writeAll(std::span<uint8_t, 30>& newValues) {
-    std::lock_guard guard(lock);
+    void RegisterStorage::writeAll(std::span<uint8_t, 30>& newValues) {
+        std::lock_guard guard(lock);
 
-    std::copy(newValues.begin(), newValues.end(), values.begin());
+        std::copy(newValues.begin(), newValues.end(), values.begin());
+    }
 }

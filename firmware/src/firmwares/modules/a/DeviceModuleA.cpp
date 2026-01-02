@@ -11,7 +11,7 @@ using namespace devices::a;
 DeviceModuleA::DeviceModuleA(
     const DeviceConfiguration& configuration,
     std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-    std::unique_ptr<RegisterManager>& registerManager,
+    std::unique_ptr<utils::registers::RegisterManager>& registerManager,
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier
@@ -37,6 +37,6 @@ void DeviceModuleA::loop() {
     indicatorLedManager->update();
 }
 
-RegisterManager& DeviceModuleA::getRegisters() {
+utils::registers::RegisterManager& DeviceModuleA::getRegisters() {
     return *registerManager;
 }

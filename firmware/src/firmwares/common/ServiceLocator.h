@@ -11,7 +11,7 @@
 
 struct ServiceLocator {
     DeviceConfigurationManager& deviceConfigurationManager;
-    SerialPort& serialPort;
+    utils::serial::SerialPort& serialPort;
     NotifierFactory& notifierFactory;
     I2cClient& i2cClient;
     i2c::SlavePort& i2cSlavePort;

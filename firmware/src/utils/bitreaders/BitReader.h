@@ -3,7 +3,7 @@
 #include "Registers/Registers.h"
 
 namespace utils::bitreaders {
-    enum class BitReaderMode {
+    enum class Mode {
         Normal,
         Inverted,
     };
@@ -12,7 +12,11 @@ namespace utils::bitreaders {
     public:
         virtual ~BitReader() = default;
         virtual bool read() = 0;
-
-        static std::shared_ptr<utils::bitreaders::BitReader> forRegister(const Register& reg, std::uint8_t bitNumber, BitReaderMode mode = BitReaderMode::Normal);
     };
+
+    std::shared_ptr<BitReader> for_register(
+        const utils::registers::Register& reg,
+        std::uint8_t bitNumber,
+        Mode mode = Mode::Normal
+    );
 }

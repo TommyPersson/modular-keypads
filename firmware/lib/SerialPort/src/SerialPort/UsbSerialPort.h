@@ -5,15 +5,19 @@
 #include <USBCDC.h>
 #include "SerialPort.h"
 
-class UsbSerialPort : public SerialPort {
-public:
-    UsbSerialPort(USBCDC& serial) : serial(serial) {}
-    void begin(unsigned long baud) override { serial.begin(baud); }
-    void end() override { serial.end(); }
-    Stream& stream() override { return serial; }
+namespace utils::serial {
+    class UsbSerialPort : public SerialPort {
+    public:
+        UsbSerialPort(USBCDC& serial) : serial(serial) {
+        }
 
-private:
-    USBCDC& serial;
-};
+        void begin(unsigned long baud) override { serial.begin(baud); }
+        void end() override { serial.end(); }
+        Stream& stream() override { return serial; }
+
+    private:
+        USBCDC& serial;
+    };
+}
 
 #endif

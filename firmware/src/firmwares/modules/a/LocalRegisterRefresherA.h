@@ -7,12 +7,12 @@
 
 class LocalRegisterRefresherA final : public RegisterRefresher {
 public:
-    explicit LocalRegisterRefresherA(RegisterManager& registers);
+    explicit LocalRegisterRefresherA(utils::registers::RegisterManager& registers);
     ~LocalRegisterRefresherA() override;
 
     void begin() override;
     void loop() override;
 
 private:
-    std::unique_ptr<MCP23x17> mcp23x17;
+    std::unique_ptr<chips::mcp23x17::MCP23x17> mcp23x17;
 };

@@ -6,15 +6,17 @@
 
 #include "RegisterDescriptor.h"
 
-class RegisterStorage {
-public:
-    uint8_t read(const RegisterDescriptor& descriptor) const;
-    void write(const RegisterDescriptor& descriptor, uint8_t value);
+namespace utils::registers {
+    class RegisterStorage {
+    public:
+        uint8_t read(const RegisterDescriptor& descriptor) const;
+        void write(const RegisterDescriptor& descriptor, uint8_t value);
 
-    const std::array<uint8_t, 30>& readAll() const;
-    void writeAll(std::span<uint8_t, 30>& newValues);
+        const std::array<uint8_t, 30>& readAll() const;
+        void writeAll(std::span<uint8_t, 30>& newValues);
 
-private:
-    std::array<uint8_t, 30> values{};
-    mutable std::mutex lock;
-};
+    private:
+        std::array<uint8_t, 30> values{};
+        mutable std::mutex lock;
+    };
+}

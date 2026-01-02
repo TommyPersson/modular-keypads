@@ -7,7 +7,7 @@
 
 class ListRegisterValuesCommandHandler final : public utils::commands::CommandHandler {
 public:
-    explicit ListRegisterValuesCommandHandler(const std::optional<RegisterManager*>& registers);
+    explicit ListRegisterValuesCommandHandler(const std::optional<utils::registers::RegisterManager*>& registers);
     ~ListRegisterValuesCommandHandler() override;
 
     utils::void_result execute(
@@ -17,5 +17,5 @@ public:
     ) override;
 
 private:
-    const std::optional<RegisterManager*>& registers;
+    const std::optional<utils::registers::RegisterManager*>& registers;
 };

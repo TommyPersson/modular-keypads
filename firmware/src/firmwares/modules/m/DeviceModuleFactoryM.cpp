@@ -15,7 +15,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createLocal(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
     ) {
-    auto registers = std::make_unique<RegisterManager>();
+    auto registers = std::make_unique<utils::registers::RegisterManager>();
 
     auto indicatorLeds = IndicatorLedManager::NeoPixel(5, 7);
 
@@ -37,7 +37,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
     ) {
-    auto registers = std::make_unique<RegisterManager>();
+    auto registers = std::make_unique<utils::registers::RegisterManager>();
 
     auto indicatorLeds = IndicatorLedManager::NoOp(5);
 

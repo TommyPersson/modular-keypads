@@ -4,7 +4,7 @@
 
 class NoOpRegisterRefresher final : public RegisterRefresher {
 public:
-    explicit NoOpRegisterRefresher(RegisterManager& registers);
+    explicit NoOpRegisterRefresher(utils::registers::RegisterManager& registers);
     ~NoOpRegisterRefresher() override;
 
     void begin() override;

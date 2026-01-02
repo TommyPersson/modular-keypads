@@ -10,7 +10,7 @@ namespace {
 
 DeviceRuntimeA::DeviceRuntimeA(
     uint64_t deviceId,
-    RegisterManager& registers,
+    utils::registers::RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier
 ) : DeviceRuntime(deviceId, registers, indicatorLeds, notifier) {

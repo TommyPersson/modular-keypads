@@ -5,7 +5,7 @@
 #include "utils/allocations/ArenaUtils.h"
 
 
-ListRegisterValuesCommandHandler::ListRegisterValuesCommandHandler(const std::optional<RegisterManager*>& registers)
+ListRegisterValuesCommandHandler::ListRegisterValuesCommandHandler(const std::optional<utils::registers::RegisterManager*>& registers)
     : CommandHandler("list.register.values"),
       registers(registers) {}
 

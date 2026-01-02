@@ -30,12 +30,12 @@ protected:
     devices::DeviceModuleFactory* getModuleFactory(char deviceType) const;
 
     DeviceConfigurationManager& deviceConfigurationManager;
-    SerialPort& serialPort;
+    utils::serial::SerialPort& serialPort;
     TwoWire& i2c;
     ServiceLocator& serviceLocator;
 
     std::unique_ptr<devices::DeviceModule> deviceModule;
-    std::optional<RegisterManager*> registers;
+    std::optional<utils::registers::RegisterManager*> registers;
 
 private:
     std::unique_ptr<utils::streams::LineStreamer> lineStreamer;

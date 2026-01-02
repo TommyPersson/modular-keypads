@@ -18,7 +18,7 @@ class DeviceRuntimeM final : public devices::DeviceRuntime {
 public:
     explicit DeviceRuntimeM(
         uint64_t deviceId,
-        RegisterManager& registers,
+        utils::registers::RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier
     );
@@ -28,7 +28,7 @@ public:
         return devices::m::capabilities;
     }
 
-    const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const override {
+    const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const override {
         return devices::m::registers::all;
     }
 

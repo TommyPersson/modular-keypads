@@ -2,7 +2,9 @@
 
 #include <string>
 
-struct RegisterDescriptor {
-    std::string name;
-    uint8_t index;
-};
+namespace utils::registers {
+    struct RegisterDescriptor {
+        std::string name;
+        uint8_t index;
+    };
+}

@@ -18,7 +18,7 @@
 
 std::unique_ptr<Firmware> firmware;
 std::unique_ptr<Preferences> preferences;
-std::unique_ptr<SerialPort> serialPort;
+std::unique_ptr<utils::serial::SerialPort> serialPort;
 std::unique_ptr<NotifierFactory> notifierFactory;
 std::unique_ptr<DeviceConfigurationManager> deviceConfigurationManager;
 std::unique_ptr<I2cClient> i2cClient;
@@ -38,7 +38,7 @@ void setup() {
     utils::logging::initialize(&TheSerial);
 
 
-    serialPort = SerialPort::from(TheSerial);
+    serialPort = utils::serial::SerialPort::from(TheSerial);
     preferences = std::make_unique<Preferences>();
     deviceConfigurationManager = std::make_unique<DeviceConfigurationManager>(*preferences);
     notifierFactory = std::make_unique<NotifierFactory>(TheSerial);

@@ -12,8 +12,8 @@ namespace devices {
         virtual void setup() = 0;
         virtual void loop() = 0;
 
-        virtual RegisterManager& getRegisters() = 0;
-        virtual const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() = 0;
+        virtual utils::registers::RegisterManager& getRegisters() = 0;
+        virtual const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() = 0;
         virtual const DeviceConfiguration& getConfiguration() const = 0;
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 

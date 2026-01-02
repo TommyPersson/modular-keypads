@@ -7,7 +7,7 @@
 
 class ReadRegisterCommandHandler final : public utils::commands::CommandHandler {
 public:
-    explicit ReadRegisterCommandHandler(const std::optional<RegisterManager*>& registers);
+    explicit ReadRegisterCommandHandler(const std::optional<utils::registers::RegisterManager*>& registers);
     ~ReadRegisterCommandHandler() override;
 
     utils::void_result execute(
@@ -17,5 +17,5 @@ public:
     ) override;
 
 private:
-    const std::optional<RegisterManager*>& registers;
+    const std::optional<utils::registers::RegisterManager*>& registers;
 };

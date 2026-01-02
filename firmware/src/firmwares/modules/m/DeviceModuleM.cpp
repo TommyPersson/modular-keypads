@@ -13,7 +13,7 @@ using namespace devices::m;
 DeviceModuleM::DeviceModuleM(
     const DeviceConfiguration& configuration,
     std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-    std::unique_ptr<RegisterManager>& registerManager,
+    std::unique_ptr<utils::registers::RegisterManager>& registerManager,
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier
@@ -39,6 +39,6 @@ void DeviceModuleM::loop() {
     indicatorLedManager->update();
 }
 
-RegisterManager& DeviceModuleM::getRegisters() {
+utils::registers::RegisterManager& DeviceModuleM::getRegisters() {
     return *registerManager;
 }

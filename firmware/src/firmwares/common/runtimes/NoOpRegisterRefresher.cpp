@@ -1,6 +1,6 @@
 #include "NoOpRegisterRefresher.h"
 
-NoOpRegisterRefresher::NoOpRegisterRefresher(RegisterManager& registers) :
+NoOpRegisterRefresher::NoOpRegisterRefresher(utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {
 }
 

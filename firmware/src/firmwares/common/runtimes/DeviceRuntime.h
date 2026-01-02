@@ -33,7 +33,7 @@ namespace devices {
     public:
         explicit DeviceRuntime(
             uint64_t deviceId,
-            RegisterManager& registers,
+            utils::registers::RegisterManager& registers,
             IndicatorLedManager& indicatorLeds,
             Notifier& notifier
         );
@@ -44,7 +44,7 @@ namespace devices {
         virtual void loop();
 
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
-        virtual const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const = 0;
+        virtual const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
         utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return deviceRotaryEncoderEventSubject; }
@@ -70,7 +70,7 @@ namespace devices {
         utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
 
         uint64_t deviceId;
-        RegisterManager& registers;
+        utils::registers::RegisterManager& registers;
         IndicatorLedManager& indicatorLeds;
         Notifier& notifier;
     };

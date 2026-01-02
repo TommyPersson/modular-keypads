@@ -4,9 +4,11 @@
 #include <utils/allocations/ArenaUtils.h>
 
 
-ReadRegisterCommandHandler::ReadRegisterCommandHandler(const std::optional<RegisterManager*>& registers)
-    : CommandHandler("read.register"),
-      registers(registers) {}
+ReadRegisterCommandHandler::ReadRegisterCommandHandler(
+    const std::optional<utils::registers::RegisterManager*>& registers
+) : CommandHandler("read.register"),
+    registers(registers) {
+}
 
 ReadRegisterCommandHandler::~ReadRegisterCommandHandler() = default;
 

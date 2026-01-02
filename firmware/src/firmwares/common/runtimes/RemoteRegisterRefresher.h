@@ -7,7 +7,7 @@
 class RemoteRegisterRefresher final : public RegisterRefresher {
 public:
     RemoteRegisterRefresher(
-        RegisterManager& registers,
+        utils::registers::RegisterManager& registers,
         I2cClient& i2cClient,
         uint8_t deviceAddress
     );

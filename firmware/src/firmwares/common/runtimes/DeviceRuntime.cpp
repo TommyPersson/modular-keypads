@@ -3,11 +3,11 @@
 #include <firmwares/modules/m/DeviceModuleM.h>
 
 using namespace devices;
-using namespace utils::bitreaders;
+using namespace utils;
 
 DeviceRuntime::DeviceRuntime(
     uint64_t deviceId,
-    RegisterManager& registers,
+    utils::registers::RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier
 ) : deviceId(deviceId),
@@ -32,7 +32,7 @@ void DeviceRuntime::configureCapabilities() {
         ) {
             const auto& reg = registers.get(pushButton->reg);
 
-            attachSwitch(pushButton->number, BitReader::forRegister(*reg, pushButton->regIndex), pushButton->ledIndex);
+            attachSwitch(pushButton->number, bitreaders::for_register(*reg, pushButton->regIndex), pushButton->ledIndex);
         }
 
         if (
@@ -44,8 +44,8 @@ void DeviceRuntime::configureCapabilities() {
             // TODO support inversion in capability?
             attachRotationalEncoder(
                 rotaryEncoder->number,
-                BitReader::forRegister(*reg, rotaryEncoder->aRegIndex, BitReaderMode::Inverted),
-                BitReader::forRegister(*reg, rotaryEncoder->bRegIndex, BitReaderMode::Inverted)
+                bitreaders::for_register(*reg, rotaryEncoder->aRegIndex, bitreaders::Mode::Inverted),
+                bitreaders::for_register(*reg, rotaryEncoder->bRegIndex, bitreaders::Mode::Inverted)
             );
         }
     }

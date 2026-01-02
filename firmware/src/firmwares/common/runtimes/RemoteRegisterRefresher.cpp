@@ -3,7 +3,7 @@
 #include <firmwares/common/i2c/EndpointStructs.h>
 
 RemoteRegisterRefresher::RemoteRegisterRefresher(
-    RegisterManager& registers,
+    utils::registers::RegisterManager& registers,
     I2cClient& i2cClient,
     uint8_t deviceAddress
     ) : i2cClient(i2cClient), deviceAddress(deviceAddress), RegisterRefresher(registers) {

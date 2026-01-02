@@ -9,8 +9,8 @@
 namespace devices::a {
 
     namespace registers {
-        const RegisterDescriptor IOA{.name = "IOA", .index = 0};
-        const RegisterDescriptor IOB{.name = "IOB", .index = 1};
+        const utils::registers::RegisterDescriptor IOA{.name = "IOA", .index = 0};
+        const utils::registers::RegisterDescriptor IOB{.name = "IOB", .index = 1};
         const inline std::vector all = {&IOA, &IOB};
     }
 
@@ -34,7 +34,7 @@ namespace devices::a {
         DeviceModuleA(
             const DeviceConfiguration& configuration,
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-            std::unique_ptr<RegisterManager>& registerManager,
+            std::unique_ptr<utils::registers::RegisterManager>& registerManager,
             std::unique_ptr<RegisterRefresher>& registerRefresher,
             std::unique_ptr<DeviceRuntime>& deviceRuntime,
             std::unique_ptr<Notifier>& notifier
@@ -44,9 +44,9 @@ namespace devices::a {
         void setup() override;
         void loop() override;
 
-        RegisterManager& getRegisters() override;
+        utils::registers::RegisterManager& getRegisters() override;
 
-        const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() override { return registers::all; }
+        const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override { return registers::all; }
 
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
 
@@ -64,7 +64,7 @@ namespace devices::a {
     private:
         const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;
-        std::unique_ptr<RegisterManager> registerManager;
+        std::unique_ptr<utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
         std::unique_ptr<DeviceRuntime> deviceRuntime;
         std::unique_ptr<Notifier> notifier;

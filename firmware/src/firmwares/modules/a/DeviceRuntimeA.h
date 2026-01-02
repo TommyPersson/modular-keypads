@@ -17,7 +17,7 @@ class DeviceRuntimeA final : public devices::DeviceRuntime {
 public:
     explicit DeviceRuntimeA(
         uint64_t deviceId,
-        RegisterManager& registers,
+        utils::registers::RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier
     );
@@ -27,7 +27,7 @@ public:
         return devices::a::capabilities;
     }
 
-    const std::vector<const RegisterDescriptor*>& getRegisterDescriptors() const override {
+    const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const override {
         return devices::a::registers::all;
     }
 
