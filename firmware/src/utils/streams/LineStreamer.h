@@ -1,14 +1,14 @@
 #pragma once
 
-#include <Stream.h>
 #include <memory>
+#include <Stream.h>
 
-#include "utils/observables/Subject.h"
 #include "utils/observables/Observer.h"
+#include "utils/observables/Subject.h"
 
 namespace utils::streams {
-    struct LineEvent {
-        std::string text;
+    struct LineReceivedEvent {
+        std::string_view text;
     };
 
     class LineStreamer {
@@ -16,16 +16,16 @@ namespace utils::streams {
         explicit LineStreamer(Stream& inputStream, size_t bufferSize = 1024);
         ~LineStreamer();
 
-        void addObserver(observables::Observer<LineEvent>* observer);
-        void removeObserver(observables::Observer<LineEvent>* observer);
+        void addObserver(observables::Observer<LineReceivedEvent>* observer);
+        void removeObserver(observables::Observer<LineReceivedEvent>* observer);
 
         void update();
 
     private:
-        std::shared_ptr<std::string> processReceiveBuffer();
+        std::string_view processReceiveBuffer();
         void populateReceiveBuffer();
 
-        observables::Subject<LineEvent> lineSubject;
+        observables::Subject<LineReceivedEvent> lineSubject;
 
         Stream& inputStream;
         const size_t bufferSize;

@@ -15,14 +15,14 @@ namespace utils::commands {
         utils::allocations::arena::vector<std::string_view> args;
     };
 
-    class CommandProcessor final : public observables::Observer<streams::LineEvent> {
+    class CommandProcessor final : public observables::Observer<streams::LineReceivedEvent> {
     public:
         explicit CommandProcessor(Print& outputStream);
         ~CommandProcessor() override;
 
         void addHandler(const std::shared_ptr<CommandHandler>& handler);
 
-        void observe(const streams::LineEvent& value) override;
+        void observe(const streams::LineReceivedEvent& value) override;
 
     private:
         std::shared_ptr<CommandHandler> findHandler(const std::string_view& commandType);

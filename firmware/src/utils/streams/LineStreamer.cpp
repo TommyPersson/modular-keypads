@@ -25,25 +25,20 @@ void LineStreamer::update() {
     }
 
     while (this->receiveBufferLength > 0) {
-        const auto& result = processReceiveBuffer();
-        if (result != nullptr) {
-            auto& value = *result;
-
-            // TODO stack/pre-allocated strings instead
-            this->lineSubject.notify({ .text = value });
+        const auto result = processReceiveBuffer();
+        if (!result.empty()) {
+            this->lineSubject.notify({ .text = result });
+            memset(this->lineBuffer, 0, this->bufferSize);
         }
     }
 }
 
-std::shared_ptr<std::string> LineStreamer::processReceiveBuffer() {
+std::string_view LineStreamer::processReceiveBuffer() {
     for (int i = 0; receiveBufferIndex < receiveBufferLength; receiveBufferIndex++, i++) {
         char c = this->receiveBuffer[receiveBufferIndex];
         if (c == '\n') {
             receiveBufferIndex += 1;
-            // TODO stack/pre-allocated strings instead
-            auto line = std::make_shared<std::string>(this->lineBuffer);
-            memset(this->lineBuffer, 0, this->bufferSize);
-            return line;
+            return std::string_view(this->lineBuffer);
         }
 
         this->lineBuffer[i] = c;
@@ -52,14 +47,14 @@ std::shared_ptr<std::string> LineStreamer::processReceiveBuffer() {
     receiveBufferIndex = 0;
     receiveBufferLength = 0;
 
-    return nullptr;
+    return "";
 }
 
-void LineStreamer::addObserver(observables::Observer<LineEvent>* observer) {
+void LineStreamer::addObserver(observables::Observer<LineReceivedEvent>* observer) {
     this->lineSubject.addObserver(observer);
 }
 
-void LineStreamer::removeObserver(observables::Observer<LineEvent>* observer) {
+void LineStreamer::removeObserver(observables::Observer<LineReceivedEvent>* observer) {
     this->lineSubject.removeObserver(observer);
 }
 
