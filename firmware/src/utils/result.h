@@ -5,7 +5,6 @@
 #include <cstdint>
 
 namespace utils {
-
     template <typename T>
     struct result {
         bool has_error = false;
@@ -19,8 +18,8 @@ namespace utils {
             return result{.value = value};
         }
 
-        static result error(std::uint32_t error_code) {
-            return result{.error_code = error_code, .has_error = true};
+        static result error(const char* error_code) {
+            return result{.has_error = true, .error_code = error_code};
         }
     };
 
@@ -29,7 +28,7 @@ namespace utils {
 
         const char* error_code = "";
 
-        constexpr static void_result success()  {
+        constexpr static void_result success() {
             return void_result{};
         }
 

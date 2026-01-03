@@ -20,7 +20,16 @@ namespace utils::i2c {
         ~SlavePort();
 
         void setup(uint8_t address, Pins pins);
-        void updateEndpoint(const EndpointDescriptor& endpoint, const void* data);
+
+        template <class TStruct>
+        void updateEndpoint(const EndpointDescriptor<TStruct>& endpoint, const void* data) {
+            std::lock_guard guard(lock);
+
+            auto& endpointData = this->endpoints[endpoint.id];
+            std::memset(&endpointData.data, 0, i2c::MAX_PACKET_SIZE);
+            std::memcpy(&endpointData.data, data, endpoint.length);
+            endpointData.length = endpoint.length;
+        }
 
     private:
         void onReceiveCallback(int len);
@@ -28,7 +37,7 @@ namespace utils::i2c {
 
         void selectEndpoint(uint8_t endpointId);
 
-        EndpointData endpoints[10]{};
+        EndpointData endpoints[255]{};
         EndpointData& selectedEndpoint;
 
         TwoWire& twoWire;

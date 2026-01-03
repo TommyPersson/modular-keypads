@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Wire.h>
+#include <utils/result.h>
 
 #include "Endpoint.h"
 #include "Pins.h"
@@ -16,7 +17,20 @@ public:
         i2c.begin(pins.SDA, pins.SCL);
     }
 
-    bool setEndpoint(uint8_t address, const EndpointDescriptor& endpoint) {
+    template <typename TStruct>
+    result<TStruct*> readEndpoint(uint8_t address, const EndpointDescriptor<TStruct>& endpoint) {
+        if (!setEndpoint(address, endpoint)) { // TODO cache last used endpoint for a device address?
+            return result<TStruct*>::error("unable.to.set.i2c.device.endpoint");
+        }
+
+        auto data = readEndpoint<TStruct>(address, sizeof(TStruct));
+
+        return result<TStruct*>::of(data);
+    }
+
+private:
+    template <typename TStruct>
+    bool setEndpoint(uint8_t address, const EndpointDescriptor<TStruct>& endpoint) {
         i2c.beginTransmission(address);
         const uint8_t message[] = {(uint8_t)Operation::SetEndpoint, endpoint.id};
         i2c.write(message, sizeof(message));
@@ -24,8 +38,8 @@ public:
         return result == 0;
     }
 
-    template <typename T>
-    T* readEndpoint(const uint8_t address, const size_t size = sizeof(T)) {
+    template <typename TStruct>
+    TStruct* readEndpoint(const uint8_t address, const size_t size = sizeof(TStruct)) {
         memset(readBuffer, 0, sizeof(readBuffer));
 
         i2c.requestFrom(address, size);
@@ -41,11 +55,10 @@ public:
             i++;
         }
 
-        auto data = reinterpret_cast<T*>(&readBuffer);
+        auto data = reinterpret_cast<TStruct*>(&readBuffer);
         return data;
     }
 
-private:
     TwoWire& i2c;
     uint8_t readBuffer[32]{};
 };

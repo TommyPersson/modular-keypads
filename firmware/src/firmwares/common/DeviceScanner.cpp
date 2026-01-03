@@ -22,23 +22,23 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
     for (uint8_t address = 10; address < 14; address++) {
         logger->debug("probing %i", address);
 
-        if (!client.setEndpoint(address, devices::common::i2c::endpoints::DeviceInformation)) {
-            logger->debug("unable to get device information (%i)", address);
+        const auto deviceInformationResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceInformation);
+        if (deviceInformationResult.has_error) {
+            logger->debug("unable to get device name (%i): %s", address, deviceInformationResult.error_code);
             continue;
         }
 
-        const auto deviceInformation = client.readEndpoint<devices::common::i2c::structs::DeviceInformation>(address);
-
+        const auto deviceInformation = deviceInformationResult.value;
         const auto id = deviceInformation->deviceId;
         const char type = deviceInformation->deviceType;
 
-        if (!client.setEndpoint(address, devices::common::i2c::endpoints::DeviceName)) {
-            logger->debug("unable to get device name (%i)", address);
+        const auto deviceNameResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceName);
+        if (deviceNameResult.has_error) {
+            logger->debug("unable to get device name (%i): %s", address, deviceNameResult.error_code);
             continue;
         }
 
-        const auto deviceName = client.readEndpoint<devices::common::i2c::structs::DeviceName>(address);
-        const auto name = std::string(deviceName->deviceName, sizeof(deviceName->deviceName));
+        const auto name = std::string(deviceNameResult.value->deviceName, sizeof(deviceNameResult.value->deviceName));
 
         DeviceConfiguration configuration{
             .id = id,

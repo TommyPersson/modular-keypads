@@ -25,15 +25,6 @@ namespace utils::i2c {
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
     }
 
-    void SlavePort::updateEndpoint(const EndpointDescriptor& endpoint, const void* data) {
-        std::lock_guard guard(lock);
-
-        auto& endpointData = this->endpoints[endpoint.id];
-        std::memset(&endpointData.data, 0, i2c::MAX_PACKET_SIZE);
-        std::memcpy(&endpointData.data, data, endpoint.length);
-        endpointData.length = endpoint.length;
-    }
-
     void SlavePort::onReceiveCallback(const int len) {
         std::lock_guard guard(lock);
 

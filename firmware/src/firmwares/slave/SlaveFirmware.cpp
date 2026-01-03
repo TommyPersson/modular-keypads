@@ -43,12 +43,12 @@ void SlaveFirmware::setup() {
         slavePort.updateEndpoint(
             devices::common::i2c::endpoints::DeviceInformation,
             &deviceInformationStruct
-            );
+        );
 
         slavePort.updateEndpoint(
             devices::common::i2c::endpoints::DeviceName,
             deviceName.c_str()
-            );
+        );
 
         slavePort.setup(deviceAddress, pins);
     }

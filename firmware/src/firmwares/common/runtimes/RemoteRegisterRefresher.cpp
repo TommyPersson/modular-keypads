@@ -6,21 +6,21 @@ RemoteRegisterRefresher::RemoteRegisterRefresher(
     utils::registers::RegisterManager& registers,
     utils::i2c::Client& i2cClient,
     uint8_t deviceAddress
-    ) : i2cClient(i2cClient), deviceAddress(deviceAddress), RegisterRefresher(registers) {
-
+) : RegisterRefresher(registers), i2cClient(i2cClient), deviceAddress(deviceAddress) {
 }
 
 void RemoteRegisterRefresher::begin() {
 }
 
 void RemoteRegisterRefresher::loop() {
-    if (!i2cClient.setEndpoint(deviceAddress, devices::common::i2c::endpoints::DeviceRegisters)) {
+    auto result = i2cClient.readEndpoint(deviceAddress, devices::common::i2c::endpoints::DeviceRegisters);
+    if (result.has_error) {
         return;
     }
 
-    auto response = i2cClient.readEndpoint<devices::common::i2c::structs::DeviceRegisters>(deviceAddress);
-    auto data = std::span<uint8_t, 30>(response->data, response->data + sizeof(response->data));
+    auto deviceRegisters = result.value;
+
+    auto data = std::span<uint8_t, 30>(deviceRegisters->data, deviceRegisters->data + sizeof(deviceRegisters->data));
 
     registers.writeAll(data);
-
 }

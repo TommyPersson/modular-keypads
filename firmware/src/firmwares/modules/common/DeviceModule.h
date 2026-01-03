@@ -29,20 +29,9 @@ namespace devices {
             }
 
             namespace endpoints {
-                inline utils::i2c::EndpointDescriptor DeviceInformation{
-                    .id = 0x01,
-                    .length = sizeof(structs::DeviceInformation)
-                };
-
-                inline utils::i2c::EndpointDescriptor DeviceName{
-                    .id = 0x02,
-                    .length = sizeof(structs::DeviceName)
-                };
-
-                inline utils::i2c::EndpointDescriptor DeviceRegisters{
-                    .id = 0x03,
-                    .length = sizeof(structs::DeviceRegisters)
-                };
+                inline utils::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{ .id = 0x01 };
+                inline utils::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{ .id = 0x02 };
+                inline utils::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{ .id = 0x03 };
             }
         }
     }
