@@ -116,6 +116,8 @@ error_t MacroStorage::write(const Macro& macro) {
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
 
+    numStored.reset();
+
     onMacroSavedSubject.notify({.macroId = macro.data->id});
 
     return 0;
@@ -144,6 +146,8 @@ error_t MacroStorage::remove(uint16_t id) {
     LittleFS.remove(filePath);
     LittleFS.rename(tempFilePath, filePath);
 
+    numStored.reset();
+
     onMacroRemovedSubject.notify({.macroId = id});
 
     return 0;
@@ -167,4 +171,16 @@ void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
     if (rc != 0) {
         logger->error("Failed to read '%s' (%i)", filePath, rc);
     }
+}
+
+uint64_t MacroStorage::getNumStored() {
+    if (!numStored.has_value()) {
+        uint64_t num = 0;
+        forEach([&](const Macro& storedMacro) {
+            num += 1;
+        });
+        numStored = num;
+    }
+
+    return numStored.value();
 }

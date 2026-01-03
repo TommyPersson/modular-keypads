@@ -77,7 +77,8 @@ KeyBindingSubSystem::KeyBindingSubSystem(
     MacroStorage& macroStorage,
     KeyBindingStorage& keyBindingStorage,
     TestModeController& testModeController,
-    utils::usb::Connection& usbConnection
+    utils::usb::Connection& usbConnection,
+    utils::metrics::MetricRegistry& metricRegistry
 ) : macroStorage(macroStorage),
     keyBindingStorage(keyBindingStorage),
     testModeController(testModeController),
@@ -87,6 +88,14 @@ KeyBindingSubSystem::KeyBindingSubSystem(
     macroStorage.onMacroRemoved().addObserver(this);
     keyBindingStorage.onKeyBindingSet().addObserver(this);
     keyBindingStorage.onKeyBindingCleared().addObserver(this);
+
+    metricRegistry.add(utils::metrics::lambda_gauge("macros.num_stored", [this] {
+        return this->macroStorage.getNumStored();
+    }));
+
+    metricRegistry.add(utils::metrics::lambda_gauge("keybindings.num_assigned", [this] {
+        return this->getNumAssigned();
+    }));
 }
 
 KeyBindingSubSystem::~KeyBindingSubSystem() {

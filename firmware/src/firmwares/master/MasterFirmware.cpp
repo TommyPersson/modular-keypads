@@ -37,7 +37,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         *macroStorage,
         *keyBindingStorage,
         testModeController,
-        serviceLocator.usbConnection
+        serviceLocator.usbConnection,
+        serviceLocator.metricRegistry
     );
 
     addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));

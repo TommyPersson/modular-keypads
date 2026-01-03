@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include <utils/allocations/ArenaUtils.h>
 
 #include "utils/observables/Observable.h"
@@ -29,8 +30,12 @@ namespace common::macros {
         utils::observables::Observable<MacroSaved>& onMacroSaved() { return onMacroSavedSubject; };
         utils::observables::Observable<MacroRemoved>& onMacroRemoved() { return onMacroRemovedSubject; };
 
+        uint64_t getNumStored();
+
     private:
         utils::observables::Subject<MacroSaved> onMacroSavedSubject;
         utils::observables::Subject<MacroRemoved> onMacroRemovedSubject;
+
+        std::optional<uint64_t> numStored{};
     };
 }

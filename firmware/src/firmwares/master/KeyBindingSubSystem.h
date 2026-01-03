@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utils/metrics/Metrics.h>
+
 #include "TestModeController.h"
 #include "firmwares/common/keybindings/KeyBindingStorage.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
@@ -23,12 +25,15 @@ public:
         common::macros::MacroStorage& macroStorage,
         common::keybindings::KeyBindingStorage& keyBindingStorage,
         TestModeController& testModeController,
-        utils::usb::Connection& usbConnection
+        utils::usb::Connection& usbConnection,
+        utils::metrics::MetricRegistry& metricRegistry
     );
     ~KeyBindingSubSystem() override;
 
     void setup();
     void loop();
+
+    uint32_t getNumAssigned() const { return keyBindings.size(); }
 
     void observe(const common::macros::MacroSaved& event) override;
     void observe(const common::macros::MacroRemoved& event) override;

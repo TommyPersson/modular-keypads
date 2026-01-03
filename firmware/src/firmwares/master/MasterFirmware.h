@@ -20,7 +20,6 @@ private:
     void observe(const devices::DeviceSwitchEvent& event) override;
     void observe(const devices::DeviceRotaryEncoderEvent& event) override;
 
-private:
     TestModeController testModeController;
 
     std::unique_ptr<devices::DeviceModule> localDevice;
