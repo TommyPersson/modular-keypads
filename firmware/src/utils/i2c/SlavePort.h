@@ -20,13 +20,13 @@ namespace utils::i2c {
         ~SlavePort();
 
         void setup(uint8_t address, Pins pins);
-        void updateEndpoint(Endpoint endpoint, const void* data, uint8_t length);
+        void updateEndpoint(const EndpointDescriptor& endpoint, const void* data);
 
     private:
         void onReceiveCallback(int len);
         void onRequestCallback();
 
-        void selectEndpoint(Endpoint endpoint);
+        void selectEndpoint(uint8_t endpointId);
 
         EndpointData endpoints[10]{};
         EndpointData& selectedEndpoint;

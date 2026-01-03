@@ -10,15 +10,15 @@ namespace utils::i2c {
 class Client {
 public:
     explicit Client(TwoWire& i2c) : i2c(i2c) {}
-    ~Client() {}
+    ~Client() = default;
 
-    void setup(const i2c::Pins& pins) {
+    void setup(const Pins& pins) {
         i2c.begin(pins.SDA, pins.SCL);
     }
 
-    bool setEndpoint(uint8_t address, i2c::Endpoint endpoint) {
+    bool setEndpoint(uint8_t address, const EndpointDescriptor& endpoint) {
         i2c.beginTransmission(address);
-        const uint8_t message[] = {(uint8_t)i2c::Operation::SetEndpoint, (uint8_t)endpoint};
+        const uint8_t message[] = {(uint8_t)Operation::SetEndpoint, endpoint.id};
         i2c.write(message, sizeof(message));
         const auto result = i2c.endTransmission();
         return result == 0;
@@ -41,8 +41,8 @@ public:
             i++;
         }
 
-        auto deviceInformation = reinterpret_cast<T*>(&readBuffer);
-        return deviceInformation;
+        auto data = reinterpret_cast<T*>(&readBuffer);
+        return data;
     }
 
 private:

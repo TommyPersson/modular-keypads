@@ -25,13 +25,13 @@ namespace utils::i2c {
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
     }
 
-    void SlavePort::updateEndpoint(Endpoint endpoint, const void* data, uint8_t length) {
+    void SlavePort::updateEndpoint(const EndpointDescriptor& endpoint, const void* data) {
         std::lock_guard guard(lock);
 
-        auto& endpointData = this->endpoints[static_cast<int>(endpoint)];
+        auto& endpointData = this->endpoints[endpoint.id];
         std::memset(&endpointData.data, 0, i2c::MAX_PACKET_SIZE);
-        std::memcpy(&endpointData.data, data, length);
-        endpointData.length = length;
+        std::memcpy(&endpointData.data, data, endpoint.length);
+        endpointData.length = endpoint.length;
     }
 
     void SlavePort::onReceiveCallback(const int len) {
@@ -51,7 +51,7 @@ namespace utils::i2c {
         }
 
         if (data[0] == static_cast<int>(Operation::SetEndpoint)) {
-            const auto endpoint = static_cast<Endpoint>(data[1]);
+            const auto endpoint = data[1];
             selectEndpoint(endpoint);
         }
 
@@ -64,7 +64,7 @@ namespace utils::i2c {
         twoWire.write(selectedEndpoint.data, selectedEndpoint.length);
     }
 
-    void SlavePort::selectEndpoint(Endpoint endpoint) {
-        selectedEndpoint = this->endpoints[static_cast<int>(endpoint)];
+    void SlavePort::selectEndpoint(const uint8_t endpointId) {
+        selectedEndpoint = this->endpoints[endpointId];
     }
 }

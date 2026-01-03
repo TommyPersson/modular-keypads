@@ -5,6 +5,48 @@
 #include <firmwares/common/runtimes/DeviceRuntime.h>
 
 namespace devices {
+    namespace common {
+        namespace i2c {
+            namespace structs {
+#pragma pack(push, 1)
+                struct DeviceInformation {
+                    uint64_t deviceId = 0;
+                    char deviceType = 'g';
+                };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+                struct DeviceName {
+                    char deviceName[utils::i2c::MAX_PACKET_SIZE]{};
+                };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+                struct DeviceRegisters {
+                    uint8_t data[utils::i2c::MAX_PACKET_SIZE]{};
+                };
+#pragma pack(pop)
+            }
+
+            namespace endpoints {
+                inline utils::i2c::EndpointDescriptor DeviceInformation{
+                    .id = 0x01,
+                    .length = sizeof(structs::DeviceInformation)
+                };
+
+                inline utils::i2c::EndpointDescriptor DeviceName{
+                    .id = 0x02,
+                    .length = sizeof(structs::DeviceName)
+                };
+
+                inline utils::i2c::EndpointDescriptor DeviceRegisters{
+                    .id = 0x03,
+                    .length = sizeof(structs::DeviceRegisters)
+                };
+            }
+        }
+    }
+
     class DeviceModule {
     public:
         virtual ~DeviceModule() = default;
@@ -18,7 +60,10 @@ namespace devices {
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); };
-        utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return getRuntime().onRotaryEncoderEvent(); };
+
+        utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() {
+            return getRuntime().onRotaryEncoderEvent();
+        };
 
         static std::unique_ptr<DeviceModule> local(
             DeviceConfiguration& config,

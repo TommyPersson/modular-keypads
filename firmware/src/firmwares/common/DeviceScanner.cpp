@@ -1,7 +1,8 @@
 #include "DeviceScanner.h"
 
+#include <firmwares/modules/common/DeviceModule.h>
+
 #include "utils/i2c/Endpoint.h"
-#include "utils/i2c/EndpointStructs.h"
 #include "utils/strings.h"
 #include "utils/logging/Logger.h"
 
@@ -21,22 +22,22 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
     for (uint8_t address = 10; address < 14; address++) {
         logger->debug("probing %i", address);
 
-        if (!client.setEndpoint(address, utils::i2c::Endpoint::DeviceInformation)) {
+        if (!client.setEndpoint(address, devices::common::i2c::endpoints::DeviceInformation)) {
             logger->debug("unable to get device information (%i)", address);
             continue;
         }
 
-        const auto deviceInformation = client.readEndpoint<utils::i2c::structs::DeviceInformation>(address);
+        const auto deviceInformation = client.readEndpoint<devices::common::i2c::structs::DeviceInformation>(address);
 
         const auto id = deviceInformation->deviceId;
         const char type = deviceInformation->deviceType;
 
-        if (!client.setEndpoint(address, utils::i2c::Endpoint::DeviceName)) {
+        if (!client.setEndpoint(address, devices::common::i2c::endpoints::DeviceName)) {
             logger->debug("unable to get device name (%i)", address);
             continue;
         }
 
-        const auto deviceName = client.readEndpoint<utils::i2c::structs::DeviceName>(address);
+        const auto deviceName = client.readEndpoint<devices::common::i2c::structs::DeviceName>(address);
         const auto name = std::string(deviceName->deviceName, sizeof(deviceName->deviceName));
 
         DeviceConfiguration configuration{
