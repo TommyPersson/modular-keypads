@@ -29,4 +29,6 @@ private:
     std::unique_ptr<common::macros::MacroStorage> macroStorage;
     std::unique_ptr<common::keybindings::KeyBindingStorage> keyBindingStorage;
     std::unique_ptr<KeyBindingSubSystem> keyBindingSubSystem;
+
+    std::shared_ptr<utils::metrics::TimerMetric> loopTimerMetric;
 };

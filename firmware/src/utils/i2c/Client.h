@@ -14,7 +14,7 @@ public:
     ~Client() = default;
 
     void setup(const Pins& pins) {
-        i2c.begin(pins.SDA, pins.SCL);
+        i2c.begin(pins.SDA, pins.SCL, 400000);
     }
 
     template <typename TStruct>

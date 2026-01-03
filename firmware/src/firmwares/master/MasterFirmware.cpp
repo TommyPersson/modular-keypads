@@ -51,6 +51,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(*keyBindingStorage));
+
+    loopTimerMetric = serviceLocator.metricRegistry.timer("firmware.master.device_loop_time_us");
 }
 
 MasterFirmware::~MasterFirmware() = default;
@@ -87,10 +89,12 @@ void MasterFirmware::setup() {
 void MasterFirmware::loop() {
     Firmware::loop();
 
-    localDevice->loop();
-    for (const auto& device : connectedDevices) {
-        device->loop();
-    }
+    loopTimerMetric->measure([this] {
+        localDevice->loop();
+        for (const auto& device : connectedDevices) {
+            device->loop();
+        }
+    });
 
     keyBindingSubSystem->loop();
 }

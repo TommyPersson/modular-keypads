@@ -23,15 +23,18 @@ namespace devices {
 
 #pragma pack(push, 1)
                 struct DeviceRegisters {
-                    uint8_t data[utils::i2c::MAX_PACKET_SIZE]{};
+                    // TODO make the size device dependent, the size has a large impact on the refresh time,
+                    // TODO so keeping it as small as possible for each device is important
+                    uint8_t data[4]{};
+                    //uint8_t data[utils::i2c::MAX_PACKET_SIZE]{};
                 };
 #pragma pack(pop)
             }
 
             namespace endpoints {
-                inline utils::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{ .id = 0x01 };
-                inline utils::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{ .id = 0x02 };
-                inline utils::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{ .id = 0x03 };
+                inline utils::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
+                inline utils::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
+                inline utils::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{.id = 0x03};
             }
         }
     }
