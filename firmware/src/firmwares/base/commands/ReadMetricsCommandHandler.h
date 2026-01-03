@@ -3,10 +3,11 @@
 #include <Registers/Registers.h>
 
 #include "utils/commands/CommandHandler.h"
+#include "utils/metrics/Metrics.h"
 
 class ReadMetricsCommandHandler final : public utils::commands::CommandHandler {
 public:
-    explicit ReadMetricsCommandHandler();
+    explicit ReadMetricsCommandHandler(const utils::metrics::MetricRegistry& metricRegistry);
     ~ReadMetricsCommandHandler() override;
 
     utils::void_result execute(
@@ -16,4 +17,5 @@ public:
     ) override;
 
 private:
+    const utils::metrics::MetricRegistry& metricRegistry;
 };

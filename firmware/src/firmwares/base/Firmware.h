@@ -29,9 +29,10 @@ protected:
     void addCommandHandler(const std::shared_ptr<utils::commands::CommandHandler>& commandHandler) const;
     devices::DeviceModuleFactory* getModuleFactory(char deviceType) const;
 
+    void registerMetrics();
+
     DeviceConfigurationManager& deviceConfigurationManager;
     utils::serial::SerialPort& serialPort;
-    TwoWire& i2c;
     ServiceLocator& serviceLocator;
 
     std::unique_ptr<devices::DeviceModule> deviceModule;

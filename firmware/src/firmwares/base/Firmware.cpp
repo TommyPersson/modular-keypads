@@ -1,6 +1,11 @@
 #include "Firmware.h"
 
+
 #include "../common/ServiceLocator.h"
+#include "../master/MasterFirmware.h"
+#include "../modules/a/DeviceModuleFactoryA.h"
+#include "../modules/m/DeviceModuleFactoryM.h"
+#include "../slave/SlaveFirmware.h"
 #include "commands/ListRegistersCommandHandler.h"
 #include "commands/ListRegisterValuesCommandHandler.h"
 #include "commands/PingCommandHandler.h"
@@ -9,23 +14,18 @@
 #include "commands/ReadDeviceIdCommandHandler.h"
 #include "commands/ReadDeviceNameCommandHandler.h"
 #include "commands/ReadDeviceTypeCommandHandler.h"
-#include "commands/ReadRegisterCommandHandler.h"
 #include "commands/ReadMetricsCommandHandler.h"
+#include "commands/ReadRegisterCommandHandler.h"
 #include "commands/ResetDeviceCommandHandler.h"
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "commands/SetDeviceNameCommandHandler.h"
 #include "commands/SetDeviceTypeCommandHandler.h"
-#include "../master/MasterFirmware.h"
-#include "../slave/SlaveFirmware.h"
-#include "../modules/m/DeviceModuleFactoryM.h"
-#include "../modules/a/DeviceModuleFactoryA.h"
+#include "metrics/BaseMetrics.h"
 
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
-    i2c(serviceLocator.i2c),
     serviceLocator(serviceLocator) {
-
     this->lineStreamer = std::make_unique<utils::streams::LineStreamer>(serialPort.stream());
     this->commandProcessor = std::make_unique<utils::commands::CommandProcessor>(serialPort.stream());
     this->lineStreamer->addObserver(this->commandProcessor.get());
@@ -43,10 +43,12 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ListRegisterValuesCommandHandler>(registers));
-    this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>());
+    this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>(serviceLocator.metricRegistry));
 
     moduleFactories.emplace_back(std::make_unique<devices::m::DeviceModuleFactoryM>());
     moduleFactories.emplace_back(std::make_unique<devices::a::DeviceModuleFactoryA>());
+
+    firmware::metrics::base::register_all(serviceLocator.metricRegistry);
 }
 
 devices::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType) const {

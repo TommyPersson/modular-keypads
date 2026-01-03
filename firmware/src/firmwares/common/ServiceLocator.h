@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wire.h>
-
 #include <SerialPort/SerialPort.h>
+#include <utils/metrics/Metrics.h>
+
 #include "firmwares/common/notifications/NotifierFactory.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "utils/i2c/Client.h"
@@ -15,6 +15,6 @@ struct ServiceLocator {
     NotifierFactory& notifierFactory;
     utils::i2c::Client& i2cClient;
     utils::i2c::SlavePort& i2cSlavePort;
-    TwoWire& i2c;
     utils::usb::Connection& usbConnection;
+    utils::metrics::MetricRegistry& metricRegistry;
 };
