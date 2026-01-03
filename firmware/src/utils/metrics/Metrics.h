@@ -1,10 +1,11 @@
 #pragma once
 
 #include <cstdint>
-#include <esp32-hal.h>
 #include <functional>
 #include <memory>
 #include <string_view>
+
+#include "utils/time/Time.h"
 
 namespace utils::metrics {
     struct MetricReport {
@@ -52,9 +53,9 @@ namespace utils::metrics {
         ~TimerMetric() = default;
 
         void measure(const std::function<void()>& block) {
-            const auto start = micros(); // TODO create cross platform "Clock" interface?
+            const auto start = time::micros();
             block();
-            const auto end = micros();
+            const auto end = time::micros();
             const auto duration = end - start;
             timeLatest = duration;
 

@@ -4,11 +4,12 @@
 
 #ifdef SOC_USB_OTG_SUPPORTED
 
-#include <esp32-hal.h>
-#include <USBHIDKeyboard.h>
 #include <USBHIDConsumerControl.h>
+#include <USBHIDKeyboard.h>
 #include <USBHIDSystemControl.h>
-#include <utils/logging/Logger.h>
+
+#include "utils/logging/Logger.h"
+#include "utils/time/Time.h"
 
 namespace {
     auto logger = utils::logging::createLogger("RealUSBConnection");
@@ -48,7 +49,7 @@ void utils::usb::RealConnection::setup() {
     consumerControl.begin();
     systemControl.begin();
 
-    delay(500);
+    time::delayMs(500);
 
     keyboard.releaseAll();
 }
