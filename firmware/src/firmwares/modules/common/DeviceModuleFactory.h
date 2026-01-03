@@ -21,7 +21,7 @@ namespace devices {
 
         virtual bool matches(char deviceType) = 0;
 
-        virtual i2c::Pins getI2cPins() = 0;
+        virtual utils::i2c::Pins getI2cPins() = 0;
 
     protected:
         DeviceModuleFactory() = default;

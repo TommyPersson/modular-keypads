@@ -1,6 +1,6 @@
 #pragma once
 
-namespace i2c {
+namespace utils::i2c {
     enum class Endpoint {
         DeviceInformation = 0x01,
         DeviceName = 0x02,

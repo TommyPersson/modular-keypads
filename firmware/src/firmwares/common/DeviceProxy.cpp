@@ -1,11 +1,10 @@
 #include "DeviceProxy.h"
 
-DeviceProxy::DeviceProxy(const DeviceConfiguration& configuration, I2cClient& i2c) :
+DeviceProxy::DeviceProxy(const DeviceConfiguration& configuration, utils::i2c::Client& i2c) :
     configuration(configuration), i2c(i2c) {
 }
 
-DeviceProxy::~DeviceProxy() {
-}
+DeviceProxy::~DeviceProxy() = default;
 
 DeviceConfiguration& DeviceProxy::getConfiguration() {
     return configuration;

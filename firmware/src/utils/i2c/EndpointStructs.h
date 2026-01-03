@@ -1,7 +1,8 @@
 #pragma once
+#include "Endpoint.h"
 
 
-namespace i2c::structs {
+namespace utils::i2c::structs {
 #pragma pack(push, 1)
     struct DeviceInformation {
         uint64_t deviceId;

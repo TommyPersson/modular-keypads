@@ -23,7 +23,6 @@
 #include "commands/SetKeyBindingCommandHandler.h"
 #include "commands/SetTestMode.h"
 #include "utils/strings.h"
-#include "utils/allocations/ArenaUtils.h"
 #include "utils/logging/Logger.h"
 
 namespace {

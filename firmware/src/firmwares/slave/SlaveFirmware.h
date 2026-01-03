@@ -13,5 +13,5 @@ public:
 private:
     std::unique_ptr<devices::DeviceModule> device;
 
-    i2c::SlavePort& slavePort;
+    utils::i2c::SlavePort& slavePort;
 };

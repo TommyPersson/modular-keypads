@@ -1,6 +1,6 @@
 #pragma once
 
-namespace i2c {
+namespace utils::i2c {
     struct Pins {
         uint8_t SDA;
         uint8_t SCL;

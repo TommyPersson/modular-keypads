@@ -3,14 +3,14 @@
 #include <Wire.h>
 
 #include "Endpoint.h"
-#include "I2cPins.h"
+#include "Pins.h"
 #include "Operation.h"
 
-
-class I2cClient {
+namespace utils::i2c {
+class Client {
 public:
-    explicit I2cClient(TwoWire& i2c) : i2c(i2c) {}
-    ~I2cClient() {}
+    explicit Client(TwoWire& i2c) : i2c(i2c) {}
+    ~Client() {}
 
     void setup(const i2c::Pins& pins) {
         i2c.begin(pins.SDA, pins.SCL);
@@ -49,3 +49,4 @@ private:
     TwoWire& i2c;
     uint8_t readBuffer[32]{};
 };
+}

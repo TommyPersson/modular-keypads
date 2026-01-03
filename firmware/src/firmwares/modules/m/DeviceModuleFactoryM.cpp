@@ -61,6 +61,6 @@ bool DeviceModuleFactoryM::matches(char deviceType) {
     return deviceType == 'm' || deviceType == 'M';
 }
 
-::i2c::Pins DeviceModuleFactoryM::getI2cPins() {
+utils::i2c::Pins DeviceModuleFactoryM::getI2cPins() {
     return i2c::pins;
 }

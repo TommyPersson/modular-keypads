@@ -5,10 +5,10 @@
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 #include "firmwares/common/notifications/EncoderRotationNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
-#include "firmwares/common/i2c/I2cPins.h"
+#include "utils/i2c/Pins.h"
 
 namespace devices::m::i2c {
-    inline auto pins = ::i2c::Pins{
+    inline auto pins = utils::i2c::Pins{
         .SDA = 2,
         .SCL = 1
     };

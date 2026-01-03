@@ -1,6 +1,6 @@
 #include "SlaveFirmware.h"
 
-#include "../common/i2c/EndpointStructs.h"
+#include "utils/i2c/EndpointStructs.h"
 #include "utils/strings.h"
 #include "utils/logging/Logger.h"
 
@@ -37,20 +37,20 @@ void SlaveFirmware::setup() {
         const auto deviceId = configuration.id;
         const auto deviceName = configuration.name;
 
-        i2c::structs::DeviceInformation deviceInformationStruct;
+        utils::i2c::structs::DeviceInformation deviceInformationStruct;
         deviceInformationStruct.deviceId = deviceId;
         deviceInformationStruct.deviceType = configuration.type;
 
         slavePort.updateEndpoint(
-            i2c::Endpoint::DeviceInformation,
+            utils::i2c::Endpoint::DeviceInformation,
             &deviceInformationStruct,
             sizeof(deviceInformationStruct)
             );
 
         slavePort.updateEndpoint(
-            i2c::Endpoint::DeviceName,
+            utils::i2c::Endpoint::DeviceName,
             deviceName.c_str(),
-            sizeof(i2c::structs::DeviceName)
+            sizeof(utils::i2c::structs::DeviceName)
             );
 
         slavePort.setup(deviceAddress, pins);
@@ -62,9 +62,9 @@ void SlaveFirmware::loop() {
 
     device->loop();
 
-    i2c::structs::DeviceRegisters registersStruct;
+    utils::i2c::structs::DeviceRegisters registersStruct;
     auto registerData = device->getRegisters().readAll();
     std::memcpy(&registersStruct.data, registerData.data(), sizeof(registersStruct.data));
 
-    slavePort.updateEndpoint(i2c::Endpoint::Registers, &registersStruct, sizeof(registersStruct));
+    slavePort.updateEndpoint(utils::i2c::Endpoint::Registers, &registersStruct, sizeof(registersStruct));
 }

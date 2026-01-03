@@ -6,9 +6,9 @@
 #include "utils/allocations/Arena.h"
 
 #include "Endpoint.h"
-#include "I2cPins.h"
+#include "Pins.h"
 
-namespace i2c {
+namespace utils::i2c {
     struct EndpointData {
         uint8_t data[MAX_PACKET_SIZE];
         uint8_t length;
