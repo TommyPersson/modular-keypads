@@ -1,3 +1,5 @@
+include <./shared-variables.scad>
+
 module rounded_rectangle(size, corner_radius, center = false) {
 
     x_offset = center ? -size.x / 2 : 0;
@@ -63,5 +65,27 @@ module tear_drop_circle(d) {
 
     polygon(triangle_points);
     circle(d = d);
+}
 
+module threaded_insert_cutout() {
+    k = threaded_insert_knurl_diameter;
+    l = threaded_insert_length;
+
+    k1 = k + 0.2;
+    k2 = k * 0.9;
+
+    l1 = l * 0.25;
+    l2 = l + 1;
+
+    translate([0, 0, -l1]) {
+        linear_extrude(l1) {
+            circle(d = k1);
+        }
+    }
+
+    translate([0, 0, -l2]) {
+        linear_extrude(l2) {
+            circle(d = k2);
+        }
+    }
 }

@@ -111,34 +111,11 @@ module heat_inset_mount() {
 module threaded_insert_cutouts(module_size) {
     points = get_module_bottom_screw_hole_points(module_size);
 
-    translate([0, 0, module_bottom_base_thickness]) {
+    translate([0, 0, module_bottom_base_thickness + inner_wall_height]) {
         for (p = points) {
             translate(p) {
                 threaded_insert_cutout();
             }
-        }
-    }
-}
-
-module threaded_insert_cutout() {
-    k = threaded_insert_knurl_diameter;
-    l = threaded_insert_length;
-
-    k1 = k + 0.2;
-    k2 = k * 0.9;
-
-    l1 = l * 0.25;
-    l2 = l + 1;
-
-    translate([0, 0, inner_wall_height - l1]) {
-        linear_extrude(l1) {
-            circle(d = k1);
-        }
-    }
-
-    translate([0, 0, inner_wall_height - l2]) {
-        linear_extrude(l2) {
-            circle(d = k2);
         }
     }
 }
