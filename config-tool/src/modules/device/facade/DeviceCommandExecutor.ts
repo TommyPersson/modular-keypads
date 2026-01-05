@@ -58,11 +58,12 @@ export class DeviceCommandExecutor {
   }
 
   onLineReceived(line: string) {
+    console.debug("onLineReceived", line)
+
     if (!line.startsWith("%")) {
       return
     }
 
-    console.debug("onLineReceived", line)
 
     try {
       const [responseHeader, ...rest] = line.substring(1).split(":")
