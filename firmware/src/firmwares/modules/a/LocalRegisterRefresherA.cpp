@@ -17,7 +17,7 @@ LocalRegisterRefresherA::LocalRegisterRefresherA(utils::registers::RegisterManag
 
 LocalRegisterRefresherA::~LocalRegisterRefresherA() = default;
 
-void LocalRegisterRefresherA::begin() {
+void LocalRegisterRefresherA::setup() {
     mcp23x17->begin();
 
     // Set all pins as input

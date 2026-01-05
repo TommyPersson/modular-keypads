@@ -7,7 +7,7 @@ public:
     explicit RegisterRefresher(utils::registers::RegisterManager& registers);
     virtual ~RegisterRefresher();
 
-    virtual void begin() = 0;
+    virtual void setup() = 0;
     virtual void loop() = 0;
 
 protected:

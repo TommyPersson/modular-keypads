@@ -29,7 +29,7 @@ DeviceModuleM::~DeviceModuleM() = default;
 
 void DeviceModuleM::setup() {
     indicatorLedManager->begin();
-    registerRefresher->begin();
+    registerRefresher->setup();
     deviceRuntime->begin();
 }
 

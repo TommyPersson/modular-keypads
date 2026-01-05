@@ -63,5 +63,9 @@ void SlaveFirmware::loop() {
     auto registerData = device->getRegisters().readAll();
     std::memcpy(&registersStruct.data, registerData.data(), sizeof(registersStruct.data));
 
-    slavePort.updateEndpoint(devices::common::i2c::endpoints::DeviceRegisters, &registersStruct);
+    slavePort.updateEndpoint(
+        devices::common::i2c::endpoints::DeviceRegisters,
+        &registersStruct,
+        device->getRegisterDescriptors().size()
+    );
 }

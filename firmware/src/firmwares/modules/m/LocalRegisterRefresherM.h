@@ -10,7 +10,7 @@ public:
     explicit LocalRegisterRefresherM(utils::registers::RegisterManager& registers);
     ~LocalRegisterRefresherM() override;
 
-    void begin() override;
+    void setup() override;
     void loop() override;
 
 private:

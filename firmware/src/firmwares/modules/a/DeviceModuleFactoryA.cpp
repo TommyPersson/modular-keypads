@@ -15,7 +15,7 @@ DeviceModuleFactoryA::~DeviceModuleFactoryA() = default;
 std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
-    ) {
+) {
     auto registers = std::make_unique<utils::registers::RegisterManager>();
 
     auto indicatorLeds = IndicatorLedManager::NeoPixel(12, 6);
@@ -29,7 +29,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
         *registers,
         *indicatorLeds,
         *notifier
-        );
+    );
 
     return std::make_unique<DeviceModuleA>(config, indicatorLeds, registers, registerRefresher, runtime, notifier);
 }
@@ -37,14 +37,17 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
 std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createRemote(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
-    ) {
+) {
     auto registers = std::make_unique<utils::registers::RegisterManager>();
 
     auto indicatorLeds = IndicatorLedManager::NoOp(12);
 
     std::unique_ptr<RegisterRefresher> registerRefresher = std::make_unique<RemoteRegisterRefresher>(
-        *registers, serviceLocator.i2cClient, config.address
-        );
+        *registers,
+        serviceLocator.i2cClient,
+        config.address,
+        registers::all.size()
+    );
 
     auto notifier = serviceLocator.notifierFactory.create(config.id);
 
@@ -53,7 +56,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createRemote(
         *registers,
         *indicatorLeds,
         *notifier
-        );
+    );
 
     return std::make_unique<DeviceModuleA>(config, indicatorLeds, registers, registerRefresher, runtime, notifier);
 }

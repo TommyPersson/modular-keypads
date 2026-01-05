@@ -22,13 +22,22 @@ namespace utils::i2c {
         void setup(uint8_t address, Pins pins);
 
         template <class TStruct>
-        void updateEndpoint(const EndpointDescriptor<TStruct>& endpoint, const void* data) {
+        void updateEndpoint(
+            const EndpointDescriptor<TStruct>& endpoint,
+            const void* data,
+            const uint8_t length = 0 // Allows the length to be overridden for special endpoints
+        ) {
             std::lock_guard guard(lock);
 
             auto& endpointData = this->endpoints[endpoint.id];
             std::memset(&endpointData.data, 0, i2c::MAX_PACKET_SIZE);
             std::memcpy(&endpointData.data, data, endpoint.length);
-            endpointData.length = endpoint.length;
+
+            if (length > 0) {
+                endpointData.length = length;
+            } else {
+                endpointData.length = endpoint.length;
+            }
         }
 
     private:

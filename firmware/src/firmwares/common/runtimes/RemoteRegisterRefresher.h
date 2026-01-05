@@ -8,13 +8,15 @@ public:
     RemoteRegisterRefresher(
         utils::registers::RegisterManager& registers,
         utils::i2c::Client& i2cClient,
-        uint8_t deviceAddress
+        uint8_t deviceAddress,
+        uint8_t numRegisters
     );
 
-    void begin() override;
+    void setup() override;
     void loop() override;
 
 private:
     utils::i2c::Client& i2cClient;
     uint8_t deviceAddress;
+    uint8_t numRegisters;
 };

@@ -7,6 +7,6 @@ public:
     explicit NoOpRegisterRefresher(utils::registers::RegisterManager& registers);
     ~NoOpRegisterRefresher() override;
 
-    void begin() override;
+    void setup() override;
     void loop() override;
 };

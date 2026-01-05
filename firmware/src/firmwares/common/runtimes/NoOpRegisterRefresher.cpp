@@ -7,7 +7,7 @@ NoOpRegisterRefresher::NoOpRegisterRefresher(utils::registers::RegisterManager& 
 NoOpRegisterRefresher::~NoOpRegisterRefresher() {
 }
 
-void NoOpRegisterRefresher::begin() {
+void NoOpRegisterRefresher::setup() {
 }
 
 void NoOpRegisterRefresher::loop() {

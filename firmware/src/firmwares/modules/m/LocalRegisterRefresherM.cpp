@@ -19,7 +19,7 @@ LocalRegisterRefresherM::LocalRegisterRefresherM(utils::registers::RegisterManag
 
 LocalRegisterRefresherM::~LocalRegisterRefresherM() = default;
 
-void LocalRegisterRefresherM::begin() {
+void LocalRegisterRefresherM::setup() {
     mcpResetPin->init();
     mcpResetPin->setHigh();
 
