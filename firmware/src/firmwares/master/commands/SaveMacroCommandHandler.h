@@ -5,7 +5,7 @@
 
 class SaveMacroCommandHandler : public utils::commands::CommandHandler {
 public:
-    explicit SaveMacroCommandHandler(common::macros::MacroStorage& testModeController);
+    explicit SaveMacroCommandHandler(common::macros::MacroStorage& macroStorage);
     ~SaveMacroCommandHandler() override;
 
     utils::void_result execute(

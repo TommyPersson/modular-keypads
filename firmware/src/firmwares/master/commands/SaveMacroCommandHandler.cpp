@@ -43,7 +43,7 @@ utils::void_result SaveMacroCommandHandler::execute(
     auto& nameArg = args[1];
 
     const Macro macro{
-        .name = std::string(nameArg),
+        .name = nameArg,
         .data = createData(args, arena)
     };
 

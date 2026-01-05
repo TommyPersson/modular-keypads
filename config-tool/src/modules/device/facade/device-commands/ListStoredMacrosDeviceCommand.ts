@@ -16,7 +16,7 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
 
       const typeDefinition = macroTypeDefinitions.byCode[type]
       if (typeDefinition) {
-        return typeDefinition.parseDeviceResponse(id, name, dataArgs)
+        return typeDefinition.parseDeviceResponse(id, decodeURIComponent(name), dataArgs)
       }
 
       return null

@@ -21,7 +21,10 @@ export class SaveMacroDeviceCommand extends DeviceCommand<void> {
       throw new Error("Unsupported macro type")
     })()
 
-    return [this.macro.id.toString(), this.macro.name, ...dataArgs]
+    return [
+      this.macro.id.toString(),
+      encodeURIComponent(this.macro.name),
+      ...dataArgs]
   }
 
   override parseResponse(_: string[]): void {
