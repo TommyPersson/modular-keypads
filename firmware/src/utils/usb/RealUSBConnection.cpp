@@ -79,6 +79,14 @@ void utils::usb::RealConnection::sendAction(Action& action) {
         systemControl.press(systemControlAction->code);
         systemControl.release();
     }
+
+    const auto typeAction = dynamic_cast<TypeAction*>(&action);
+    if (typeAction != nullptr) {
+        for (auto& character : typeAction->text) {
+            keyboard.write(character);
+            time::delayMs(10); // Without a delay then repeated characters can be missed.
+        }
+    }
 }
 
 #endif

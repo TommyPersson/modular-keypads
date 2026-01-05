@@ -8,6 +8,7 @@ namespace common::macros {
         SHORTCUT = 0x01,
         CONSUMER_CONTROL = 0x02,
         SYSTEM_CONTROL = 0x03,
+        TEXT = 0x04,
     };
 
     struct MacroData {
@@ -54,6 +55,17 @@ namespace common::macros {
         ~SystemControlMacroData() override = default;
 
         const uint8_t code;
+    };
+
+    struct TextMacroData final : MacroData {
+        TextMacroData(const uint16_t id, const std::string_view& text)
+            : MacroData(id, MacroType::TEXT),
+              text(text) {
+        }
+
+        ~TextMacroData() override = default;
+
+        const std::string_view text;
     };
 
     // TODO sequence data

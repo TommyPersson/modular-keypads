@@ -1,3 +1,4 @@
+import { TextMacroTypeDefinition } from "@src/modules/macros/macro-type-definitions/TextMacroTypeDefinition"
 import type { MacroDefinition, MacroTypeDefinition } from "@src/modules/macros/models"
 import { ConsumerControlMacroTypeDefinition } from "./ConsumerControlMacroTypeDefinition"
 import { ShortcutMacroTypeDefinition } from "./ShortcutMacroTypeDefinition"
@@ -8,6 +9,7 @@ const allMacroTypeDefinitions: MacroTypeDefinition<MacroDefinition>[] = [
   ShortcutMacroTypeDefinition as any,
   ConsumerControlMacroTypeDefinition as any,
   SystemControlTypeDefinition as any,
+  TextMacroTypeDefinition as any,
 ]
 
 export type MacroTypeDefinitions = {

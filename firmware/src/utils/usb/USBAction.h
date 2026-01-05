@@ -4,12 +4,15 @@
 #include <vector>
 
 namespace utils::usb {
+    // TODO support custom allocator
+
     struct Action {
         virtual ~Action() = default;
 
         static std::shared_ptr<Action> keyPress(const std::vector<uint8_t>& keyCodes);
         static std::shared_ptr<Action> consumerControl(uint16_t usageId);
         static std::shared_ptr<Action> systemControl(uint8_t code);
+        static std::shared_ptr<Action> type(const std::string_view& text);
     };
 
     struct ConsumerControlAction final : Action {
@@ -41,5 +44,14 @@ namespace utils::usb {
         }
 
         const KeyPressData data;
+    };
+
+    struct TypeAction final : Action {
+        ~TypeAction() override = default;
+
+        explicit TypeAction(const std::string_view& text) : text(text) {
+        }
+
+        const std::string text;
     };
 }

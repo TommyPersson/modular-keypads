@@ -129,7 +129,7 @@ const MacroDefinitionRow = (props: {
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>
         <MacroTypeVisualization type={macro.type} />
       </TableCell>
-      <TableCell>{definitionCellContent}</TableCell>
+      <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>{definitionCellContent}</TableCell>
       <TableCell style={{ verticalAlign }} align={"right"}>
         <Stack direction={"row"}>
           <Tooltip title={"Edit Macro"}>

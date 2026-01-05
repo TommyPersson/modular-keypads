@@ -13,3 +13,7 @@ std::shared_ptr<Action> Action::consumerControl(uint16_t usageId) {
 std::shared_ptr<Action> Action::systemControl(uint8_t code) {
     return std::make_shared<SystemControlAction>(code);
 }
+
+std::shared_ptr<Action> Action::type(const std::string_view& text) {
+    return std::make_shared<TypeAction>(text);
+}

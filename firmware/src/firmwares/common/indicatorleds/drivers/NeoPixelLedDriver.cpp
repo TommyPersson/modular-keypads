@@ -1,7 +1,3 @@
-//
-// Created by Tommy on 2025-12-07.
-//
-
 #include "NeoPixelLedDriver.h"
 
 NeoPixelLedDriver::NeoPixelLedDriver(uint16_t numberOfPixels, int16_t pin, neoPixelType type) :

@@ -100,9 +100,43 @@ namespace common::macros {
         }
     };
 
+    class TextDataSerializer final
+        : public MacroDataStorageSerializer<TextMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == TEXT;
+        };
+
+        std::string_view serialize(const TextMacroData& data, utils::allocations::Arena& arena) override {
+            return utils::allocations::arena::strings::sprintf(
+                arena,
+                "%.*s",
+                data.text.length(),
+                data.text.data()
+            );
+        }
+
+        std::shared_ptr<TextMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            utils::allocations::Arena& arena
+        ) override {
+            const utils::allocations::ArenaAllocator<TextMacroData> allocator(arena);
+
+            const auto textPart = parts[0];
+
+            return std::allocate_shared<TextMacroData>(
+                allocator,
+                macroId,
+                textPart
+            );
+        }
+    };
+
     std::vector<void*> macroDataSerializers{
         new ShortcutMacroDataSerializer{},
         new ConsumerControlMacroDataSerializer{},
         new SystemControlDataSerializer{},
+        new TextDataSerializer{},
     };
 }

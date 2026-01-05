@@ -36,6 +36,11 @@ void LineStreamer::update() {
 std::string_view LineStreamer::processReceiveBuffer() {
     for (int i = 0; receiveBufferIndex < receiveBufferLength; receiveBufferIndex++, i++) {
         char c = this->receiveBuffer[receiveBufferIndex];
+        if (c == '\r') {
+            receiveBufferIndex += 1;
+            continue;
+        }
+
         if (c == '\n') {
             receiveBufferIndex += 1;
             return std::string_view(this->lineBuffer);

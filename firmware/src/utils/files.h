@@ -20,6 +20,8 @@ namespace utils::files {
                 }
 
                 lineLength = 0;
+            } else if (c == '\r') {
+                // ignore
             } else {
                 if (lineLength <= lineBufferSize) {
                     buffer[lineLength] = c;

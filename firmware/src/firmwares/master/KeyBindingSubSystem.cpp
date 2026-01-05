@@ -1,6 +1,7 @@
 #include "KeyBindingSubSystem.h"
 
 #include <bitset>
+#include <utils/strings.h>
 
 #include "utils/logging/Logger.h"
 
@@ -69,6 +70,17 @@ namespace {
             });
         }
 
+        if (macro.data->type == TEXT) {
+            const auto& data = dynamic_cast<TextMacroData&>(*macro.data);
+            const auto encodedText = data.text;
+            char decodedText[encodedText.length() + 1];
+            utils::strings::uriDecode(encodedText, decodedText, encodedText.length() + 1);
+
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = std::vector{utils::usb::Action::type(decodedText)},
+            });
+        }
         return nullptr;
     }
 }
