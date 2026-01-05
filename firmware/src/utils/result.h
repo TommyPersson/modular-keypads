@@ -18,7 +18,7 @@ namespace utils {
             return result{.value = value};
         }
 
-        static result error(const char* error_code) {
+        static result error(const char* error_code) { // TODO accept format string?
             return result{.has_error = true, .error_code = error_code};
         }
     };
@@ -32,7 +32,7 @@ namespace utils {
             return void_result{};
         }
 
-        static void_result error(const char* error_code) {
+        static void_result error(const char* error_code) {// TODO accept format string?
             return void_result{.has_error = true, .error_code = error_code};
         }
     };

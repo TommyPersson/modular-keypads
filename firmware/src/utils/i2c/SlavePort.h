@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <mutex>
 #include <Wire.h>
 
@@ -40,6 +41,8 @@ namespace utils::i2c {
             }
         }
 
+        void addCommandHandler(void* handler);
+
     private:
         void onReceiveCallback(int len);
         void onRequestCallback();
@@ -52,6 +55,8 @@ namespace utils::i2c {
         TwoWire& twoWire;
 
         utils::allocations::Arena receiveArena;
+
+        std::vector<void*> knownCommandsHandlers;
 
         mutable std::mutex lock;
     };

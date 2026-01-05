@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-#include "Operation.h"
+#include "Commands.h"
 #include "Pins.h"
 #include "utils/logging/Logger.h"
 
@@ -23,12 +23,23 @@ namespace utils::i2c {
         twoWire.onReceive([this](const int len) { onReceiveCallback(len); });
         twoWire.onRequest([this]() { onRequestCallback(); });
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
+
+        addCommandHandler(new commands::LambdaCommandHandler<commands::builtin::SetEndpointParams>(
+            commands::builtin::SetEndpoint.id,
+            [this](const commands::builtin::SetEndpointParams& params) -> void_result {
+                this->selectEndpoint(params.endpointId);
+                return void_result::success();
+            }));
+    }
+
+    void SlavePort::addCommandHandler(void* handler) {
+        knownCommandsHandlers.push_back(handler);
     }
 
     void SlavePort::onReceiveCallback(const int len) {
         std::lock_guard guard(lock);
 
-        auto data = receiveArena.allocate(len);
+        auto message = receiveArena.allocate(len);
 
         int i = 0;
         while (Wire.available()) {
@@ -38,12 +49,16 @@ namespace utils::i2c {
                 continue;
             }
 
-            data[i++] = value;
+            message[i++] = value;
         }
 
-        if (data[0] == static_cast<int>(Operation::SetEndpoint)) {
-            const auto endpoint = data[1];
-            selectEndpoint(endpoint);
+        for (auto& commandPtr : knownCommandsHandlers) {
+            const auto command = static_cast<commands::CommandHandler<commands::AnyParams>*>(commandPtr);
+            if (command->id != message[0]) {
+                continue;
+            }
+            const auto params = command->parseData(message);
+            command->execute(params);
         }
 
         receiveArena.reset();
