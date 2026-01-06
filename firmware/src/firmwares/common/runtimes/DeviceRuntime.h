@@ -10,11 +10,6 @@
 #include "firmwares/common/notifications/Notifier.h"
 
 namespace devices {
-    enum class DeviceMode {
-        Local,
-        Remote
-    };
-
     struct DeviceSwitchEvent {
         const uint64_t deviceId;
         const uint8_t switchNumber;
@@ -45,6 +40,8 @@ namespace devices {
 
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
         virtual const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
+
+        void flashIdentificationLights(uint32_t uint32);
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
         utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return deviceRotaryEncoderEventSubject; }

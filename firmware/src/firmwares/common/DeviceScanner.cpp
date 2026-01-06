@@ -16,8 +16,8 @@ DeviceScanner::DeviceScanner(utils::i2c::Client& client) :
 
 DeviceScanner::~DeviceScanner() = default;
 
-std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
-    std::vector<std::shared_ptr<DeviceProxy>> result;
+std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
+    std::vector<std::shared_ptr<DeviceConfiguration>> result;
 
     for (uint8_t address = 10; address < 14; address++) {
         logger->debug("probing %i", address);
@@ -38,6 +38,7 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
             continue;
         }
 
+
         const auto name = std::string(deviceNameResult.value->deviceName, sizeof(deviceNameResult.value->deviceName));
 
         DeviceConfiguration configuration{
@@ -47,7 +48,7 @@ std::vector<std::shared_ptr<DeviceProxy>> DeviceScanner::scan() {
             .address = address
         };
 
-        result.emplace_back(std::make_shared<DeviceProxy>(configuration, client));
+        result.emplace_back(std::make_shared<DeviceConfiguration>(configuration));
     }
 
     return result;

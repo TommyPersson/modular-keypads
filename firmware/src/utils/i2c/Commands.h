@@ -1,6 +1,8 @@
 #pragma once
 
-#include <utils/result.h>
+#include <functional>
+
+#include "utils/result.h"
 
 namespace utils::i2c::commands {
         struct AnyParams {
@@ -14,7 +16,7 @@ namespace utils::i2c::commands {
         template <class TParams>
         class CommandHandler {
         public:
-            explicit CommandHandler(uint8_t id) : id(id) {
+            explicit CommandHandler(const uint8_t id) : id(id) {
             }
 
             virtual ~CommandHandler() = default;
@@ -25,7 +27,7 @@ namespace utils::i2c::commands {
                 return reinterpret_cast<TParams*>(&message[1]); // 0 is the command ID
             }
 
-            uint8_t id;
+            const uint8_t id;
         };
 
         template <class TParams>

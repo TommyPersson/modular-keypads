@@ -25,12 +25,14 @@ namespace devices::m {
     class DeviceModuleM final : public DeviceModule {
     public:
         DeviceModuleM(
+            DeviceMode deviceMode,
             const DeviceConfiguration& configuration,
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
             std::unique_ptr<utils::registers::RegisterManager>& registerManager,
             std::unique_ptr<RegisterRefresher>& registerRefresher,
             std::unique_ptr<DeviceRuntime>& deviceRuntime,
-            std::unique_ptr<Notifier>& notifier
+            std::unique_ptr<Notifier>& notifier,
+            utils::i2c::Client& i2cClient
         );
         ~DeviceModuleM() override;
 
@@ -39,7 +41,9 @@ namespace devices::m {
 
         utils::registers::RegisterManager& getRegisters() override;
 
-        const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override { return registers::all; }
+        const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override {
+            return registers::all;
+        }
 
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
 
@@ -47,17 +51,21 @@ namespace devices::m {
             return capabilities;
         }
 
+        void flashIdentificationLights(uint32_t duration_ms) override;
+
     protected:
         DeviceRuntime& getRuntime() override {
             return *deviceRuntime;
         }
 
     private:
+        const DeviceMode deviceMode;
         const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;
         std::unique_ptr<utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
         std::unique_ptr<DeviceRuntime> deviceRuntime;
         std::unique_ptr<Notifier> notifier;
+        utils::i2c::Client& i2cClient;
     };
 }

@@ -30,7 +30,16 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createLocal(
         *notifier
     );
 
-    return std::make_unique<DeviceModuleM>(config, indicatorLeds, registers, registerRefresher, runtime, notifier);
+    return std::make_unique<DeviceModuleM>(
+        DeviceMode::Local,
+        config,
+        indicatorLeds,
+        registers,
+        registerRefresher,
+        runtime,
+        notifier,
+        serviceLocator.i2cClient
+    );
 }
 
 std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
@@ -57,7 +66,16 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
         *notifier
     );
 
-    return std::make_unique<DeviceModuleM>(config, indicatorLeds, registers, registerRefresher, runtime, notifier);
+    return std::make_unique<DeviceModuleM>(
+        DeviceMode::Remote,
+        config,
+        indicatorLeds,
+        registers,
+        registerRefresher,
+        runtime,
+        notifier,
+        serviceLocator.i2cClient
+    );
 }
 
 bool DeviceModuleFactoryM::matches(char deviceType) {

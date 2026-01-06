@@ -12,6 +12,7 @@
 #include "../common/DeviceScanner.h"
 #include "../common/keybindings/KeyBindingStorage.h"
 #include "../common/macros/MacroStorage.h"
+#include "commands/EnableIdentificationLightsCommandHandler.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
 #include "commands/DeleteMacroCommandHandler.h"
 #include "commands/GetTestMode.h"
@@ -51,6 +52,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(*keyBindingStorage));
+    addCommandHandler(std::make_shared<EnableIdentificationLightsCommandHandler>(allDevices));
 
     loopTimerMetric = serviceLocator.metricRegistry.timer("firmware.master.device_loop_time_us");
 }
@@ -107,18 +109,18 @@ void MasterFirmware::refreshConnectedDevices() {
 
     DeviceScanner scanner(serviceLocator.i2cClient);
     auto scanResult = scanner.scan();
-    for (const auto& device : scanResult) {
-        logger->info("Found device at %i: %08llx", device->getConfiguration().address, device->getConfiguration().id);
-        logger->info("Device name: %s", device->getConfiguration().name.c_str());
-        logger->info("Device type: %c", device->getConfiguration().type);
+    for (const auto& deviceConfiguration : scanResult) {
+        logger->info("Found device at %i: %08llx", deviceConfiguration->address, deviceConfiguration->id);
+        logger->info("Device name: %s", deviceConfiguration->name.c_str());
+        logger->info("Device type: %c", deviceConfiguration->type);
 
-        auto moduleFactory = getModuleFactory(device->getConfiguration().type);
+        auto moduleFactory = getModuleFactory(deviceConfiguration->type);
         if (moduleFactory == nullptr) {
-            logger->error("No module factory found for type: %c", device->getConfiguration().type);
+            logger->error("No module factory found for type: %c", deviceConfiguration->type);
             continue;
         }
 
-        auto remoteDevice = moduleFactory->createRemote(device->getConfiguration(), serviceLocator);
+        auto remoteDevice = moduleFactory->createRemote(*deviceConfiguration, serviceLocator);
         remoteDevice->setup();
         connectedDevices.push_back(std::move(remoteDevice));
     }

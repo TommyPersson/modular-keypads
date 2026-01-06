@@ -1,11 +1,15 @@
 #include "SlaveFirmware.h"
 
+#include "i2c/commands/EnableIdentificationLightsCommandHandler.h"
+
 #include "utils/strings.h"
 #include "utils/logging/Logger.h"
 
 namespace {
     auto logger = utils::logging::createLogger("SlaveFirmware");
 }
+
+using namespace firmwares::slave;
 
 SlaveFirmware::SlaveFirmware(ServiceLocator& serviceLocator) :
     slavePort(serviceLocator.i2cSlavePort), Firmware(serviceLocator) {
@@ -51,6 +55,8 @@ void SlaveFirmware::setup() {
         );
 
         slavePort.setup(deviceAddress, pins);
+
+        slavePort.addCommandHandler(new i2c::commands::EnableIdentificationLightsCommandHandler(*device));
     }
 }
 

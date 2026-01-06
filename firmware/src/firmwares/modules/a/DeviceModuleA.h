@@ -7,7 +7,6 @@
 #include <firmwares/modules/common/DeviceModule.h>
 
 namespace devices::a {
-
     namespace registers {
         const utils::registers::RegisterDescriptor IOA{.name = "IOA", .index = 0};
         const utils::registers::RegisterDescriptor IOB{.name = "IOB", .index = 1};
@@ -32,12 +31,14 @@ namespace devices::a {
     class DeviceModuleA final : public DeviceModule {
     public:
         DeviceModuleA(
+            const DeviceMode deviceMode,
             const DeviceConfiguration& configuration,
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
             std::unique_ptr<utils::registers::RegisterManager>& registerManager,
             std::unique_ptr<RegisterRefresher>& registerRefresher,
             std::unique_ptr<DeviceRuntime>& deviceRuntime,
-            std::unique_ptr<Notifier>& notifier
+            std::unique_ptr<Notifier>& notifier,
+            utils::i2c::Client& i2cClient
         );
         ~DeviceModuleA() override;
 
@@ -46,7 +47,9 @@ namespace devices::a {
 
         utils::registers::RegisterManager& getRegisters() override;
 
-        const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override { return registers::all; }
+        const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override {
+            return registers::all;
+        }
 
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
 
@@ -54,19 +57,21 @@ namespace devices::a {
             return capabilities;
         }
 
+        void flashIdentificationLights(uint32_t durationMs) override;
+
     protected:
         DeviceRuntime& getRuntime() override {
             return *deviceRuntime;
         }
 
-    protected:
-
     private:
+        const DeviceMode deviceMode;
         const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;
         std::unique_ptr<utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
         std::unique_ptr<DeviceRuntime> deviceRuntime;
         std::unique_ptr<Notifier> notifier;
+        utils::i2c::Client& i2cClient;
     };
 }

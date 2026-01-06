@@ -32,7 +32,8 @@ void DeviceRuntime::configureCapabilities() {
         ) {
             const auto& reg = registers.get(pushButton->reg);
 
-            attachSwitch(pushButton->number, bitreaders::for_register(*reg, pushButton->regIndex), pushButton->ledIndex);
+            attachSwitch(pushButton->number, bitreaders::for_register(*reg, pushButton->regIndex),
+                         pushButton->ledIndex);
         }
 
         if (
@@ -52,7 +53,8 @@ void DeviceRuntime::configureCapabilities() {
 }
 
 
-void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<utils::bitreaders::BitReader>& bitReader, int8_t ledIndex) {
+void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<utils::bitreaders::BitReader>& bitReader,
+                                 int8_t ledIndex) {
     const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
 
     switchMonitor->onSwitchStateChanged().addObserver(this);
@@ -81,6 +83,23 @@ void DeviceRuntime::begin() {
 
 void DeviceRuntime::loop() {
 }
+
+void DeviceRuntime::flashIdentificationLights(uint32_t uint32) {
+    const auto capabilities = getCapabilities();
+
+    for (const auto& capability : capabilities) {
+        if (const auto pushButton = dynamic_cast<PushButtonCapability*>(capability.get()); pushButton != nullptr) {
+            if (pushButton->ledIndex >= 0) {
+                auto indicatorLed = indicatorLeds.get(pushButton->ledIndex);
+                if (indicatorLed) {
+                    // TODO indicatorLed->startAnimation()
+                    indicatorLed->setColor(255, 0, 0, 0);
+                }
+            }
+        }
+    }
+}
+
 
 void DeviceRuntime::observe(const SwitchEvent& event) {
     auto deviceSwitchEvent = DeviceSwitchEvent{

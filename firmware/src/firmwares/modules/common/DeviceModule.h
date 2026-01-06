@@ -39,6 +39,11 @@ namespace devices {
         }
     }
 
+    enum class DeviceMode {
+        Local,
+        Remote
+    };
+
     class DeviceModule {
     public:
         virtual ~DeviceModule() = default;
@@ -51,7 +56,9 @@ namespace devices {
         virtual const DeviceConfiguration& getConfiguration() const = 0;
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
-        utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); };
+        virtual void flashIdentificationLights(uint32_t duration_ms) = 0;
+
+        utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); }
 
         utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() {
             return getRuntime().onRotaryEncoderEvent();
