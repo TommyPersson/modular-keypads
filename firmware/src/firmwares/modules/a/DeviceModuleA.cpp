@@ -1,6 +1,6 @@
 #include "DeviceModuleA.h"
 
-#include <firmwares/slave/i2c/commands/EnableIdentificationLightsCommandHandler.h>
+#include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsCommandHandler.h>
 
 #include "utils/logging/Logger.h"
 
@@ -51,7 +51,7 @@ void DeviceModuleA::flashIdentificationLights(uint32_t durationMs) {
     if (deviceMode == DeviceMode::Remote) {
         i2cClient.sendCommand( // TODO do directly in (uart) command handler to reduce duplication. or DeviceModule base method?
             configuration.address,
-            firmwares::slave::i2c::commands::EnableIdentificationLights,
+            firmwares::slave::i2c::commands::FlashDeviceIdentificationLights,
             {.durationMs = durationMs}
         );
     } else {

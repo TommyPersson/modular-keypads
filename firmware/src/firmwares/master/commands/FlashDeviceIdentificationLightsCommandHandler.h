@@ -3,10 +3,10 @@
 #include "firmwares/modules/common/DeviceModule.h"
 #include "utils/commands/CommandHandler.h"
 
-class EnableIdentificationLightsCommandHandler final : public utils::commands::CommandHandler {
+class FlashDeviceIdentificationLightsCommandHandler final : public utils::commands::CommandHandler {
 public:
-    explicit EnableIdentificationLightsCommandHandler(const std::vector<devices::DeviceModule*>& devices);
-    ~EnableIdentificationLightsCommandHandler() override;
+    explicit FlashDeviceIdentificationLightsCommandHandler(const std::vector<devices::DeviceModule*>& devices);
+    ~FlashDeviceIdentificationLightsCommandHandler() override;
 
     utils::void_result execute(
         const std::span<const std::string_view>& args,
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-const std::vector<devices::DeviceModule*>& devices;
+    const std::vector<devices::DeviceModule*>& devices;
 };

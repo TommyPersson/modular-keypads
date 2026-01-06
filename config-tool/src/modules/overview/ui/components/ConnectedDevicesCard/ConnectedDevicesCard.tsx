@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material"
 import { CommandButton } from "@src/modules/common/components"
-import { EnableIdentificationLightsCommand } from "@src/modules/device/commands/EnableIdentificationLightsCommand"
+import { FlashDeviceIdentificationLightsCommand } from "@src/modules/device/commands/FlashDeviceIdentificationLightsCommand"
 import { useDeviceContext } from "@src/modules/device/context"
 import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
 import { useQuery } from "@tanstack/react-query"
@@ -43,7 +43,7 @@ export const ConnectedDevicesCard = () => {
                   <TableCell><code>{it.deviceAddress}</code></TableCell>
                   <TableCell>
                     <CommandButton
-                      command={EnableIdentificationLightsCommand}
+                      command={FlashDeviceIdentificationLightsCommand}
                       args={{ deviceId: it.deviceId }}
                     />
                   </TableCell>

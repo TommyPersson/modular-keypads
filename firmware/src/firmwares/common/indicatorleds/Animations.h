@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "utils/time/Time.h"
 
 namespace utils::led::animations {

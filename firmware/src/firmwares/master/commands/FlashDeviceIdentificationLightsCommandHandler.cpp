@@ -1,25 +1,23 @@
-#include "EnableIdentificationLightsCommandHandler.h"
+#include "FlashDeviceIdentificationLightsCommandHandler.h"
 
-#include <utils/strings.h>
+#include "utils/strings.h"
 
-EnableIdentificationLightsCommandHandler::EnableIdentificationLightsCommandHandler(
+FlashDeviceIdentificationLightsCommandHandler::FlashDeviceIdentificationLightsCommandHandler(
     const std::vector<devices::DeviceModule*>& devices
-) : CommandHandler("enable.identification.lights"),
+) : CommandHandler("flash.identification.lights"),
     devices(devices) {
 }
 
-EnableIdentificationLightsCommandHandler::~EnableIdentificationLightsCommandHandler() {
+FlashDeviceIdentificationLightsCommandHandler::~FlashDeviceIdentificationLightsCommandHandler() {
 }
 
-utils::void_result EnableIdentificationLightsCommandHandler::execute(
+utils::void_result FlashDeviceIdentificationLightsCommandHandler::execute(
     const std::span<const std::string_view>& args,
     utils::commands::CommandResponseWriter& responseWriter,
     utils::allocations::Arena& arena
 ) {
     const auto deviceId = utils::strings::atou64(args[0], 16);
-
-    const auto durationMs = 3'000;
-
+    const auto durationMs = utils::strings::atou32(args[1], 10);
 
     for (const auto device : devices) {
         if (device->getConfiguration().id == deviceId) {

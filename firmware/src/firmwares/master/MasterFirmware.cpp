@@ -12,7 +12,7 @@
 #include "../common/DeviceScanner.h"
 #include "../common/keybindings/KeyBindingStorage.h"
 #include "../common/macros/MacroStorage.h"
-#include "commands/EnableIdentificationLightsCommandHandler.h"
+#include "commands/FlashDeviceIdentificationLightsCommandHandler.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
 #include "commands/DeleteMacroCommandHandler.h"
 #include "commands/GetTestMode.h"
@@ -52,7 +52,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(*keyBindingStorage));
-    addCommandHandler(std::make_shared<EnableIdentificationLightsCommandHandler>(allDevices));
+    addCommandHandler(std::make_shared<FlashDeviceIdentificationLightsCommandHandler>(allDevices));
 
     loopTimerMetric = serviceLocator.metricRegistry.timer("firmware.master.device_loop_time_us");
 }
