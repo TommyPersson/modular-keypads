@@ -33,7 +33,7 @@ namespace utils::i2c {
                 return void_result::success();
             }
 
-            return void_result::error("unable.to.execute.command");
+            return void_result::error("unable.to.execute.remote.command");
         }
 
         result<uint8_t*> readEndpointRaw(const uint8_t address, const uint8_t endpointId, const size_t size) {

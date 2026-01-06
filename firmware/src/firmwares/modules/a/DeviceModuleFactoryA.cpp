@@ -28,7 +28,8 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
         config.id,
         *registers,
         *indicatorLeds,
-        *notifier
+        *notifier,
+        serviceLocator.deviceConfigurationManager
     );
 
     return std::make_unique<DeviceModuleA>(
@@ -64,7 +65,8 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createRemote(
         config.id,
         *registers,
         *indicatorLeds,
-        *notifier
+        *notifier,
+        serviceLocator.deviceConfigurationManager
     );
 
     return std::make_unique<DeviceModuleA>(

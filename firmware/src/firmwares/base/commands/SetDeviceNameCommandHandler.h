@@ -1,11 +1,12 @@
 #pragma once
 
-#include "firmwares/common/DeviceConfigurationManager.h"
+#include <firmwares/modules/common/DeviceModule.h>
+
 #include "utils/commands/CommandHandler.h"
 
 class SetDeviceNameCommandHandler final : public utils::commands::CommandHandler {
 public:
-    explicit SetDeviceNameCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit SetDeviceNameCommandHandler(std::vector<devices::DeviceModule*>& devices);
     ~SetDeviceNameCommandHandler() override;
 
     utils::void_result execute(
@@ -15,5 +16,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    std::vector<devices::DeviceModule*>& devices;
 };

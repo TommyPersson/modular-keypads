@@ -58,7 +58,7 @@ namespace utils::i2c {
                 continue;
             }
             const auto params = command->parseData(message);
-            command->execute(params);
+            command->execute(params); // TODO what to do with returned errors?
         }
 
         receiveArena.reset();

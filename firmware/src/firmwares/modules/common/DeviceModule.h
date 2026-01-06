@@ -55,23 +55,15 @@ namespace devices {
         virtual const DeviceConfiguration& getConfiguration() const = 0;
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
-        void flashIdentificationLights(uint32_t duration_ms);
+        utils::void_result flashIdentificationLights(uint32_t durationMs);
+
+        utils::void_result rename(const std::string_view& deviceName);
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); }
 
         utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() {
             return getRuntime().onRotaryEncoderEvent();
-        };
-
-        static std::unique_ptr<DeviceModule> local(
-            DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
-        );
-
-        static std::unique_ptr<DeviceModule> remote(
-            DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
-        );
+        }
 
     protected:
         explicit DeviceModule(DeviceMode deviceMode, utils::i2c::Client& i2cClient);

@@ -38,7 +38,6 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ReadDeviceNameCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));

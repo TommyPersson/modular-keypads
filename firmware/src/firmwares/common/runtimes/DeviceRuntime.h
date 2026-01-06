@@ -1,7 +1,9 @@
 #pragma once
 
 #include <firmwares/common/DeviceCapabilities.h>
+#include <firmwares/common/DeviceConfigurationManager.h>
 #include <Registers/RegisterManager.h>
+#include <utils/result.h>
 
 #include "utils/bitreaders/BitReader.h"
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
@@ -30,7 +32,8 @@ namespace devices {
             uint64_t deviceId,
             utils::registers::RegisterManager& registers,
             IndicatorLedManager& indicatorLeds,
-            Notifier& notifier
+            Notifier& notifier,
+            DeviceConfigurationManager& configurationManager
         );
 
         ~DeviceRuntime() override = default;
@@ -42,6 +45,7 @@ namespace devices {
         virtual const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
 
         void flashIdentificationLights(uint32_t durationMs);
+        utils::void_result renameDevice(const std::string_view& deviceName);
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
         utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return deviceRotaryEncoderEventSubject; }
@@ -70,5 +74,6 @@ namespace devices {
         utils::registers::RegisterManager& registers;
         IndicatorLedManager& indicatorLeds;
         Notifier& notifier;
+        DeviceConfigurationManager& configurationManager;
     };
 }

@@ -9,11 +9,13 @@ DeviceRuntime::DeviceRuntime(
     uint64_t deviceId,
     utils::registers::RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
-    Notifier& notifier
+    Notifier& notifier,
+    DeviceConfigurationManager& configurationManager
 ) : deviceId(deviceId),
     registers(registers),
     indicatorLeds(indicatorLeds),
-    notifier(notifier) {
+    notifier(notifier),
+    configurationManager(configurationManager) {
 }
 
 void DeviceRuntime::configureRegisters() const {
@@ -100,6 +102,13 @@ void DeviceRuntime::flashIdentificationLights(uint32_t durationMs) {
     }
 }
 
+utils::void_result DeviceRuntime::renameDevice(const std::string_view& deviceName) {
+    if (!configurationManager.setDeviceName(deviceName)) {
+        return void_result::error("unable.to.set.device.name");
+    }
+
+    return void_result::success();
+}
 
 void DeviceRuntime::observe(const SwitchEvent& event) {
     auto deviceSwitchEvent = DeviceSwitchEvent{

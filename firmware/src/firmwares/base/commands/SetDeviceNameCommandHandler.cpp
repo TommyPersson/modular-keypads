@@ -8,9 +8,9 @@ namespace {
 }
 
 SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager
+    std::vector<devices::DeviceModule*>& devices
 ) : CommandHandler("set.device.name"),
-    deviceConfigurationManager(deviceConfigurationManager) {
+    devices(devices) {
 }
 
 SetDeviceNameCommandHandler::~SetDeviceNameCommandHandler() = default;
@@ -20,14 +20,17 @@ utils::void_result SetDeviceNameCommandHandler::execute(
     utils::commands::CommandResponseWriter& responseWriter,
     utils::allocations::Arena& arena
 ) {
-    const auto name = args[0];
+    const auto deviceId = utils::strings::atou64(args[0], 16);
+    const auto deviceName = args[1];
 
-    if (name.size() > 15) {
+    if (deviceName.size() > 15) {
         return utils::void_result::error("device.name.too.long");
     }
 
-    if (!this->deviceConfigurationManager.setDeviceName(name)) {
-        return utils::void_result::error("unable.to.set.device.name");
+    for (const auto device : devices) {
+        if (device->getConfiguration().id == deviceId) {
+            return device->rename(deviceName);
+        }
     }
 
     return utils::void_result::success();

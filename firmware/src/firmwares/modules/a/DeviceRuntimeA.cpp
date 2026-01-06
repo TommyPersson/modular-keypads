@@ -12,8 +12,9 @@ DeviceRuntimeA::DeviceRuntimeA(
     uint64_t deviceId,
     utils::registers::RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
-    Notifier& notifier
-) : DeviceRuntime(deviceId, registers, indicatorLeds, notifier) {
+    Notifier& notifier,
+    DeviceConfigurationManager& configurationManager
+) : DeviceRuntime(deviceId, registers, indicatorLeds, notifier, configurationManager) {
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(notifier);
 }
 

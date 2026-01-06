@@ -19,7 +19,8 @@ public:
         uint64_t deviceId,
         utils::registers::RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
-        Notifier& notifier
+        Notifier& notifier,
+        DeviceConfigurationManager& configurationManager
     );
     ~DeviceRuntimeA() override;
 

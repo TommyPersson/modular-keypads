@@ -1,6 +1,6 @@
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined"
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
-import RestartAltOutlinedIcon from '@mui/icons-material/RestartAltOutlined';
+import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined"
 
 import {
   Button,
@@ -50,7 +50,8 @@ export const DeviceInformationCard = () => {
   }, [setIsDialogOpen])
 
   const handleRestartClicked = useCallback(async () => {
-    await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {})
+    await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {
+    })
   }, [deviceFacade])
 
   const deviceInformation = deviceInformationQuery.data ?? null
@@ -105,7 +106,8 @@ export const DeviceInformationCard = () => {
           />
           <PropertyText
             title={"Register Names"}
-            subtitle={(deviceInformation?.deviceRegisterNames ?? []).map(it => <Fragment key={it}><code>{it}</code><br/></Fragment>)}
+            subtitle={(deviceInformation?.deviceRegisterNames ?? []).map(it => <Fragment
+              key={it}><code>{it}</code><br /></Fragment>)}
           />
         </PropertyGroup>
       </CardContent>
@@ -177,11 +179,12 @@ const UpdateDeviceConfigurationDialog = (props: {
   }, [setDeviceName])
 
   const saveMutation = useMutation({
-    mutationFn: async (args: {deviceTypeCode: string, deviceAddress: number, deviceName: string}) => {
+    mutationFn: async (args: { deviceTypeCode: string, deviceAddress: number, deviceName: string }) => {
       await deviceFacade.executeCommand(new SetDeviceTypeDeviceCommand(args.deviceTypeCode))
       await deviceFacade.executeCommand(new SetDeviceAddressDeviceCommand(args.deviceAddress))
-      await deviceFacade.executeCommand(new SetDeviceNameDeviceCommand(args.deviceName))
-      await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {})
+      await deviceFacade.executeCommand(new SetDeviceNameDeviceCommand(deviceInformation.deviceId, args.deviceName))
+      await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {
+      })
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["device", "information"] })
@@ -205,7 +208,7 @@ const UpdateDeviceConfigurationDialog = (props: {
     || deviceAddress !== deviceInformation.deviceAddress
     || deviceName !== deviceInformation.deviceName
 
-  const canSave = isDirty && !saveMutation.isPending;
+  const canSave = isDirty && !saveMutation.isPending
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
