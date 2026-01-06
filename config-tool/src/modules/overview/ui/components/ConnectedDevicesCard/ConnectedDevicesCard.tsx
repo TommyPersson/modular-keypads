@@ -30,7 +30,7 @@ export const ConnectedDevicesCard = () => {
               <TableCell style={{ width: 0 }}>ID</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Address</TableCell>
-              <TableCell></TableCell>
+              <TableCell style={{ width: 0 }} align={"right"}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -45,6 +45,7 @@ export const ConnectedDevicesCard = () => {
                     <CommandButton
                       command={FlashDeviceIdentificationLightsCommand}
                       args={{ deviceId: it.deviceId }}
+                      iconOnly
                     />
                   </TableCell>
                 </TableRow>

@@ -23,10 +23,9 @@ namespace devices {
 
 #pragma pack(push, 1)
                 struct DeviceRegisters {
-                    // TODO make the size device dependent, the size has a large impact on the refresh time,
-                    // TODO so keeping it as small as possible for each device is important
-                    uint8_t data[4]{};
-                    //uint8_t data[utils::i2c::MAX_PACKET_SIZE]{};
+                    // The amount may vary between devices so the actual read-site uses a length override
+                    // based on the number of registers.
+                    uint8_t data[utils::i2c::MAX_PACKET_SIZE]{};
                 };
 #pragma pack(pop)
             }
@@ -56,7 +55,7 @@ namespace devices {
         virtual const DeviceConfiguration& getConfiguration() const = 0;
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
-        virtual void flashIdentificationLights(uint32_t duration_ms) = 0;
+        void flashIdentificationLights(uint32_t duration_ms);
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); }
 
@@ -75,8 +74,11 @@ namespace devices {
         );
 
     protected:
-        DeviceModule() = default;
+        explicit DeviceModule(DeviceMode deviceMode, utils::i2c::Client& i2cClient);
 
         virtual DeviceRuntime& getRuntime() = 0;
+
+        DeviceMode deviceMode;
+        utils::i2c::Client& i2cClient;
     };
 }

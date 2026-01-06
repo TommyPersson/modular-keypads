@@ -57,21 +57,17 @@ namespace devices::a {
             return capabilities;
         }
 
-        void flashIdentificationLights(uint32_t durationMs) override;
-
     protected:
         DeviceRuntime& getRuntime() override {
             return *deviceRuntime;
         }
 
     private:
-        const DeviceMode deviceMode;
         const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;
         std::unique_ptr<utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
         std::unique_ptr<DeviceRuntime> deviceRuntime;
         std::unique_ptr<Notifier> notifier;
-        utils::i2c::Client& i2cClient;
     };
 }

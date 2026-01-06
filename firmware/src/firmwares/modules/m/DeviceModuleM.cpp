@@ -1,6 +1,6 @@
 #include "DeviceModuleM.h"
 
-#include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsCommandHandler.h>
+#include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h>
 
 #include "DeviceRuntimeM.h"
 #include "LocalRegisterRefresherM.h"
@@ -21,14 +21,13 @@ DeviceModuleM::DeviceModuleM(
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
     utils::i2c::Client& i2cClient
-) : deviceMode(deviceMode),
+) : DeviceModule(deviceMode, i2cClient),
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),
     registerManager(std::move(registerManager)),
     registerRefresher(std::move(registerRefresher)),
     deviceRuntime(std::move(deviceRuntime)),
-    notifier(std::move(notifier)),
-    i2cClient(i2cClient) {
+    notifier(std::move(notifier)) {
 }
 
 DeviceModuleM::~DeviceModuleM() = default;
@@ -47,17 +46,4 @@ void DeviceModuleM::loop() {
 
 utils::registers::RegisterManager& DeviceModuleM::getRegisters() {
     return *registerManager;
-}
-
-void DeviceModuleM::flashIdentificationLights(uint32_t durationMs) {
-    if (deviceMode == DeviceMode::Remote) {
-        i2cClient.sendCommand(
-            // TODO do directly in (uart) command handler to reduce duplication. or DeviceModule base method?
-            configuration.address,
-            firmwares::slave::i2c::commands::FlashDeviceIdentificationLights,
-            {.durationMs = durationMs}
-        );
-    } else {
-        deviceRuntime->flashIdentificationLights(durationMs);
-    }
 }

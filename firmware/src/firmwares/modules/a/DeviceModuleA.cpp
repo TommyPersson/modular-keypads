@@ -1,6 +1,6 @@
 #include "DeviceModuleA.h"
 
-#include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsCommandHandler.h>
+#include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h>
 
 #include "utils/logging/Logger.h"
 
@@ -18,15 +18,14 @@ DeviceModuleA::DeviceModuleA(
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
-    utils::i2c::Client& i2Client
-) : deviceMode(deviceMode),
+    utils::i2c::Client& i2cClient
+) : DeviceModule(deviceMode, i2cClient),
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),
     registerManager(std::move(registerManager)),
     registerRefresher(std::move(registerRefresher)),
     deviceRuntime(std::move(deviceRuntime)),
-    notifier(std::move(notifier)),
-    i2cClient(i2Client) {
+    notifier(std::move(notifier)) {
 }
 
 DeviceModuleA::~DeviceModuleA() = default;
@@ -45,16 +44,4 @@ void DeviceModuleA::loop() {
 
 utils::registers::RegisterManager& DeviceModuleA::getRegisters() {
     return *registerManager;
-}
-
-void DeviceModuleA::flashIdentificationLights(uint32_t durationMs) {
-    if (deviceMode == DeviceMode::Remote) {
-        i2cClient.sendCommand( // TODO do directly in (uart) command handler to reduce duplication. or DeviceModule base method?
-            configuration.address,
-            firmwares::slave::i2c::commands::FlashDeviceIdentificationLights,
-            {.durationMs = durationMs}
-        );
-    } else {
-        deviceRuntime->flashIdentificationLights(durationMs);
-    }
 }
