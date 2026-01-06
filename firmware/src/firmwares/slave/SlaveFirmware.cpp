@@ -1,6 +1,6 @@
 #include "SlaveFirmware.h"
 
-#include "i2c/commands/FlashDeviceIdentificationLightsCommandHandler.h"
+#include "i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
 
 #include "utils/strings.h"
 #include "utils/logging/Logger.h"
@@ -56,7 +56,7 @@ void SlaveFirmware::setup() {
 
         slavePort.setup(deviceAddress, pins);
 
-        slavePort.addCommandHandler(new i2c::commands::FlashDeviceIdentificationLightsCommandHandler(*device));
+        slavePort.addCommandHandler(new i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
     }
 }
 

@@ -24,7 +24,7 @@ namespace utils::i2c {
         twoWire.onRequest([this]() { onRequestCallback(); });
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
 
-        addCommandHandler(new commands::LambdaCommandHandler<commands::builtin::SetEndpointParams>(
+        addCommandHandler(new commands::LambdaRemoteCommandHandler<commands::builtin::SetEndpointParams>(
             commands::builtin::SetEndpoint.id,
             [this](const commands::builtin::SetEndpointParams& params) -> void_result {
                 this->selectEndpoint(params.endpointId);
@@ -53,7 +53,7 @@ namespace utils::i2c {
         }
 
         for (auto& commandPtr : knownCommandsHandlers) {
-            const auto command = static_cast<commands::CommandHandler<commands::AnyParams>*>(commandPtr);
+            const auto command = static_cast<commands::RemoteCommandHandler<commands::AnyParams>*>(commandPtr);
             if (command->id != message[0]) {
                 continue;
             }

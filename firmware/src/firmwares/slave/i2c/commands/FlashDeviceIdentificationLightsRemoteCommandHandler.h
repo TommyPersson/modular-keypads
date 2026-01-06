@@ -11,13 +11,13 @@ namespace firmwares::slave::i2c::commands {
         uint32_t durationMs;
     };
 
-    inline CommandDescriptor<FlashDeviceIdentificationLightsParams> FlashDeviceIdentificationLights = {.id = 0x10};
+    inline RemoteCommandDescriptor<FlashDeviceIdentificationLightsParams> FlashDeviceIdentificationLights = {.id = 0x10};
 
-    class FlashDeviceIdentificationLightsCommandHandler : public CommandHandler<FlashDeviceIdentificationLightsParams> {
+    class FlashDeviceIdentificationLightsRemoteCommandHandler : public RemoteCommandHandler<FlashDeviceIdentificationLightsParams> {
     public:
-        explicit FlashDeviceIdentificationLightsCommandHandler(devices::DeviceModule& device);
+        explicit FlashDeviceIdentificationLightsRemoteCommandHandler(devices::DeviceModule& device);
 
-        ~FlashDeviceIdentificationLightsCommandHandler() override;
+        ~FlashDeviceIdentificationLightsRemoteCommandHandler() override;
 
         utils::void_result execute(const FlashDeviceIdentificationLightsParams* params) override;
 

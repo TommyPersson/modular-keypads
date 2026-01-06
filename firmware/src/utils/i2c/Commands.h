@@ -9,17 +9,17 @@ namespace utils::i2c::commands {
         };
 
         template <class TParams>
-        struct CommandDescriptor {
+        struct RemoteCommandDescriptor {
             const uint8_t id;
         };
 
         template <class TParams>
-        class CommandHandler {
+        class RemoteCommandHandler {
         public:
-            explicit CommandHandler(const uint8_t id) : id(id) {
+            explicit RemoteCommandHandler(const uint8_t id) : id(id) {
             }
 
-            virtual ~CommandHandler() = default;
+            virtual ~RemoteCommandHandler() = default;
 
             virtual void_result execute(const TParams* params) = 0;
 
@@ -31,15 +31,15 @@ namespace utils::i2c::commands {
         };
 
         template <class TParams>
-        class LambdaCommandHandler : public CommandHandler<TParams> {
+        class LambdaRemoteCommandHandler : public RemoteCommandHandler<TParams> {
         public:
-            LambdaCommandHandler(
+            LambdaRemoteCommandHandler(
                 uint8_t id,
                 const std::function<void_result(const TParams& params)>& executeFn
-            ) : CommandHandler<TParams>(id), executeFn(executeFn) {
+            ) : RemoteCommandHandler<TParams>(id), executeFn(executeFn) {
             }
 
-            ~LambdaCommandHandler() override = default;
+            ~LambdaRemoteCommandHandler() override = default;
 
             void_result execute(const TParams* params) override {
                 return executeFn(*params);
@@ -56,6 +56,6 @@ namespace utils::i2c::commands {
             };
 #pragma pack(pop)
 
-            inline CommandDescriptor<SetEndpointParams> SetEndpoint = {.id = 0x01};
+            inline RemoteCommandDescriptor<SetEndpointParams> SetEndpoint = {.id = 0x01};
         }
     }

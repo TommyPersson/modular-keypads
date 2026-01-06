@@ -20,7 +20,7 @@ namespace utils::i2c {
         }
 
         template <class TParams>
-        void_result sendCommand(const uint8_t address, const commands::CommandDescriptor<TParams>& command, const TParams& params) {
+        void_result sendCommand(const uint8_t address, const commands::RemoteCommandDescriptor<TParams>& command, const TParams& params) {
             uint8_t message[sizeof(TParams) + 1] = {};
             message[0] = command.id;
             memcpy(&message[1], &params, sizeof(TParams));
