@@ -11,6 +11,12 @@ namespace utils::time {
 #endif
     }
 
+    inline uint64_t millis() {
+#ifdef ESP32
+        return ::millis();
+#endif
+    }
+
     inline void delayMs(const uint32_t ms) {
 #ifdef ESP32
         ::delay(ms);

@@ -28,6 +28,10 @@ std::shared_ptr<SwitchIndicatorLed> IndicatorLedManager::connectToSwitch(
 }
 
 void IndicatorLedManager::update() {
+    for (const auto& led : leds) {
+        led->update();
+    }
+
     driver->show();
 }
 

@@ -41,7 +41,7 @@ namespace devices {
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
         virtual const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
 
-        void flashIdentificationLights(uint32_t uint32);
+        void flashIdentificationLights(uint32_t durationMs);
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
         utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() { return deviceRotaryEncoderEventSubject; }

@@ -84,16 +84,16 @@ void DeviceRuntime::begin() {
 void DeviceRuntime::loop() {
 }
 
-void DeviceRuntime::flashIdentificationLights(uint32_t uint32) {
+void DeviceRuntime::flashIdentificationLights(uint32_t durationMs) {
     const auto capabilities = getCapabilities();
 
     for (const auto& capability : capabilities) {
         if (const auto pushButton = dynamic_cast<PushButtonCapability*>(capability.get()); pushButton != nullptr) {
             if (pushButton->ledIndex >= 0) {
-                auto indicatorLed = indicatorLeds.get(pushButton->ledIndex);
+                const auto indicatorLed = indicatorLeds.get(pushButton->ledIndex);
                 if (indicatorLed) {
-                    // TODO indicatorLed->startAnimation()
-                    indicatorLed->setColor(255, 0, 0, 0);
+                    auto color = indicatorLed->makeColor(255, 0, 0, 0);
+                    indicatorLed->animate(utils::led::animations::pulse(color, durationMs));
                 }
             }
         }
