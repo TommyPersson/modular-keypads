@@ -1,5 +1,6 @@
 #include "DeviceModule.h"
 
+#include <firmwares/slave/i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h>
 #include <firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h>
 #include <utils/logging/Logger.h>
 
@@ -25,6 +26,19 @@ utils::void_result devices::DeviceModule::flashIdentificationLights(uint32_t dur
         );
     } else {
         this->getRuntime().flashIdentificationLights(durationMs);
+        return utils::void_result::success();
+    }
+}
+
+utils::void_result devices::DeviceModule::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
+    if (deviceMode == DeviceMode::Remote) {
+        return i2cClient.sendCommand(
+            this->getConfiguration().address,
+            firmwares::slave::i2c::commands::FlashButtonIdentificationLight,
+            {.buttonNumber = buttonNumber, .durationMs = durationMs}
+        );
+    } else {
+        this->getRuntime().flashButtonIdentificationLight(buttonNumber, durationMs);
         return utils::void_result::success();
     }
 }

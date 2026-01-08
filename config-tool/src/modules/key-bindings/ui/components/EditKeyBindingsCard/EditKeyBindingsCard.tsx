@@ -20,7 +20,17 @@ import {
   TextField,
   Typography
 } from "@mui/material"
+import { CommandButton } from "@src/modules/common/components"
+import {
+  FlashButtonIdentificationLightCommand
+} from "@src/modules/device/commands/FlashButtonIdentificationLightCommand"
+import {
+  FlashDeviceIdentificationLightsCommand
+} from "@src/modules/device/commands/FlashDeviceIdentificationLightsCommand"
 import { useDeviceFacade } from "@src/modules/device/context"
+import {
+  FlashDeviceIdentificationLightsDeviceCommand
+} from "@src/modules/device/facade/device-commands/FlashDeviceIdentificationLightsDeviceCommand"
 import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 import { type RotaryEncoderState, useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
 import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/models"
@@ -106,7 +116,7 @@ const DeviceSelectionSection = (props: {
 
   return (
     <CardContent>
-      <Stack spacing={2}>
+      <Stack spacing={2} direction={"row"} alignItems={"center"}>
         <FormControl fullWidth>
           <InputLabel>Device</InputLabel>
           <Select
@@ -125,6 +135,11 @@ const DeviceSelectionSection = (props: {
             ))}
           </Select>
         </FormControl>
+        <CommandButton
+          command={FlashDeviceIdentificationLightsCommand}
+          args={{ deviceId: selectedDeviceId ?? "" }}
+          iconOnly
+        />
       </Stack>
     </CardContent>
   )
@@ -162,6 +177,7 @@ const PushButtonsSection = (props: {
             <TableRow>
               <TableCell style={{ width: 100, whiteSpace: "nowrap" }}>Button #</TableCell>
               <TableCell>Binding</TableCell>
+              <TableCell style={{ width: 0 }}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -231,6 +247,13 @@ const PushButtonBindingRow = (props: {
           selected={boundMacro}
           disabled={disabled}
           onSelect={handleMacroSelection}
+        />
+      </TableCell>
+      <TableCell>
+        <CommandButton
+          command={FlashButtonIdentificationLightCommand}
+          args={{ deviceId, buttonNumber: pushButton.number }}
+          iconOnly
         />
       </TableCell>
     </TableRow>

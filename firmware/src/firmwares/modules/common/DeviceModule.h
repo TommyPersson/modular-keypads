@@ -56,6 +56,7 @@ namespace devices {
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
         utils::void_result flashIdentificationLights(uint32_t durationMs);
+        utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs);
 
         utils::void_result rename(const std::string_view& deviceName);
 

@@ -45,6 +45,7 @@ namespace devices {
         virtual const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
 
         void flashIdentificationLights(uint32_t durationMs);
+        void flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs);
         utils::void_result renameDevice(const std::string_view& deviceName);
 
         utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }

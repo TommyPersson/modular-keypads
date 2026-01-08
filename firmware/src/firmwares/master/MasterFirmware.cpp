@@ -14,9 +14,10 @@
 #include "../common/DeviceScanner.h"
 #include "../common/keybindings/KeyBindingStorage.h"
 #include "../common/macros/MacroStorage.h"
-#include "commands/FlashDeviceIdentificationLightsCommandHandler.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
 #include "commands/DeleteMacroCommandHandler.h"
+#include "commands/FlashButtonIdentificationLightCommandHandler.h"
+#include "commands/FlashDeviceIdentificationLightsCommandHandler.h"
 #include "commands/GetTestMode.h"
 #include "commands/ListConnectedDevices.h"
 #include "commands/ListDeviceCapabilities.h"
@@ -55,6 +56,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(*keyBindingStorage));
     addCommandHandler(std::make_shared<FlashDeviceIdentificationLightsCommandHandler>(allDevices));
+    addCommandHandler(std::make_shared<FlashButtonIdentificationLightCommandHandler>(allDevices));
     addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(allDevices));
     // TODO move all (uart) commands to "master" directory? It is by definition the only one accepting commands.
 

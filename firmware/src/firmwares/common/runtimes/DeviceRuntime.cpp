@@ -102,6 +102,26 @@ void DeviceRuntime::flashIdentificationLights(uint32_t durationMs) {
     }
 }
 
+void DeviceRuntime::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
+    const auto capabilities = getCapabilities();
+
+    for (const auto& capability : capabilities) {
+        if (const auto pushButton = dynamic_cast<PushButtonCapability*>(capability.get()); pushButton != nullptr) {
+            if (pushButton->number != buttonNumber) {
+                continue;
+            }
+
+            if (pushButton->ledIndex >= 0) {
+                const auto indicatorLed = indicatorLeds.get(pushButton->ledIndex);
+                if (indicatorLed) {
+                    auto color = indicatorLed->makeColor(255, 0, 0, 0);
+                    indicatorLed->animate(utils::led::animations::pulse(color, durationMs));
+                }
+            }
+        }
+    }
+}
+
 utils::void_result DeviceRuntime::renameDevice(const std::string_view& deviceName) {
     if (!configurationManager.setDeviceName(deviceName)) {
         return void_result::error("unable.to.set.device.name");

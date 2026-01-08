@@ -12,6 +12,14 @@ namespace utils::strings {
         return ::strtol(temp, nullptr, base);
     }
 
+    inline uint8_t atou8(const std::string_view& string, const int base = 10) {
+        char temp[string.length() + 1];
+        temp[string.length()] = '\0';
+        std::strncpy(&temp[0], string.data(), string.length());
+
+        return ::strtoul(temp, nullptr, base);
+    }
+
     inline uint16_t atou16(const std::string_view& string, const int base = 10) {
         char temp[string.length() + 1];
         temp[string.length()] = '\0';

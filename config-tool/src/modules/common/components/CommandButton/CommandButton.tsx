@@ -28,7 +28,7 @@ export const CommandButton = <TArgs, >(props: CommandButtonProps<TArgs>) => {
 
   const disabled = props.disabled || args === null || command.canExecute?.(args) === false
 
-  const button = props.iconOnly ? (
+  const button = iconOnly ? (
     <Tooltip title={command.label}>
       <IconButton
         ref={buttonRef}
