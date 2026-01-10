@@ -28,9 +28,6 @@ import {
   FlashDeviceIdentificationLightsCommand
 } from "@src/modules/device/commands/FlashDeviceIdentificationLightsCommand"
 import { useDeviceFacade } from "@src/modules/device/context"
-import {
-  FlashDeviceIdentificationLightsDeviceCommand
-} from "@src/modules/device/facade/device-commands/FlashDeviceIdentificationLightsDeviceCommand"
 import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 import { type RotaryEncoderState, useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
 import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/models"
@@ -253,6 +250,8 @@ const PushButtonBindingRow = (props: {
         <CommandButton
           command={FlashButtonIdentificationLightCommand}
           args={{ deviceId, buttonNumber: pushButton.number }}
+          disabled={!pushButton.hasLed}
+          tooltip={!pushButton.hasLed ? "This button does not have an LED indicator" : undefined}
           iconOnly
         />
       </TableCell>

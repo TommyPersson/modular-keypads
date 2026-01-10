@@ -23,6 +23,7 @@ export type BaseCapability = {
 export type PushButtonCapability = BaseCapability & {
   type: "PushButton"
   number: number
+  hasLed: boolean
 }
 
 export type RotaryEncoderCapability = BaseCapability & {

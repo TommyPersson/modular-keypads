@@ -36,14 +36,14 @@ utils::void_result ListDeviceCapabilities::execute(
             const auto pushButton = dynamic_cast<devices::PushButtonCapability*>(capability.get());
             pushButton != nullptr
         ) {
-            responseWriter.writeLineF("PushButton,%i", pushButton->number);
+            responseWriter.writeLineF("PushButton,%u,%i", pushButton->number, pushButton->ledIndex);
         }
 
         if (
             const auto rotaryEncoder = dynamic_cast<devices::RotaryEncoderCapability*>(capability.get());
             rotaryEncoder != nullptr
         ) {
-            responseWriter.writeLineF("RotaryEncoder,%i", rotaryEncoder->number);
+            responseWriter.writeLineF("RotaryEncoder,%u", rotaryEncoder->number);
         }
     }
 

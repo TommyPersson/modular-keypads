@@ -11,10 +11,11 @@ export type CommandButtonProps<TArgs> = {
   args: TArgs | null
   onSuccess?: () => void
   iconOnly?: boolean
+  tooltip?: any
 } & ButtonProps
 
 export const CommandButton = <TArgs, >(props: CommandButtonProps<TArgs>) => {
-  const { command, args, onSuccess, iconOnly, ...buttonProps } = props
+  const { command, args, onSuccess, iconOnly, tooltip, ...buttonProps } = props
 
   const confirm = useConfirm()
 
@@ -28,18 +29,22 @@ export const CommandButton = <TArgs, >(props: CommandButtonProps<TArgs>) => {
 
   const disabled = props.disabled || args === null || command.canExecute?.(args) === false
 
+  const tooltipContent = tooltip ?? command.label
+
   const button = iconOnly ? (
-    <Tooltip title={command.label}>
-      <IconButton
-        ref={buttonRef}
-        {...buttonProps}
-        color={command.color}
-        onClick={handleClick}
-        loading={mutation.isPending}
-        disabled={disabled}
-      >
-        {command.icon}
-      </IconButton>
+    <Tooltip title={tooltipContent}>
+      <span>
+        <IconButton
+          ref={buttonRef}
+          {...buttonProps}
+          color={command.color}
+          onClick={handleClick}
+          loading={mutation.isPending}
+          disabled={disabled}
+        >
+          {command.icon}
+        </IconButton>
+      </span>
     </Tooltip>
   ) : (
     <Button

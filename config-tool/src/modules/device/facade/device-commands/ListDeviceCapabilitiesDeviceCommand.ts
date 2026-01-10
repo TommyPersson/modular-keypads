@@ -20,7 +20,8 @@ export class ListDeviceCapabilitiesDeviceCommand extends DeviceCommand<DeviceCap
         return {
           index,
           type,
-          number: parseInt(rest[0])
+          number: parseInt(rest[0]),
+          hasLed: parseInt(rest[1]) >= 0,
         } satisfies DeviceCapability
       } else if (type == "RotaryEncoder") {
         return {
