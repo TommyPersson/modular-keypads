@@ -12,7 +12,7 @@ namespace firmwares::slave::i2c::commands {
         uint32_t durationMs;
     };
 
-    inline RemoteCommandDescriptor<FlashButtonIdentificationLightParams> FlashButtonIdentificationLight = {.id = 0x11};
+    inline RemoteCommandDescriptor<FlashButtonIdentificationLightParams> FlashButtonIdentificationLight = {.id = 0x12};
 
     class FlashButtonIdentificationLightRemoteCommandHandler : public RemoteCommandHandler<FlashButtonIdentificationLightParams> {
     public:
