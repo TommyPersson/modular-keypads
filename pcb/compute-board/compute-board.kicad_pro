@@ -58,7 +58,32 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "lib_footprint_mismatch|115000000|29000000|e41fe945-d26d-4554-bc52-d08bbef16a53|00000000-0000-0000-0000-000000000000",
+          ""
+        ],
+        [
+          "lib_footprint_mismatch|115000000|56500000|bf936e43-d250-4f13-b4ab-1d4ab6c044df|00000000-0000-0000-0000-000000000000",
+          ""
+        ],
+        [
+          "lib_footprint_mismatch|117000000|17842500|b57cef2f-bb01-4e89-8118-45ab382fc2ba|00000000-0000-0000-0000-000000000000",
+          ""
+        ],
+        [
+          "lib_footprint_mismatch|132000000|19997500|18630637-3bbc-45ae-b9a1-a5be186dfe67|00000000-0000-0000-0000-000000000000",
+          ""
+        ],
+        [
+          "starved_thermal|135200000|23652500|b7ff6f55-1511-47e1-8738-c3dc3cf09b3d|0d41e0d7-d703-40f9-b095-65938c265931|F.Cu",
+          ""
+        ],
+        [
+          "starved_thermal|135200000|23652500|b7ff6f55-1511-47e1-8738-c3dc3cf09b3d|db8a03b3-8c12-44ae-9d33-912644c42771|F.Cu",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -66,7 +91,7 @@
         "annular_width": "error",
         "clearance": "error",
         "connection_width": "warning",
-        "copper_edge_clearance": "ignore",
+        "copper_edge_clearance": "error",
         "copper_sliver": "warning",
         "courtyards_overlap": "error",
         "creepage": "error",
@@ -100,7 +125,7 @@
         "padstack": "warning",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
+        "silk_edge_clearance": "ignore",
         "silk_over_copper": "warning",
         "silk_overlap": "warning",
         "skew_out_of_range": "error",
@@ -187,7 +212,9 @@
         }
       ],
       "track_widths": [
-        0.0
+        0.0,
+        0.2,
+        0.3
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -460,13 +487,11 @@
     }
   },
   "libraries": {
-    "pinned_footprint_libs": [
-      "Tommy"
-    ],
+    "pinned_footprint_libs": [],
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "module-a.kicad_pro",
+    "filename": "compute-board.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -490,11 +515,40 @@
         "wire_width": 6
       },
       {
-        "name": "Power",
+        "line_style": 0,
+        "name": "3V3",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 0.4,
+        "wire_width": 12
+      },
+      {
+        "line_style": 0,
+        "name": "5V",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 0,
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.5
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 0.4,
+        "wire_width": 12
+      },
+      {
+        "line_style": 0,
+        "name": "GND",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 2,
+        "schematic_color": "rgb(0, 0, 0)",
+        "track_width": 0.5,
+        "wire_width": 12
+      },
+      {
+        "line_style": 0,
+        "name": "VBUS",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 3,
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 0.4,
+        "wire_width": 12
       }
     ],
     "meta": {
@@ -504,12 +558,24 @@
     "netclass_assignments": null,
     "netclass_patterns": [
       {
-        "netclass": "Power",
-        "pattern": "3V3"
+        "netclass": "VBUS",
+        "pattern": "/*VBUS"
       },
       {
-        "netclass": "Power",
-        "pattern": "5V"
+        "netclass": "GND",
+        "pattern": "/*GND"
+      },
+      {
+        "netclass": "3V3",
+        "pattern": "/*3V3"
+      },
+      {
+        "netclass": "5V",
+        "pattern": "*5V"
+      },
+      {
+        "netclass": "3V3",
+        "pattern": "*3.3V"
       }
     ]
   },
@@ -654,8 +720,20 @@
   },
   "sheets": [
     [
-      "0888bf04-c6c1-4923-af80-2189ee3798b4",
+      "79b49f40-9460-4cfa-a23c-85feefa7326c",
       "Root"
+    ],
+    [
+      "241c22ac-158c-49d1-95f1-19c5b22fac06",
+      "usb-c-connector"
+    ],
+    [
+      "0ec89dc1-4ed7-46a3-b63b-febd9904d494",
+      "power-distribution"
+    ],
+    [
+      "16fea75e-63ad-4994-a04a-907057c8887b",
+      "switches"
     ]
   ],
   "text_variables": {}

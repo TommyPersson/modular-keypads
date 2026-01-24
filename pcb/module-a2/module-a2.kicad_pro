@@ -58,7 +58,12 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "lib_footprint_mismatch|139762500|32044000|64642cc5-202b-423b-a9c1-6c3fee68be2d|00000000-0000-0000-0000-000000000000",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -100,7 +105,7 @@
         "padstack": "warning",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
+        "silk_edge_clearance": "ignore",
         "silk_over_copper": "warning",
         "silk_overlap": "warning",
         "skew_out_of_range": "error",
@@ -187,7 +192,9 @@
         }
       ],
       "track_widths": [
-        0.0
+        0.0,
+        0.2,
+        0.3
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -239,7 +246,20 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      [
+        "footprint_link_issues|1130300|444500|93867671-a18c-4ac5-97e9-ab4d07414ce5|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ],
+      [
+        "footprint_link_issues|1511300|444500|93867671-a18c-4ac5-97e9-ab4d07414ce5|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ],
+      [
+        "footprint_link_issues|508000|444500|21d020ff-8165-4cf4-a1e2-f2b3fcd49181|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ]
+    ],
     "meta": {
       "version": 0
     },
@@ -424,9 +444,9 @@
       "duplicate_sheet_names": "error",
       "endpoint_off_grid": "warning",
       "extra_units": "error",
-      "footprint_filter": "ignore",
+      "footprint_filter": "warning",
       "footprint_link_issues": "warning",
-      "four_way_junction": "ignore",
+      "four_way_junction": "warning",
       "global_label_dangling": "warning",
       "hier_label_mismatch": "error",
       "label_dangling": "error",
@@ -443,14 +463,14 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "same_local_global_label": "warning",
       "similar_label_and_power": "warning",
       "similar_labels": "warning",
       "similar_power": "warning",
       "simulation_model_issue": "ignore",
-      "single_global_label": "ignore",
+      "single_global_label": "warning",
       "unannotated": "error",
       "unconnected_wire_endpoint": "warning",
       "undefined_netclass": "error",
@@ -466,7 +486,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "module-a.kicad_pro",
+    "filename": "module-a2.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -490,11 +510,40 @@
         "wire_width": 6
       },
       {
-        "name": "Power",
+        "line_style": 0,
+        "name": "3V3",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 0.4,
+        "wire_width": 12
+      },
+      {
+        "line_style": 0,
+        "name": "5V",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 0,
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.5
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 0.4,
+        "wire_width": 12
+      },
+      {
+        "line_style": 0,
+        "name": "GND",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 2,
+        "schematic_color": "rgb(0, 0, 0)",
+        "track_width": 0.5,
+        "wire_width": 12
+      },
+      {
+        "line_style": 0,
+        "name": "VBUS",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 3,
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 0.4,
+        "wire_width": 12
       }
     ],
     "meta": {
@@ -504,12 +553,24 @@
     "netclass_assignments": null,
     "netclass_patterns": [
       {
-        "netclass": "Power",
-        "pattern": "3V3"
+        "netclass": "VBUS",
+        "pattern": "/*VBUS"
       },
       {
-        "netclass": "Power",
-        "pattern": "5V"
+        "netclass": "GND",
+        "pattern": "/*GND"
+      },
+      {
+        "netclass": "3V3",
+        "pattern": "/*3V3"
+      },
+      {
+        "netclass": "5V",
+        "pattern": "*5V"
+      },
+      {
+        "netclass": "3V3",
+        "pattern": "*3.3V"
       }
     ]
   },
@@ -621,7 +682,7 @@
       "field_names": [],
       "intersheets_ref_own_page": false,
       "intersheets_ref_prefix": "",
-      "intersheets_ref_short": false,
+      "intersheets_ref_short": true,
       "intersheets_ref_show": false,
       "intersheets_ref_suffix": "",
       "junction_size_choice": 3,
