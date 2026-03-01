@@ -477,7 +477,7 @@ export const allConsumerControlCodes: ConsumerControlCode[] = [
   // @formatter:on 
 ]
 
-const usableUsageTypes = ["OOC", "OSC", "Sel"] // These types we can send from the firmware
+const usableUsageTypes = ["OOC", "OSC", "Sel", "RTC"] // These types we can send from the firmware
 
 export type ConsumerControlCodes = {
   all: ConsumerControlCode[]
