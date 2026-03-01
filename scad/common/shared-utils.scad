@@ -89,3 +89,5 @@ module threaded_insert_cutout() {
         }
     }
 }
+
+function flatten(l) = [ for (a = l) for (b = a) b ] ;

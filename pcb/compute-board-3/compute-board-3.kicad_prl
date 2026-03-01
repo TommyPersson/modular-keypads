@@ -1,6 +1,6 @@
 {
   "board": {
-    "active_layer": 7,
+    "active_layer": 13,
     "active_layer_preset": "",
     "auto_track_width": true,
     "hidden_netclasses": [],
@@ -50,8 +50,8 @@
       "conflict_shadows",
       "shapes"
     ],
-    "visible_layers": "ffffffff_ffffffff_fffffdff_ffffffff",
-    "zone_display_mode": 0
+    "visible_layers": "ffffffff_ffffffff_ffffffff_ffffffff",
+    "zone_display_mode": 1
   },
   "git": {
     "repo_type": "",
@@ -59,11 +59,13 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "module-a2.kicad_prl",
+    "filename": "compute-board-3.kicad_prl",
     "version": 5
   },
   "net_inspector_panel": {
     "col_hidden": [
+      false,
+      false,
       false,
       false,
       false,
@@ -85,7 +87,9 @@
       6,
       7,
       8,
-      9
+      9,
+      10,
+      11
     ],
     "col_widths": [
       222,
@@ -96,6 +100,8 @@
       136,
       136,
       98,
+      136,
+      136,
       136,
       136
     ],

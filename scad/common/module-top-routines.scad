@@ -13,7 +13,7 @@ module module_top_base(width_units) {
             }
 
             module_top_side_connector_fittings(module_size);
-            module_top_back_connector_fitting(module_size);
+            //module_top_back_connector_fitting(module_size); // Not used in newer modules
         }
 
         union() {
