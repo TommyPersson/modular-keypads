@@ -25,6 +25,8 @@ std::unique_ptr<utils::i2c::Client> i2cClient;
 std::unique_ptr<utils::i2c::SlavePort> i2cSlavePort;
 std::unique_ptr<utils::usb::Connection> usbConnection;
 std::unique_ptr<utils::metrics::MetricRegistry> metricRegistry;
+std::unique_ptr<devices::DeviceTypeDetector> deviceTypeDetector;
+std::unique_ptr<devices::DeviceModeDetector> deviceModeDetector;
 
 std::unique_ptr<ServiceLocator> serviceLocator;
 
@@ -40,12 +42,15 @@ void setup() {
 
     serialPort = utils::serial::SerialPort::from(TheSerial);
     preferences = std::make_unique<Preferences>();
-    deviceConfigurationManager = std::make_unique<DeviceConfigurationManager>(*preferences);
+    deviceTypeDetector = std::make_unique<devices::DeviceTypeDetector>();
+    deviceModeDetector = std::make_unique<devices::DeviceModeDetector>();
+    deviceConfigurationManager = std::make_unique<DeviceConfigurationManager>(*preferences, *deviceTypeDetector);
     notifierFactory = std::make_unique<NotifierFactory>(TheSerial);
     i2cClient = std::make_unique<utils::i2c::Client>(Wire);
     i2cSlavePort = std::make_unique<utils::i2c::SlavePort>(Wire);
     usbConnection = utils::usb::Connection::create();
     metricRegistry = std::make_unique<utils::metrics::MetricRegistry>();
+
 
     serviceLocator = std::make_unique<ServiceLocator>(ServiceLocator{
         .deviceConfigurationManager = *deviceConfigurationManager,
@@ -55,7 +60,10 @@ void setup() {
         .i2cSlavePort = *i2cSlavePort,
         .usbConnection = *usbConnection,
         .metricRegistry = *metricRegistry,
+        .deviceModeDetector = *deviceModeDetector,
     });
+
+    deviceModeDetector->setup();
 
     firmware = Firmware::create(*serviceLocator);
     firmware->setup();

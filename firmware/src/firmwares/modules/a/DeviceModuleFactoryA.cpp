@@ -18,7 +18,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
 ) {
     auto registers = std::make_unique<utils::registers::RegisterManager>();
 
-    auto indicatorLeds = IndicatorLedManager::NeoPixel(12, 6);
+    auto indicatorLeds = IndicatorLedManager::NeoPixel(12, 48);
 
     std::unique_ptr<RegisterRefresher> registerRefresher = std::make_unique<LocalRegisterRefresherA>(*registers);
 
@@ -33,7 +33,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
     );
 
     return std::make_unique<DeviceModuleA>(
-        DeviceMode::Local,
+        DeviceLocation::Local,
         config,
         indicatorLeds,
         registers,
@@ -70,7 +70,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createRemote(
     );
 
     return std::make_unique<DeviceModuleA>(
-        DeviceMode::Remote,
+        DeviceLocation::Remote,
         config,
         indicatorLeds,
         registers,

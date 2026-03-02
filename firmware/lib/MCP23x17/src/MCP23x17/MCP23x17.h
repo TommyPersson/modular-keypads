@@ -8,7 +8,10 @@
 namespace chips::mcp23x17 {
     class MCP23x17 {
     public:
-        explicit MCP23x17(std::unique_ptr<utils::serialbus::SerialBus> bus);
+        explicit MCP23x17(
+            std::unique_ptr<utils::serialbus::SerialBus> bus,
+            utils::pins::OutputPin resetPin
+        );
         ~MCP23x17();
 
         uint8_t readPortA() const;
@@ -20,9 +23,13 @@ namespace chips::mcp23x17 {
 
     private:
         const std::unique_ptr<utils::serialbus::SerialBus> bus;
+        utils::pins::OutputPin resetPin;
     };
 
-    std::unique_ptr<MCP23x17> spi(const utils::serialbus::SPIConfig& config);
+    std::unique_ptr<MCP23x17> spi(
+        const utils::serialbus::SPIConfig& config,
+        utils::pins::OutputPin resetPin
+    );
 
     namespace registers {
         constexpr uint8_t IODIRA = 0x00;

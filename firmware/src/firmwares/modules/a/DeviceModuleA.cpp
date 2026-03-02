@@ -11,7 +11,7 @@ namespace {
 using namespace devices::a;
 
 DeviceModuleA::DeviceModuleA(
-    const DeviceMode deviceMode,
+    const DeviceLocation deviceLocation,
     const DeviceConfiguration& configuration,
     std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
     std::unique_ptr<utils::registers::RegisterManager>& registerManager,
@@ -19,7 +19,7 @@ DeviceModuleA::DeviceModuleA(
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
     utils::i2c::Client& i2cClient
-) : DeviceModule(deviceMode, i2cClient),
+) : DeviceModule(deviceLocation, i2cClient),
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),
     registerManager(std::move(registerManager)),

@@ -12,6 +12,7 @@ namespace utils::pins {
         virtual void init() const = 0;
 
         virtual std::uint8_t read() const = 0;
+        virtual std::uint16_t readAnalog() const = 0;
 
         static std::unique_ptr<InputPin> physical(std::uint8_t pinNumber);
         static std::unique_ptr<InputPin> physical(std::uint8_t pinNumber, std::uint8_t modeFlags);

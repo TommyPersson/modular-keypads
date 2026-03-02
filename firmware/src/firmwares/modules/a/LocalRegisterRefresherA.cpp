@@ -7,11 +7,12 @@ LocalRegisterRefresherA::LocalRegisterRefresherA(utils::registers::RegisterManag
     this->mcp23x17 = chips::mcp23x17::spi(
         {
             .spiBus = FSPI,
-            .pinSCK = utils::pins::OutputPin(4),
-            .pinMOSI = utils::pins::OutputPin(3),
-            .pinMISO = utils::pins::InputPin::physical(2),
-            .pinCS = utils::pins::OutputPin(5),
-        }
+            .pinSCK = utils::pins::OutputPin(41),
+            .pinMOSI = utils::pins::OutputPin(40),
+            .pinMISO = utils::pins::InputPin::physical(39),
+            .pinCS = utils::pins::OutputPin(38),
+        },
+        utils::pins::OutputPin(42)
     );
 }
 

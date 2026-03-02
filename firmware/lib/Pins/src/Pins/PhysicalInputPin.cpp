@@ -23,4 +23,8 @@ namespace utils::pins {
     std::uint8_t PhysicalInputPin::read() const {
         return digitalRead(pinNumber);
     }
+
+    std::uint16_t PhysicalInputPin::readAnalog() const {
+        return analogRead(pinNumber);
+    }
 }

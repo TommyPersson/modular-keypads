@@ -11,6 +11,7 @@ namespace utils::pins {
 
         void init() const override;
         std::uint8_t read() const override;
+        std::uint16_t readAnalog() const override;
 
     private:
         const std::uint8_t modeFlags;

@@ -4,7 +4,6 @@
 
 LocalRegisterRefresherM::LocalRegisterRefresherM(utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {
-    mcpResetPin = std::make_unique<utils::pins::OutputPin>(8);
 
     mcp23x17 = chips::mcp23x17::spi(
         {
@@ -13,16 +12,14 @@ LocalRegisterRefresherM::LocalRegisterRefresherM(utils::registers::RegisterManag
             .pinMOSI = utils::pins::OutputPin(4),
             .pinMISO = utils::pins::InputPin::physical(3),
             .pinCS = utils::pins::OutputPin(6),
-        }
+        },
+        utils::pins::OutputPin(42)
     );
 }
 
 LocalRegisterRefresherM::~LocalRegisterRefresherM() = default;
 
 void LocalRegisterRefresherM::setup() {
-    mcpResetPin->init();
-    mcpResetPin->setHigh();
-
     mcp23x17->begin();
 
     // Set all pins as input

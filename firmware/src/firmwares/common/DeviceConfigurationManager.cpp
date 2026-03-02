@@ -8,7 +8,6 @@ namespace {
     auto prefsNamespace = "device";
     auto prefsKeyDeviceId = "device.id";
     auto prefsKeyDeviceAddress = "device.address";
-    auto prefsKeyDeviceType = "device.type";
     auto prefsKeyDeviceName = "device.name";
 
     uint64_t generateNewId() {
@@ -19,12 +18,16 @@ namespace {
     }
 }
 
-DeviceConfigurationManager::DeviceConfigurationManager(Preferences& preferences) :
-    preferences(preferences) {
+DeviceConfigurationManager::DeviceConfigurationManager(
+    Preferences& preferences,
+    devices::DeviceTypeDetector& deviceTypeDetector
+) : preferences(preferences),
+    deviceTypeDetector(deviceTypeDetector) {
 }
 
 void DeviceConfigurationManager::begin() const {
     this->preferences.begin(prefsNamespace, false);
+    this->deviceTypeDetector.setup();
 
     const uint64_t existingId = preferences.getULong64(prefsKeyDeviceId);
     if (existingId == 0) {
@@ -34,7 +37,7 @@ void DeviceConfigurationManager::begin() const {
             "generated new device ID = '%08llx' (numWritten = %i)",
             newId,
             numWritten
-            );
+        );
     } else {
         logger->info("read existing device ID = '%08llx'", existingId);
     }
@@ -47,7 +50,7 @@ void DeviceConfigurationManager::begin() const {
             "generated new device address = '%0x02x' (numWritten = %i)",
             newAddress,
             numWritten
-            );
+        );
     } else {
         logger->info("read existing device address = '0x%02x'", existingAddress);
     }
@@ -82,25 +85,7 @@ bool DeviceConfigurationManager::setDeviceAddress(const uint8_t deviceAddress) c
 }
 
 char DeviceConfigurationManager::getDeviceType() const {
-    this->preferences.begin(prefsNamespace, true);
-    const auto deviceType = this->preferences.getUChar(prefsKeyDeviceType);
-    this->preferences.end();
-
-    return deviceType;
-}
-
-bool DeviceConfigurationManager::setDeviceType(const char deviceType) const {
-    this->preferences.begin(prefsNamespace, false);
-    const auto numWritten = this->preferences.putUChar(prefsKeyDeviceType, deviceType);
-    this->preferences.end();
-
-    logger->debug("numWritten = %i", numWritten);
-
-    this->preferences.begin(prefsNamespace, false);
-    const auto written = this->preferences.getUChar(prefsKeyDeviceType, deviceType);
-    this->preferences.end();
-
-    return written == deviceType;
+    return this->deviceTypeDetector.detectDeviceType();
 }
 
 std::string DeviceConfigurationManager::getDeviceName() const {

@@ -25,7 +25,7 @@ namespace devices::m {
     class DeviceModuleM final : public DeviceModule {
     public:
         DeviceModuleM(
-            DeviceMode deviceMode,
+            DeviceLocation deviceLocation,
             const DeviceConfiguration& configuration,
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
             std::unique_ptr<utils::registers::RegisterManager>& registerManager,

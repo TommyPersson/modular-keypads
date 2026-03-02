@@ -15,5 +15,4 @@ public:
 
 private:
     std::unique_ptr<chips::mcp23x17::MCP23x17> mcp23x17;
-    std::unique_ptr<utils::pins::OutputPin> mcpResetPin;
 };

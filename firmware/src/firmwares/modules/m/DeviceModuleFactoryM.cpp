@@ -32,7 +32,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createLocal(
     );
 
     return std::make_unique<DeviceModuleM>(
-        DeviceMode::Local,
+        DeviceLocation::Local,
         config,
         indicatorLeds,
         registers,
@@ -69,7 +69,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
     );
 
     return std::make_unique<DeviceModuleM>(
-        DeviceMode::Remote,
+        DeviceLocation::Remote,
         config,
         indicatorLeds,
         registers,

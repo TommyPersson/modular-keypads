@@ -5,6 +5,7 @@
 
 #include "firmwares/common/notifications/NotifierFactory.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
+#include "firmwares/common/DeviceModeDetector.h"
 #include "utils/i2c/Client.h"
 #include "utils/i2c/SlavePort.h"
 #include "utils/usb/USBConnection.h"
@@ -17,4 +18,5 @@ struct ServiceLocator {
     utils::i2c::SlavePort& i2cSlavePort;
     utils::usb::Connection& usbConnection;
     utils::metrics::MetricRegistry& metricRegistry;
+    devices::DeviceModeDetector& deviceModeDetector;
 };

@@ -19,8 +19,13 @@
 #include "commands/ResetDeviceCommandHandler.h"
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "commands/SetDeviceNameCommandHandler.h"
-#include "commands/SetDeviceTypeCommandHandler.h"
 #include "metrics/BaseMetrics.h"
+#include "utils/logging/Logger.h"
+
+
+namespace {
+    auto logger = utils::logging::createLogger("Firmware");
+}
 
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
@@ -37,7 +42,6 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ReadDeviceNameCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<SetDeviceTypeCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
     this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));
@@ -76,8 +80,9 @@ void Firmware::addCommandHandler(const std::shared_ptr<utils::commands::CommandH
 }
 
 std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
-    const auto deviceAddress = serviceLocator.deviceConfigurationManager.getDeviceAddress();
-    if (deviceAddress == 10) {
+    const auto deviceMode = serviceLocator.deviceModeDetector.detectDeviceMode();
+
+    if (deviceMode == devices::DeviceMode::Master) {
         return std::make_unique<MasterFirmware>(serviceLocator);
     }
 

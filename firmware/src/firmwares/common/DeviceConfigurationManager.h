@@ -3,6 +3,8 @@
 #include <string>
 #include <Preferences.h>
 
+#include "DeviceTypeDetector.h"
+
 struct DeviceConfiguration {
     uint64_t id;
     std::string name;
@@ -12,7 +14,11 @@ struct DeviceConfiguration {
 
 class DeviceConfigurationManager {
 public:
-    explicit DeviceConfigurationManager(Preferences& preferences);
+    explicit DeviceConfigurationManager(
+        Preferences& preferences,
+        devices::DeviceTypeDetector& deviceTypeDetector
+    );
+
     ~DeviceConfigurationManager() = default;
 
     void begin() const;
@@ -27,10 +33,10 @@ public:
     bool setDeviceName(const std::string_view& deviceName) const;
 
     char getDeviceType() const;
-    bool setDeviceType(char deviceType) const;
 
     DeviceConfiguration getDeviceConfiguration() const;
 
 private:
     Preferences& preferences;
+    devices::DeviceTypeDetector& deviceTypeDetector;
 };

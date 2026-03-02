@@ -11,14 +11,14 @@ namespace {
 }
 
 devices::DeviceModule::DeviceModule(
-    DeviceMode deviceMode,
+    DeviceLocation deviceLocation,
     utils::i2c::Client& i2cClient
-) : deviceMode(deviceMode),
+) : deviceLocation(deviceLocation),
     i2cClient(i2cClient) {
 }
 
 utils::void_result devices::DeviceModule::flashIdentificationLights(uint32_t durationMs) {
-    if (deviceMode == DeviceMode::Remote) {
+    if (deviceLocation == DeviceLocation::Remote) {
         return i2cClient.sendCommand(
             this->getConfiguration().address,
             firmwares::slave::i2c::commands::FlashDeviceIdentificationLights,
@@ -31,7 +31,7 @@ utils::void_result devices::DeviceModule::flashIdentificationLights(uint32_t dur
 }
 
 utils::void_result devices::DeviceModule::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
-    if (deviceMode == DeviceMode::Remote) {
+    if (deviceLocation == DeviceLocation::Remote) {
         return i2cClient.sendCommand(
             this->getConfiguration().address,
             firmwares::slave::i2c::commands::FlashButtonIdentificationLight,
@@ -44,7 +44,7 @@ utils::void_result devices::DeviceModule::flashButtonIdentificationLight(uint8_t
 }
 
 utils::void_result devices::DeviceModule::rename(const std::string_view& deviceName) {
-    if (deviceMode == DeviceMode::Remote) {
+    if (deviceLocation == DeviceLocation::Remote) {
         auto params = firmwares::slave::i2c::commands::RenameDeviceParams{};
         strncpy(&params.name[0], deviceName.data(), deviceName.length());
 
@@ -54,7 +54,6 @@ utils::void_result devices::DeviceModule::rename(const std::string_view& deviceN
             params
         );
     } else {
-        //logger->info("pretend to rename to '%.*s'", deviceName.length(), deviceName.data());
         return this->getRuntime().renameDevice(deviceName);
     }
 }

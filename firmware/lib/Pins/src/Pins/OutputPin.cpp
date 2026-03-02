@@ -25,4 +25,8 @@ namespace utils::pins {
     void OutputPin::setLow() const {
         digitalWrite(pinNumber, LOW);
     }
+
+    std::unique_ptr<OutputPin> OutputPin::physical(std::uint8_t pinNumber) {
+        return std::make_unique<OutputPin>(pinNumber);
+    }
 }

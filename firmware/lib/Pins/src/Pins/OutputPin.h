@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 namespace utils::pins {
     class OutputPin {
@@ -12,5 +13,7 @@ namespace utils::pins {
         void setLow() const;
 
         const std::uint8_t pinNumber;
+
+        static std::unique_ptr<OutputPin> physical(std::uint8_t pinNumber);
     };
 }

@@ -3,6 +3,7 @@
 #include <memory>
 #include <firmwares/common/ServiceLocator.h>
 #include <firmwares/common/runtimes/DeviceRuntime.h>
+#include <firmwares/common/DeviceLocation.h>
 
 namespace devices {
     namespace common {
@@ -38,11 +39,6 @@ namespace devices {
         }
     }
 
-    enum class DeviceMode {
-        Local,
-        Remote
-    };
-
     class DeviceModule {
     public:
         virtual ~DeviceModule() = default;
@@ -67,11 +63,11 @@ namespace devices {
         }
 
     protected:
-        explicit DeviceModule(DeviceMode deviceMode, utils::i2c::Client& i2cClient);
+        explicit DeviceModule(DeviceLocation deviceLocation, utils::i2c::Client& i2cClient);
 
         virtual DeviceRuntime& getRuntime() = 0;
 
-        DeviceMode deviceMode;
+        DeviceLocation deviceLocation;
         utils::i2c::Client& i2cClient;
     };
 }

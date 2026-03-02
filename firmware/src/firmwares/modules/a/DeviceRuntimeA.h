@@ -8,8 +8,8 @@
 
 namespace devices::a::i2c {
     inline auto pins = utils::i2c::Pins{
-        .SDA = 1,
-        .SCL = 0
+        .SDA = 11,
+        .SCL = 10
     };
 }
 

@@ -1,8 +1,9 @@
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined"
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined"
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 
 import {
+  Alert,
   Button,
   Card,
   CardContent,
@@ -12,27 +13,20 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  MenuItem,
-  Select,
-  FormControl,
   Stack,
-  TextField,
-  Alert,
-  InputLabel,
-  type SelectChangeEvent
+  TextField
 } from "@mui/material"
-import { ResetDeviceDeviceCommand } from "@src/modules/device/facade/device-commands/ResetDeviceDeviceCommand"
-import { SetDeviceAddressDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceAddressDeviceCommand"
-import { SetDeviceNameDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceNameDeviceCommand"
-import { SetDeviceTypeDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceTypeDeviceCommand"
-import type { DeviceInformation } from "@src/modules/device/models"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { type ChangeEvent, Fragment, useCallback, useEffect, useState } from "react"
-import { queryClient } from "@src/utils/queryClient"
 import { ErrorAlert, PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceFacade } from "@src/modules/device/facade"
+import { ResetDeviceDeviceCommand } from "@src/modules/device/facade/device-commands/ResetDeviceDeviceCommand"
+import { SetDeviceAddressDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceAddressDeviceCommand"
+import { SetDeviceNameDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceNameDeviceCommand"
+import type { DeviceInformation } from "@src/modules/device/models"
 import { GetDeviceInformationQuery } from "@src/modules/device/queries"
+import { queryClient } from "@src/utils/queryClient"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { type ChangeEvent, Fragment, useCallback, useEffect, useState } from "react"
 
 export const DeviceInformationCard = () => {
   const { facade: deviceFacade } = useDeviceContext()
@@ -123,25 +117,6 @@ export const DeviceInformationCard = () => {
   )
 }
 
-type DeviceType = {
-  displayName: string
-  code: string
-}
-
-const deviceTypes: DeviceType[] = [
-  {
-    code: "0",
-    displayName: "Generic"
-  },
-  {
-    code: "m",
-    displayName: "Master"
-  },
-  {
-    code: "a",
-    displayName: "A"
-  },
-]
 
 const UpdateDeviceConfigurationDialog = (props: {
   isOpen: boolean,
@@ -161,10 +136,6 @@ const UpdateDeviceConfigurationDialog = (props: {
   const [deviceAddress, setDeviceAddress] = useState(deviceInformation.deviceAddress)
   const [deviceName, setDeviceName] = useState(deviceInformation.deviceName)
 
-  const handleDeviceTypeCodeChanged = useCallback((event: SelectChangeEvent) => {
-    setDeviceTypeCode(event.target.value)
-  }, [setDeviceTypeCode])
-
   const handleDeviceAddressChanged = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     let newValue = parseInt(event.target.value)
     if (isNaN(newValue)) {
@@ -180,7 +151,6 @@ const UpdateDeviceConfigurationDialog = (props: {
 
   const saveMutation = useMutation({
     mutationFn: async (args: { deviceTypeCode: string, deviceAddress: number, deviceName: string }) => {
-      await deviceFacade.executeCommand(new SetDeviceTypeDeviceCommand(args.deviceTypeCode))
       await deviceFacade.executeCommand(new SetDeviceAddressDeviceCommand(args.deviceAddress))
       await deviceFacade.executeCommand(new SetDeviceNameDeviceCommand(deviceInformation.deviceId, args.deviceName))
       await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {
@@ -221,22 +191,6 @@ const UpdateDeviceConfigurationDialog = (props: {
             onChange={handleDeviceNameChanged}
             helperText={"At most 30 characters"}
           />
-          <FormControl>
-            <InputLabel>Device Type</InputLabel>
-            <Select
-              value={deviceTypeCode}
-              label={"Device Type"}
-              onChange={handleDeviceTypeCodeChanged}
-            >
-              {deviceTypes.map(it => (
-                <MenuItem
-                  key={it.code}
-                  value={it.code}
-                  children={it.displayName}
-                />
-              ))}
-            </Select>
-          </FormControl>
           <TextField
             label={"Device Address"}
             value={deviceAddress}
