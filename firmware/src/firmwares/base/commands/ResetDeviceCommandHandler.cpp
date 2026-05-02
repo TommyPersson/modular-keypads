@@ -8,12 +8,12 @@ ResetDeviceCommandHandler::ResetDeviceCommandHandler(
 
 ResetDeviceCommandHandler::~ResetDeviceCommandHandler() = default;
 
-utils::void_result ResetDeviceCommandHandler::execute(
+tfw::utils::void_result ResetDeviceCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     ESP.restart();
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

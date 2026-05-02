@@ -5,7 +5,7 @@
 #include "RegisterDescriptor.h"
 #include "RegisterStorage.h"
 
-namespace utils::registers {
+namespace tfw::utils::registers {
     class Register {
     public:
         explicit Register(const RegisterDescriptor& descriptor, RegisterStorage& storage);

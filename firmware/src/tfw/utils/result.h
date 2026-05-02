@@ -1,0 +1,39 @@
+#pragma once
+
+// <expected> is not available in this compiler version, so we just do something simple for now.
+
+#include <cstdint>
+
+namespace tfw::utils {
+    template <typename T>
+    struct result {
+        bool has_error = false;
+
+        union {
+            T value;
+            const char* error_code = "";
+        };
+
+        static result of(T value) {
+            return result{.value = value};
+        }
+
+        static result error(const char* error_code) { // TODO accept format string?
+            return result{.has_error = true, .error_code = error_code};
+        }
+    };
+
+    struct void_result {
+        bool has_error = false;
+
+        const char* error_code = "";
+
+        constexpr static void_result success() {
+            return void_result{};
+        }
+
+        static void_result error(const char* error_code) {// TODO accept format string?
+            return void_result{.has_error = true, .error_code = error_code};
+        }
+    };
+}

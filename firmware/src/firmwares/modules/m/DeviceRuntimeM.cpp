@@ -4,7 +4,7 @@
 
 DeviceRuntimeM::DeviceRuntimeM(
     uint64_t deviceId,
-    utils::registers::RegisterManager& registers,
+    tfw::utils::registers::RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier,
     DeviceConfigurationManager& configurationManager

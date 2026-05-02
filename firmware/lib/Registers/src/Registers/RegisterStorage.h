@@ -6,7 +6,7 @@
 
 #include "RegisterDescriptor.h"
 
-namespace utils::registers {
+namespace tfw::utils::registers {
     class RegisterStorage {
     public:
         uint8_t read(const RegisterDescriptor& descriptor) const;

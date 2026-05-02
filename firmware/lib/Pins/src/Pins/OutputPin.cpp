@@ -4,7 +4,7 @@
 
 #include "OutputPin.h"
 
-namespace utils::pins {
+namespace tfw::utils::pins {
     OutputPin::OutputPin(const std::uint8_t pinNumber) :
         pinNumber(pinNumber) {
     }

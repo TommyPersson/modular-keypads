@@ -1,11 +1,11 @@
 #include "ReadRegisterCommandHandler.h"
 
 #include <string>
-#include <utils/allocations/ArenaUtils.h>
+#include <tfw/utils/allocations.h>
 
 
 ReadRegisterCommandHandler::ReadRegisterCommandHandler(
-    const std::optional<utils::registers::RegisterManager*>& registers
+    const std::optional<tfw::utils::registers::RegisterManager*>& registers
 ) : CommandHandler("read.register"),
     registers(registers) {
 }
@@ -13,14 +13,14 @@ ReadRegisterCommandHandler::ReadRegisterCommandHandler(
 ReadRegisterCommandHandler::~ReadRegisterCommandHandler() = default;
 
 
-utils::void_result ReadRegisterCommandHandler::execute(
+tfw::utils::void_result ReadRegisterCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     if (!registers.has_value()) {
         responseWriter.writeLine("0x00");
-        return utils::void_result::success();
+        return tfw::utils::void_result::success();
     }
 
     const auto registerName = std::string(args[0]);
@@ -28,5 +28,5 @@ utils::void_result ReadRegisterCommandHandler::execute(
 
     responseWriter.writeLineF("0x%02x", value);
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

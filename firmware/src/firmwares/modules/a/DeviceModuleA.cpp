@@ -2,10 +2,10 @@
 
 #include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h>
 
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("DeviceModuleA");
+    auto logger = tfw::utils::logging::createLogger("DeviceModuleA");
 }
 
 using namespace devices::a;
@@ -14,11 +14,11 @@ DeviceModuleA::DeviceModuleA(
     const DeviceLocation deviceLocation,
     const DeviceConfiguration& configuration,
     std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-    std::unique_ptr<utils::registers::RegisterManager>& registerManager,
+    std::unique_ptr<tfw::utils::registers::RegisterManager>& registerManager,
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
-    utils::i2c::Client& i2cClient
+    tfw::utils::i2c::Client& i2cClient
 ) : DeviceModule(deviceLocation, i2cClient),
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),
@@ -42,6 +42,6 @@ void DeviceModuleA::loop() {
     indicatorLedManager->update();
 }
 
-utils::registers::RegisterManager& DeviceModuleA::getRegisters() {
+tfw::utils::registers::RegisterManager& DeviceModuleA::getRegisters() {
     return *registerManager;
 }

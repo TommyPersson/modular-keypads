@@ -7,12 +7,12 @@ GetTestMode::GetTestMode(TestModeController& testModeController)
 
 GetTestMode::~GetTestMode() = default;
 
-utils::void_result GetTestMode::execute(
+tfw::utils::void_result GetTestMode::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     responseWriter.writeLine(testModeController.isEnabled() ? "true" : "false");
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

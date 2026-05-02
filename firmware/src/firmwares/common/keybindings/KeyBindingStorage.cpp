@@ -2,37 +2,37 @@
 
 #include <LittleFS.h>
 
-#include "utils/files.h"
-#include "utils/strings.h"
-#include "utils/allocations/Arena.h"
-#include "utils/allocations/ArenaUtils.h"
+#include "../../../tfw/hal/files.h"
+#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/allocations.h>
+#include <tfw/utils/allocations.h>
 
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 using namespace common::keybindings;
 
 namespace {
-    auto logger = utils::logging::createLogger("KeyBindingStorage");
+    auto logger = tfw::utils::logging::createLogger("KeyBindingStorage");
 
     auto filePath = "/data/key-bindings.txt";
     auto tempFilePath = "/data/key-bindings.txt.tmp";
 }
 
 namespace {
-    std::shared_ptr<KeyBinding> deserializeKeyBinding(const std::string_view& line, utils::allocations::Arena& arena) {
-        utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
-        utils::allocations::ArenaAllocator<KeyBinding> keyBindingAllocator(arena);
-        utils::allocations::ArenaAllocator<PushButtonTrigger> pushButtonTriggerAllocator(arena);
-        utils::allocations::ArenaAllocator<RotaryEncoderTrigger> rotaryEncoderTriggerAllocator(arena);
+    std::shared_ptr<KeyBinding> deserializeKeyBinding(const std::string_view& line, tfw::utils::allocations::Arena& arena) {
+        tfw::utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
+        tfw::utils::allocations::ArenaAllocator<KeyBinding> keyBindingAllocator(arena);
+        tfw::utils::allocations::ArenaAllocator<PushButtonTrigger> pushButtonTriggerAllocator(arena);
+        tfw::utils::allocations::ArenaAllocator<RotaryEncoderTrigger> rotaryEncoderTriggerAllocator(arena);
 
-        auto parts = utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
+        auto parts = tfw::utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
 
-        auto type = static_cast<TriggerType>(utils::strings::atol(parts[0], 16));
-        auto deviceId = utils::strings::atou64(parts[1], 16);
+        auto type = static_cast<TriggerType>(tfw::utils::strings::atol(parts[0], 16));
+        auto deviceId = tfw::utils::strings::atou64(parts[1], 16);
 
         if (type == PUSH_BUTTON) {
-            auto number = utils::strings::atol(parts[2], 16);
-            auto macroId = utils::strings::atou16(parts[3], 16);
+            auto number = tfw::utils::strings::atol(parts[2], 16);
+            auto macroId = tfw::utils::strings::atou16(parts[3], 16);
 
             return std::allocate_shared<KeyBinding>(
                 keyBindingAllocator,
@@ -42,9 +42,9 @@ namespace {
         }
 
         if (type == ROTARY_ENCODER) {
-            auto number = utils::strings::atol(parts[2], 16);
-            auto direction = static_cast<RotationalEncoderDirection>(utils::strings::atol(parts[3], 16));
-            auto macroId = utils::strings::atou16(parts[4], 16);
+            auto number = tfw::utils::strings::atol(parts[2], 16);
+            auto direction = static_cast<RotationalEncoderDirection>(tfw::utils::strings::atol(parts[3], 16));
+            auto macroId = tfw::utils::strings::atou16(parts[4], 16);
 
             return std::allocate_shared<KeyBinding>(
                 keyBindingAllocator,
@@ -56,10 +56,10 @@ namespace {
         return nullptr;
     }
 
-    std::string_view serializeKeyBinding(const KeyBinding& keyBinding, utils::allocations::Arena& arena) {
+    std::string_view serializeKeyBinding(const KeyBinding& keyBinding, tfw::utils::allocations::Arena& arena) {
         if (keyBinding.trigger->type == PUSH_BUTTON) {
             const auto& trigger = dynamic_cast<PushButtonTrigger&>(*keyBinding.trigger);
-            return utils::allocations::arena::strings::sprintf(
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:%08llx:0x%02x:0x%04x",
                 trigger.type,
@@ -71,7 +71,7 @@ namespace {
 
         if (keyBinding.trigger->type == ROTARY_ENCODER) {
             const auto& trigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding.trigger);
-            return utils::allocations::arena::strings::sprintf(
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:%08llx:0x%02x:0x%02x:0x%04x",
                 trigger.type,
@@ -101,7 +101,7 @@ error_t KeyBindingStorage::write(const KeyBinding& keyBinding) {
         return -1;
     }
 
-    utils::allocations::Arena arena(512);
+    tfw::utils::allocations::Arena arena(512);
 
     auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
 
@@ -121,7 +121,7 @@ error_t KeyBindingStorage::remove(const Trigger& trigger) {
         return -1;
     }
 
-    utils::allocations::Arena arena(512);
+    tfw::utils::allocations::Arena arena(512);
 
     forEach([&](const KeyBinding& keyBinding) {
         if (*keyBinding.trigger != trigger) {
@@ -149,7 +149,7 @@ error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
         return -1;
     }
 
-    utils::allocations::Arena arena(512);
+    tfw::utils::allocations::Arena arena(512);
 
     forEach([&](const KeyBinding& keyBinding) {
         if (keyBinding.macroId != macroId) {
@@ -171,9 +171,9 @@ error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
 }
 
 void KeyBindingStorage::forEach(const std::function<void(const KeyBinding&)>& callback) {
-    utils::allocations::Arena arena(1024);
+    tfw::utils::allocations::Arena arena(1024);
 
-    const auto rc = utils::files::iterateLines(
+    const auto rc = tfw::utils::files::iterateLines(
         filePath,
         [&](const std::string_view& line) {
             const auto macro = deserializeKeyBinding(line, arena);

@@ -20,19 +20,19 @@
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "commands/SetDeviceNameCommandHandler.h"
 #include "metrics/BaseMetrics.h"
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 
 namespace {
-    auto logger = utils::logging::createLogger("Firmware");
+    auto logger = tfw::utils::logging::createLogger("Firmware");
 }
 
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
     serviceLocator(serviceLocator) {
-    this->lineStreamer = std::make_unique<utils::streams::LineStreamer>(serialPort.stream());
-    this->commandProcessor = std::make_unique<utils::commands::CommandProcessor>(serialPort.stream());
+    this->lineStreamer = std::make_unique<tfw::utils::streams::LineStreamer>(serialPort.stream());
+    this->commandProcessor = std::make_unique<tfw::utils::commands::CommandProcessor>(serialPort.stream());
     this->lineStreamer->addObserver(this->commandProcessor.get());
 
     this->addCommandHandler(std::make_shared<PingCommandHandler>());
@@ -75,7 +75,7 @@ void Firmware::loop() {
     lineStreamer->update();
 }
 
-void Firmware::addCommandHandler(const std::shared_ptr<utils::commands::CommandHandler>& commandHandler) const {
+void Firmware::addCommandHandler(const std::shared_ptr<tfw::utils::commands::CommandHandler>& commandHandler) const {
     this->commandProcessor->addHandler(commandHandler);
 }
 

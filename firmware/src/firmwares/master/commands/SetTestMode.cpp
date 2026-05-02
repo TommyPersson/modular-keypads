@@ -6,13 +6,13 @@ SetTestMode::SetTestMode(TestModeController& testModeController)
 
 SetTestMode::~SetTestMode() = default;
 
-utils::void_result SetTestMode::execute(
+tfw::utils::void_result SetTestMode::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     if (args.size() != 1) {
-        return utils::void_result::error("incorrect.number.of.arguments");
+        return tfw::utils::void_result::error("incorrect.number.of.arguments");
     }
 
     const auto& arg = args[0];
@@ -22,5 +22,5 @@ utils::void_result SetTestMode::execute(
         testModeController.disable();
     }
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

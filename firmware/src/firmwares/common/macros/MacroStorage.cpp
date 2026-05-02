@@ -3,35 +3,35 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-#include "utils/strings.h"
-#include "utils/allocations/Arena.h"
-#include "utils/allocations/ArenaUtils.h"
-#include "utils/files.h"
+#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/allocations.h>
+#include <tfw/utils/allocations.h>
+#include "../../../tfw/hal/files.h"
 
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 #include "MacroDataSerializers.h"
 
 using namespace common::macros;
 
 namespace {
-    auto logger = utils::logging::createLogger("MacroStorage");
+    auto logger = tfw::utils::logging::createLogger("MacroStorage");
     auto filePath = "/data/macro-definitions.txt";
     auto tempFilePath = "/data/macro-definitions.txt.tmp";
 }
 
 namespace {
-    std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, utils::allocations::Arena& arena) {
-        utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
-        utils::allocations::ArenaAllocator<Macro> macroAllocator(arena);
+    std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, tfw::utils::allocations::Arena& arena) {
+        tfw::utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
+        tfw::utils::allocations::ArenaAllocator<Macro> macroAllocator(arena);
 
-        auto parts = utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
+        auto parts = tfw::utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
 
         auto macroIdPart = parts[0];
-        auto macroId = utils::strings::atou16(macroIdPart);
+        auto macroId = tfw::utils::strings::atou16(macroIdPart);
         auto name = parts[1];
         auto typePart = parts[2];
-        auto type = static_cast<MacroType>(utils::strings::atol(typePart, 16));
+        auto type = static_cast<MacroType>(tfw::utils::strings::atol(typePart, 16));
 
         std::shared_ptr<MacroData> macroData = nullptr;
 
@@ -49,7 +49,7 @@ namespace {
         return nullptr;
     }
 
-    std::string_view serializeStoredMacro(const Macro& macro, utils::allocations::Arena& arena) {
+    std::string_view serializeStoredMacro(const Macro& macro, tfw::utils::allocations::Arena& arena) {
         std::string_view dataPart;
 
         for (auto serializer : macroDataSerializers) {
@@ -60,7 +60,7 @@ namespace {
         }
 
         if (!dataPart.empty()) {
-            return utils::allocations::arena::strings::sprintf(
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "%i:%.*s:0x%02x:%.*s",
                 macro.data->id,
@@ -89,7 +89,7 @@ error_t MacroStorage::write(const Macro& macro) {
         return -1;
     }
 
-    utils::allocations::Arena arena(2048);
+    tfw::utils::allocations::Arena arena(2048);
 
     uint16_t highestIdSeen = 0;
 
@@ -130,7 +130,7 @@ error_t MacroStorage::remove(uint16_t id) {
         return -1;
     }
 
-    utils::allocations::Arena arena(2048);
+    tfw::utils::allocations::Arena arena(2048);
 
     forEach([&](const Macro& storedMacro) {
         if (storedMacro.data->id != id) {
@@ -154,9 +154,9 @@ error_t MacroStorage::remove(uint16_t id) {
 }
 
 void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
-    utils::allocations::Arena arena(1024);
+    tfw::utils::allocations::Arena arena(1024);
 
-    const auto rc = utils::files::iterateLines(
+    const auto rc = tfw::utils::files::iterateLines(
         filePath,
         [&](const std::string_view& line) {
             const auto macro = deserializeStoredMacro(line, arena);

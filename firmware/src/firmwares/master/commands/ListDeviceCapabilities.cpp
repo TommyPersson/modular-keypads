@@ -1,7 +1,7 @@
 #include "ListDeviceCapabilities.h"
 
 #include <firmwares/modules/common/DeviceModule.h>
-#include <utils/strings.h>
+#include <tfw/utils/strings.h>
 
 ListDeviceCapabilities::ListDeviceCapabilities(
     std::vector<devices::DeviceModule*>& devices
@@ -10,13 +10,13 @@ ListDeviceCapabilities::ListDeviceCapabilities(
 
 ListDeviceCapabilities::~ListDeviceCapabilities() = default;
 
-utils::void_result ListDeviceCapabilities::execute(
+tfw::utils::void_result ListDeviceCapabilities::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     const auto& deviceIdStr = args[0];
-    const auto deviceId = utils::strings::atou64(deviceIdStr, 16);
+    const auto deviceId = tfw::utils::strings::atou64(deviceIdStr, 16);
 
     const devices::DeviceModule* foundDevice = nullptr;
     for (const auto& device : devices) {
@@ -26,7 +26,7 @@ utils::void_result ListDeviceCapabilities::execute(
     }
 
     if (foundDevice == nullptr) {
-        return utils::void_result::error("device.not.found");
+        return tfw::utils::void_result::error("device.not.found");
     }
 
     const auto& capabilities = foundDevice->getCapabilities();
@@ -47,5 +47,5 @@ utils::void_result ListDeviceCapabilities::execute(
         }
     }
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

@@ -8,8 +8,8 @@
 
 namespace devices::a {
     namespace registers {
-        const utils::registers::RegisterDescriptor IOA{.name = "IOA", .index = 0};
-        const utils::registers::RegisterDescriptor IOB{.name = "IOB", .index = 1};
+        const tfw::utils::registers::RegisterDescriptor IOA{.name = "IOA", .index = 0};
+        const tfw::utils::registers::RegisterDescriptor IOB{.name = "IOB", .index = 1};
         const inline std::vector all = {&IOA, &IOB};
     }
 
@@ -34,20 +34,20 @@ namespace devices::a {
             const DeviceLocation deviceLocation,
             const DeviceConfiguration& configuration,
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-            std::unique_ptr<utils::registers::RegisterManager>& registerManager,
+            std::unique_ptr<tfw::utils::registers::RegisterManager>& registerManager,
             std::unique_ptr<RegisterRefresher>& registerRefresher,
             std::unique_ptr<DeviceRuntime>& deviceRuntime,
             std::unique_ptr<Notifier>& notifier,
-            utils::i2c::Client& i2cClient
+            tfw::utils::i2c::Client& i2cClient
         );
         ~DeviceModuleA() override;
 
         void setup() override;
         void loop() override;
 
-        utils::registers::RegisterManager& getRegisters() override;
+        tfw::utils::registers::RegisterManager& getRegisters() override;
 
-        const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override {
+        const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override {
             return registers::all;
         }
 
@@ -65,7 +65,7 @@ namespace devices::a {
     private:
         const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;
-        std::unique_ptr<utils::registers::RegisterManager> registerManager;
+        std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
         std::unique_ptr<DeviceRuntime> deviceRuntime;
         std::unique_ptr<Notifier> notifier;

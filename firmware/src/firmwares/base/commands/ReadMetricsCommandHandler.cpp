@@ -5,24 +5,24 @@
 #include <esp_system.h>
 #include <LittleFS.h>
 
-#include "utils/allocations/ArenaUtils.h"
+#include <tfw/utils/allocations.h>
 
 
-ReadMetricsCommandHandler::ReadMetricsCommandHandler(const utils::metrics::MetricRegistry& metricRegistry)
+ReadMetricsCommandHandler::ReadMetricsCommandHandler(const tfw::utils::metrics::MetricRegistry& metricRegistry)
     : CommandHandler("read.metrics"), metricRegistry(metricRegistry) {
 }
 
 ReadMetricsCommandHandler::~ReadMetricsCommandHandler() = default;
 
 
-utils::void_result ReadMetricsCommandHandler::execute(
+tfw::utils::void_result ReadMetricsCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
-    metricRegistry.forEach([&](const utils::metrics::MetricReport& report) {
+    metricRegistry.forEach([&](const tfw::utils::metrics::MetricReport& report) {
         responseWriter.writeLineF("%.*s:%llu", report.name.length(), report.name.data(), report.value);
     });
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

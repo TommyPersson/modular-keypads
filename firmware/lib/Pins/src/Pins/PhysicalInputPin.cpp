@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 
-namespace utils::pins {
+namespace tfw::utils::pins {
     PhysicalInputPin::PhysicalInputPin(const std::uint8_t pinNumber) :
         InputPin(pinNumber),
         modeFlags(0) {

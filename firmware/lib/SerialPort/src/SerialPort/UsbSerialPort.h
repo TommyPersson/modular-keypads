@@ -5,7 +5,7 @@
 #include <USBCDC.h>
 #include "SerialPort.h"
 
-namespace utils::serial {
+namespace tfw::utils::serial {
     class UsbSerialPort : public SerialPort {
     public:
         UsbSerialPort(USBCDC& serial) : serial(serial) {

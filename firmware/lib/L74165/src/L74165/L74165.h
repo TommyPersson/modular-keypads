@@ -5,10 +5,10 @@
 namespace chips::L74165
 {
     struct Config {
-        std::unique_ptr<utils::pins::InputPin> pinQ;
-        std::unique_ptr<utils::pins::OutputPin> pinCLK;
-        std::unique_ptr<utils::pins::OutputPin> pinCE;
-        std::unique_ptr<utils::pins::OutputPin> pinLD;
+        std::unique_ptr<tfw::utils::pins::InputPin> pinQ;
+        std::unique_ptr<tfw::utils::pins::OutputPin> pinCLK;
+        std::unique_ptr<tfw::utils::pins::OutputPin> pinCE;
+        std::unique_ptr<tfw::utils::pins::OutputPin> pinLD;
     };
 
     class L74165

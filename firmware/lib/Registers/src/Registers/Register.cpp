@@ -2,7 +2,7 @@
 
 #include "RegisterManager.h"
 
-namespace utils::registers {
+namespace tfw::utils::registers {
     Register::Register(const RegisterDescriptor& descriptor, RegisterStorage& storage) :
         descriptor(descriptor),
         storage(storage) {

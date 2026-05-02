@@ -2,19 +2,19 @@
 
 RotationalEncoderMonitor::RotationalEncoderMonitor(
     const std::uint8_t encoderNumber,
-    const std::shared_ptr<utils::bitreaders::BitReader>& aBitReader,
-    const std::shared_ptr<utils::bitreaders::BitReader>& bBitReader
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
     ) :
     encoderNumber(encoderNumber),
     aBitReader(aBitReader),
     bBitReader(bBitReader),
-    encoderRotatedSubject(std::make_unique<utils::observables::Subject<EncoderRotatedEvent>>()),
+    encoderRotatedSubject(std::make_unique<tfw::utils::observables::Subject<EncoderRotatedEvent>>()),
     previousState(0) {
 }
 
 RotationalEncoderMonitor::~RotationalEncoderMonitor() = default;
 
-utils::observables::Observable<EncoderRotatedEvent>& RotationalEncoderMonitor::onEncoderRotated() const {
+tfw::utils::observables::Observable<EncoderRotatedEvent>& RotationalEncoderMonitor::onEncoderRotated() const {
     return *encoderRotatedSubject;
 }
 

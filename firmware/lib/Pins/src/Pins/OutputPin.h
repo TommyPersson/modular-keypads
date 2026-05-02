@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-namespace utils::pins {
+namespace tfw::utils::pins {
     class OutputPin {
     public:
         explicit OutputPin(std::uint8_t pinNumber);

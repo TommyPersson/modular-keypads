@@ -1,10 +1,10 @@
 #include "PingCommandHandler.h"
 
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 
 namespace {
-    auto logger = utils::logging::createLogger("PingCommandHandler");
+    auto logger = tfw::utils::logging::createLogger("PingCommandHandler");
 }
 
 PingCommandHandler::PingCommandHandler() :
@@ -13,10 +13,10 @@ PingCommandHandler::PingCommandHandler() :
 
 PingCommandHandler::~PingCommandHandler() = default;
 
-utils::void_result PingCommandHandler::execute(
+tfw::utils::void_result PingCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
     ) {
     for (auto& arg : args) {
         logger->debug("arg = %.*s", arg.length(), arg.data());
@@ -24,5 +24,5 @@ utils::void_result PingCommandHandler::execute(
 
     responseWriter.writeLine("pong");
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

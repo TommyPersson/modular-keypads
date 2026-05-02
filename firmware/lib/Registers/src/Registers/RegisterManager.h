@@ -8,7 +8,7 @@
 #include "RegisterDescriptor.h"
 #include "RegisterStorage.h"
 
-namespace utils::registers {
+namespace tfw::utils::registers {
     class RegisterManager {
     public:
         RegisterManager();

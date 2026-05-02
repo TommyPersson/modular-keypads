@@ -1,32 +1,32 @@
 #pragma once
 
-#include <utils/metrics/Metrics.h>
+#include <tfw/hal/metrics.h>
+#include <tfw/hal/usb.h>
 
 #include "TestModeController.h"
 #include "firmwares/common/keybindings/KeyBindingStorage.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
 #include "firmwares/common/macros/MacroStorage.h"
-#include "utils/usb/USBConnection.h"
 
 struct CompiledMacro {
     uint16_t macroId;
-    std::vector<std::shared_ptr<utils::usb::Action>> actions;
+    std::vector<std::shared_ptr<tfw::utils::usb::Action>> actions;
 };
 
 class KeyBindingSubSystem
-    : utils::observables::Observer<common::macros::MacroSaved>,
-      utils::observables::Observer<common::macros::MacroRemoved>,
-      utils::observables::Observer<common::keybindings::KeyBindingSet>,
-      utils::observables::Observer<common::keybindings::KeyBindingCleared>,
-      utils::observables::Observer<devices::DeviceSwitchEvent>,
-      utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
+    : tfw::utils::observables::Observer<common::macros::MacroSaved>,
+      tfw::utils::observables::Observer<common::macros::MacroRemoved>,
+      tfw::utils::observables::Observer<common::keybindings::KeyBindingSet>,
+      tfw::utils::observables::Observer<common::keybindings::KeyBindingCleared>,
+      tfw::utils::observables::Observer<devices::DeviceSwitchEvent>,
+      tfw::utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
 public:
     KeyBindingSubSystem(
         common::macros::MacroStorage& macroStorage,
         common::keybindings::KeyBindingStorage& keyBindingStorage,
         TestModeController& testModeController,
-        utils::usb::Connection& usbConnection,
-        utils::metrics::MetricRegistry& metricRegistry
+        tfw::utils::usb::Connection& usbConnection,
+        tfw::utils::metrics::MetricRegistry& metricRegistry
     );
     ~KeyBindingSubSystem() override;
 
@@ -57,7 +57,7 @@ private:
     common::macros::MacroStorage& macroStorage;
     common::keybindings::KeyBindingStorage& keyBindingStorage;
     TestModeController& testModeController;
-    utils::usb::Connection& usbConnection;
+    tfw::utils::usb::Connection& usbConnection;
 
     std::vector<std::shared_ptr<common::keybindings::KeyBinding>> keyBindings;
     std::vector<std::shared_ptr<CompiledMacro>> macros;

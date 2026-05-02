@@ -2,9 +2,9 @@
 
 #include "Notifier.h"
 #include "firmwares/common/monitors/SwitchMonitor.h"
-#include "utils/observables/Observable.h"
+#include <tfw/utils/observables.h>
 
-class SwitchStateChangeNotifier : public utils::observables::Observer<SwitchEvent> {
+class SwitchStateChangeNotifier : public tfw::utils::observables::Observer<SwitchEvent> {
 public:
     explicit SwitchStateChangeNotifier(Notifier& notifier);
     ~SwitchStateChangeNotifier() override;

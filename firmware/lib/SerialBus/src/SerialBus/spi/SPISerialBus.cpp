@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-namespace utils::serialbus {
+namespace tfw::utils::serialbus {
     SPISerialBus::SPISerialBus(const SPIConfig& config) :
         config(config) {
         spi = std::make_unique<SPIClass>(config.spiBus);

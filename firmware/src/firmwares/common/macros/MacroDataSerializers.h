@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/strings.h"
+#include "../../../tfw/utils/strings.h"
 
 #include "MacroStorage.h"
 
@@ -14,13 +14,13 @@ namespace common::macros {
 
         virtual std::string_view serialize(
             const T& data,
-            utils::allocations::Arena& arena
+            tfw::utils::allocations::Arena& arena
         ) = 0;
 
         virtual std::shared_ptr<T> deserialize(
             uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            utils::allocations::Arena& arena
+            tfw::utils::allocations::Arena& arena
         ) = 0;
     };
 

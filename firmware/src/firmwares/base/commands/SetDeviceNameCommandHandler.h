@@ -2,17 +2,17 @@
 
 #include <firmwares/modules/common/DeviceModule.h>
 
-#include "utils/commands/CommandHandler.h"
+#include <tfw/utils/commands.h>
 
-class SetDeviceNameCommandHandler final : public utils::commands::CommandHandler {
+class SetDeviceNameCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
     explicit SetDeviceNameCommandHandler(std::vector<devices::DeviceModule*>& devices);
     ~SetDeviceNameCommandHandler() override;
 
-    utils::void_result execute(
+    tfw::utils::void_result execute(
         const std::span<const std::string_view>& args,
-        utils::commands::CommandResponseWriter& responseWriter,
-        utils::allocations::Arena& arena
+        tfw::utils::commands::CommandResponseWriter& responseWriter,
+        tfw::utils::allocations::Arena& arena
     ) override;
 
 private:

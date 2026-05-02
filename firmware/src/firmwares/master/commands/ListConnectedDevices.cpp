@@ -8,15 +8,15 @@ ListConnectedDevices::ListConnectedDevices(
 
 ListConnectedDevices::~ListConnectedDevices() = default;
 
-utils::void_result ListConnectedDevices::execute(
+tfw::utils::void_result ListConnectedDevices::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     for (auto& device : devices) {
         const auto& config = device->getConfiguration();
         responseWriter.writeLineF("%08llx,%02x,%c,%s,", config.id, config.address, config.type, config.name.c_str());
     }
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

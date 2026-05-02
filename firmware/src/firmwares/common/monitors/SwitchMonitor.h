@@ -2,9 +2,8 @@
 
 #include <memory>
 
-#include "utils/bitreaders/BitReader.h"
-#include "utils/observables/Observable.h"
-#include "utils/observables/Subject.h"
+#include <tfw/hal/bitreaders.h>
+#include <tfw/utils/observables.h>
 
 enum class SwitchState {
     PRESSED,
@@ -19,14 +18,14 @@ struct SwitchEvent {
 
 class SwitchMonitor {
 public:
-    SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<utils::bitreaders::BitReader>& bitReader);
+    SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader);
     SwitchMonitor(const SwitchMonitor&) = delete;
     ~SwitchMonitor();
 
     void begin();
     void update();
 
-    utils::observables::Observable<SwitchEvent>& onSwitchStateChanged() const;
+    tfw::utils::observables::Observable<SwitchEvent>& onSwitchStateChanged() const;
 
     std::uint8_t getSwitchNumber() const;
     SwitchState getCurrentState() const;
@@ -36,9 +35,9 @@ private:
     SwitchState readState() const;
 
     const std::uint8_t switchNumber;
-    const std::shared_ptr<utils::bitreaders::BitReader> bitReader;
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader> bitReader;
 
-    std::unique_ptr<utils::observables::Subject<SwitchEvent>> keySwitchStateChangedSubject;
+    std::unique_ptr<tfw::utils::observables::Subject<SwitchEvent>> keySwitchStateChangedSubject;
 
     SwitchState currentState = SwitchState::UNKNOWN;
     SwitchState previousState = SwitchState::UNKNOWN;

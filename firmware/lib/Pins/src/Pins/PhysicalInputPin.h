@@ -2,7 +2,7 @@
 
 #include "InputPin.h"
 
-namespace utils::pins {
+namespace tfw::utils::pins {
     class PhysicalInputPin final : public InputPin {
     public:
         explicit PhysicalInputPin(std::uint8_t pinNumber);

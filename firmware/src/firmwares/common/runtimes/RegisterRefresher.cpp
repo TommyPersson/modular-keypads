@@ -1,6 +1,6 @@
 #include "RegisterRefresher.h"
 
-RegisterRefresher::RegisterRefresher(utils::registers::RegisterManager& registers) :
+RegisterRefresher::RegisterRefresher(tfw::utils::registers::RegisterManager& registers) :
     registers(registers) {
 }
 

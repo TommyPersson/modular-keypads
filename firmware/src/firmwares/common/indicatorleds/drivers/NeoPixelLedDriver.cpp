@@ -8,7 +8,7 @@ NeoPixelLedDriver::~NeoPixelLedDriver() = default;
 
 void NeoPixelLedDriver::begin() {
     neoPixel.begin();
-    neoPixel.setBrightness(255);
+    neoPixel.setBrightness(50);
 }
 
 void NeoPixelLedDriver::loop() {

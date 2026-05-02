@@ -26,11 +26,11 @@
 #include "commands/SaveMacroCommandHandler.h"
 #include "commands/SetKeyBindingCommandHandler.h"
 #include "commands/SetTestMode.h"
-#include "utils/strings.h"
-#include "utils/logging/Logger.h"
+#include "../../tfw/utils/strings.h"
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("MasterFirmware");
+    auto logger = tfw::utils::logging::createLogger("MasterFirmware");
 }
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)

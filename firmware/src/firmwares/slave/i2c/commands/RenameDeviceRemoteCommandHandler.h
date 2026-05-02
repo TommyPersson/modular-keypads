@@ -2,10 +2,10 @@
 
 #include <firmwares/modules/common/DeviceModule.h>
 
-#include "utils/i2c/Commands.h"
+#include <tfw/hal/i2c.h>
 
 namespace firmwares::slave::i2c::commands {
-    using namespace utils::i2c::commands;
+    using namespace tfw::utils::i2c::commands;
 
     struct RenameDeviceParams {
         char name[16];
@@ -19,7 +19,7 @@ namespace firmwares::slave::i2c::commands {
 
         ~RenameDeviceRemoteCommandHandler() override;
 
-        utils::void_result execute(const RenameDeviceParams* params) override;
+        tfw::utils::void_result execute(const RenameDeviceParams* params) override;
 
     private:
         devices::DeviceModule& device;

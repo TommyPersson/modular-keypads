@@ -1,19 +1,19 @@
 #include "SaveMacroCommandHandler.h"
 
 #include "firmwares/common/macros/MacroDataSerializers.h"
-#include "utils/strings.h"
-#include "utils/logging/Logger.h"
+#include "../../../tfw/utils/strings.h"
+#include <tfw/hal/logging.h>
 
 using namespace common::macros;
 
 namespace {
-    auto logger = utils::logging::createLogger("SaveMacroCommandHandler");
+    auto logger = tfw::utils::logging::createLogger("SaveMacroCommandHandler");
 
-    std::shared_ptr<MacroData> createData(const std::span<const std::string_view>& args, utils::allocations::Arena& arena) {
+    std::shared_ptr<MacroData> createData(const std::span<const std::string_view>& args, tfw::utils::allocations::Arena& arena) {
         auto& macroIdArg = args[0];
-        auto macroId = utils::strings::atol(macroIdArg);
+        auto macroId = tfw::utils::strings::atol(macroIdArg);
         auto& typeArg = args[2];
-        auto type = static_cast<MacroType>(utils::strings::atol(typeArg, 16));
+        auto type = static_cast<MacroType>(tfw::utils::strings::atol(typeArg, 16));
 
         for (auto serializer : macroDataSerializers) {
             auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
@@ -35,10 +35,10 @@ SaveMacroCommandHandler::SaveMacroCommandHandler(MacroStorage& macroStorage)
 
 SaveMacroCommandHandler::~SaveMacroCommandHandler() = default;
 
-utils::void_result SaveMacroCommandHandler::execute(
+tfw::utils::void_result SaveMacroCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     auto& nameArg = args[1];
 
@@ -50,8 +50,8 @@ utils::void_result SaveMacroCommandHandler::execute(
     if (macro.data != nullptr) {
         macroStorage.write(macro);
     } else {
-        return utils::void_result::error("unable.to.save.macro");
+        return tfw::utils::void_result::error("unable.to.save.macro");
     }
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

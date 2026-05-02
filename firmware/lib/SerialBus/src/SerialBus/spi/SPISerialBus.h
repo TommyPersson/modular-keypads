@@ -6,7 +6,7 @@
 #include "../SerialBus.h"
 #include "SPIConfig.h"
 
-namespace utils::serialbus {
+namespace tfw::utils::serialbus {
     class SPISerialBus final : public SerialBus {
     public:
         explicit SPISerialBus(const SPIConfig& config);

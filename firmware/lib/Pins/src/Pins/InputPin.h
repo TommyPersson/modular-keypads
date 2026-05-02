@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace utils::pins {
+namespace tfw::utils::pins {
     class InputPin {
     public:
         explicit InputPin(std::uint8_t pinNumber);

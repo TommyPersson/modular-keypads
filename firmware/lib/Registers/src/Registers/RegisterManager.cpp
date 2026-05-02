@@ -1,6 +1,6 @@
 #include "RegisterManager.h"
 
-namespace utils::registers {
+namespace tfw::utils::registers {
     RegisterManager::RegisterManager() = default;
 
     RegisterManager::~RegisterManager() = default;

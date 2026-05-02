@@ -9,7 +9,7 @@
 #include "UsbSerialPort.h"
 #endif
 
-namespace utils::serial {
+namespace tfw::utils::serial {
 	std::unique_ptr<SerialPort> SerialPort::from(HardwareSerial& serial) {
 		return std::make_unique<HardwareSerialPort>(serial);
 	}

@@ -9,10 +9,10 @@ ListKeyBindingsCommandHandler::ListKeyBindingsCommandHandler(
 
 ListKeyBindingsCommandHandler::~ListKeyBindingsCommandHandler() = default;
 
-utils::void_result ListKeyBindingsCommandHandler::execute(
+tfw::utils::void_result ListKeyBindingsCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     keyBindingStorage.forEach([&](const KeyBinding& keyBinding) {
         if (keyBinding.trigger->type == PUSH_BUTTON) {
@@ -39,5 +39,5 @@ utils::void_result ListKeyBindingsCommandHandler::execute(
         }
     });
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

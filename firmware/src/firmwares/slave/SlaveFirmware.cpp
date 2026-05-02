@@ -4,11 +4,11 @@
 #include "i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
 #include "i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
-#include "utils/strings.h"
-#include "utils/logging/Logger.h"
+#include "../../tfw/utils/strings.h"
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("SlaveFirmware");
+    auto logger = tfw::utils::logging::createLogger("SlaveFirmware");
 }
 
 using namespace firmwares::slave;
@@ -78,4 +78,11 @@ void SlaveFirmware::loop() {
         &registersStruct,
         device->getRegisterDescriptors().size()
     );
+/*
+    gpio_wakeup_enable((gpio_num_t)11, GPIO_INTR_LOW_LEVEL);
+    gpio_wakeup_enable((gpio_num_t)10, GPIO_INTR_LOW_LEVEL);
+    esp_sleep_enable_gpio_wakeup();
+    esp_sleep_enable_timer_wakeup(1000);
+    esp_light_sleep_start();
+    */
 }

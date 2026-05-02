@@ -10,7 +10,7 @@ FlashButtonIdentificationLightRemoteCommandHandler::FlashButtonIdentificationLig
 
 FlashButtonIdentificationLightRemoteCommandHandler::~FlashButtonIdentificationLightRemoteCommandHandler() = default;
 
-utils::void_result FlashButtonIdentificationLightRemoteCommandHandler::execute(const FlashButtonIdentificationLightParams* params) {
+tfw::utils::void_result FlashButtonIdentificationLightRemoteCommandHandler::execute(const FlashButtonIdentificationLightParams* params) {
     device.flashButtonIdentificationLight(params->buttonNumber, params->durationMs);
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

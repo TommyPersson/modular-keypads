@@ -2,15 +2,15 @@
 
 #include <firmwares/modules/common/DeviceModule.h>
 
-#include "utils/i2c/Endpoint.h"
-#include "utils/strings.h"
-#include "utils/logging/Logger.h"
+#include <tfw/hal/i2c.h>
+#include <tfw/utils/strings.h>
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("DeviceScanner");
+    auto logger = tfw::utils::logging::createLogger("DeviceScanner");
 }
 
-DeviceScanner::DeviceScanner(utils::i2c::Client& client) :
+DeviceScanner::DeviceScanner(tfw::utils::i2c::Client& client) :
     client(client) {
 }
 
@@ -19,7 +19,7 @@ DeviceScanner::~DeviceScanner() = default;
 std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
     std::vector<std::shared_ptr<DeviceConfiguration>> result;
 
-    for (uint8_t address = 10; address < 14; address++) {
+    for (uint8_t address = 10; address < 0x20; address++) {
         logger->debug("probing %i", address);
 
         const auto deviceInformationResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceInformation);

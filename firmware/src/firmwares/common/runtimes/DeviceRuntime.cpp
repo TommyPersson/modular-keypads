@@ -3,11 +3,11 @@
 #include <firmwares/modules/m/DeviceModuleM.h>
 
 using namespace devices;
-using namespace utils;
+using namespace tfw::utils;
 
 DeviceRuntime::DeviceRuntime(
     uint64_t deviceId,
-    utils::registers::RegisterManager& registers,
+    tfw::utils::registers::RegisterManager& registers,
     IndicatorLedManager& indicatorLeds,
     Notifier& notifier,
     DeviceConfigurationManager& configurationManager
@@ -55,7 +55,7 @@ void DeviceRuntime::configureCapabilities() {
 }
 
 
-void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<utils::bitreaders::BitReader>& bitReader,
+void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader,
                                  int8_t ledIndex) {
     const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
 
@@ -70,8 +70,8 @@ void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<utils::bi
 
 void DeviceRuntime::attachRotationalEncoder(
     const uint8_t number,
-    const std::shared_ptr<utils::bitreaders::BitReader>& aBitReader,
-    const std::shared_ptr<utils::bitreaders::BitReader>& bBitReader
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
 ) {
     auto rotaryEncoderMonitor = std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader);
     rotaryEncoderMonitor->onEncoderRotated().addObserver(this);
@@ -95,7 +95,7 @@ void DeviceRuntime::flashIdentificationLights(uint32_t durationMs) {
                 const auto indicatorLed = indicatorLeds.get(pushButton->ledIndex);
                 if (indicatorLed) {
                     auto color = indicatorLed->makeColor(255, 0, 0, 0);
-                    indicatorLed->animate(utils::led::animations::pulse(color, durationMs));
+                    indicatorLed->animate(led::animations::pulse(color, durationMs));
                 }
             }
         }
@@ -115,14 +115,14 @@ void DeviceRuntime::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_
                 const auto indicatorLed = indicatorLeds.get(pushButton->ledIndex);
                 if (indicatorLed) {
                     auto color = indicatorLed->makeColor(255, 0, 0, 0);
-                    indicatorLed->animate(utils::led::animations::pulse(color, durationMs));
+                    indicatorLed->animate(led::animations::pulse(color, durationMs));
                 }
             }
         }
     }
 }
 
-utils::void_result DeviceRuntime::renameDevice(const std::string_view& deviceName) {
+void_result DeviceRuntime::renameDevice(const std::string_view& deviceName) {
     if (!configurationManager.setDeviceName(deviceName)) {
         return void_result::error("unable.to.set.device.name");
     }

@@ -1,6 +1,6 @@
 #include "IndicatorLed.h"
 
-#include <utils/time/Time.h>
+#include <tfw/hal/time.h>
 
 IndicatorLed::IndicatorLed(IndicatorLedDriver& driver, const uint8_t pixelIndex) :
     driver(driver),
@@ -15,7 +15,7 @@ IndicatorLed::~IndicatorLed() = default;
 
 void IndicatorLed::update() {
     if (currentAnimation) {
-        const auto now = utils::time::millis();
+        const auto now = tfw::utils::time::millis();
         const auto animatedColor = currentAnimation->getColor(now);
 
         color = animatedColor;
@@ -53,6 +53,6 @@ uint32_t IndicatorLed::makeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
 }
 
 
-void IndicatorLed::animate(const std::shared_ptr<utils::led::animations::Animation>& animation) {
+void IndicatorLed::animate(const std::shared_ptr<tfw::utils::led::animations::Animation>& animation) {
     currentAnimation = animation;
 }

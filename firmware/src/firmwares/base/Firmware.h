@@ -4,12 +4,12 @@
 #include <optional>
 #include <Wire.h>
 #include <SerialPort/SerialPort.h>
+#include <tfw/utils/streams.h>
 
 #include "../common/DeviceConfigurationManager.h"
 #include "../common/ServiceLocator.h"
 
-#include "utils/commands/CommandProcessor.h"
-#include "utils/streams/LineStreamer.h"
+#include <tfw/utils/commands.h>
 
 #include "firmwares/modules/common/DeviceModule.h"
 #include "firmwares/modules/common/DeviceModuleFactory.h"
@@ -26,20 +26,20 @@ public:
     static std::unique_ptr<Firmware> create(ServiceLocator& serviceLocator);
 
 protected:
-    void addCommandHandler(const std::shared_ptr<utils::commands::CommandHandler>& commandHandler) const;
+    void addCommandHandler(const std::shared_ptr<tfw::utils::commands::CommandHandler>& commandHandler) const;
     devices::DeviceModuleFactory* getModuleFactory(char deviceType) const;
 
     void registerMetrics();
 
     DeviceConfigurationManager& deviceConfigurationManager;
-    utils::serial::SerialPort& serialPort;
+    tfw::utils::serial::SerialPort& serialPort;
     ServiceLocator& serviceLocator;
 
     std::unique_ptr<devices::DeviceModule> deviceModule;
-    std::optional<utils::registers::RegisterManager*> registers;
+    std::optional<tfw::utils::registers::RegisterManager*> registers;
 
 private:
-    std::unique_ptr<utils::streams::LineStreamer> lineStreamer;
-    std::unique_ptr<utils::commands::CommandProcessor> commandProcessor;
+    std::unique_ptr<tfw::utils::streams::LineStreamer> lineStreamer;
+    std::unique_ptr<tfw::utils::commands::CommandProcessor> commandProcessor;
     std::vector<std::unique_ptr<devices::DeviceModuleFactory>> moduleFactories;
 };

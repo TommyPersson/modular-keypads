@@ -2,7 +2,7 @@
 
 #include <span>
 
-namespace utils::registers {
+namespace tfw::utils::registers {
     uint8_t RegisterStorage::read(const RegisterDescriptor& descriptor) const {
         std::lock_guard guard(lock);
 

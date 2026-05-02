@@ -1,6 +1,6 @@
 #include "BaseMetrics.h"
 
-#include <utils/metrics/Metrics.h>
+#include <tfw/hal/metrics.h>
 
 #ifdef ESP32
 #include "EspMetrics.h"
@@ -11,7 +11,7 @@
 #endif
 
 namespace firmware::metrics::base {
-    void register_all(utils::metrics::MetricRegistry& registry) {
+    void register_all(tfw::utils::metrics::MetricRegistry& registry) {
 #ifdef ESP32
         esp::register_all(registry);
 #endif

@@ -4,7 +4,7 @@
 
 #include "PhysicalInputPin.h"
 
-namespace utils::pins {
+namespace tfw::utils::pins {
     InputPin::InputPin(const std::uint8_t pinNumber) : pinNumber(pinNumber) {
     }
 

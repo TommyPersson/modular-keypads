@@ -3,7 +3,7 @@
 #include "firmwares/common/indicatorleds/IndicatorLed.h"
 #include "firmwares/common/monitors/SwitchMonitor.h"
 
-class SwitchIndicatorLed final : utils::observables::Observer<SwitchEvent> {
+class SwitchIndicatorLed final : tfw::utils::observables::Observer<SwitchEvent> {
 public:
     SwitchIndicatorLed(const SwitchMonitor& switchMonitor, IndicatorLed& indicatorLed);
     ~SwitchIndicatorLed() override;

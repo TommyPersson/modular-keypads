@@ -1,17 +1,17 @@
 #pragma once
 
 #include "firmwares/common/DeviceConfigurationManager.h"
-#include "utils/commands/CommandHandler.h"
+#include <tfw/utils/commands.h>
 
-class ResetDeviceCommandHandler final : public utils::commands::CommandHandler {
+class ResetDeviceCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
     explicit ResetDeviceCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
     ~ResetDeviceCommandHandler() override;
 
-    utils::void_result execute(
+    tfw::utils::void_result execute(
         const std::span<const std::string_view>& args,
-        utils::commands::CommandResponseWriter& responseWriter,
-        utils::allocations::Arena& arena
+        tfw::utils::commands::CommandResponseWriter& responseWriter,
+        tfw::utils::allocations::Arena& arena
     ) override;
 
 private:

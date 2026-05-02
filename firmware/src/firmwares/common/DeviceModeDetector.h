@@ -11,6 +11,6 @@ namespace devices {
 
         DeviceMode detectDeviceMode() const;
     private:
-        std::unique_ptr<utils::pins::InputPin> vbusPin;
+        std::unique_ptr<tfw::utils::pins::InputPin> vbusPin;
     };
 }

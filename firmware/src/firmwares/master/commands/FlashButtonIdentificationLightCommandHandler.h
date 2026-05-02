@@ -1,17 +1,17 @@
 #pragma once
 
 #include "firmwares/modules/common/DeviceModule.h"
-#include "utils/commands/CommandHandler.h"
+#include <tfw/utils/commands.h>
 
-class FlashButtonIdentificationLightCommandHandler final : public utils::commands::CommandHandler {
+class FlashButtonIdentificationLightCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
     explicit FlashButtonIdentificationLightCommandHandler(const std::vector<devices::DeviceModule*>& devices);
     ~FlashButtonIdentificationLightCommandHandler() override;
 
-    utils::void_result execute(
+    tfw::utils::void_result execute(
         const std::span<const std::string_view>& args,
-        utils::commands::CommandResponseWriter& responseWriter,
-        utils::allocations::Arena& arena
+        tfw::utils::commands::CommandResponseWriter& responseWriter,
+        tfw::utils::allocations::Arena& arena
     ) override;
 
 private:

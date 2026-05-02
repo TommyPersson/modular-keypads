@@ -4,7 +4,7 @@
 
 #include "spi/SPIConfig.h"
 
-namespace utils::serialbus {
+namespace tfw::utils::serialbus {
     class SerialBus {
     public:
         virtual ~SerialBus() {

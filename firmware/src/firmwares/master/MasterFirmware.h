@@ -5,8 +5,8 @@
 #include "KeyBindingSubSystem.h"
 
 class MasterFirmware final : public Firmware,
-                             utils::observables::Observer<devices::DeviceSwitchEvent>,
-                             utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
+                             tfw::utils::observables::Observer<devices::DeviceSwitchEvent>,
+                             tfw::utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
 public:
     explicit MasterFirmware(ServiceLocator& serviceLocator);
     ~MasterFirmware() override;
@@ -30,5 +30,5 @@ private:
     std::unique_ptr<common::keybindings::KeyBindingStorage> keyBindingStorage;
     std::unique_ptr<KeyBindingSubSystem> keyBindingSubSystem;
 
-    std::shared_ptr<utils::metrics::TimerMetric> loopTimerMetric;
+    std::shared_ptr<tfw::utils::metrics::TimerMetric> loopTimerMetric;
 };

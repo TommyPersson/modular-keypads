@@ -1,29 +1,29 @@
 #include "ListRegistersCommandHandler.h"
 
 #include <string>
-#include <utils/allocations/ArenaUtils.h>
+#include <tfw/utils/allocations.h>
 
 
 ListRegistersCommandHandler::ListRegistersCommandHandler(
-    const std::optional<utils::registers::RegisterManager*>& registers
+    const std::optional<tfw::utils::registers::RegisterManager*>& registers
 ) : CommandHandler("list.registers"), registers(registers) {
 }
 
 ListRegistersCommandHandler::~ListRegistersCommandHandler() = default;
 
 
-utils::void_result ListRegistersCommandHandler::execute(
+tfw::utils::void_result ListRegistersCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     if (!registers.has_value()) {
-        return utils::void_result::error("registers.not.available");
+        return tfw::utils::void_result::error("registers.not.available");
     }
 
     for (auto& descriptor : (*registers)->list()) {
         responseWriter.writeLine(descriptor.name);
     }
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "utils/time/Time.h"
+#include <tfw/hal/time.h>
 
-namespace utils::led::animations {
+namespace tfw::utils::led::animations {
     struct Animation {
         Animation(uint32_t durationMs, uint64_t startTimeMs) : durationMs(durationMs), startTimeMs(startTimeMs) {
         }
@@ -60,6 +60,6 @@ namespace utils::led::animations {
     };
 
     inline std::shared_ptr<Animation> pulse(uint32_t color, uint32_t durationMs) {
-        return std::make_shared<Pulse>(color, durationMs, utils::time::millis());
+        return std::make_shared<Pulse>(color, durationMs, tfw::utils::time::millis());
     }
 }

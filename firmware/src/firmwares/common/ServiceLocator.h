@@ -1,22 +1,22 @@
 #pragma once
 
 #include <SerialPort/SerialPort.h>
-#include <utils/metrics/Metrics.h>
+#include <tfw/hal/metrics.h>
+#include <tfw/hal/usb.h>
 
 #include "firmwares/common/notifications/NotifierFactory.h"
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/DeviceModeDetector.h"
-#include "utils/i2c/Client.h"
-#include "utils/i2c/SlavePort.h"
-#include "utils/usb/USBConnection.h"
+#include <tfw/hal/i2c.h>
+#include <tfw/hal/i2c.h>
 
 struct ServiceLocator {
     DeviceConfigurationManager& deviceConfigurationManager;
-    utils::serial::SerialPort& serialPort;
+    tfw::utils::serial::SerialPort& serialPort;
     NotifierFactory& notifierFactory;
-    utils::i2c::Client& i2cClient;
-    utils::i2c::SlavePort& i2cSlavePort;
-    utils::usb::Connection& usbConnection;
-    utils::metrics::MetricRegistry& metricRegistry;
+    tfw::utils::i2c::Client& i2cClient;
+    tfw::utils::i2c::SlavePort& i2cSlavePort;
+    tfw::utils::usb::Connection& usbConnection;
+    tfw::utils::metrics::MetricRegistry& metricRegistry;
     devices::DeviceModeDetector& deviceModeDetector;
 };

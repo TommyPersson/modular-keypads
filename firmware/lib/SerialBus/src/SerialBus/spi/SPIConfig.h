@@ -3,12 +3,12 @@
 #include "Pins/OutputPin.h"
 #include "Pins/InputPin.h"
 
-namespace utils::serialbus {
+namespace tfw::utils::serialbus {
 struct SPIConfig {
     uint8_t spiBus;
-    utils::pins::OutputPin pinSCK;
-    utils::pins::OutputPin pinMOSI;
-    std::shared_ptr<utils::pins::InputPin> pinMISO;
-    utils::pins::OutputPin pinCS;
+    tfw::utils::pins::OutputPin pinSCK;
+    tfw::utils::pins::OutputPin pinMOSI;
+    std::shared_ptr<tfw::utils::pins::InputPin> pinMISO;
+    tfw::utils::pins::OutputPin pinCS;
 };
 }

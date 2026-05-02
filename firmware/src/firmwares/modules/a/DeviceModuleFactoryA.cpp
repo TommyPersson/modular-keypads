@@ -16,7 +16,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
 ) {
-    auto registers = std::make_unique<utils::registers::RegisterManager>();
+    auto registers = std::make_unique<tfw::utils::registers::RegisterManager>();
 
     auto indicatorLeds = IndicatorLedManager::NeoPixel(12, 48);
 
@@ -48,7 +48,7 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createRemote(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
 ) {
-    auto registers = std::make_unique<utils::registers::RegisterManager>();
+    auto registers = std::make_unique<tfw::utils::registers::RegisterManager>();
 
     auto indicatorLeds = IndicatorLedManager::NoOp(12);
 
@@ -85,6 +85,6 @@ bool DeviceModuleFactoryA::matches(char deviceType) {
     return deviceType == 'a' || deviceType == 'A';
 }
 
-utils::i2c::Pins DeviceModuleFactoryA::getI2cPins() {
+tfw::utils::i2c::Pins DeviceModuleFactoryA::getI2cPins() {
     return i2c::pins;
 }

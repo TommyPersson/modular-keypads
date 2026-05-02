@@ -3,15 +3,15 @@
 #include <memory>
 
 #include "DeviceConfigurationManager.h"
-#include "utils/i2c/Client.h"
+#include <tfw/hal/i2c.h>
 
 class DeviceScanner {
 public:
-    explicit DeviceScanner(utils::i2c::Client& client);
+    explicit DeviceScanner(tfw::utils::i2c::Client& client);
     ~DeviceScanner();
 
     std::vector<std::shared_ptr<DeviceConfiguration>> scan();
 
 private:
-    utils::i2c::Client& client;
+    tfw::utils::i2c::Client& client;
 };

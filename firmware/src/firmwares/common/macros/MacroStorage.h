@@ -2,10 +2,10 @@
 
 #include <functional>
 #include <optional>
-#include <utils/allocations/ArenaUtils.h>
+#include <tfw/utils/allocations.h>
 
-#include "utils/observables/Observable.h"
-#include "utils/observables/Subject.h"
+#include <tfw/utils/observables.h>
+#include <tfw/utils/observables.h>
 
 #include "Macro.h"
 
@@ -27,14 +27,14 @@ namespace common::macros {
 
         void forEach(const std::function<void(const Macro&)>& callback);
 
-        utils::observables::Observable<MacroSaved>& onMacroSaved() { return onMacroSavedSubject; };
-        utils::observables::Observable<MacroRemoved>& onMacroRemoved() { return onMacroRemovedSubject; };
+        tfw::utils::observables::Observable<MacroSaved>& onMacroSaved() { return onMacroSavedSubject; };
+        tfw::utils::observables::Observable<MacroRemoved>& onMacroRemoved() { return onMacroRemovedSubject; };
 
         uint64_t getNumStored();
 
     private:
-        utils::observables::Subject<MacroSaved> onMacroSavedSubject;
-        utils::observables::Subject<MacroRemoved> onMacroRemovedSubject;
+        tfw::utils::observables::Subject<MacroSaved> onMacroSavedSubject;
+        tfw::utils::observables::Subject<MacroRemoved> onMacroRemovedSubject;
 
         std::optional<uint64_t> numStored{};
     };

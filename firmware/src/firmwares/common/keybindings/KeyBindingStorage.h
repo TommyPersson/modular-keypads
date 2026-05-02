@@ -22,11 +22,11 @@ namespace common::keybindings {
 
         void forEach(const std::function<void(const KeyBinding&)>& callback);
 
-        utils::observables::Observable<KeyBindingSet>& onKeyBindingSet() { return onKeyBindingSetSubject; }
-        utils::observables::Observable<KeyBindingCleared>& onKeyBindingCleared() { return onKeyBindingClearedSubject; }
+        tfw::utils::observables::Observable<KeyBindingSet>& onKeyBindingSet() { return onKeyBindingSetSubject; }
+        tfw::utils::observables::Observable<KeyBindingCleared>& onKeyBindingCleared() { return onKeyBindingClearedSubject; }
 
     private:
-        utils::observables::Subject<KeyBindingSet> onKeyBindingSetSubject;
-        utils::observables::Subject<KeyBindingCleared> onKeyBindingClearedSubject;
+        tfw::utils::observables::Subject<KeyBindingSet> onKeyBindingSetSubject;
+        tfw::utils::observables::Subject<KeyBindingCleared> onKeyBindingClearedSubject;
     };
 }

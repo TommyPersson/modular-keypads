@@ -5,10 +5,10 @@
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 #include "firmwares/common/notifications/EncoderRotationNotifier.h"
 #include "firmwares/common/runtimes/DeviceRuntime.h"
-#include "utils/i2c/Pins.h"
+#include <tfw/hal/i2c.h>
 
 namespace devices::m::i2c {
-    inline auto pins = utils::i2c::Pins{
+    inline auto pins = tfw::utils::i2c::Pins{
         .SDA = 2,
         .SCL = 1
     };
@@ -18,7 +18,7 @@ class DeviceRuntimeM final : public devices::DeviceRuntime {
 public:
     explicit DeviceRuntimeM(
         uint64_t deviceId,
-        utils::registers::RegisterManager& registers,
+        tfw::utils::registers::RegisterManager& registers,
         IndicatorLedManager& indicatorLeds,
         Notifier& notifier,
         DeviceConfigurationManager& configurationManager
@@ -29,7 +29,7 @@ public:
         return devices::m::capabilities;
     }
 
-    const std::vector<const utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const override {
+    const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const override {
         return devices::m::registers::all;
     }
 

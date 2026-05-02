@@ -1,10 +1,10 @@
 #include "SetDeviceNameCommandHandler.h"
 
-#include "utils/strings.h"
-#include "utils/logging/Logger.h"
+#include "../../../tfw/utils/strings.h"
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("SetDeviceNameCommandHandler");
+    auto logger = tfw::utils::logging::createLogger("SetDeviceNameCommandHandler");
 }
 
 SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(
@@ -15,16 +15,16 @@ SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(
 
 SetDeviceNameCommandHandler::~SetDeviceNameCommandHandler() = default;
 
-utils::void_result SetDeviceNameCommandHandler::execute(
+tfw::utils::void_result SetDeviceNameCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
-    const auto deviceId = utils::strings::atou64(args[0], 16);
+    const auto deviceId = tfw::utils::strings::atou64(args[0], 16);
     const auto deviceName = args[1];
 
     if (deviceName.size() > 15) {
-        return utils::void_result::error("device.name.too.long");
+        return tfw::utils::void_result::error("device.name.too.long");
     }
 
     for (const auto device : devices) {
@@ -33,5 +33,5 @@ utils::void_result SetDeviceNameCommandHandler::execute(
         }
     }
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

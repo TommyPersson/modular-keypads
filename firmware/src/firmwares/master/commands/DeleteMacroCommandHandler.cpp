@@ -1,12 +1,12 @@
 #include "DeleteMacroCommandHandler.h"
 
-#include "utils/strings.h"
-#include "utils/logging/Logger.h"
+#include "../../../tfw/utils/strings.h"
+#include <tfw/hal/logging.h>
 
 using namespace common::macros;
 
 namespace {
-    auto logger = utils::logging::createLogger("DeleteMacroCommandHandler");
+    auto logger = tfw::utils::logging::createLogger("DeleteMacroCommandHandler");
 }
 
 DeleteMacroCommandHandler::DeleteMacroCommandHandler(MacroStorage& macroStorage)
@@ -16,17 +16,17 @@ DeleteMacroCommandHandler::DeleteMacroCommandHandler(MacroStorage& macroStorage)
 
 DeleteMacroCommandHandler::~DeleteMacroCommandHandler() = default;
 
-utils::void_result DeleteMacroCommandHandler::execute(
+tfw::utils::void_result DeleteMacroCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
 ) {
     auto& idArg = args[0];
-    auto id = utils::strings::atol(idArg);
+    auto id = tfw::utils::strings::atol(idArg);
 
     macroStorage.remove(id);
 
     logger->debug("Deleted macro: %i", id);
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

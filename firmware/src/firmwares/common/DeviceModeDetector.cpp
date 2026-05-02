@@ -1,7 +1,7 @@
 #include "DeviceModeDetector.h"
 
 void devices::DeviceModeDetector::setup() {
-    vbusPin = utils::pins::InputPin::physical(8);
+    vbusPin = tfw::utils::pins::InputPin::physical(8);
 }
 
 devices::DeviceMode devices::DeviceModeDetector::detectDeviceMode() const {

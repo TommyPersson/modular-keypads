@@ -1,9 +1,9 @@
 #include "DeviceConfigurationManager.h"
 
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("DeviceConfigurationManager");
+    auto logger = tfw::utils::logging::createLogger("DeviceConfigurationManager");
 
     auto prefsNamespace = "device";
     auto prefsKeyDeviceId = "device.id";

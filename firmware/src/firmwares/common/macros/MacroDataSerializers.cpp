@@ -8,8 +8,8 @@ namespace common::macros {
             return type == CONSUMER_CONTROL;
         };
 
-        std::string_view serialize(const ConsumerControlMacroData& data, utils::allocations::Arena& arena) override {
-            return utils::allocations::arena::strings::sprintf(
+        std::string_view serialize(const ConsumerControlMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%04x",
                 data.usageId
@@ -19,16 +19,16 @@ namespace common::macros {
         std::shared_ptr<ConsumerControlMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            utils::allocations::Arena& arena
+            tfw::utils::allocations::Arena& arena
         ) override {
-            const utils::allocations::ArenaAllocator<ConsumerControlMacroData> allocator(arena);
+            const tfw::utils::allocations::ArenaAllocator<ConsumerControlMacroData> allocator(arena);
 
             const auto usageIdPart = parts[0];
 
             return std::allocate_shared<ConsumerControlMacroData>(
                 allocator,
                 macroId,
-                utils::strings::atou16(usageIdPart, 16)
+                tfw::utils::strings::atou16(usageIdPart, 16)
             );
         }
     };
@@ -40,8 +40,8 @@ namespace common::macros {
             return type == SHORTCUT;
         };
 
-        std::string_view serialize(const ShortcutMacroData& data, utils::allocations::Arena& arena) override {
-            return utils::allocations::arena::strings::sprintf(
+        std::string_view serialize(const ShortcutMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:0x%02x",
                 data.modifiers,
@@ -52,9 +52,9 @@ namespace common::macros {
         std::shared_ptr<ShortcutMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            utils::allocations::Arena& arena
+            tfw::utils::allocations::Arena& arena
         ) override {
-            const utils::allocations::ArenaAllocator<ShortcutMacroData> allocator(arena);
+            const tfw::utils::allocations::ArenaAllocator<ShortcutMacroData> allocator(arena);
 
             const auto modifiersPart = parts[0];
             const auto hidCodePart = parts[1];
@@ -62,8 +62,8 @@ namespace common::macros {
             return std::allocate_shared<ShortcutMacroData>(
                 allocator,
                 macroId,
-                utils::strings::atol(modifiersPart, 16),
-                utils::strings::atol(hidCodePart, 16)
+                tfw::utils::strings::atol(modifiersPart, 16),
+                tfw::utils::strings::atol(hidCodePart, 16)
             );
         }
     };
@@ -75,8 +75,8 @@ namespace common::macros {
             return type == SYSTEM_CONTROL;
         };
 
-        std::string_view serialize(const SystemControlMacroData& data, utils::allocations::Arena& arena) override {
-            return utils::allocations::arena::strings::sprintf(
+        std::string_view serialize(const SystemControlMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x",
                 data.code
@@ -86,16 +86,16 @@ namespace common::macros {
         std::shared_ptr<SystemControlMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            utils::allocations::Arena& arena
+            tfw::utils::allocations::Arena& arena
         ) override {
-            const utils::allocations::ArenaAllocator<SystemControlMacroData> allocator(arena);
+            const tfw::utils::allocations::ArenaAllocator<SystemControlMacroData> allocator(arena);
 
             const auto codePart = parts[0];
 
             return std::allocate_shared<SystemControlMacroData>(
                 allocator,
                 macroId,
-                utils::strings::atol(codePart, 16)
+                tfw::utils::strings::atol(codePart, 16)
             );
         }
     };
@@ -107,8 +107,8 @@ namespace common::macros {
             return type == TEXT;
         };
 
-        std::string_view serialize(const TextMacroData& data, utils::allocations::Arena& arena) override {
-            return utils::allocations::arena::strings::sprintf(
+        std::string_view serialize(const TextMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "%.*s",
                 data.text.length(),
@@ -119,9 +119,9 @@ namespace common::macros {
         std::shared_ptr<TextMacroData> deserialize(
             const uint16_t macroId,
             const std::span<const std::string_view>& parts,
-            utils::allocations::Arena& arena
+            tfw::utils::allocations::Arena& arena
         ) override {
-            const utils::allocations::ArenaAllocator<TextMacroData> allocator(arena);
+            const tfw::utils::allocations::ArenaAllocator<TextMacroData> allocator(arena);
 
             const auto textPart = parts[0];
 

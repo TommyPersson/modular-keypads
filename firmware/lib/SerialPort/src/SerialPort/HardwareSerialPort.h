@@ -5,7 +5,7 @@
 #include "SerialPort.h"
 
 
-namespace utils::serial {
+namespace tfw::utils::serial {
     class HardwareSerialPort : public SerialPort {
     public:
         HardwareSerialPort(HardwareSerial& serial) : serial(serial) {}

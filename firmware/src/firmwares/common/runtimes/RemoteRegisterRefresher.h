@@ -1,13 +1,13 @@
 #pragma once
 
 #include "RegisterRefresher.h"
-#include "utils/i2c/Client.h"
+#include <tfw/hal/i2c.h>
 
 class RemoteRegisterRefresher final : public RegisterRefresher {
 public:
     RemoteRegisterRefresher(
-        utils::registers::RegisterManager& registers,
-        utils::i2c::Client& i2cClient,
+        tfw::utils::registers::RegisterManager& registers,
+        tfw::utils::i2c::Client& i2cClient,
         uint8_t deviceAddress,
         uint8_t numRegisters
     );
@@ -16,7 +16,7 @@ public:
     void loop() override;
 
 private:
-    utils::i2c::Client& i2cClient;
+    tfw::utils::i2c::Client& i2cClient;
     uint8_t deviceAddress;
     uint8_t numRegisters;
 };

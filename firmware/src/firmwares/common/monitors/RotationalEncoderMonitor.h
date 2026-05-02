@@ -1,7 +1,7 @@
 #pragma once
 
-#include "utils/bitreaders/BitReader.h"
-#include "utils/observables/Subject.h"
+#include <tfw/hal/bitreaders.h>
+#include <tfw/utils/observables.h>
 
 enum class RotationalEncoderDirection {
     Clockwise = 0x01,
@@ -18,12 +18,12 @@ class RotationalEncoderMonitor {
 public:
     RotationalEncoderMonitor(
         std::uint8_t encoderNumber,
-        const std::shared_ptr<utils::bitreaders::BitReader>& aBitReader,
-        const std::shared_ptr<utils::bitreaders::BitReader>& bBitReader
+        const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
+        const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
     );
     ~RotationalEncoderMonitor();
 
-    utils::observables::Observable<EncoderRotatedEvent>& onEncoderRotated() const;
+    tfw::utils::observables::Observable<EncoderRotatedEvent>& onEncoderRotated() const;
 
     std::uint8_t getEncoderNumber() const;
 
@@ -34,10 +34,10 @@ private:
     std::uint8_t readState() const;
 
     const std::uint8_t encoderNumber;
-    const std::shared_ptr<utils::bitreaders::BitReader> aBitReader;
-    const std::shared_ptr<utils::bitreaders::BitReader> bBitReader;
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader> aBitReader;
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader> bBitReader;
 
-    const std::unique_ptr<utils::observables::Subject<EncoderRotatedEvent>> encoderRotatedSubject;
+    const std::unique_ptr<tfw::utils::observables::Subject<EncoderRotatedEvent>> encoderRotatedSubject;
 
     std::uint8_t previousState;
     RotationalEncoderDirection previousDirection = RotationalEncoderDirection::None;

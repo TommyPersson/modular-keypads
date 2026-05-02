@@ -10,17 +10,17 @@ ReadDeviceFirmwareVersionCommandHandler::ReadDeviceFirmwareVersionCommandHandler
 
 ReadDeviceFirmwareVersionCommandHandler::~ReadDeviceFirmwareVersionCommandHandler() = default;
 
-utils::void_result ReadDeviceFirmwareVersionCommandHandler::execute(
+tfw::utils::void_result ReadDeviceFirmwareVersionCommandHandler::execute(
     const std::span<const std::string_view>& args,
-    utils::commands::CommandResponseWriter& responseWriter,
-    utils::allocations::Arena& arena
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
     ) {
     const auto deviceVersion = this->deviceConfigurationManager.getDeviceVersion();
     if (deviceVersion.empty()) {
-        return utils::void_result::error("device.version.not.available");
+        return tfw::utils::void_result::error("device.version.not.available");
     }
 
     responseWriter.writeLine(deviceVersion);
 
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

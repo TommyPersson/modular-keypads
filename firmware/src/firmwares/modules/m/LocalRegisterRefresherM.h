@@ -7,7 +7,7 @@
 
 class LocalRegisterRefresherM final : public RegisterRefresher {
 public:
-    explicit LocalRegisterRefresherM(utils::registers::RegisterManager& registers);
+    explicit LocalRegisterRefresherM(tfw::utils::registers::RegisterManager& registers);
     ~LocalRegisterRefresherM() override;
 
     void setup() override;

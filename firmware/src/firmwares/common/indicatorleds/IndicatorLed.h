@@ -19,7 +19,7 @@ public:
 
     uint32_t makeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 
-    void animate(const std::shared_ptr<utils::led::animations::Animation>& animation);
+    void animate(const std::shared_ptr<tfw::utils::led::animations::Animation>& animation);
 
 private:
     IndicatorLedDriver& driver;
@@ -28,5 +28,5 @@ private:
     uint32_t color;
     uint32_t overriddenColor;
 
-    std::shared_ptr<utils::led::animations::Animation> currentAnimation;
+    std::shared_ptr<tfw::utils::led::animations::Animation> currentAnimation;
 };

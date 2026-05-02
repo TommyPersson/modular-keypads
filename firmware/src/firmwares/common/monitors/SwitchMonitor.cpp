@@ -2,11 +2,11 @@
 
 SwitchMonitor::SwitchMonitor(
     const std::uint8_t switchNumber,
-    const std::shared_ptr<utils::bitreaders::BitReader>& bitReader
+    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader
     ) :
     switchNumber(switchNumber),
     bitReader(bitReader),
-    keySwitchStateChangedSubject(std::make_unique<utils::observables::Subject<SwitchEvent>>()) {
+    keySwitchStateChangedSubject(std::make_unique<tfw::utils::observables::Subject<SwitchEvent>>()) {
 }
 
 SwitchMonitor::~SwitchMonitor() = default;
@@ -25,7 +25,7 @@ void SwitchMonitor::update() {
     }
 }
 
-utils::observables::Observable<SwitchEvent>& SwitchMonitor::onSwitchStateChanged() const {
+tfw::utils::observables::Observable<SwitchEvent>& SwitchMonitor::onSwitchStateChanged() const {
     return *keySwitchStateChangedSubject;
 }
 

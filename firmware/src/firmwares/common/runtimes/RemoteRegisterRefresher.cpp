@@ -3,8 +3,8 @@
 #include <firmwares/modules/common/DeviceModule.h>
 
 RemoteRegisterRefresher::RemoteRegisterRefresher(
-    utils::registers::RegisterManager& registers,
-    utils::i2c::Client& i2cClient,
+    tfw::utils::registers::RegisterManager& registers,
+    tfw::utils::i2c::Client& i2cClient,
     uint8_t deviceAddress,
     uint8_t numRegisters
 ) : RegisterRefresher(registers),

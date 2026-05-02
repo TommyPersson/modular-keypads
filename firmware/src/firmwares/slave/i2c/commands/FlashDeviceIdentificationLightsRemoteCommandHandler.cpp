@@ -10,7 +10,7 @@ FlashDeviceIdentificationLightsRemoteCommandHandler::FlashDeviceIdentificationLi
 
 FlashDeviceIdentificationLightsRemoteCommandHandler::~FlashDeviceIdentificationLightsRemoteCommandHandler() = default;
 
-utils::void_result FlashDeviceIdentificationLightsRemoteCommandHandler::execute(const FlashDeviceIdentificationLightsParams* params) {
+tfw::utils::void_result FlashDeviceIdentificationLightsRemoteCommandHandler::execute(const FlashDeviceIdentificationLightsParams* params) {
     device.flashIdentificationLights(params->durationMs);
-    return utils::void_result::success();
+    return tfw::utils::void_result::success();
 }

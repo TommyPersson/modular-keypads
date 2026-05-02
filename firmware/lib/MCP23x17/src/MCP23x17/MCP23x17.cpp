@@ -4,8 +4,8 @@
 
 namespace chips::mcp23x17 {
     MCP23x17::MCP23x17(
-        std::unique_ptr<utils::serialbus::SerialBus> bus,
-        utils::pins::OutputPin resetPin
+        std::unique_ptr<tfw::utils::serialbus::SerialBus> bus,
+        tfw::utils::pins::OutputPin resetPin
     ) : bus(std::move(bus)),
         resetPin(resetPin) {
     }
@@ -40,9 +40,9 @@ namespace chips::mcp23x17 {
     }
 
     std::unique_ptr<MCP23x17> spi(
-        const utils::serialbus::SPIConfig& config,
-        const utils::pins::OutputPin resetPin
+        const tfw::utils::serialbus::SPIConfig& config,
+        const tfw::utils::pins::OutputPin resetPin
     ) {
-        return std::make_unique<MCP23x17>(utils::serialbus::spi(config), resetPin);
+        return std::make_unique<MCP23x17>(tfw::utils::serialbus::spi(config), resetPin);
     }
 }

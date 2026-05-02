@@ -4,10 +4,10 @@
 
 #include "DeviceRuntimeM.h"
 #include "LocalRegisterRefresherM.h"
-#include "utils/logging/Logger.h"
+#include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = utils::logging::createLogger("DeviceModuleM");
+    auto logger = tfw::utils::logging::createLogger("DeviceModuleM");
 }
 
 using namespace devices::m;
@@ -16,11 +16,11 @@ DeviceModuleM::DeviceModuleM(
     const DeviceLocation deviceLocation,
     const DeviceConfiguration& configuration,
     std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-    std::unique_ptr<utils::registers::RegisterManager>& registerManager,
+    std::unique_ptr<tfw::utils::registers::RegisterManager>& registerManager,
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
-    utils::i2c::Client& i2cClient
+    tfw::utils::i2c::Client& i2cClient
 ) : DeviceModule(deviceLocation, i2cClient),
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),
@@ -44,6 +44,6 @@ void DeviceModuleM::loop() {
     indicatorLedManager->update();
 }
 
-utils::registers::RegisterManager& DeviceModuleM::getRegisters() {
+tfw::utils::registers::RegisterManager& DeviceModuleM::getRegisters() {
     return *registerManager;
 }

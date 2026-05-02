@@ -2,17 +2,17 @@
 
 #include "DeviceModuleA.h"
 
-LocalRegisterRefresherA::LocalRegisterRefresherA(utils::registers::RegisterManager& registers) :
+LocalRegisterRefresherA::LocalRegisterRefresherA(tfw::utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {
     this->mcp23x17 = chips::mcp23x17::spi(
         {
             .spiBus = FSPI,
-            .pinSCK = utils::pins::OutputPin(41),
-            .pinMOSI = utils::pins::OutputPin(40),
-            .pinMISO = utils::pins::InputPin::physical(39),
-            .pinCS = utils::pins::OutputPin(38),
+            .pinSCK = tfw::utils::pins::OutputPin(41),
+            .pinMOSI = tfw::utils::pins::OutputPin(40),
+            .pinMISO = tfw::utils::pins::InputPin::physical(39),
+            .pinCS = tfw::utils::pins::OutputPin(38),
         },
-        utils::pins::OutputPin(42)
+        tfw::utils::pins::OutputPin(42)
     );
 }
 
