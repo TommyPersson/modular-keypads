@@ -1,7 +1,7 @@
 #pragma once
 
 #include <optional>
-#include <Registers/Registers.h>
+#include <tfw/utils/registers.h>
 
 #include <tfw/utils/commands.h>
 

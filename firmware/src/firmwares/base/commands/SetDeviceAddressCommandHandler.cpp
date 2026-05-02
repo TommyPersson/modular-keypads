@@ -1,6 +1,6 @@
 #include "SetDeviceAddressCommandHandler.h"
 
-#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
 namespace {

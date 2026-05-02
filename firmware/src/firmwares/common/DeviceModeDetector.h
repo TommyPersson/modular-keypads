@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Pins/PhysicalInputPin.h>
+#include <../../../lib/tfw/src/tfw/hal/gpio/PhysicalInputPin.h>
 
 #include "DeviceMode.h"
 
@@ -11,6 +11,6 @@ namespace devices {
 
         DeviceMode detectDeviceMode() const;
     private:
-        std::unique_ptr<tfw::utils::pins::InputPin> vbusPin;
+        std::unique_ptr<tfw::utils::gpio::InputPin> vbusPin;
     };
 }

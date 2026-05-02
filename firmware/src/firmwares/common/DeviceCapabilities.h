@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <Registers/RegisterDescriptor.h>
+#include <tfw/utils/registers.h>
 
 namespace devices {
     struct DeviceCapabilities {

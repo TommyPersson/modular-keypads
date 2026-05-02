@@ -1,0 +1,32 @@
+#include <Arduino.h>
+
+#include <cstdint>
+
+#include "OutputPin.h"
+
+namespace tfw::utils::gpio {
+    OutputPin::OutputPin(const std::uint8_t pinNumber) :
+        pinNumber(pinNumber) {
+    }
+
+    void OutputPin::init() const {
+        pinMode(pinNumber, OUTPUT);
+    }
+
+
+    void OutputPin::set(const std::uint8_t state) const {
+        digitalWrite(pinNumber, state);
+    }
+
+    void OutputPin::setHigh() const {
+        digitalWrite(pinNumber, HIGH);
+    }
+
+    void OutputPin::setLow() const {
+        digitalWrite(pinNumber, LOW);
+    }
+
+    std::unique_ptr<OutputPin> OutputPin::physical(std::uint8_t pinNumber) {
+        return std::make_unique<OutputPin>(pinNumber);
+    }
+}

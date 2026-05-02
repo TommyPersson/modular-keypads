@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Registers/RegisterManager.h>
+#include <tfw/utils/registers.h>
 
 class RegisterRefresher {
 public:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SerialPort/SerialPort.h>
+#include <tfw/hal/uart.h>
 #include <tfw/hal/metrics.h>
 #include <tfw/hal/usb.h>
 

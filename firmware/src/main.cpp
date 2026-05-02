@@ -4,7 +4,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
-#include <SerialPort/SerialPort.h>
+#include <tfw/hal/uart.h>
 
 #include <memory>
 
@@ -45,7 +45,6 @@ USBCDC TheSerial;
 
 
 void setup() {
-    /*
     esp_pm_config_t config{
         .max_freq_mhz = 80,
         .min_freq_mhz = 80,
@@ -54,7 +53,6 @@ void setup() {
     pmResult = esp_pm_configure(&config);
 
     setCpuFrequencyMhz(80);
-    */
 
     tfw::utils::logging::initialize(&TheSerial);
 

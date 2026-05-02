@@ -5,15 +5,15 @@
 LocalRegisterRefresherM::LocalRegisterRefresherM(tfw::utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {
 
-    mcp23x17 = chips::mcp23x17::spi(
+    mcp23x17 = tfw::ic::spi(
         {
             .spiBus = FSPI,
-            .pinSCK = tfw::utils::pins::OutputPin(5),
-            .pinMOSI = tfw::utils::pins::OutputPin(4),
-            .pinMISO = tfw::utils::pins::InputPin::physical(3),
-            .pinCS = tfw::utils::pins::OutputPin(6),
+            .pinSCK = tfw::utils::gpio::OutputPin(5),
+            .pinMOSI = tfw::utils::gpio::OutputPin(4),
+            .pinMISO = tfw::utils::gpio::InputPin::physical(3),
+            .pinCS = tfw::utils::gpio::OutputPin(6),
         },
-        tfw::utils::pins::OutputPin(42)
+        tfw::utils::gpio::OutputPin(42)
     );
 }
 
@@ -23,16 +23,16 @@ void LocalRegisterRefresherM::setup() {
     mcp23x17->begin();
 
     // Set all pins as input
-    mcp23x17->writeRegister(chips::mcp23x17::registers::IODIRA, 0xff);
-    mcp23x17->writeRegister(chips::mcp23x17::registers::IODIRB, 0xff);
+    mcp23x17->writeRegister(tfw::ic::registers::IODIRA, 0xff);
+    mcp23x17->writeRegister(tfw::ic::registers::IODIRB, 0xff);
 
     // Enable pull ups
-    mcp23x17->writeRegister(chips::mcp23x17::registers::GPPUA, 0xff);
-    mcp23x17->writeRegister(chips::mcp23x17::registers::GPPUB, 0xff);
+    mcp23x17->writeRegister(tfw::ic::registers::GPPUA, 0xff);
+    mcp23x17->writeRegister(tfw::ic::registers::GPPUB, 0xff);
 
     // Invert the read values
-    mcp23x17->writeRegister(chips::mcp23x17::registers::IOPOLA, 0xff);
-    mcp23x17->writeRegister(chips::mcp23x17::registers::IOPOLB, 0xff);
+    mcp23x17->writeRegister(tfw::ic::registers::IOPOLA, 0xff);
+    mcp23x17->writeRegister(tfw::ic::registers::IOPOLB, 0xff);
 }
 
 void LocalRegisterRefresherM::loop() {

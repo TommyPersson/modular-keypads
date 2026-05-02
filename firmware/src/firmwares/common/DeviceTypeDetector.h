@@ -1,6 +1,6 @@
 #pragma once
 
-#include <L74165/L74165.h>
+#include <tfw/ic/L74165.h>
 
 namespace devices {
     class DeviceTypeDetector {
@@ -12,6 +12,6 @@ namespace devices {
         char detectDeviceType() const;
 
     private:
-        std::unique_ptr<chips::L74165::L74165> shiftRegister;
+        std::unique_ptr<tfw::ic::L74165> shiftRegister;
     };
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <MCP23x17/MCP23x17.h>
-#include <Registers/RegisterManager.h>
+#include <tfw/ic/MCP23x17.h>
+#include <tfw/utils/registers.h>
 
 #include "firmwares/common/runtimes/RegisterRefresher.h"
 
@@ -14,5 +14,5 @@ public:
     void loop() override;
 
 private:
-    std::unique_ptr<chips::mcp23x17::MCP23x17> mcp23x17;
+    std::unique_ptr<tfw::ic::MCP23x17> mcp23x17;
 };

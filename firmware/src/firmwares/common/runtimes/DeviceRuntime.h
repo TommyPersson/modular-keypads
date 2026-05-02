@@ -2,7 +2,7 @@
 
 #include <firmwares/common/DeviceCapabilities.h>
 #include <firmwares/common/DeviceConfigurationManager.h>
-#include <Registers/RegisterManager.h>
+#include <tfw/utils/registers.h>
 #include <tfw/utils/result.h>
 
 #include <tfw/hal/bitreaders.h>

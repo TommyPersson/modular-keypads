@@ -3,7 +3,7 @@
 #include <memory>
 #include <optional>
 #include <Wire.h>
-#include <SerialPort/SerialPort.h>
+#include <tfw/hal/uart.h>
 #include <tfw/utils/streams.h>
 
 #include "../common/DeviceConfigurationManager.h"

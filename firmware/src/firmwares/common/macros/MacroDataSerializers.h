@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 
 #include "MacroStorage.h"
 

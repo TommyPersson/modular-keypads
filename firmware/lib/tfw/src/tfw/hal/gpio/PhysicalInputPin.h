@@ -1,0 +1,19 @@
+#pragma once
+
+#include "InputPin.h"
+
+namespace tfw::utils::gpio {
+    class PhysicalInputPin final : public InputPin {
+    public:
+        explicit PhysicalInputPin(std::uint8_t pinNumber);
+        explicit PhysicalInputPin(std::uint8_t pinNumber, std::uint8_t modeFlags);
+        ~PhysicalInputPin() override;
+
+        void init() const override;
+        std::uint8_t read() const override;
+        std::uint16_t readAnalog() const override;
+
+    private:
+        const std::uint8_t modeFlags;
+    };
+}

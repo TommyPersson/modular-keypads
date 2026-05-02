@@ -26,7 +26,7 @@
 #include "commands/SaveMacroCommandHandler.h"
 #include "commands/SetKeyBindingCommandHandler.h"
 #include "commands/SetTestMode.h"
-#include "../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
 namespace {

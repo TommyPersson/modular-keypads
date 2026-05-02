@@ -3,10 +3,10 @@
 #include <FS.h>
 #include <LittleFS.h>
 
-#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 #include <tfw/utils/allocations.h>
 #include <tfw/utils/allocations.h>
-#include "../../../tfw/hal/files.h"
+#include <tfw/hal/files.h>
 
 #include <tfw/hal/logging.h>
 

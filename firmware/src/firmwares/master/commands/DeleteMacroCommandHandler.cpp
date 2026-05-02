@@ -1,6 +1,6 @@
 #include "DeleteMacroCommandHandler.h"
 
-#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
 using namespace common::macros;

@@ -4,7 +4,7 @@
 #include "i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
 #include "i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
-#include "../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
 namespace {

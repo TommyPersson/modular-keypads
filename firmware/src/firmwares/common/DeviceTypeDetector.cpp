@@ -3,12 +3,12 @@
 using namespace devices;
 
 DeviceTypeDetector::DeviceTypeDetector() {
-    shiftRegister = std::make_unique<chips::L74165::L74165>(
-        chips::L74165::Config{
-            .pinQ = tfw::utils::pins::InputPin::physical(18),
-            .pinCLK = tfw::utils::pins::OutputPin::physical(17),
-            .pinCE = tfw::utils::pins::OutputPin::physical(15),
-            .pinLD = tfw::utils::pins::OutputPin::physical(16),
+    shiftRegister = std::make_unique<tfw::ic::L74165>(
+        tfw::ic::Config{
+            .pinQ = tfw::utils::gpio::InputPin::physical(18),
+            .pinCLK = tfw::utils::gpio::OutputPin::physical(17),
+            .pinCE = tfw::utils::gpio::OutputPin::physical(15),
+            .pinLD = tfw::utils::gpio::OutputPin::physical(16),
         }
     );
 }

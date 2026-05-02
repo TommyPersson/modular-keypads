@@ -1,6 +1,6 @@
 #include "FlashDeviceIdentificationLightsCommandHandler.h"
 
-#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 
 FlashDeviceIdentificationLightsCommandHandler::FlashDeviceIdentificationLightsCommandHandler(
     const std::vector<devices::DeviceModule*>& devices

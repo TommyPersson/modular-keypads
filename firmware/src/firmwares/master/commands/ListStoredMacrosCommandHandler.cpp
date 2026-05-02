@@ -1,7 +1,7 @@
 #include "ListStoredMacrosCommandHandler.h"
 
 #include "firmwares/common/macros/MacroDataSerializers.h"
-#include "../../../tfw/utils/strings.h"
+#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
 using namespace common::macros;

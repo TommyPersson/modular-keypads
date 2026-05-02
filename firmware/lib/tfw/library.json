@@ -1,0 +1,22 @@
+{
+  "name": "tfw",
+  "version": "1.0.0",
+  "description": "TODO",
+  "keywords": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TommyPersson/modular-keypads"
+  },
+  "authors": [
+    {
+      "name": "Tommy Persson",
+      "email": "tommy.persson@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}
