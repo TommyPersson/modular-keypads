@@ -9,7 +9,7 @@ namespace tfw::ic {
     class MCP23x17 {
     public:
         explicit MCP23x17(
-            std::unique_ptr<tfw::utils::serialbus::SPISerialBus> bus,
+            std::unique_ptr<tfw::hal::spi::SPISerialBus> bus,
             tfw::utils::gpio::OutputPin resetPin
         );
         ~MCP23x17();
@@ -22,12 +22,12 @@ namespace tfw::ic {
         void begin();
 
     private:
-        const std::unique_ptr<tfw::utils::serialbus::SPISerialBus> bus;
+        const std::unique_ptr<tfw::hal::spi::SPISerialBus> bus;
         tfw::utils::gpio::OutputPin resetPin;
     };
 
     std::unique_ptr<MCP23x17> spi(
-        const tfw::utils::serialbus::SPIConfig& config,
+        const tfw::hal::spi::SPIConfig& config,
         tfw::utils::gpio::OutputPin resetPin
     );
 

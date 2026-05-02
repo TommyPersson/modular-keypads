@@ -3,7 +3,7 @@
 #include "../gpio/OutputPin.h"
 #include "../gpio/InputPin.h"
 
-namespace tfw::utils::serialbus {
+namespace tfw::hal::spi {
 struct SPIConfig {
     uint8_t spiBus;
     tfw::utils::gpio::OutputPin pinSCK;
