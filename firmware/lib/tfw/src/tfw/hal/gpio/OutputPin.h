@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-namespace tfw::utils::gpio {
+namespace tfw::hal::gpio {
     class OutputPin {
     public:
         explicit OutputPin(std::uint8_t pinNumber);

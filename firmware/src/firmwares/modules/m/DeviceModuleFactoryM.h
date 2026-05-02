@@ -12,7 +12,7 @@ public:
     std::unique_ptr<DeviceModule> createLocal(DeviceConfiguration& config, ServiceLocator& serviceLocator) override;
     std::unique_ptr<DeviceModule> createRemote(DeviceConfiguration& config, ServiceLocator& serviceLocator) override;
     bool matches(char deviceType) override;
-    tfw::utils::i2c::Pins getI2cPins() override;
+    tfw::hal::i2c::Pins getI2cPins() override;
 };
 
 }

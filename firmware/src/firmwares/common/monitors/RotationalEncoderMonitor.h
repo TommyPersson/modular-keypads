@@ -18,8 +18,8 @@ class RotationalEncoderMonitor {
 public:
     RotationalEncoderMonitor(
         std::uint8_t encoderNumber,
-        const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
-        const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
+        const std::shared_ptr<tfw::hal::bitreaders::BitReader>& aBitReader,
+        const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bBitReader
     );
     ~RotationalEncoderMonitor();
 
@@ -34,8 +34,8 @@ private:
     std::uint8_t readState() const;
 
     const std::uint8_t encoderNumber;
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader> aBitReader;
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader> bBitReader;
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader> aBitReader;
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader> bBitReader;
 
     const std::unique_ptr<tfw::utils::observables::Subject<EncoderRotatedEvent>> encoderRotatedSubject;
 

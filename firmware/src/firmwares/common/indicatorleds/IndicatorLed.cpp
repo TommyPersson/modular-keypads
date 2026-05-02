@@ -15,7 +15,7 @@ IndicatorLed::~IndicatorLed() = default;
 
 void IndicatorLed::update() {
     if (currentAnimation) {
-        const auto now = tfw::utils::time::millis();
+        const auto now = tfw::hal::time::millis();
         const auto animatedColor = currentAnimation->getColor(now);
 
         color = animatedColor;

@@ -8,7 +8,7 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("SlaveFirmware");
+    auto logger = tfw::hal::logging::createLogger("SlaveFirmware");
 }
 
 using namespace firmwares::slave;

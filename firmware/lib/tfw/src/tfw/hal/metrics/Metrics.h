@@ -7,7 +7,7 @@
 
 #include <tfw/hal/time.h>
 
-namespace tfw::utils::metrics {
+namespace tfw::hal::metrics {
     struct MetricReport {
         std::string_view name;
         std::uint64_t value;
@@ -53,9 +53,9 @@ namespace tfw::utils::metrics {
         ~TimerMetric() = default;
 
         void measure(const std::function<void()>& block) {
-            const auto start = time::micros();
+            const auto start = hal::time::micros();
             block();
-            const auto end = time::micros();
+            const auto end = hal::time::micros();
             const auto duration = end - start;
             timeLatest = duration;
 

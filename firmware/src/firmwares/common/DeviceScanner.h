@@ -7,11 +7,11 @@
 
 class DeviceScanner {
 public:
-    explicit DeviceScanner(tfw::utils::i2c::Client& client);
+    explicit DeviceScanner(tfw::hal::i2c::Client& client);
     ~DeviceScanner();
 
     std::vector<std::shared_ptr<DeviceConfiguration>> scan();
 
 private:
-    tfw::utils::i2c::Client& client;
+    tfw::hal::i2c::Client& client;
 };

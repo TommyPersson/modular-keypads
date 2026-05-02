@@ -5,7 +5,7 @@
 #include <Print.h>
 #include <optional>
 
-namespace tfw::utils::logging {
+namespace tfw::hal::logging {
     class Logger {
     public:
         explicit Logger(std::optional<Print*>& outputStream, const std::string& name);

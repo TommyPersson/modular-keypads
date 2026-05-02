@@ -7,10 +7,10 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("SlavePort");
+    auto logger = tfw::hal::logging::createLogger("SlavePort");
 }
 
-namespace tfw::utils::i2c {
+namespace tfw::hal::i2c {
     SlavePort::SlavePort(TwoWire& twoWire) :
         selectedEndpoint(endpoints[0]),
         twoWire(twoWire),
@@ -26,9 +26,9 @@ namespace tfw::utils::i2c {
 
         addCommandHandler(new commands::LambdaRemoteCommandHandler<commands::builtin::SetEndpointParams>(
             commands::builtin::SetEndpoint.id,
-            [this](const commands::builtin::SetEndpointParams& params) -> void_result {
+            [this](const commands::builtin::SetEndpointParams& params) -> utils::void_result {
                 this->selectEndpoint(params.endpointId);
-                return void_result::success();
+                return utils::void_result::success();
             }));
     }
 

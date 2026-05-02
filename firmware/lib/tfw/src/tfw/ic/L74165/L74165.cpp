@@ -1,6 +1,6 @@
 #include "L74165.h"
 
-#include <esp32-hal.h>
+#include <tfw/hal/time/Time.h>
 
 tfw::ic::L74165::L74165(Config config) : config(std::move(config)) {
 }
@@ -18,16 +18,16 @@ void tfw::ic::L74165::setup() {
 
 void tfw::ic::L74165::parallelLoad() {
     config.pinLD->setLow();
-    delayMicroseconds(1);
+    tfw::hal::time::delayUs(1);
     config.pinLD->setHigh();
-    delayMicroseconds(1);
+    tfw::hal::time::delayUs(1);
 }
 
 uint8_t tfw::ic::L74165::read() {
     config.pinCLK->setLow();
     config.pinCE->setLow();
 
-    delayMicroseconds(1);
+    tfw::hal::time::delayUs(1);
 
     uint8_t result = 0;
 
@@ -36,9 +36,9 @@ uint8_t tfw::ic::L74165::read() {
         result |= data << i;
 
         config.pinCLK->setHigh();
-        delayMicroseconds(1);
+        tfw::hal::time::delayUs(1);
         config.pinCLK->setLow();
-        delayMicroseconds(1);
+        tfw::hal::time::delayUs(1);
     }
 
     config.pinCE->setHigh();

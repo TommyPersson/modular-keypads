@@ -1,6 +1,6 @@
 #include "RegisterBitReader.h"
 
-namespace tfw::utils::bitreaders {
+namespace tfw::hal::bitreaders {
     RegisterBitReader::RegisterBitReader(
         const tfw::utils::registers::Register& reg,
         const std::uint8_t bitNumber,

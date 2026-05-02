@@ -5,6 +5,8 @@
 #include <Wire.h>
 
 #include <tfw/hal/uart.h>
+#include <tfw/hal/logging.h>
+#include <tfw/hal/usb.h>
 
 #include <memory>
 
@@ -12,20 +14,18 @@
 #include "firmwares/common/DeviceConfigurationManager.h"
 #include "firmwares/common/ServiceLocator.h"
 #include "firmwares/common/notifications/NotifierFactory.h"
-#include <tfw/hal/logging.h>
-#include <tfw/hal/usb.h>
 
 #include "esp_pm.h"
 
 std::unique_ptr<Firmware> firmware;
 std::unique_ptr<Preferences> preferences;
-std::unique_ptr<tfw::utils::serial::SerialPort> serialPort;
+std::unique_ptr<tfw::hal::uart::SerialPort> serialPort;
 std::unique_ptr<NotifierFactory> notifierFactory;
 std::unique_ptr<DeviceConfigurationManager> deviceConfigurationManager;
-std::unique_ptr<tfw::utils::i2c::Client> i2cClient;
-std::unique_ptr<tfw::utils::i2c::SlavePort> i2cSlavePort;
-std::unique_ptr<tfw::utils::usb::Connection> usbConnection;
-std::unique_ptr<tfw::utils::metrics::MetricRegistry> metricRegistry;
+std::unique_ptr<tfw::hal::i2c::Client> i2cClient;
+std::unique_ptr<tfw::hal::i2c::SlavePort> i2cSlavePort;
+std::unique_ptr<tfw::hal::usb::Connection> usbConnection;
+std::unique_ptr<tfw::hal::metrics::MetricRegistry> metricRegistry;
 std::unique_ptr<devices::DeviceTypeDetector> deviceTypeDetector;
 std::unique_ptr<devices::DeviceModeDetector> deviceModeDetector;
 
@@ -54,18 +54,18 @@ void setup() {
 
     setCpuFrequencyMhz(80);
 
-    tfw::utils::logging::initialize(&TheSerial);
+    tfw::hal::logging::initialize(&TheSerial);
 
-    serialPort = tfw::utils::serial::SerialPort::from(TheSerial);
+    serialPort = tfw::hal::uart::SerialPort::from(TheSerial);
     preferences = std::make_unique<Preferences>();
     deviceTypeDetector = std::make_unique<devices::DeviceTypeDetector>();
     deviceModeDetector = std::make_unique<devices::DeviceModeDetector>();
     deviceConfigurationManager = std::make_unique<DeviceConfigurationManager>(*preferences, *deviceTypeDetector);
     notifierFactory = std::make_unique<NotifierFactory>(TheSerial);
-    i2cClient = std::make_unique<tfw::utils::i2c::Client>(Wire);
-    i2cSlavePort = std::make_unique<tfw::utils::i2c::SlavePort>(Wire);
-    usbConnection = tfw::utils::usb::Connection::create();
-    metricRegistry = std::make_unique<tfw::utils::metrics::MetricRegistry>();
+    i2cClient = std::make_unique<tfw::hal::i2c::Client>(Wire);
+    i2cSlavePort = std::make_unique<tfw::hal::i2c::SlavePort>(Wire);
+    usbConnection = tfw::hal::usb::Connection::create();
+    metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>();
 
     serviceLocator = std::make_unique<ServiceLocator>(
         ServiceLocator{

@@ -4,7 +4,7 @@
 #include <esp32-hal.h>
 #endif
 
-namespace tfw::utils::time {
+namespace tfw::hal::time {
     inline uint64_t micros() {
 #ifdef ESP32
         return ::micros();
@@ -22,4 +22,11 @@ namespace tfw::utils::time {
         ::delay(ms);
 #endif
     };
+
+    inline void delayUs(const uint32_t us) {
+#ifdef ESP32
+        ::delayMicroseconds(us);
+#endif
+    };
+
 }

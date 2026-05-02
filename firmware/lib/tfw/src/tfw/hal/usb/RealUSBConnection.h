@@ -2,7 +2,7 @@
 
 #include "USBConnection.h"
 
-namespace tfw::utils::usb {
+namespace tfw::hal::usb {
     class RealConnection final : public Connection {
     public:
         void setup() override;

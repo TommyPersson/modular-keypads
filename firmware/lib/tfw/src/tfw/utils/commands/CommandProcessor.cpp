@@ -7,7 +7,7 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("CommandProcessor");
+    auto logger = tfw::hal::logging::createLogger("CommandProcessor");
 }
 
 using namespace tfw::utils::commands;

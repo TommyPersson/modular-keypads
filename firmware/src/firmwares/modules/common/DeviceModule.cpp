@@ -7,12 +7,12 @@
 #include "firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("DeviceModule");
+    auto logger = tfw::hal::logging::createLogger("DeviceModule");
 }
 
 devices::DeviceModule::DeviceModule(
     DeviceLocation deviceLocation,
-    tfw::utils::i2c::Client& i2cClient
+    tfw::hal::i2c::Client& i2cClient
 ) : deviceLocation(deviceLocation),
     i2cClient(i2cClient) {
 }

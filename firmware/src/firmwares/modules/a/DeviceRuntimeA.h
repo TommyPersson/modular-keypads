@@ -7,7 +7,7 @@
 #include <tfw/hal/i2c.h>
 
 namespace devices::a::i2c {
-    inline auto pins = tfw::utils::i2c::Pins{
+    inline auto pins = tfw::hal::i2c::Pins{
         .SDA = 11,
         .SCL = 10
     };

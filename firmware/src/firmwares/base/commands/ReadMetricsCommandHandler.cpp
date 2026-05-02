@@ -8,7 +8,7 @@
 #include <tfw/utils/allocations.h>
 
 
-ReadMetricsCommandHandler::ReadMetricsCommandHandler(const tfw::utils::metrics::MetricRegistry& metricRegistry)
+ReadMetricsCommandHandler::ReadMetricsCommandHandler(const tfw::hal::metrics::MetricRegistry& metricRegistry)
     : CommandHandler("read.metrics"), metricRegistry(metricRegistry) {
 }
 
@@ -20,7 +20,7 @@ tfw::utils::void_result ReadMetricsCommandHandler::execute(
     tfw::utils::commands::CommandResponseWriter& responseWriter,
     tfw::utils::allocations::Arena& arena
 ) {
-    metricRegistry.forEach([&](const tfw::utils::metrics::MetricReport& report) {
+    metricRegistry.forEach([&](const tfw::hal::metrics::MetricReport& report) {
         responseWriter.writeLineF("%.*s:%llu", report.name.length(), report.name.data(), report.value);
     });
 

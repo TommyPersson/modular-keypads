@@ -5,7 +5,7 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("DeviceModuleA");
+    auto logger = tfw::hal::logging::createLogger("DeviceModuleA");
 }
 
 using namespace devices::a;
@@ -18,7 +18,7 @@ DeviceModuleA::DeviceModuleA(
     std::unique_ptr<RegisterRefresher>& registerRefresher,
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
-    tfw::utils::i2c::Client& i2cClient
+    tfw::hal::i2c::Client& i2cClient
 ) : DeviceModule(deviceLocation, i2cClient),
     configuration(configuration),
     indicatorLedManager(std::move(indicatorLedManager)),

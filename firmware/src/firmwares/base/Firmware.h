@@ -32,7 +32,7 @@ protected:
     void registerMetrics();
 
     DeviceConfigurationManager& deviceConfigurationManager;
-    tfw::utils::serial::SerialPort& serialPort;
+    tfw::hal::uart::SerialPort& serialPort;
     ServiceLocator& serviceLocator;
 
     std::unique_ptr<devices::DeviceModule> deviceModule;

@@ -5,7 +5,7 @@
 #include "DeviceModuleA.h"
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("DeviceRuntimeA");
+    auto logger = tfw::hal::logging::createLogger("DeviceRuntimeA");
 }
 
 DeviceRuntimeA::DeviceRuntimeA(

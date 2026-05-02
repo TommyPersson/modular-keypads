@@ -2,7 +2,7 @@
 
 #include "InputPin.h"
 
-namespace tfw::utils::gpio {
+namespace tfw::hal::gpio {
     class PhysicalInputPin final : public InputPin {
     public:
         explicit PhysicalInputPin(std::uint8_t pinNumber);

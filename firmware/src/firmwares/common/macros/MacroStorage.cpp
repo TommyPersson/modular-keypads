@@ -15,7 +15,7 @@
 using namespace common::macros;
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("MacroStorage");
+    auto logger = tfw::hal::logging::createLogger("MacroStorage");
     auto filePath = "/data/macro-definitions.txt";
     auto tempFilePath = "/data/macro-definitions.txt.tmp";
 }

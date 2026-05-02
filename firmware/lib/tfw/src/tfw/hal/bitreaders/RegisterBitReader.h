@@ -4,7 +4,7 @@
 
 #include <tfw/utils/registers.h>
 
-namespace tfw::utils::bitreaders {
+namespace tfw::hal::bitreaders {
     class RegisterBitReader final : public BitReader {
     public:
         RegisterBitReader(const tfw::utils::registers::Register& reg, std::uint8_t bitNumber, Mode mode);

@@ -11,7 +11,7 @@ using namespace common::keybindings;
 // TODO lots of allocation stuff to optimize
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("KeyBindingSubSystem");
+    auto logger = tfw::hal::logging::createLogger("KeyBindingSubSystem");
 
     std::vector<uint8_t> getKeyCodesFromModifierFlags(const uint8_t modifiers) {
         std::vector<uint8_t> result(8);
@@ -30,15 +30,15 @@ namespace {
         return result;
     }
 
-    std::vector<std::shared_ptr<tfw::utils::usb::Action>> getActionSequence(const ShortcutMacroData& data) {
-        std::vector<std::shared_ptr<tfw::utils::usb::Action>> actions;
+    std::vector<std::shared_ptr<tfw::hal::usb::Action>> getActionSequence(const ShortcutMacroData& data) {
+        std::vector<std::shared_ptr<tfw::hal::usb::Action>> actions;
 
         std::vector<uint8_t> keyCodes(9);
         auto modifierKeyCodes = getKeyCodesFromModifierFlags(data.modifiers);
         keyCodes.insert(keyCodes.begin(), modifierKeyCodes.begin(), modifierKeyCodes.end());
         keyCodes.push_back(data.hidKeyCode);
 
-        actions.push_back(tfw::utils::usb::Action::keyPress(keyCodes));
+        actions.push_back(tfw::hal::usb::Action::keyPress(keyCodes));
 
         return actions;
     }
@@ -58,7 +58,7 @@ namespace {
             const auto& data = dynamic_cast<ConsumerControlMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{tfw::utils::usb::Action::consumerControl(data.usageId)},
+                .actions = std::vector{tfw::hal::usb::Action::consumerControl(data.usageId)},
             });
         }
 
@@ -66,7 +66,7 @@ namespace {
             const auto& data = dynamic_cast<SystemControlMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{tfw::utils::usb::Action::systemControl(data.code)},
+                .actions = std::vector{tfw::hal::usb::Action::systemControl(data.code)},
             });
         }
 
@@ -78,7 +78,7 @@ namespace {
 
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{tfw::utils::usb::Action::type(decodedText)},
+                .actions = std::vector{tfw::hal::usb::Action::type(decodedText)},
             });
         }
         return nullptr;
@@ -89,8 +89,8 @@ KeyBindingSubSystem::KeyBindingSubSystem(
     MacroStorage& macroStorage,
     KeyBindingStorage& keyBindingStorage,
     TestModeController& testModeController,
-    tfw::utils::usb::Connection& usbConnection,
-    tfw::utils::metrics::MetricRegistry& metricRegistry
+    tfw::hal::usb::Connection& usbConnection,
+    tfw::hal::metrics::MetricRegistry& metricRegistry
 ) : macroStorage(macroStorage),
     keyBindingStorage(keyBindingStorage),
     testModeController(testModeController),
@@ -101,11 +101,11 @@ KeyBindingSubSystem::KeyBindingSubSystem(
     keyBindingStorage.onKeyBindingSet().addObserver(this);
     keyBindingStorage.onKeyBindingCleared().addObserver(this);
 
-    metricRegistry.add(tfw::utils::metrics::lambda_gauge("macros.num_stored", [this] {
+    metricRegistry.add(tfw::hal::metrics::lambda_gauge("macros.num_stored", [this] {
         return this->macroStorage.getNumStored();
     }));
 
-    metricRegistry.add(tfw::utils::metrics::lambda_gauge("keybindings.num_assigned", [this] {
+    metricRegistry.add(tfw::hal::metrics::lambda_gauge("keybindings.num_assigned", [this] {
         return this->getNumAssigned();
     }));
 }

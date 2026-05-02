@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace tfw::utils::gpio {
+namespace tfw::hal::gpio {
     class InputPin {
     public:
         explicit InputPin(std::uint8_t pinNumber);

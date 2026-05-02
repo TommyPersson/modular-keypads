@@ -55,11 +55,11 @@ namespace devices {
         void configureRegisters() const;
         void configureCapabilities();
 
-        void attachSwitch(uint8_t number, const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader, int8_t ledIndex);
+        void attachSwitch(uint8_t number, const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bitReader, int8_t ledIndex);
         void attachRotationalEncoder(
             uint8_t number,
-            const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
-            const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
+            const std::shared_ptr<tfw::hal::bitreaders::BitReader>& aBitReader,
+            const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bBitReader
         );
 
         void observe(const SwitchEvent& event) override;

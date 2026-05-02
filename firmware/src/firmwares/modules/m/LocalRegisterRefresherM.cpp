@@ -8,12 +8,12 @@ LocalRegisterRefresherM::LocalRegisterRefresherM(tfw::utils::registers::Register
     mcp23x17 = tfw::ic::spi(
         {
             .spiBus = FSPI,
-            .pinSCK = tfw::utils::gpio::OutputPin(5),
-            .pinMOSI = tfw::utils::gpio::OutputPin(4),
-            .pinMISO = tfw::utils::gpio::InputPin::physical(3),
-            .pinCS = tfw::utils::gpio::OutputPin(6),
+            .pinSCK = tfw::hal::gpio::OutputPin(5),
+            .pinMOSI = tfw::hal::gpio::OutputPin(4),
+            .pinMISO = tfw::hal::gpio::InputPin::physical(3),
+            .pinCS = tfw::hal::gpio::OutputPin(6),
         },
-        tfw::utils::gpio::OutputPin(42)
+        tfw::hal::gpio::OutputPin(42)
     );
 }
 

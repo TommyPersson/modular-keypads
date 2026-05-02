@@ -32,7 +32,7 @@ namespace devices::m {
             std::unique_ptr<RegisterRefresher>& registerRefresher,
             std::unique_ptr<DeviceRuntime>& deviceRuntime,
             std::unique_ptr<Notifier>& notifier,
-            tfw::utils::i2c::Client& i2cClient
+            tfw::hal::i2c::Client& i2cClient
         );
         ~DeviceModuleM() override;
 

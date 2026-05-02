@@ -6,7 +6,7 @@
 using namespace common::macros;
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("DeleteMacroCommandHandler");
+    auto logger = tfw::hal::logging::createLogger("DeleteMacroCommandHandler");
 }
 
 DeleteMacroCommandHandler::DeleteMacroCommandHandler(MacroStorage& macroStorage)

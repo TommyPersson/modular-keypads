@@ -5,7 +5,7 @@
 namespace tfw::ic {
     MCP23x17::MCP23x17(
         std::unique_ptr<tfw::hal::spi::SPISerialBus> bus,
-        tfw::utils::gpio::OutputPin resetPin
+        tfw::hal::gpio::OutputPin resetPin
     ) : bus(std::move(bus)),
         resetPin(resetPin) {
     }
@@ -34,14 +34,14 @@ namespace tfw::ic {
         resetPin.init();
 
         resetPin.setLow();
-        tfw::utils::time::delayMs(10);
+        tfw::hal::time::delayMs(10);
         resetPin.setHigh();
-        tfw::utils::time::delayMs(10);
+        tfw::hal::time::delayMs(10);
     }
 
     std::unique_ptr<MCP23x17> spi(
         const tfw::hal::spi::SPIConfig& config,
-        const tfw::utils::gpio::OutputPin resetPin
+        const tfw::hal::gpio::OutputPin resetPin
     ) {
         return std::make_unique<MCP23x17>(std::make_unique<tfw::hal::spi::SPISerialBus>(config), resetPin);
     }

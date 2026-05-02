@@ -3,7 +3,7 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("DeviceConfigurationManager");
+    auto logger = tfw::hal::logging::createLogger("DeviceConfigurationManager");
 
     auto prefsNamespace = "device";
     auto prefsKeyDeviceId = "device.id";

@@ -2,7 +2,7 @@
 
 SwitchMonitor::SwitchMonitor(
     const std::uint8_t switchNumber,
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bitReader
     ) :
     switchNumber(switchNumber),
     bitReader(bitReader),

@@ -2,7 +2,7 @@
 
 #include "../../utils/registers/Registers.h"
 
-namespace tfw::utils::bitreaders {
+namespace tfw::hal::bitreaders {
     enum class Mode {
         Normal,
         Inverted,

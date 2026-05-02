@@ -1,6 +1,6 @@
 #include "USBAction.h"
 
-using namespace tfw::utils::usb;
+using namespace tfw::hal::usb;
 
 std::shared_ptr<Action> Action::keyPress(const std::vector<uint8_t>& keyCodes) {
     return std::make_shared<KeyPressAction>(KeyPressData{ .keyCodes = keyCodes });

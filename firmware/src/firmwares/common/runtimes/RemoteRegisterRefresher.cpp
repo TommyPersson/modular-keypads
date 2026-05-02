@@ -4,7 +4,7 @@
 
 RemoteRegisterRefresher::RemoteRegisterRefresher(
     tfw::utils::registers::RegisterManager& registers,
-    tfw::utils::i2c::Client& i2cClient,
+    tfw::hal::i2c::Client& i2cClient,
     uint8_t deviceAddress,
     uint8_t numRegisters
 ) : RegisterRefresher(registers),

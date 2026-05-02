@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace tfw::utils::usb {
+namespace tfw::hal::usb {
     // TODO support custom allocator
 
     struct Action {

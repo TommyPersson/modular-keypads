@@ -18,7 +18,7 @@ struct SwitchEvent {
 
 class SwitchMonitor {
 public:
-    SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader);
+    SwitchMonitor(std::uint8_t switchNumber, const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bitReader);
     SwitchMonitor(const SwitchMonitor&) = delete;
     ~SwitchMonitor();
 
@@ -35,7 +35,7 @@ private:
     SwitchState readState() const;
 
     const std::uint8_t switchNumber;
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader> bitReader;
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader> bitReader;
 
     std::unique_ptr<tfw::utils::observables::Subject<SwitchEvent>> keySwitchStateChangedSubject;
 

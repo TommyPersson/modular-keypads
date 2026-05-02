@@ -7,7 +7,7 @@ class RemoteRegisterRefresher final : public RegisterRefresher {
 public:
     RemoteRegisterRefresher(
         tfw::utils::registers::RegisterManager& registers,
-        tfw::utils::i2c::Client& i2cClient,
+        tfw::hal::i2c::Client& i2cClient,
         uint8_t deviceAddress,
         uint8_t numRegisters
     );
@@ -16,7 +16,7 @@ public:
     void loop() override;
 
 private:
-    tfw::utils::i2c::Client& i2cClient;
+    tfw::hal::i2c::Client& i2cClient;
     uint8_t deviceAddress;
     uint8_t numRegisters;
 };

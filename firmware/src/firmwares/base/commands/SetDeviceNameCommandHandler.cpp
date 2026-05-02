@@ -4,7 +4,7 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("SetDeviceNameCommandHandler");
+    auto logger = tfw::hal::logging::createLogger("SetDeviceNameCommandHandler");
 }
 
 SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(

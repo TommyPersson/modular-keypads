@@ -11,7 +11,7 @@
 #endif
 
 namespace firmware::metrics::base {
-    void register_all(tfw::utils::metrics::MetricRegistry& registry) {
+    void register_all(tfw::hal::metrics::MetricRegistry& registry) {
 #ifdef ESP32
         esp::register_all(registry);
 #endif

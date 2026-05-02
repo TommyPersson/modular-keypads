@@ -10,7 +10,7 @@
 
 struct CompiledMacro {
     uint16_t macroId;
-    std::vector<std::shared_ptr<tfw::utils::usb::Action>> actions;
+    std::vector<std::shared_ptr<tfw::hal::usb::Action>> actions;
 };
 
 class KeyBindingSubSystem
@@ -25,8 +25,8 @@ public:
         common::macros::MacroStorage& macroStorage,
         common::keybindings::KeyBindingStorage& keyBindingStorage,
         TestModeController& testModeController,
-        tfw::utils::usb::Connection& usbConnection,
-        tfw::utils::metrics::MetricRegistry& metricRegistry
+        tfw::hal::usb::Connection& usbConnection,
+        tfw::hal::metrics::MetricRegistry& metricRegistry
     );
     ~KeyBindingSubSystem() override;
 
@@ -57,7 +57,7 @@ private:
     common::macros::MacroStorage& macroStorage;
     common::keybindings::KeyBindingStorage& keyBindingStorage;
     TestModeController& testModeController;
-    tfw::utils::usb::Connection& usbConnection;
+    tfw::hal::usb::Connection& usbConnection;
 
     std::vector<std::shared_ptr<common::keybindings::KeyBinding>> keyBindings;
     std::vector<std::shared_ptr<CompiledMacro>> macros;

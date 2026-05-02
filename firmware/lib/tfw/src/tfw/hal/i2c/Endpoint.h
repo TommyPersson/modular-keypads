@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace tfw::utils::i2c {
+namespace tfw::hal::i2c {
     template <class TStruct>
     struct EndpointDescriptor {
         std::uint8_t id = 0;

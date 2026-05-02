@@ -5,7 +5,7 @@
 
 class ReadMetricsCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ReadMetricsCommandHandler(const tfw::utils::metrics::MetricRegistry& metricRegistry);
+    explicit ReadMetricsCommandHandler(const tfw::hal::metrics::MetricRegistry& metricRegistry);
     ~ReadMetricsCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    const tfw::utils::metrics::MetricRegistry& metricRegistry;
+    const tfw::hal::metrics::MetricRegistry& metricRegistry;
 };

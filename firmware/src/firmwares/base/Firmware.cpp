@@ -24,7 +24,7 @@
 
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("Firmware");
+    auto logger = tfw::hal::logging::createLogger("Firmware");
 }
 
 Firmware::Firmware(ServiceLocator& serviceLocator) :
@@ -71,7 +71,7 @@ void Firmware::setup() {
 }
 
 void Firmware::loop() {
-    delayMicroseconds(1000);
+    tfw::hal::time::delayUs(1000);
     lineStreamer->update();
 }
 

@@ -7,10 +7,10 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("DeviceScanner");
+    auto logger = tfw::hal::logging::createLogger("DeviceScanner");
 }
 
-DeviceScanner::DeviceScanner(tfw::utils::i2c::Client& client) :
+DeviceScanner::DeviceScanner(tfw::hal::i2c::Client& client) :
     client(client) {
 }
 

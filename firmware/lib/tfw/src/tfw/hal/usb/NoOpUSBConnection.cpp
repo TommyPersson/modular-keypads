@@ -1,11 +1,11 @@
 #include "NoOpUSBConnection.h"
 
-void tfw::utils::usb::NoOpConnection::setup() {
+void tfw::hal::usb::NoOpConnection::setup() {
 }
 
-bool tfw::utils::usb::NoOpConnection::isConnected() {
+bool tfw::hal::usb::NoOpConnection::isConnected() {
     return false;
 }
 
-void tfw::utils::usb::NoOpConnection::sendAction(Action& action) {
+void tfw::hal::usb::NoOpConnection::sendAction(Action& action) {
 }

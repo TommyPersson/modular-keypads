@@ -4,7 +4,7 @@
 
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("PingCommandHandler");
+    auto logger = tfw::hal::logging::createLogger("PingCommandHandler");
 }
 
 PingCommandHandler::PingCommandHandler() :

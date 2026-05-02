@@ -4,7 +4,7 @@
 #include <esp_log_write.h>
 #endif
 
-namespace tfw::utils::logging {
+namespace tfw::hal::logging {
     Logger::Logger(
         std::optional<Print*>& outputStream,
         const std::string& name

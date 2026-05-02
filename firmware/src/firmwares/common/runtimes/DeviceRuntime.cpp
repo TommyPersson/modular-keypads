@@ -4,6 +4,7 @@
 
 using namespace devices;
 using namespace tfw::utils;
+using namespace tfw::hal;
 
 DeviceRuntime::DeviceRuntime(
     uint64_t deviceId,
@@ -55,7 +56,7 @@ void DeviceRuntime::configureCapabilities() {
 }
 
 
-void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bitReader,
+void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bitReader,
                                  int8_t ledIndex) {
     const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
 
@@ -70,8 +71,8 @@ void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<tfw::util
 
 void DeviceRuntime::attachRotationalEncoder(
     const uint8_t number,
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bBitReader
 ) {
     auto rotaryEncoderMonitor = std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader);
     rotaryEncoderMonitor->onEncoderRotated().addObserver(this);

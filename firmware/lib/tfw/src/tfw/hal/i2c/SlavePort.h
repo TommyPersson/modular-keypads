@@ -9,7 +9,7 @@
 #include "Endpoint.h"
 #include "Pins.h"
 
-namespace tfw::utils::i2c {
+namespace tfw::hal::i2c {
     struct EndpointData {
         uint8_t data[MAX_PACKET_SIZE];
         uint8_t length;

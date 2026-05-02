@@ -7,7 +7,7 @@
 using namespace common::macros;
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("ListStoredMacrosCommandHandler");
+    auto logger = tfw::hal::logging::createLogger("ListStoredMacrosCommandHandler");
 }
 
 ListStoredMacrosCommandHandler::ListStoredMacrosCommandHandler(MacroStorage& macroStorage)

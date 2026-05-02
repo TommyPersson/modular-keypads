@@ -5,10 +5,10 @@
 namespace tfw::ic
 {
     struct Config {
-        std::unique_ptr<tfw::utils::gpio::InputPin> pinQ;
-        std::unique_ptr<tfw::utils::gpio::OutputPin> pinCLK;
-        std::unique_ptr<tfw::utils::gpio::OutputPin> pinCE;
-        std::unique_ptr<tfw::utils::gpio::OutputPin> pinLD;
+        std::unique_ptr<tfw::hal::gpio::InputPin> pinQ;
+        std::unique_ptr<tfw::hal::gpio::OutputPin> pinCLK;
+        std::unique_ptr<tfw::hal::gpio::OutputPin> pinCE;
+        std::unique_ptr<tfw::hal::gpio::OutputPin> pinLD;
     };
 
     class L74165

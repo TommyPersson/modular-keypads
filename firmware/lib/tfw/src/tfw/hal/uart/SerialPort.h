@@ -9,7 +9,7 @@
 
 #include <Stream.h>
 
-namespace tfw::utils::serial {
+namespace tfw::hal::uart {
     class SerialPort {
     public:
         virtual ~SerialPort() = default;

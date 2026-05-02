@@ -4,7 +4,7 @@
 
 #include <tfw/utils/result.h>
 
-namespace tfw::utils::i2c::commands {
+namespace tfw::hal::i2c::commands {
         struct AnyParams {
         };
 
@@ -21,7 +21,7 @@ namespace tfw::utils::i2c::commands {
 
             virtual ~RemoteCommandHandler() = default;
 
-            virtual void_result execute(const TParams* params) = 0;
+            virtual utils::void_result execute(const TParams* params) = 0;
 
             static TParams* parseData(uint8_t* message) {
                 return reinterpret_cast<TParams*>(&message[1]); // 0 is the command ID
@@ -35,18 +35,18 @@ namespace tfw::utils::i2c::commands {
         public:
             LambdaRemoteCommandHandler(
                 uint8_t id,
-                const std::function<void_result(const TParams& params)>& executeFn
+                const std::function<utils::void_result(const TParams& params)>& executeFn
             ) : RemoteCommandHandler<TParams>(id), executeFn(executeFn) {
             }
 
             ~LambdaRemoteCommandHandler() override = default;
 
-            void_result execute(const TParams* params) override {
+            utils::void_result execute(const TParams* params) override {
                 return executeFn(*params);
             }
 
         private:
-            std::function<void_result(const TParams& params)> executeFn;
+            std::function<utils::void_result(const TParams& params)> executeFn;
         };
 
         namespace builtin { // TODO separate the "slave port endpoint handling" from the more generic "command handling"?

@@ -7,7 +7,7 @@
 #include "Pins.h"
 #include <tfw/utils/result.h>
 
-namespace tfw::utils::i2c {
+namespace tfw::hal::i2c {
     class Client {
     public:
         explicit Client(TwoWire& i2c) : i2c(i2c) {
@@ -20,7 +20,7 @@ namespace tfw::utils::i2c {
         }
 
         template <class TParams>
-        void_result sendCommand(const uint8_t address, const commands::RemoteCommandDescriptor<TParams>& command, const TParams& params) {
+        utils::void_result sendCommand(const uint8_t address, const commands::RemoteCommandDescriptor<TParams>& command, const TParams& params) {
             uint8_t message[sizeof(TParams) + 1] = {};
             message[0] = command.id;
             memcpy(&message[1], &params, sizeof(TParams));
@@ -30,33 +30,33 @@ namespace tfw::utils::i2c {
             const auto result = i2c.endTransmission();
 
             if (result == 0) {
-                return void_result::success();
+                return utils::void_result::success();
             }
 
-            return void_result::error("unable.to.execute.remote.command");
+            return utils::void_result::error("unable.to.execute.remote.command");
         }
 
-        result<uint8_t*> readEndpointRaw(const uint8_t address, const uint8_t endpointId, const size_t size) {
+        utils::result<uint8_t*> readEndpointRaw(const uint8_t address, const uint8_t endpointId, const size_t size) {
             if (!setEndpoint(address, endpointId)) {
                 // TODO cache last used endpoint for a device address?
-                return result<uint8_t*>::error("unable.to.set.i2c.device.endpoint");
+                return utils::result<uint8_t*>::error("unable.to.set.i2c.device.endpoint");
             }
 
             auto data = readCurrentEndpoint<uint8_t>(address, size);
 
-            return result<uint8_t*>::of(data);
+            return utils::result<uint8_t*>::of(data);
         }
 
         template <typename TStruct>
-        result<TStruct*> readEndpoint(uint8_t address, const EndpointDescriptor<TStruct>& endpoint) {
+        utils::result<TStruct*> readEndpoint(uint8_t address, const EndpointDescriptor<TStruct>& endpoint) {
             if (!setEndpoint(address, endpoint.id)) {
                 // TODO cache last used endpoint for a device address?
-                return result<TStruct*>::error("unable.to.set.i2c.device.endpoint");
+                return utils::result<TStruct*>::error("unable.to.set.i2c.device.endpoint");
             }
 
             auto data = readCurrentEndpoint<TStruct>(address, endpoint.length);
 
-            return result<TStruct*>::of(data);
+            return utils::result<TStruct*>::of(data);
         }
 
     private:

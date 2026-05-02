@@ -3,7 +3,7 @@
 #include <memory>
 #include "USBAction.h"
 
-namespace tfw::utils::usb {
+namespace tfw::hal::usb {
     class Connection {
     public:
         virtual ~Connection() = default;

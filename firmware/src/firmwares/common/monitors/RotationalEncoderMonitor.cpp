@@ -2,8 +2,8 @@
 
 RotationalEncoderMonitor::RotationalEncoderMonitor(
     const std::uint8_t encoderNumber,
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& aBitReader,
-    const std::shared_ptr<tfw::utils::bitreaders::BitReader>& bBitReader
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bBitReader
     ) :
     encoderNumber(encoderNumber),
     aBitReader(aBitReader),

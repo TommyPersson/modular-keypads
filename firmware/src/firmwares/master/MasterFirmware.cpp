@@ -30,7 +30,7 @@
 #include <tfw/hal/logging.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("MasterFirmware");
+    auto logger = tfw::hal::logging::createLogger("MasterFirmware");
 }
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)

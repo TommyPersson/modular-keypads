@@ -2,7 +2,7 @@
 
 #include "SerialPort.h"
 
-namespace tfw::utils::serial {
+namespace tfw::hal::uart {
     class HWCDCSerialPort : public SerialPort {
     public:
         HWCDCSerialPort(HWCDC& serial) : serial(serial) {}

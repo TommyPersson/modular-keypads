@@ -11,7 +11,7 @@
 using namespace common::keybindings;
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("KeyBindingStorage");
+    auto logger = tfw::hal::logging::createLogger("KeyBindingStorage");
 
     auto filePath = "/data/key-bindings.txt";
     auto tempFilePath = "/data/key-bindings.txt.tmp";

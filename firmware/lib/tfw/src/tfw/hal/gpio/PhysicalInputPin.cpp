@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 
-namespace tfw::utils::gpio {
+namespace tfw::hal::gpio {
     PhysicalInputPin::PhysicalInputPin(const std::uint8_t pinNumber) :
         InputPin(pinNumber),
         modeFlags(0) {

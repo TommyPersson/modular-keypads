@@ -5,7 +5,7 @@
 #include <tfw/hal/i2c.h>
 
 namespace firmwares::slave::i2c::commands {
-    using namespace tfw::utils::i2c::commands;
+    using namespace tfw::hal::i2c::commands;
 
     struct FlashDeviceIdentificationLightsParams {
         uint32_t durationMs;

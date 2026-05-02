@@ -18,7 +18,7 @@ namespace devices {
 
 #pragma pack(push, 1)
                 struct DeviceName {
-                    char deviceName[tfw::utils::i2c::MAX_PACKET_SIZE]{};
+                    char deviceName[tfw::hal::i2c::MAX_PACKET_SIZE]{};
                 };
 #pragma pack(pop)
 
@@ -26,15 +26,15 @@ namespace devices {
                 struct DeviceRegisters {
                     // The amount may vary between devices so the actual read-site uses a length override
                     // based on the number of registers.
-                    uint8_t data[tfw::utils::i2c::MAX_PACKET_SIZE]{};
+                    uint8_t data[tfw::hal::i2c::MAX_PACKET_SIZE]{};
                 };
 #pragma pack(pop)
             }
 
             namespace endpoints {
-                inline tfw::utils::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
-                inline tfw::utils::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
-                inline tfw::utils::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{.id = 0x03};
+                inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
+                inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
+                inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{.id = 0x03};
             }
         }
     }
@@ -63,11 +63,11 @@ namespace devices {
         }
 
     protected:
-        explicit DeviceModule(DeviceLocation deviceLocation, tfw::utils::i2c::Client& i2cClient);
+        explicit DeviceModule(DeviceLocation deviceLocation, tfw::hal::i2c::Client& i2cClient);
 
         virtual DeviceRuntime& getRuntime() = 0;
 
         DeviceLocation deviceLocation;
-        tfw::utils::i2c::Client& i2cClient;
+        tfw::hal::i2c::Client& i2cClient;
     };
 }

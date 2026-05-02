@@ -4,7 +4,7 @@
 
 #include "OutputPin.h"
 
-namespace tfw::utils::gpio {
+namespace tfw::hal::gpio {
     OutputPin::OutputPin(const std::uint8_t pinNumber) :
         pinNumber(pinNumber) {
     }

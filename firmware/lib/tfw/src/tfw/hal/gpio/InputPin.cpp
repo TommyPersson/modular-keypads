@@ -4,7 +4,7 @@
 
 #include "PhysicalInputPin.h"
 
-namespace tfw::utils::gpio {
+namespace tfw::hal::gpio {
     InputPin::InputPin(const std::uint8_t pinNumber) : pinNumber(pinNumber) {
     }
 

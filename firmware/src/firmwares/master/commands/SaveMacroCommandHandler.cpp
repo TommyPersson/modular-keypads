@@ -7,7 +7,7 @@
 using namespace common::macros;
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("SaveMacroCommandHandler");
+    auto logger = tfw::hal::logging::createLogger("SaveMacroCommandHandler");
 
     std::shared_ptr<MacroData> createData(const std::span<const std::string_view>& args, tfw::utils::allocations::Arena& arena) {
         auto& macroIdArg = args[0];

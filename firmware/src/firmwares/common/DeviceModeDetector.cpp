@@ -1,7 +1,7 @@
 #include "DeviceModeDetector.h"
 
 void devices::DeviceModeDetector::setup() {
-    vbusPin = tfw::utils::gpio::InputPin::physical(8);
+    vbusPin = tfw::hal::gpio::InputPin::physical(8);
 }
 
 devices::DeviceMode devices::DeviceModeDetector::detectDeviceMode() const {

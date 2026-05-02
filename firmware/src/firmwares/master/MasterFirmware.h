@@ -30,5 +30,5 @@ private:
     std::unique_ptr<common::keybindings::KeyBindingStorage> keyBindingStorage;
     std::unique_ptr<KeyBindingSubSystem> keyBindingSubSystem;
 
-    std::shared_ptr<tfw::utils::metrics::TimerMetric> loopTimerMetric;
+    std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;
 };

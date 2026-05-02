@@ -13,7 +13,7 @@
 #include <tfw/hal/time.h>
 
 namespace {
-    auto logger = tfw::utils::logging::createLogger("RealUSBConnection");
+    auto logger = tfw::hal::logging::createLogger("RealUSBConnection");
 
     USBHIDKeyboard keyboard;
     USBHIDConsumerControl consumerControl;
@@ -39,7 +39,7 @@ namespace {
     }
 }
 
-void tfw::utils::usb::RealConnection::setup() {
+void tfw::hal::usb::RealConnection::setup() {
     USB.onEvent(usbEventCallback);
 
     USB.productName("tommy-product");
@@ -50,16 +50,16 @@ void tfw::utils::usb::RealConnection::setup() {
     consumerControl.begin();
     systemControl.begin();
 
-    time::delayMs(500);
+    hal::time::delayMs(500);
 
     keyboard.releaseAll();
 }
 
-bool tfw::utils::usb::RealConnection::isConnected() {
+bool tfw::hal::usb::RealConnection::isConnected() {
     return ::isConnected;
 }
 
-void tfw::utils::usb::RealConnection::sendAction(Action& action) {
+void tfw::hal::usb::RealConnection::sendAction(Action& action) {
     const auto keyPressAction = dynamic_cast<KeyPressAction*>(&action);
     if (keyPressAction != nullptr) {
         for (auto keyCode : keyPressAction->data.keyCodes) {
@@ -85,7 +85,7 @@ void tfw::utils::usb::RealConnection::sendAction(Action& action) {
     if (typeAction != nullptr) {
         for (auto& character : typeAction->text) {
             keyboard.write(character);
-            time::delayMs(10); // Without a delay then repeated characters can be missed.
+            hal::time::delayMs(10); // Without a delay then repeated characters can be missed.
         }
     }
 }

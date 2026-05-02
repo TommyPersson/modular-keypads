@@ -12,11 +12,11 @@
 
 struct ServiceLocator {
     DeviceConfigurationManager& deviceConfigurationManager;
-    tfw::utils::serial::SerialPort& serialPort;
+    tfw::hal::uart::SerialPort& serialPort;
     NotifierFactory& notifierFactory;
-    tfw::utils::i2c::Client& i2cClient;
-    tfw::utils::i2c::SlavePort& i2cSlavePort;
-    tfw::utils::usb::Connection& usbConnection;
-    tfw::utils::metrics::MetricRegistry& metricRegistry;
+    tfw::hal::i2c::Client& i2cClient;
+    tfw::hal::i2c::SlavePort& i2cSlavePort;
+    tfw::hal::usb::Connection& usbConnection;
+    tfw::hal::metrics::MetricRegistry& metricRegistry;
     devices::DeviceModeDetector& deviceModeDetector;
 };
