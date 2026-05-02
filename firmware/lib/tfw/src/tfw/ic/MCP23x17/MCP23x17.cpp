@@ -4,7 +4,7 @@
 
 namespace tfw::ic {
     MCP23x17::MCP23x17(
-        std::unique_ptr<tfw::utils::serialbus::SerialBus> bus,
+        std::unique_ptr<tfw::utils::serialbus::SPISerialBus> bus,
         tfw::utils::gpio::OutputPin resetPin
     ) : bus(std::move(bus)),
         resetPin(resetPin) {
@@ -43,6 +43,6 @@ namespace tfw::ic {
         const tfw::utils::serialbus::SPIConfig& config,
         const tfw::utils::gpio::OutputPin resetPin
     ) {
-        return std::make_unique<MCP23x17>(tfw::utils::serialbus::spi(config), resetPin);
+        return std::make_unique<MCP23x17>(std::make_unique<tfw::utils::serialbus::SPISerialBus>(config), resetPin);
     }
 }
