@@ -3,11 +3,9 @@
 #include <firmwares/common/DeviceCapabilities.h>
 #include <firmwares/common/DeviceConfigurationManager.h>
 #include <tfw/hal/bitreaders.h>
-#include <tfw/hal/buttons.h>
-#include <tfw/utils/registers.h>
+#include <tfw/hal/encoders/RotaryEncoder.h>
 #include <tfw/utils/result.h>
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
-#include "firmwares/common/monitors/RotationalEncoderMonitor.h"
 #include "firmwares/common/notifications/Notifier.h"
 
 namespace devices {
@@ -20,12 +18,12 @@ namespace devices {
     struct DeviceRotaryEncoderEvent {
         const uint64_t deviceId;
         const uint8_t encoderNumber;
-        const RotationalEncoderDirection direction;
+        const tfw::hal::encoders::RotaryEncoderDirection direction;
     };
 
     class DeviceRuntime
         : tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent>,
-          tfw::utils::observables::Observer<EncoderRotatedEvent> {
+          tfw::utils::observables::Observer<tfw::hal::encoders::EncoderRotatedEvent> {
     public:
         explicit DeviceRuntime(
             uint64_t deviceId,
@@ -62,9 +60,9 @@ namespace devices {
         );
 
         void observe(const tfw::hal::buttons::ButtonStateChangedEvent& event) override;
-        void observe(const EncoderRotatedEvent& event) override;
+        void observe(const tfw::hal::encoders::EncoderRotatedEvent& event) override;
 
-        std::vector<std::shared_ptr<RotationalEncoderMonitor>> rotationalEncoderMonitors;
+        std::vector<std::shared_ptr<tfw::hal::encoders::RotaryEncoder>> rotaryEncoders;
         std::vector<std::shared_ptr<tfw::hal::buttons::Button>> buttons;
 
         tfw::utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;

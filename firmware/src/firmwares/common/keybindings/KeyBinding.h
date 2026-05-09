@@ -1,8 +1,7 @@
 #pragma once
 
 #include <memory>
-
-#include "firmwares/common/monitors/RotationalEncoderMonitor.h"
+#include <tfw/hal/encoders/RotaryEncoder.h>
 
 namespace common::keybindings {
     enum TriggerType {
@@ -42,7 +41,7 @@ namespace common::keybindings {
     };
 
     struct RotaryEncoderTrigger final : Trigger {
-        explicit RotaryEncoderTrigger(const uint64_t deviceId, const uint8_t number, const RotationalEncoderDirection direction)
+        explicit RotaryEncoderTrigger(const uint64_t deviceId, const uint8_t number, const tfw::hal::encoders::RotaryEncoderDirection direction)
             : Trigger(deviceId, ROTARY_ENCODER),
               number(number),
               direction(direction) {}
@@ -50,7 +49,7 @@ namespace common::keybindings {
         ~RotaryEncoderTrigger() override = default;
 
         uint8_t number;
-        RotationalEncoderDirection direction;
+        tfw::hal::encoders::RotaryEncoderDirection direction;
 
         bool operator==(const Trigger& other) const override {
             const auto otherRET = dynamic_cast<const RotaryEncoderTrigger*>(&other);

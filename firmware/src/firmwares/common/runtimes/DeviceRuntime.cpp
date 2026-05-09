@@ -71,12 +71,12 @@ void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<tfw::hal:
 
 void DeviceRuntime::attachRotationalEncoder(
     const uint8_t number,
-    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& aBitReader,
-    const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bBitReader
+    const std::shared_ptr<bitreaders::BitReader>& aBitReader,
+    const std::shared_ptr<bitreaders::BitReader>& bBitReader
 ) {
-    auto rotaryEncoderMonitor = std::make_shared<RotationalEncoderMonitor>(number, aBitReader, bBitReader);
-    rotaryEncoderMonitor->onEncoderRotated().addObserver(this);
-    this->rotationalEncoderMonitors.emplace_back(rotaryEncoderMonitor);
+    auto encoder = std::make_shared<encoders::RotaryEncoder>(number, aBitReader, bBitReader);
+    encoder->onEncoderRotated().addObserver(this);
+    this->rotaryEncoders.emplace_back(encoder);
 }
 
 void DeviceRuntime::begin() {
@@ -141,7 +141,7 @@ void DeviceRuntime::observe(const buttons::ButtonStateChangedEvent& event) {
     deviceSwitchEventSubject.notify(deviceSwitchEvent);
 }
 
-void DeviceRuntime::observe(const EncoderRotatedEvent& event) {
+void DeviceRuntime::observe(const encoders::EncoderRotatedEvent& event) {
     auto deviceRotaryEncoderEvent = DeviceRotaryEncoderEvent{
         .deviceId = deviceId,
         .encoderNumber = event.encoderNumber,

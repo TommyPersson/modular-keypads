@@ -31,7 +31,7 @@ tfw::utils::void_result SetKeyBindingCommandHandler::execute(
         keyBindingStorage.write(keyBinding);
     } else if (type == ROTARY_ENCODER) {
         const auto number = tfw::utils::strings::atol(args[2], 16);
-        const auto direction = static_cast<RotationalEncoderDirection>(tfw::utils::strings::atol(args[3], 16));
+        const auto direction = static_cast<tfw::hal::encoders::RotaryEncoderDirection>(tfw::utils::strings::atol(args[3], 16));
         const auto macroId = static_cast<uint16_t>(tfw::utils::strings::atol(args[4], 16));
 
         const auto keyBinding = KeyBinding{

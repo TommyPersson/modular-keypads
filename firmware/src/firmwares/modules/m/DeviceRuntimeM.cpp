@@ -18,7 +18,7 @@ DeviceRuntimeM::~DeviceRuntimeM() {
         switchMonitor->onStateChanged().removeObserver(switchStateChangeNotifier.get());
     }
 
-    for (const auto& encoderMonitor : this->rotationalEncoderMonitors) {
+    for (const auto& encoderMonitor : this->rotaryEncoders) {
         encoderMonitor->onEncoderRotated().removeObserver(encoderRotationNotifier.get());
     }
 }
@@ -31,7 +31,7 @@ void DeviceRuntimeM::begin() {
         button->onStateChanged().addObserver(switchStateChangeNotifier.get());
     }
 
-    for (const auto& encoderMonitor : this->rotationalEncoderMonitors) {
+    for (const auto& encoderMonitor : this->rotaryEncoders) {
         encoderMonitor->begin();
         encoderMonitor->onEncoderRotated().addObserver(encoderRotationNotifier.get());
     }
@@ -46,7 +46,7 @@ void DeviceRuntimeM::loop() {
         button->update();
     }
 
-    for (const auto& encoderMonitor : this->rotationalEncoderMonitors) {
+    for (const auto& encoderMonitor : this->rotaryEncoders) {
         encoderMonitor->update();
     }
 

@@ -42,7 +42,7 @@ namespace {
 
         if (type == ROTARY_ENCODER) {
             auto number = tfw::utils::strings::atol(parts[2], 16);
-            auto direction = static_cast<RotationalEncoderDirection>(tfw::utils::strings::atol(parts[3], 16));
+            auto direction = static_cast<tfw::hal::encoders::RotaryEncoderDirection>(tfw::utils::strings::atol(parts[3], 16));
             auto macroId = tfw::utils::strings::atou16(parts[4], 16);
 
             return std::allocate_shared<KeyBinding>(

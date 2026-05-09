@@ -27,7 +27,7 @@ tfw::utils::void_result ClearKeyBindingCommandHandler::execute(
         keyBindingStorage.remove(trigger);
     } else if (type == ROTARY_ENCODER) {
         const auto number = tfw::utils::strings::atol(args[2], 16);
-        const auto direction = static_cast<RotationalEncoderDirection>(tfw::utils::strings::atol(args[3], 16));
+        const auto direction = static_cast<tfw::hal::encoders::RotaryEncoderDirection>(tfw::utils::strings::atol(args[3], 16));
 
         const RotaryEncoderTrigger trigger(deviceId, number, direction);
 
