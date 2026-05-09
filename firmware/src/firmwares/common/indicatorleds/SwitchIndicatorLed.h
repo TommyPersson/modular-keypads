@@ -1,16 +1,17 @@
 #pragma once
 
-#include "firmwares/common/indicatorleds/IndicatorLed.h"
-#include "firmwares/common/monitors/SwitchMonitor.h"
+#include <tfw/hal/buttons/Button.h>
 
-class SwitchIndicatorLed final : tfw::utils::observables::Observer<SwitchEvent> {
+#include "firmwares/common/indicatorleds/IndicatorLed.h"
+
+class SwitchIndicatorLed final : tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent> {
 public:
-    SwitchIndicatorLed(const SwitchMonitor& switchMonitor, IndicatorLed& indicatorLed);
+    SwitchIndicatorLed(const tfw::hal::buttons::Button& button, IndicatorLed& indicatorLed);
     ~SwitchIndicatorLed() override;
 
 private:
-    void observe(const SwitchEvent& event) override;
+    void observe(const tfw::hal::buttons::ButtonStateChangedEvent& event) override;
 
-    const SwitchMonitor& switchMonitor;
+    const tfw::hal::buttons::Button& button;
     IndicatorLed& indicatorLed;
 };

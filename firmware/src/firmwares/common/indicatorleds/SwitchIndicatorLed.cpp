@@ -1,18 +1,22 @@
 #include "SwitchIndicatorLed.h"
 
-SwitchIndicatorLed::SwitchIndicatorLed(const SwitchMonitor& switchMonitor, IndicatorLed& indicatorLed) :
-    switchMonitor(switchMonitor), indicatorLed(indicatorLed) {
+using namespace tfw::hal::buttons;
 
-    switchMonitor.onSwitchStateChanged().addObserver(this);
+SwitchIndicatorLed::SwitchIndicatorLed(
+    const Button& button,
+    IndicatorLed& indicatorLed
+) : button(button),
+    indicatorLed(indicatorLed) {
+    button.onStateChanged().addObserver(this);
 }
 
 SwitchIndicatorLed::~SwitchIndicatorLed() {
-    switchMonitor.onSwitchStateChanged().removeObserver(this);
+    button.onStateChanged().removeObserver(this);
 }
 
-void SwitchIndicatorLed::observe(const SwitchEvent& event) {
+void SwitchIndicatorLed::observe(const ButtonStateChangedEvent& event) {
     // TODO "override behavior"?
-    if (event.state == SwitchState::PRESSED) {
+    if (event.toState == tfw::hal::buttons::ButtonState::PRESSED) {
         indicatorLed.setColor(255, 255, 255, 0);
     } else {
         indicatorLed.setColor(0, 0, 0, 0);

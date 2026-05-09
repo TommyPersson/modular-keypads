@@ -17,7 +17,7 @@ public:
 
     std::shared_ptr<IndicatorLed>& get(uint8_t pixelNumber);
 
-    std::shared_ptr<SwitchIndicatorLed> connectToSwitch(uint8_t pixelNumber, const SwitchMonitor& switchMonitor);
+    std::shared_ptr<SwitchIndicatorLed> connectToSwitch(uint8_t pixelNumber, const tfw::hal::buttons::Button& button);
 
     static std::unique_ptr<IndicatorLedManager> NeoPixel(
         uint16_t numberOfPixels,

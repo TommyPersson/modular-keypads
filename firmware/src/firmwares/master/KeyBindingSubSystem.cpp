@@ -158,7 +158,7 @@ void KeyBindingSubSystem::observe(const devices::DeviceRotaryEncoderEvent& event
 }
 
 std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const devices::DeviceSwitchEvent& event) {
-    if (event.state != SwitchState::PRESSED) {
+    if (event.state != tfw::hal::buttons::ButtonState::PRESSED) {
         return nullptr;
     }
 

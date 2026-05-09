@@ -19,17 +19,17 @@ DeviceRuntimeA::DeviceRuntimeA(
 }
 
 DeviceRuntimeA::~DeviceRuntimeA() {
-    for (const auto& switchMonitor : this->switchMonitors) {
-        switchMonitor->onSwitchStateChanged().removeObserver(switchStateChangeNotifier.get());
+    for (const auto& button : this->buttons) {
+        button->onStateChanged().removeObserver(switchStateChangeNotifier.get());
     }
 };
 
 void DeviceRuntimeA::begin() {
     DeviceRuntime::begin();
 
-    for (auto& switchMonitor : this->switchMonitors) {
-        switchMonitor->begin();
-        switchMonitor->onSwitchStateChanged().addObserver(switchStateChangeNotifier.get());
+    for (const auto& button : this->buttons) {
+        button->begin();
+        button->onStateChanged().addObserver(switchStateChangeNotifier.get());
     }
 
     indicatorLeds.begin();
@@ -38,8 +38,8 @@ void DeviceRuntimeA::begin() {
 void DeviceRuntimeA::loop() {
     DeviceRuntime::loop();
 
-    for (const auto& switchMonitor : this->switchMonitors) {
-        switchMonitor->update();
+    for (const auto& button : this->buttons) {
+        button->update();
     }
 
     indicatorLeds.update();

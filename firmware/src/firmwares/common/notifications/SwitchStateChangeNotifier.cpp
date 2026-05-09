@@ -6,19 +6,19 @@ SwitchStateChangeNotifier::SwitchStateChangeNotifier(Notifier& notifier) : notif
 
 SwitchStateChangeNotifier::~SwitchStateChangeNotifier() = default;
 
-void SwitchStateChangeNotifier::observe(const SwitchEvent& event) {
-    if (event.state == SwitchState::PRESSED) {
+void SwitchStateChangeNotifier::observe(const tfw::hal::buttons::ButtonStateChangedEvent& event) {
+    if (event.toState == tfw::hal::buttons::ButtonState::PRESSED) {
         notifier.notify(
             {
                 .type = "switch.pressed",
-                .args = {std::to_string(event.switchNumber)}
+                .args = {std::to_string(event.buttonNumber)}
             }
             );
-    } else if (event.state == SwitchState::UNPRESSED) {
+    } else if (event.toState == tfw::hal::buttons::ButtonState::UNPRESSED) {
         notifier.notify(
             {
                 .type = "switch.released",
-                .args = {std::to_string(event.switchNumber)}
+                .args = {std::to_string(event.buttonNumber)}
             }
             );
     }

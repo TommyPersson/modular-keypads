@@ -58,15 +58,15 @@ void DeviceRuntime::configureCapabilities() {
 
 void DeviceRuntime::attachSwitch(uint8_t number, const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bitReader,
                                  int8_t ledIndex) {
-    const auto switchMonitor = this->switchMonitors.emplace_back(std::make_shared<SwitchMonitor>(number, bitReader));
+    const auto button = this->buttons.emplace_back(std::make_shared<buttons::Button>(number, bitReader));
 
-    switchMonitor->onSwitchStateChanged().addObserver(this);
+    button->onStateChanged().addObserver(this);
 
     if (ledIndex < 0) {
         return;
     }
 
-    indicatorLeds.connectToSwitch(ledIndex, *switchMonitor);
+    indicatorLeds.connectToSwitch(ledIndex, *button);
 }
 
 void DeviceRuntime::attachRotationalEncoder(
@@ -131,11 +131,11 @@ void_result DeviceRuntime::renameDevice(const std::string_view& deviceName) {
     return void_result::success();
 }
 
-void DeviceRuntime::observe(const SwitchEvent& event) {
+void DeviceRuntime::observe(const buttons::ButtonStateChangedEvent& event) {
     auto deviceSwitchEvent = DeviceSwitchEvent{
         .deviceId = deviceId,
-        .switchNumber = event.switchNumber,
-        .state = event.state,
+        .switchNumber = event.buttonNumber,
+        .state = event.toState,
     };
 
     deviceSwitchEventSubject.notify(deviceSwitchEvent);

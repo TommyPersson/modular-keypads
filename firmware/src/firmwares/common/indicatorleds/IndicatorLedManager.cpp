@@ -1,5 +1,7 @@
 #include "IndicatorLedManager.h"
 
+#include <tfw/hal/buttons/Button.h>
+
 IndicatorLedManager::IndicatorLedManager(
     const uint16_t numberOfPixels,
     std::unique_ptr<IndicatorLedDriver> driver
@@ -21,7 +23,7 @@ void IndicatorLedManager::begin() {
 
 std::shared_ptr<SwitchIndicatorLed> IndicatorLedManager::connectToSwitch(
     const uint8_t pixelNumber,
-    const SwitchMonitor& switchMonitor
+    const tfw::hal::buttons::Button& switchMonitor
     ) {
     const auto& indicatorLed = get(pixelNumber);
     return switchIndicators.emplace_back(std::make_shared<SwitchIndicatorLed>(switchMonitor, *indicatorLed));
