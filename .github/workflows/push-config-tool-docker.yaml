@@ -1,0 +1,38 @@
+name: Build and Push config-tool Docker image
+run-name: Build and Push config-tool Docker image v${{ inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to set for the Docker image
+        required: true
+        type: string
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build app
+        working-directory: ./config-tool
+        run: bash ./scripts/ci-build-app.sh ${{ inputs.version }}
+
+      - name: Build Docker image
+        working-directory: ./config-tool
+        run: bash ./scripts/ci-build-docker-image.sh ${{ inputs.version }}
+
+      - name: Push Docker image
+        working-directory: ./config-tool
+        run: bash ./scripts/ci-push-docker-image.sh ${{ inputs.version }}
