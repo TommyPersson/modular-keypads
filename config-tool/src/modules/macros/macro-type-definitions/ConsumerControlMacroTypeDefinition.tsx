@@ -31,17 +31,19 @@ export const ConsumerControlMacroTypeDefinition: MacroTypeDefinition<ConsumerCon
     return {
       id: 0,
       name,
+      directory: null,
       type: MacroDefinitionType.ConsumerControl,
       usageId: 0
     }
   },
 
-  parseDeviceResponse(id: number, name: string, dataArgs: string[]): ConsumerControlMacroDefinition {
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): ConsumerControlMacroDefinition {
     const usageIdPart = dataArgs[0]
     const usageId = parseInt(usageIdPart, 16)
 
     return {
       id,
+      directory,
       name,
       type: MacroDefinitionType.ConsumerControl,
       usageId

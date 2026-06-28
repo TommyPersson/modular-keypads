@@ -21,9 +21,12 @@ export class SaveMacroDeviceCommand extends DeviceCommand<void> {
       throw new Error("Unsupported macro type")
     })()
 
+    const directoryPart = this.macro.directory ? `${this.macro.directory}/` : ""
+    const fullName = directoryPart + encodeURIComponent(this.macro.name)
+
     return [
       this.macro.id.toString(),
-      encodeURIComponent(this.macro.name),
+      encodeURIComponent(fullName),
       ...dataArgs]
   }
 

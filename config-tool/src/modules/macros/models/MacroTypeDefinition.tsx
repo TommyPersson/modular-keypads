@@ -14,7 +14,7 @@ export type MacroTypeDefinition<TMacroDefinition extends MacroDefinition> = {
 
   createDefaultMacroDefinition(name: string): TMacroDefinition
 
-  parseDeviceResponse(id: number, name: string, dataArgs: string[]): TMacroDefinition
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): TMacroDefinition
 
   serializeDeviceArguments(definition: TMacroDefinition): string[]
 

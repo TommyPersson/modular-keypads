@@ -11,7 +11,7 @@ import {
   Stack,
   Table,
   TableBody,
-  TableCell,
+  TableCell, TableContainer,
   TableHead,
   TableRow,
   Tooltip
@@ -21,9 +21,10 @@ import { useExpanderState } from "@src/modules/common/hooks/expanderState"
 import { DeleteMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacros } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { type MacroDefinition } from "@src/modules/macros/models"
+import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { EditMacroDialog } from "@src/modules/macros/ui/components/EditMacrosCard/EditMacroDialog"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useState } from "react"
 
 export const EditMacrosCard = () => {
   const storedMacros = useStoredMacros()
@@ -78,26 +79,28 @@ const ExistingMacrosCardContent = (props: {
 
   return (
     <>
-      <CardContent style={{ paddingLeft: 0, paddingRight: 0 }}>
-        <Table size={"small"}>
-          <TableHead>
-            <TableRow>
-              <TableCell style={{ width: 0 }}>Name</TableCell>
-              <TableCell>Definition</TableCell>
-              <TableCell style={{ width: 0 }} align={"right"}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {macros.length === 0 && (
-              <EmptyTableRow>
-                There are no recorded macros.
-              </EmptyTableRow>
-            )}
-            {macros.map(([directory, macros]) => (
-              <MacroDefinitionRows directory={directory} macros={macros} onEditClick={onEditClick} />
-            ))}
-          </TableBody>
-        </Table>
+      <CardContent style={{ paddingLeft: 0, paddingRight: 0, }}>
+        <TableContainer style={{ maxHeight: "calc(100vh - 230px)", overflow: "auto" }}>
+          <Table size={"small"} stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ width: 0 }}>Name</TableCell>
+                <TableCell>Definition</TableCell>
+                <TableCell style={{ width: 0 }} align={"right"}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {macros.length === 0 && (
+                <EmptyTableRow>
+                  There are no recorded macros.
+                </EmptyTableRow>
+              )}
+              {macros.map(([directory, macros]) => (
+                <MacroDefinitionRows directory={directory} macros={macros} onEditClick={onEditClick} />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </CardContent>
     </>
   )
@@ -150,16 +153,11 @@ const MacroDefinitionRow = (props: {
     onEditClick(macro)
   }, [macro, onEditClick])
 
-  const nameWithoutDirectory = useMemo(() => {
-    const parts = macro.name.split("/")
-    return parts[parts.length - 1]
-  }, [macro])
-
   return (
     <TableRow hover>
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>
         <Stack direction={"row"} alignItems={"center"} gap={1} style={{ marginLeft: 10 }}>
-          <MacroTypeVisualization type={macro.type} /> {nameWithoutDirectory}
+          <MacroTypeVisualization type={macro.type} /> {macro.name}
         </Stack>
       </TableCell>
       <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>{definitionCellContent}</TableCell>
@@ -196,17 +194,4 @@ function isSequenceMacro(macro: MacroDefinition) {
     default:
       return false
   }
-}
-
-const MacroTypeVisualization = (props: {
-  type: MacroDefinitionType
-}) => {
-  const { type } = props
-
-  const typeDefinition = macroTypeDefinitions.byType[type]
-  if (typeDefinition) {
-    return <typeDefinition.typeVisualizationComponent />
-  }
-
-  return null
 }

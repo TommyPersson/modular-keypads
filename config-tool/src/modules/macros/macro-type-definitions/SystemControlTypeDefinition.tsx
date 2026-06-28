@@ -29,18 +29,20 @@ export const SystemControlTypeDefinition: MacroTypeDefinition<SystemControlMacro
   createDefaultMacroDefinition(name: string): SystemControlMacroDefinition {
     return {
       id: 0,
+      directory: null,
       name,
       type: MacroDefinitionType.SystemControl,
       code: 0
     }
   },
 
-  parseDeviceResponse(id: number, name: string, dataArgs: string[]): SystemControlMacroDefinition {
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): SystemControlMacroDefinition {
     const codePart = dataArgs[0]
     const code = parseInt(codePart, 16)
 
     return {
       id,
+      directory,
       name,
       type: MacroDefinitionType.SystemControl,
       code: code

@@ -9,6 +9,7 @@ export enum MacroDefinitionType {
 
 export type MacroDefinitionBase = {
   id: number
+  directory: string | null
   name: string
   type: MacroDefinitionType
 }

@@ -11,5 +11,4 @@ export const ListKeyBindingsQuery: (deviceFacade: DeviceFacade) => UseQueryOptio
     return await deviceFacade.executeCommand(new ListKeyBindingsDeviceCommand())
   },
   enabled: deviceFacade.isConnected,
-
 })

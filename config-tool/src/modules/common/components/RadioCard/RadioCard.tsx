@@ -5,6 +5,7 @@ import { type CSSProperties, useCallback } from "react"
 
 export const RadioCard = (props: {
   label: any
+  icon?: any
   description?: any
   value: any
   style?: CSSProperties
@@ -39,7 +40,7 @@ export const RadioCard = (props: {
             <FormControlLabel
               value={value}
               control={<Radio />}
-              label={label}
+              label={<Stack direction={"row"} alignItems={"center"} gap={0.5}>{props.icon} {label}</Stack>}
               disabled={disabled}
             />
             <Typography variant={"body2"} sx={descriptionStyle}>

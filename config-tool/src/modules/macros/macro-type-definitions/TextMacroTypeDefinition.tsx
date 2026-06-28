@@ -27,18 +27,20 @@ export const TextMacroTypeDefinition: MacroTypeDefinition<TextMacroDefinition> =
   createDefaultMacroDefinition(name: string): TextMacroDefinition {
     return {
       id: 0,
+      directory: null,
       name,
       type: MacroDefinitionType.Text,
       text: ""
     }
   },
 
-  parseDeviceResponse(id: number, name: string, dataArgs: string[]): TextMacroDefinition {
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): TextMacroDefinition {
     const textArg = dataArgs[0]
     const text = decodeURIComponent(textArg)
 
     return {
       id,
+      directory,
       name,
       type: MacroDefinitionType.Text,
       text,

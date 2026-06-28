@@ -6,16 +6,18 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
+  Grid, InputAdornment,
   RadioGroup,
   Stack,
   TextField
 } from "@mui/material"
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import { CommandButton, RadioCard } from "@src/modules/common/components"
 import { SaveMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
 import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const EmptyArray: any[] = []
@@ -34,10 +36,16 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
       <DialogTitle>{state.title}</DialogTitle>
       <DialogContent>
         <Stack gap={2}>
-          <MacroNameEditor
-            value={state.macroDefinition.name}
-            onChange={state.handleMacroNameChange}
-          />
+          <Stack direction={"row"} gap={2}>
+            <MacroDirectoryEditor
+              value={state.macroDefinition.directory}
+              onChange={state.handleMacroDirectoryChange}
+            />
+            <MacroNameEditor
+              value={state.macroDefinition.name}
+              onChange={state.handleMacroNameChange}
+            />
+          </Stack>
           {state.willOverwriteExistingMacro && (
             <Alert severity={"warning"}>
               There is already a macro named <strong>{state.macroDefinition.name}</strong>.
@@ -79,6 +87,7 @@ type EditMacroDialogState = {
   title: string
   macroDefinition: MacroDefinition
   willOverwriteExistingMacro: boolean
+  handleMacroDirectoryChange: (directory: string | null) => void
   handleMacroNameChange: (name: string) => void
   handleMacroTypeChange: (type: MacroDefinitionType) => void
   handleMacroDefinitionChange: (definition: MacroDefinition) => void
@@ -100,6 +109,10 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
   const initialMacro = macro ?? createDefaultMacroDefinition(MacroDefinitionType.Shortcut, "New Macro")
 
   const [macroDefinition, setMacroDefinition] = useState<MacroDefinition>(initialMacro)
+
+  const handleMacroDirectoryChange = useCallback((newDirectory: string | null) => {
+    setMacroDefinition(s => ({ ...s, directory: newDirectory }))
+  }, [setMacroDefinition])
 
   const handleMacroNameChange = useCallback((newName: string) => {
     setMacroDefinition(s => ({ ...s, name: newName }))
@@ -132,6 +145,7 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
     title: title,
     macroDefinition: macroDefinition,
     willOverwriteExistingMacro: willOverwriteExistingMacro,
+    handleMacroDirectoryChange: handleMacroDirectoryChange,
     handleMacroNameChange: handleMacroNameChange,
     handleMacroTypeChange: handleMacroTypeChange,
     handleMacroDefinitionChange: setMacroDefinition,
@@ -146,6 +160,33 @@ function createDefaultMacroDefinition(type: MacroDefinitionType, name: string): 
   }
 
   throw new Error(`Unsupported type: ${type}`)
+}
+
+const MacroDirectoryEditor = (props: {
+  value: string | null
+  onChange: (value: string | null) => void
+}) => {
+  const { value, onChange } = props
+
+  const handleOnChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.length > 0 ? e.target.value : null
+    onChange(value)
+  }, [onChange])
+
+  return (
+    <TextField
+      label={"Directory"}
+      variant={"filled"}
+      value={value}
+      onChange={handleOnChange}
+      style={{ width: 200 }}
+      slotProps={{
+        input: {
+          startAdornment: <InputAdornment position="start"><FolderOutlinedIcon fontSize={"small"}  /></InputAdornment>
+        }
+      }}
+    />
+  )
 }
 
 const MacroNameEditor = (props: {
@@ -187,9 +228,10 @@ const MacroTypeSelector = memo((props: {
     >
       <Grid container spacing={2}>
         {macroTypeDefinitions.all.map(it => (
-          <Grid size={4} key={it.numericCode}>
+          <Grid size={3} key={it.numericCode}>
             <RadioCard
               label={it.displayName}
+              icon={<MacroTypeVisualization type={it.type} />}
               value={it.type}
               onClick={onChange}
               description={it.description}

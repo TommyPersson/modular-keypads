@@ -16,6 +16,7 @@ export type UseStoredMacrosResult = {
   allMacros: MacroDefinition[]
   macrosByDirectoryMap: { [directory: string]: MacroDefinition[] }
   macrosByDirectoryList: [string, MacroDefinition[]][]
+  macrosById: { [id: number]: MacroDefinition }
 }
 
 const EmptyArray: any[] = []
@@ -30,12 +31,9 @@ export function useStoredMacros(): UseStoredMacrosResult {
   }, [unsortedMacros])
 
   const macrosByDirectoryMap = useMemo(() => {
-    const macrosByDirectory: { [directory: string]: MacroDefinition[] } = allMacros.reduce((acc, curr) => {
-      const pathElements = curr.name.split("/")
-      //const name = pathElements[pathElements.length-1]
-      const directoryElements = pathElements.slice(0, pathElements.length - 1)
-      let directory = directoryElements.join("/")
-      if (directory.length === 0) {
+    const macrosByDirectory: { [directory: string]: MacroDefinition[] } = allMacros.reduce((acc, curr: MacroDefinition) => {
+      let directory = curr.directory
+      if (directory === null || directory.length === 0) {
         directory = "<root>"
       }
       return ({
@@ -51,10 +49,16 @@ export function useStoredMacros(): UseStoredMacrosResult {
     return Object.entries(macrosByDirectoryMap).toSorted((a, b) => a[0].localeCompare(b[0]))
   }, [macrosByDirectoryMap])
 
+  const macrosById: { [id: number]: MacroDefinition } = useMemo(() => {
+    return allMacros.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {})
+  }, [allMacros])
+
+
   return {
     query,
     allMacros,
     macrosByDirectoryMap,
     macrosByDirectoryList,
+    macrosById,
   }
 }

@@ -32,6 +32,7 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
   createDefaultMacroDefinition(name: string): ShortcutMacroDefinition {
     return {
       id: 0,
+      directory: null,
       name: name,
       type: MacroDefinitionType.Shortcut,
       shortcut: {
@@ -41,13 +42,14 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
     }
   },
 
-  parseDeviceResponse(id: number, name: string, dataArgs: string[]): ShortcutMacroDefinition {
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): ShortcutMacroDefinition {
     const [modifiersStr, hidCodeStr] = dataArgs
     const modifiers = parseModifierFlags(parseInt(modifiersStr, 16))
     const hidCode = parseInt(hidCodeStr, 16)
 
     return {
       id,
+      directory,
       name,
       type: MacroDefinitionType.Shortcut,
       shortcut: {

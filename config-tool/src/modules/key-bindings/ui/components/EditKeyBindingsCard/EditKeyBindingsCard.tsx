@@ -1,6 +1,8 @@
-import type { AutocompleteInputChangeReason, AutocompleteValue, SelectChangeEvent } from "@mui/material"
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import {
   Autocomplete,
+  type AutocompleteInputChangeReason,
+  type AutocompleteValue,
   Box,
   Card,
   CardContent,
@@ -11,6 +13,7 @@ import {
   ListItemText,
   MenuItem,
   Select,
+  type SelectChangeEvent,
   Stack,
   Table,
   TableBody,
@@ -43,8 +46,9 @@ import {
   RotaryEncoderDirection,
   type RotaryEncoderKeyBindingTrigger
 } from "@src/modules/key-bindings/models"
-import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
+import { useStoredMacros, type UseStoredMacrosResult } from "@src/modules/macros/hooks"
 import type { MacroDefinition } from "@src/modules/macros/models"
+import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { useCommand } from "@src/utils/commands"
 import { useQuery } from "@tanstack/react-query"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -70,8 +74,8 @@ export const EditKeyBindingsCard = () => {
 
   const rotaryEncoders = deviceCapabilities.filter(it => it.type === "RotaryEncoder")
 
-  const storedMacrosQuery = useStoredMacrosQuery()
-  const macros = storedMacrosQuery.data ?? []
+  const storedMacros = useStoredMacros()
+  const macros = storedMacros.allMacros
 
   return (
     <Card>
@@ -85,7 +89,9 @@ export const EditKeyBindingsCard = () => {
         deviceId={selectedDeviceId ?? ""}
         pushButtons={pushButtons}
         pushButtonStates={pushButtonStates}
-        macros={macros}
+        allMacros={storedMacros.allMacros}
+        macrosByDirectory={storedMacros.macrosByDirectoryList}
+        macros={storedMacros}
       />
       <RotaryEncodersSection
         deviceId={selectedDeviceId ?? ""}
@@ -146,9 +152,11 @@ const PushButtonsSection = (props: {
   deviceId: string
   pushButtons: PushButtonCapability[]
   pushButtonStates: PushButtonStates
-  macros: MacroDefinition[]
+  allMacros: MacroDefinition[]
+  macrosByDirectory: [string, MacroDefinition[]][]
+  macros: UseStoredMacrosResult
 }) => {
-  const { deviceId, pushButtons, pushButtonStates, macros } = props
+  const { deviceId, pushButtons, pushButtonStates, allMacros, macrosByDirectory, macros } = props
 
   const keyBindingsQuery = useKeyBindingsQuery()
   const keyBindings = keyBindingsQuery.data ?? []
@@ -184,6 +192,8 @@ const PushButtonsSection = (props: {
                 deviceId={deviceId}
                 pushButton={it}
                 isPressed={pushButtonStates[it.number] ?? false}
+                allMacros={allMacros}
+                macrosByDirectory={macrosByDirectory}
                 macros={macros}
                 keyBindings={keyBindings}
               />
@@ -199,10 +209,12 @@ const PushButtonBindingRow = (props: {
   deviceId: string
   pushButton: PushButtonCapability
   isPressed: boolean
-  macros: MacroDefinition[]
+  allMacros: MacroDefinition[]
+  macrosByDirectory: [string, MacroDefinition[]][]
+  macros: UseStoredMacrosResult
   keyBindings: KeyBinding[]
 }) => {
-  const { deviceId, pushButton, isPressed, macros, keyBindings } = props
+  const { deviceId, pushButton, isPressed, allMacros, macros, keyBindings } = props
 
   const backgroundColor = isPressed ? highlightBackgroundColor : undefined
   const color = isPressed ? highlightTextColor : undefined
@@ -214,7 +226,7 @@ const PushButtonBindingRow = (props: {
   }), [deviceId, pushButton])
 
   const keyBinding = keyBindings.find(it => it.trigger.type === "PushButton" && it.trigger.number === pushButton.number && it.trigger.deviceId === deviceId)
-  const boundMacro = macros.find(it => it.id === keyBinding?.macroId) ?? null
+  const boundMacro = allMacros.find(it => it.id === keyBinding?.macroId) ?? null
 
   const setKeyBindingCommand = useCommand(SetKeyBindingCommand)
   const clearKeyBindingCommand = useCommand(ClearKeyBindingCommand)
@@ -239,7 +251,7 @@ const PushButtonBindingRow = (props: {
       </TableCell>
       <TableCell sx={{ color }}>
         <MacroAutocomplete
-          macros={macros}
+          macros={macros.allMacros}
           label={"Press Action"}
           selected={boundMacro}
           disabled={disabled}
@@ -407,15 +419,42 @@ const RotaryEncoderBindingsRow = (props: {
   )
 }
 
-const MacroItemVisualization = (props: {
+const MacroOptionVisualization = (props: {
   macro: MacroDefinition
 }) => {
   const { macro } = props
 
   return (
     <Stack direction={"row"} gap={2} alignItems={"baseline"}>
-      <Typography style={{ flex: 1 }}>{macro.id}. {macro.name}</Typography>
-      <Typography variant={"caption"}>{macro.type}</Typography>
+      <Stack direction={"row"} gap={1} alignItems={"center"}>
+        <MacroTypeVisualization type={macro.type} />
+        <strong>{macro.name}</strong>
+      </Stack>
+    </Stack>
+  )
+}
+
+const MacroValueVisualization = (props: {
+  macro: MacroDefinition | null
+}) => {
+  const { macro } = props
+
+  if (!macro) {
+    return
+  }
+
+  return (
+    <Stack direction={"row"} gap={2} alignItems={"center"} flex={1} style={{ minWidth: 400, maxWidth: 400 }}>
+      <Stack direction={"row"} gap={1} alignItems={"center"} flex={1} style={{ minWidth: 0 }}>
+        <MacroTypeVisualization type={macro.type} />
+        <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{macro.name}</strong>
+      </Stack>
+      <Stack direction={"row"} gap={1} alignItems={"center"} flex={1} style={{ minWidth: 0 }}>
+        <FolderOutlinedIcon />
+        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {macro.directory ?? "<root>"}
+        </span>
+      </Stack>
     </Stack>
   )
 }
@@ -428,6 +467,10 @@ const MacroAutocomplete = (props: {
   onSelect?: (macro: MacroDefinition | null) => void
 }) => {
   const { macros, label, selected, disabled, onSelect } = props
+
+  const options = useMemo(() => {
+    return macros.toSorted((a, b) => (a.directory + a.name).localeCompare(b.directory + b.name))
+  }, [macros])
 
   const handleChange = useCallback((_: any, value: AutocompleteValue<MacroDefinition, unknown, unknown, unknown>) => {
     onSelect?.(value)
@@ -447,13 +490,14 @@ const MacroAutocomplete = (props: {
       )}
       renderOption={(props, option) => (
         <Box component={"li"} {...props} key={props.key}>
-          <MacroItemVisualization macro={option} />
+          <MacroOptionVisualization macro={option} />
         </Box>
       )}
       renderValue={(option) => (
-        <MacroItemVisualization macro={option} />
+        <MacroValueVisualization macro={option} />
       )}
-      options={macros}
+      groupBy={it => it.directory ?? "<root>"}
+      options={options}
       getOptionLabel={option => option.name + option.id}
       value={selected}
       onChange={handleChange}
