@@ -1,11 +1,12 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
-
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import {
   Button,
   Card,
   CardContent,
   CardHeader,
+  Chip,
   IconButton,
   Stack,
   Table,
@@ -16,15 +17,16 @@ import {
   Tooltip
 } from "@mui/material"
 import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
+import { useExpanderState } from "@src/modules/common/hooks/expanderState"
 import { DeleteMacroCommand } from "@src/modules/macros/commands"
-import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
+import { useStoredMacros } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
 import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import { EditMacroDialog } from "@src/modules/macros/ui/components/EditMacrosCard/EditMacroDialog"
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 export const EditMacrosCard = () => {
-  const storedMacros = useStoredMacrosQuery().data ?? []
+  const storedMacros = useStoredMacros()
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false)
   const [macroBeingEdited, setMacroBeingEdited] = useState<MacroDefinition | null>(null)
@@ -60,7 +62,7 @@ export const EditMacrosCard = () => {
         onClose={handleEditDialogClosed}
       />
       <ExistingMacrosCardContent
-        macros={storedMacros}
+        macros={storedMacros.macrosByDirectoryList}
         onEditClick={handleEditClicked}
       />
     </Card>
@@ -68,7 +70,7 @@ export const EditMacrosCard = () => {
 }
 
 const ExistingMacrosCardContent = (props: {
-  macros: MacroDefinition[]
+  macros: [string, MacroDefinition[]][]
   onEditClick: (macro: MacroDefinition) => void
 }) => {
 
@@ -76,14 +78,11 @@ const ExistingMacrosCardContent = (props: {
 
   return (
     <>
-      <CardHeader title={"Existing Macros"} />
       <CardContent style={{ paddingLeft: 0, paddingRight: 0 }}>
         <Table size={"small"}>
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: 0 }}>ID</TableCell>
               <TableCell style={{ width: 0 }}>Name</TableCell>
-              <TableCell style={{ width: 0 }}>Type</TableCell>
               <TableCell>Definition</TableCell>
               <TableCell style={{ width: 0 }} align={"right"}>Actions</TableCell>
             </TableRow>
@@ -94,16 +93,45 @@ const ExistingMacrosCardContent = (props: {
                 There are no recorded macros.
               </EmptyTableRow>
             )}
-            {macros.map(macro =>
-              <MacroDefinitionRow
-                key={macro.name}
-                macro={macro}
-                onEditClick={onEditClick}
-              />
-            )}
+            {macros.map(([directory, macros]) => (
+              <MacroDefinitionRows directory={directory} macros={macros} onEditClick={onEditClick} />
+            ))}
           </TableBody>
         </Table>
       </CardContent>
+    </>
+  )
+}
+
+const MacroDefinitionRows = (props: {
+  directory: string,
+  macros: MacroDefinition[],
+  onEditClick: (macro: MacroDefinition) => void
+}) => {
+  const { directory, macros, onEditClick } = props
+
+  const expanderState = useExpanderState(true)
+
+  return (
+    <>
+      <TableRow hover onClick={expanderState.toggle}>
+        <TableCell colSpan={5}>
+          <Stack direction={"row"} alignItems={"center"} gap={1}>
+            <FolderOutlinedIcon />
+            <strong>{directory}</strong>
+            <Chip size={"small"} label={macros.length} />
+            <IconButton size={"small"}>{expanderState.icon}</IconButton>
+          </Stack>
+        </TableCell>
+      </TableRow>
+
+      {expanderState.isExpanded ? macros.map(macro =>
+        <MacroDefinitionRow
+          key={macro.id}
+          macro={macro}
+          onEditClick={onEditClick}
+        />
+      ) : null}
     </>
   )
 }
@@ -122,12 +150,17 @@ const MacroDefinitionRow = (props: {
     onEditClick(macro)
   }, [macro, onEditClick])
 
+  const nameWithoutDirectory = useMemo(() => {
+    const parts = macro.name.split("/")
+    return parts[parts.length - 1]
+  }, [macro])
+
   return (
     <TableRow hover>
-      <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>{macro.id}</TableCell>
-      <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>{macro.name}</TableCell>
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>
-        <MacroTypeVisualization type={macro.type} />
+        <Stack direction={"row"} alignItems={"center"} gap={1} style={{ marginLeft: 10 }}>
+          <MacroTypeVisualization type={macro.type} /> {nameWithoutDirectory}
+        </Stack>
       </TableCell>
       <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>{definitionCellContent}</TableCell>
       <TableCell style={{ verticalAlign }} align={"right"}>
