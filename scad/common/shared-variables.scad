@@ -34,6 +34,8 @@ outer_wall_height = inner_wall_height + pcb_thickness;
 
 screw_hole_inset_pcb = 4;
 screw_hole_inset = screw_hole_inset_pcb + outer_wall_thickness_base;
+screw_head_height = 1.6;
+screw_head_diameter = 4;
 
 threaded_insert_towers_diameter = 5;
 threaded_insert_towers_radius = threaded_insert_towers_diameter / 2;
@@ -52,5 +54,6 @@ bottom_module_base_cutout_inset_x = 10;
 bottom_module_base_cutout_inset_y = 10;
 
 module_top_thickness = 2;
+module_top_cover_thickness = 4.5;
 
 module_total_height = module_bottom_base_thickness + outer_wall_height + module_top_thickness;

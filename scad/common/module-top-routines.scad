@@ -23,6 +23,26 @@ module module_top_base(width_units) {
     }
 }
 
+module module_top_cover_base(width_units) {
+    module_size = get_module_size(width_units);
+
+    difference() {
+        // body
+        union() {
+            linear_extrude(module_top_cover_thickness) {
+                rounded_rectangle(module_size, 1);
+            }
+        }
+
+        union() {
+            module_top_screw_hole_cutouts(module_size);
+            translate([0, 0, module_top_cover_thickness - screw_head_height]) {
+                module_top_screw_head_cutouts(module_size);
+            }
+        }
+    }
+}
+
 module module_top_screw_hole_cutouts(module_size) {
     inset = screw_hole_inset;
 
@@ -37,8 +57,29 @@ module module_top_screw_hole_cutouts(module_size) {
 
     for (p = points) {
         translate(p) {
-            linear_extrude(module_top_thickness) {
+            linear_extrude(100) {
                 circle(d = screw_hole_diameter);
+            }
+        }
+    }
+}
+
+module module_top_screw_head_cutouts(module_size) {
+    inset = screw_hole_inset;
+
+    points = [
+            [inset, inset],
+            [module_size.x - inset, inset],
+            [inset, module_size.y / 2],
+            [module_size.x - inset, module_size.y / 2],
+            [inset, module_size.y - inset],
+            [module_size.x - inset, module_size.y - inset]
+        ];
+
+    for (p = points) {
+        translate(p) {
+            linear_extrude(screw_head_height) {
+                circle(d = screw_head_diameter);
             }
         }
     }
