@@ -8,7 +8,25 @@ module module_a_top() {
     difference() {
         module_top_cover_base(4);
 
-        key_cluster_cutouts();
+        union() {
+            key_cluster_cutouts();
+            #top_cover_sticker_cutout(4);
+        }
+    }
+}
+
+module top_cover_sticker_cutout(width_units) {
+    inset_x = 10;
+    inset_y = 10;
+    module_width = (width_units * module_width_x_unit);
+    width = module_width - (inset_x*2);
+    height = 10;
+    depth = 1;
+
+    translate([module_width/2, module_height_y - inset_y, module_top_cover_thickness - depth]) {
+        linear_extrude(depth) {
+            rounded_rectangle([width, height], corner_radius = 2, center = true);
+        }
     }
 }
 
