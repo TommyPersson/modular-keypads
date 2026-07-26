@@ -67,9 +67,7 @@ module tear_drop_circle(d) {
     circle(d = d);
 }
 
-module threaded_insert_cutout() {
-    k = threaded_insert_knurl_diameter;
-    l = threaded_insert_length;
+module threaded_insert_cutout(k = threaded_insert_knurl_diameter, l = threaded_insert_length) {
 
     k1 = k + 0.2;
     k2 = k * 0.9;

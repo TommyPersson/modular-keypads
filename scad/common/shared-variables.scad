@@ -4,7 +4,6 @@ u_1 = 19.05;
 
 plate_corner_radius = 2;
 
-screw_hole_diameter = 2.7;
 
 switch_neck_thickness = 1.2;
 switch_neck_width = 13.9;
@@ -32,6 +31,7 @@ inner_wall_thickness = 2;
 inner_wall_height = 3;
 outer_wall_height = inner_wall_height + pcb_thickness;
 
+screw_hole_diameter = 2.7;
 screw_hole_inset_pcb = 4;
 screw_hole_inset = screw_hole_inset_pcb + outer_wall_thickness_base;
 screw_head_height = 1.6;

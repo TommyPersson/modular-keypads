@@ -64,6 +64,25 @@ module module_top_screw_hole_cutouts(module_size) {
     }
 }
 
+module for_module_screws(module_size) {
+    inset = screw_hole_inset;
+
+    points = [
+            [inset, inset],
+            [module_size.x - inset, inset],
+            [inset, module_size.y / 2],
+            [module_size.x - inset, module_size.y / 2],
+            [inset, module_size.y - inset],
+            [module_size.x - inset, module_size.y - inset]
+        ];
+
+    for (p = points) {
+        translate(p) {
+            children();
+        }
+    }
+}
+
 module module_top_screw_head_cutouts(module_size) {
     inset = screw_hole_inset;
 
