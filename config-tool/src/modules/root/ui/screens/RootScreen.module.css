@@ -18,3 +18,7 @@
         }
     }
 }
+
+.ToolPaneNavItem {
+    min-height: 48px;
+}

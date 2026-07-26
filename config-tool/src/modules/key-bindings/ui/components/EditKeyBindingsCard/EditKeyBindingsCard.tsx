@@ -1,4 +1,3 @@
-import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import {
   Autocomplete,

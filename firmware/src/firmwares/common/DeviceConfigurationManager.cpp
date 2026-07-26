@@ -14,7 +14,7 @@ namespace {
         uint64_t newId;
         esp_fill_random(&newId, sizeof(newId));
 
-        return newId;
+        return newId;   
     }
 }
 

@@ -1,11 +1,11 @@
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import FileUploadIcon from "@mui/icons-material/FileUpload"
+import KeyboardOutlinedIcon from "@mui/icons-material/KeyboardOutlined"
 
 import {
   Alert,
   Avatar,
   Button,
-  Card,
   CardContent,
   CardHeader,
   Divider,
@@ -27,7 +27,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const maxEventLogItems = 20
 
-export const KeyboardEventsCard = () => {
+export const KeyboardEventsToolPaneContent = () => {
   const [keyCaptureEnabled, setKeyCaptureEnabled] = useState(false)
 
   const isAnyModalOpen = useIsAnyModalOpen()
@@ -40,36 +40,39 @@ export const KeyboardEventsCard = () => {
 
 
   return (
-    <Card>
+    <Stack direction={"column"} sx={{ width: 700 }}>
       <CardHeader
-        title={"Keyboard Events"}
-        subheader={"View live keyboard events to help create or debug your macros"}
-        action={
-          <>
-            <ToggleButton
-              onClick={handleKeyCaptureToggled}
-              selected={keyCaptureEnabled}
-              value={"dont-care"}
-            >
-              Key Capture
-            </ToggleButton>
-            <Button onClick={keyboardState.reset}>Reset</Button>
-          </>
+        title={
+          <Stack spacing={1} direction={"row"} alignItems={"center"}>
+            <KeyboardOutlinedIcon />
+            <span>Keyboard Events</span>
+          </Stack>
         }
+        subheader={`View live keyboard events to help create or debug your macros`}
+        action={<>
+          <ToggleButton
+            onClick={handleKeyCaptureToggled}
+            selected={keyCaptureEnabled}
+            value={"dont-care"}
+          >
+            Key Capture
+          </ToggleButton>
+          <Button onClick={keyboardState.reset}>Reset</Button>
+        </>}
       />
-      <CardContent>
-        <Alert severity={"info"}>
-          It is possible for this view to get out of sync with the keyboard if the pressed combination shifts focus
-          away from the window, or trigger some other behavior. In that case you may reset the state of the preview.
-          <p />
-          You can also use the "Key Capture" button to prevent the browser from handling most of the pressed keys.
-        </Alert>
-      </CardContent>
+
+      <Alert severity={"info"} sx={{ m: 2 }}>
+        It is possible for this view to get out of sync with the keyboard if the pressed combination shifts focus
+        away from the window, or trigger some other behavior. In that case you may reset the state of the preview.
+        <p />
+        You can also use the "Key Capture" button to prevent the browser from handling most of the pressed keys.
+      </Alert>
+
       <Divider />
       <KeyboardStateCardContent state={keyboardState} />
       <Divider />
       <KeyboardLogCardContent state={keyboardState} />
-    </Card>
+    </Stack>
   )
 }
 

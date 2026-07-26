@@ -3,6 +3,7 @@ import { DeviceDebuggerPage } from "@src/modules/device-debugger/ui"
 import { DeviceContextProvider } from "@src/modules/device/context"
 import { KeyBindingsPage } from "@src/modules/key-bindings/ui"
 import { OverviewPage } from "@src/modules/overview/ui/pages"
+import { ToolPaneContextProvider } from "@src/modules/root/ui/components/ToolPane/ToolPaneContextProvider"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router"
@@ -40,7 +41,9 @@ export const App = () => {
       <ReactQueryDevtools />
       <DeviceContextProvider>
         <ConfirmProvider>
-          <RouterProvider router={router} />
+          <ToolPaneContextProvider>
+            <RouterProvider router={router} />
+          </ToolPaneContextProvider>
         </ConfirmProvider>
       </DeviceContextProvider>
     </QueryClientProvider>

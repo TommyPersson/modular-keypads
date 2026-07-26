@@ -10,7 +10,6 @@ import {
   CardContent,
   CardHeader,
   Collapse,
-  Popover,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -23,86 +22,74 @@ import type { DateTime } from "luxon"
 import { type ComponentProps, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { TransitionGroup } from "react-transition-group"
 
-export const DeviceLogsDropDown = () => {
-  const state = useDeviceLogsDropDownState()
+export const DeviceLogsToolPaneIcon = () => {
+  const state = useDeviceLogsToolPaneState()
+
+  return (
+    <Badge badgeContent={state.filteredLogMessages.length} color={"secondary"}>
+      <WysiwygOutlinedIcon />
+    </Badge>
+  )
+}
+
+export const DeviceLogsToolPaneContent = () => {
+  const state = useDeviceLogsToolPaneState()
 
   return (
     <>
-      <Badge badgeContent={state.filteredLogMessages.length} color={"secondary"}>
-        <Button
-          variant={"outlined"}
-          color={"inherit"}
-          startIcon={<WysiwygOutlinedIcon />}
-          onClick={state.handleClick}
-          ref={state.setPopoverTargetEl}
-        >
-          Device Logs
-        </Button>
-      </Badge>
-      <Popover
-        id={"test"}
-        open={state.isOpen}
-        onClose={state.handleClose}
-        anchorEl={state.popoverTargetEl}
-        sx={{ mt: 1 }}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right"
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right"
-        }}
-      >
-        <CardHeader
-          title={"Log Messages"}
-          action={(
-            <Stack direction={"row"} gap={2}>
-              <ToggleButtonGroup color={"primary"} value={state.logLevels} onChange={state.handleLogLevelsChange}>
-                <ToggleButton value={"debug"}>Debug</ToggleButton>
-                <ToggleButton value={"info"}>Info</ToggleButton>
-                <ToggleButton value={"warning"}>Warning</ToggleButton>
-                <ToggleButton value={"error"}>Error</ToggleButton>
-              </ToggleButtonGroup>
-              <Button
-                startIcon={<DeleteSweepOutlinedIcon />}
-                onClick={state.handleClearClick}
-                children={"Clear"}
-              />
-            </Stack>
-          )}
-        />
-        <CardContent style={{ maxHeight: "80vh", overflow: "auto" }}>
-          {state.filteredLogMessages.length === 0 && (
-            state.logMessages.length > 0 ? (
-              <center><em>There are no messages matching the current filter.</em></center>
-            ) : (
-              <center><em>No log messages have been received, yet.</em></center>
+      <CardHeader
+        title={
+          <Stack spacing={1} direction={"row"} alignItems={"center"}>
+            <WysiwygOutlinedIcon />
+            <span>Log Messages</span>
+          </Stack>
+        }
+        action={(
+          <Stack direction={"row"} gap={2}>
+            <ToggleButtonGroup color={"primary"} value={state.logLevels} onChange={state.handleLogLevelsChange}>
+              <ToggleButton value={"debug"}>Debug</ToggleButton>
+              <ToggleButton value={"info"}>Info</ToggleButton>
+              <ToggleButton value={"warning"}>Warning</ToggleButton>
+              <ToggleButton value={"error"}>Error</ToggleButton>
+            </ToggleButtonGroup>
+            <Button
+              startIcon={<DeleteSweepOutlinedIcon />}
+              onClick={state.handleClearClick}
+              children={"Clear"}
+            />
+          </Stack>
+        )}
+      />
+      <CardContent style={{ maxHeight: "80vh", overflow: "auto" }}>
+        {state.filteredLogMessages.length === 0 && (
+          state.logMessages.length > 0 ? (
+            <center><em>There are no messages matching the current filter.</em></center>
+          ) : (
+            <center><em>No log messages have been received, yet.</em></center>
+          )
+        )}
+        <TransitionGroup style={{ display: "flex", flexDirection: "column", gap: 8, width: 600, minHeight: 400 }}>
+          {state.filteredLogMessages.map(logMessage => {
+            return (
+              <Collapse>
+                <LogMessageAlert
+                  key={logMessage.key}
+                  logMessage={logMessage}
+                  onClose={state.handleLogMessageClosed}
+                />
+              </Collapse>
             )
-          )}
-          <TransitionGroup style={{ display: "flex", flexDirection: "column", gap: 8, width: 600, minHeight: 400 }}>
-            {state.filteredLogMessages.map(logMessage => {
-              return (
-                <Collapse>
-                  <LogMessageAlert
-                    key={logMessage.key}
-                    logMessage={logMessage}
-                    onClose={state.handleLogMessageClosed}
-                  />
-                </Collapse>
-              )
-            })}
-          </TransitionGroup>
-          {state.filteredLogMessages.length > 0 && state.filteredLogMessages.length < state.logMessages.length && (
-            <center style={{ marginTop: 8 }}>
-              <em>
-                Only showing <strong>{state.filteredLogMessages.length}</strong> out
-                of <strong>{state.logMessages.length}</strong> items.
-              </em>
-            </center>
-          )}
-        </CardContent>
-      </Popover>
+          })}
+        </TransitionGroup>
+        {state.filteredLogMessages.length > 0 && state.filteredLogMessages.length < state.logMessages.length && (
+          <center style={{ marginTop: 8 }}>
+            <em>
+              Only showing <strong>{state.filteredLogMessages.length}</strong> out
+              of <strong>{state.logMessages.length}</strong> items.
+            </em>
+          </center>
+        )}
+      </CardContent>
     </>
   )
 }
@@ -111,7 +98,7 @@ let nextMessageKey = 0
 
 const initialLevels = ["info", "warning", "error"]
 
-function useDeviceLogsDropDownState() {
+function useDeviceLogsToolPaneState() {
   const deviceFacade = useDeviceFacade()
 
   const [logMessages, setLogMessages] = useState<ParsedLogMessage[]>([])
