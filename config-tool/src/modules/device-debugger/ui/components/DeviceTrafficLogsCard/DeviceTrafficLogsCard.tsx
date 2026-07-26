@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 import { useDeviceContext } from "@src/modules/device/context"
-import type { RawLogMessage } from "@src/modules/device/models"
+import type { DeviceMessage } from "@src/modules/device/models"
 
 export const DeviceTrafficLogsCard = () => {
 
@@ -9,17 +9,17 @@ export const DeviceTrafficLogsCard = () => {
   const { facade: deviceFacade } = deviceContext
 
   const scrollViewRef = useRef<HTMLPreElement | null>(null)
-  const [output, setOutput] = useState<RawLogMessage[]>([])
+  const [output, setOutput] = useState<DeviceMessage[]>([])
 
   useEffect(() => {
-    const subscription = deviceFacade.logs$.subscribe(next => {
+    const subscription = deviceFacade.messages$.subscribe(next => {
       setOutput(s => [...s, next])
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [deviceFacade.logs$, setOutput])
+  }, [deviceFacade.messages$, setOutput])
 
   useEffect(() => {
     setTimeout(() => {
@@ -52,7 +52,7 @@ export const DeviceTrafficLogsCard = () => {
   )
 }
 
-function formatLogLine(message: RawLogMessage) {
+function formatLogLine(message: DeviceMessage) {
   if (message.direction === "to-host") {
     return `[${message.timestamp.toFormat("HH:mm:ss.SSS")}] < ${message.message}\n`
   } else {

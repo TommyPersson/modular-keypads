@@ -1,15 +1,20 @@
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
+import { takeFirst } from "@src/utils/arrays"
 import { readLines } from "@src/utils/streams"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
-import type { DeviceInformation, NotificationMessage, RawLogMessage } from "../models"
+import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage } from "../models"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type { DeviceFacade } from "./DeviceFacade"
 
 export class DeviceFacadeImpl implements DeviceFacade {
 
-  private logsSubject = new Subject<RawLogMessage>()
+  private messagesSubject = new Subject<DeviceMessage>()
+  private logsSubject = new Subject<LogMessage[]>()
   private notificationsSubject = new Subject<NotificationMessage>()
+
+  private _logs: LogMessage[] = []
+
   private isConnectedSubject = new BehaviorSubject<boolean>(false)
   private _isConnected = false
 
@@ -20,6 +25,8 @@ export class DeviceFacadeImpl implements DeviceFacade {
   private port: SerialPort | null = null
 
   private commandExecutor: DeviceCommandExecutor | null = null
+
+  private nextLogMessageKey = 0
 
   constructor() {
   }
@@ -37,11 +44,8 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
       this.port = await navigator.serial.requestPort({})
       this.port.open({ baudRate: 115200 }).then(async () => {
-        //await this.port!.setSignals({ dataTerminalReady: true, requestToSend: false }) // Avoids resetting the MC when connecting
-
-
         this.writer = this.port!.writable!.getWriter()
-        this.commandExecutor = new DeviceCommandExecutor(this.writer, this.logsSubject)
+        this.commandExecutor = new DeviceCommandExecutor(this.writer, this.messagesSubject)
 
         this._isConnected = true
         this.isConnectedSubject.next(true)
@@ -53,13 +57,30 @@ export class DeviceFacadeImpl implements DeviceFacade {
                 break
               }
 
-              this.logsSubject.next({ direction: "to-host", message: line, timestamp: DateTime.now() })
+              const deviceMessage: DeviceMessage = { direction: "to-host", message: line, timestamp: DateTime.now() }
+              this.messagesSubject.next(deviceMessage)
 
               this.commandExecutor.onLineReceived(line)
 
               if (line.startsWith("!")) {
                 const [deviceId, type, ...args] = line.substring(1).split(":")
                 this.notificationsSubject.next({ deviceId, type, args, timestamp: DateTime.now() })
+              }
+
+              if (line.startsWith("#")) {
+                const [level, component, ...messageParts] = line.substring(1).split(":")
+                const message = messageParts.length > 0 ? messageParts.join(":") : null
+
+                const logMessage = {
+                  key: this.nextLogMessageKey++,
+                  timestamp: DateTime.now(),
+                  level,
+                  component: message ? component : null,
+                  message: message ? message : component
+                }
+
+                this._logs = [...takeFirst(this._logs, 999), logMessage]
+                this.logsSubject.next(this._logs)
               }
             }
           }
@@ -156,8 +177,26 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.isConnectedSubject.next(false)
   }
 
-  get logs$(): Observable<RawLogMessage> {
+  get messages$(): Observable<DeviceMessage> {
+    return this.messagesSubject
+  }
+
+  get logs$(): Observable<LogMessage[]> {
     return this.logsSubject
+  }
+
+  get logs(): ReadonlyArray<LogMessage> {
+    return this._logs
+  }
+
+  clearLogs(): void {
+    this._logs = []
+    this.logsSubject.next(this._logs)
+  }
+
+  deleteLogMessage(key: number) {
+    this._logs = this._logs.filter(it => it.key !== key)
+    this.logsSubject.next(this._logs)
   }
 
   get notifications$(): Observable<NotificationMessage> {

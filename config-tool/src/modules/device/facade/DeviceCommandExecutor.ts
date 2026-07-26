@@ -2,7 +2,7 @@ import { Deferred } from "@src/utils/Deferred"
 import { Mutex } from "@src/utils/Mutex"
 import { DateTime } from "luxon"
 import { Subject } from "rxjs"
-import { DeviceCommandError, type RawLogMessage } from "../models"
+import { DeviceCommandError, type DeviceMessage } from "../models"
 
 export class DeviceCommandExecutor {
 
@@ -17,7 +17,7 @@ export class DeviceCommandExecutor {
 
   constructor(
     private readonly writer: WritableStreamDefaultWriter,
-    private readonly logsSubject: Subject<RawLogMessage>,
+    private readonly logsSubject: Subject<DeviceMessage>,
   ) {
   }
 

@@ -1,6 +1,6 @@
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
 import { Observable } from "rxjs"
-import type { DeviceInformation, NotificationMessage, RawLogMessage } from "../models"
+import type { DeviceInformation, NotificationMessage, DeviceMessage, LogMessage } from "../models"
 
 export interface DeviceFacade {
   connect(): Promise<void>
@@ -10,8 +10,14 @@ export interface DeviceFacade {
 
   executeCommand<TResult>(command: DeviceCommand<TResult>): Promise<TResult>
 
-  logs$: Observable<RawLogMessage>
+  messages$: Observable<DeviceMessage>
+  logs$: Observable<LogMessage[]>
   notifications$: Observable<NotificationMessage>
+
+  logs: ReadonlyArray<LogMessage>
+
+  clearLogs(): void
+  deleteLogMessage(key: number): void
 
   isConnected$: Observable<boolean>
   isConnected: boolean

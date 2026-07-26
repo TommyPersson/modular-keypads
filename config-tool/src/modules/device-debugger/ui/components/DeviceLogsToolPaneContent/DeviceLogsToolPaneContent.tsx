@@ -15,11 +15,12 @@ import {
   ToggleButtonGroup,
   Typography
 } from "@mui/material"
+import { GetDeviceLogsQuery } from "@src/modules/device-debugger/queries"
 import { useDeviceFacade } from "@src/modules/device/context"
-import type { RawLogMessage } from "@src/modules/device/models"
+import type { LogMessage } from "@src/modules/device/models"
 import { takeFirst } from "@src/utils/arrays"
-import type { DateTime } from "luxon"
-import { type ComponentProps, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { type ComponentProps, forwardRef, memo, useCallback, useMemo, useState } from "react"
 import { TransitionGroup } from "react-transition-group"
 
 export const DeviceLogsToolPaneIcon = () => {
@@ -36,7 +37,7 @@ export const DeviceLogsToolPaneContent = () => {
   const state = useDeviceLogsToolPaneState()
 
   return (
-    <>
+    <Stack style={{ width: 700 }}>
       <CardHeader
         title={
           <Stack spacing={1} direction={"row"} alignItems={"center"}>
@@ -90,100 +91,51 @@ export const DeviceLogsToolPaneContent = () => {
           </center>
         )}
       </CardContent>
-    </>
+    </Stack>
   )
 }
 
-let nextMessageKey = 0
-
 const initialLevels = ["info", "warning", "error"]
+
+const EmptyArray: any[] = []
 
 function useDeviceLogsToolPaneState() {
   const deviceFacade = useDeviceFacade()
 
-  const [logMessages, setLogMessages] = useState<ParsedLogMessage[]>([])
+  const logMessagesQuery = useQuery(GetDeviceLogsQuery(deviceFacade))
+  const logMessages: LogMessage[] = logMessagesQuery.data ?? EmptyArray
+
   const [logLevels, setLogLevels] = useState<string[]>(initialLevels)
 
   const filteredLogMessages = useMemo(() => {
     return takeFirst(logMessages.filter(it => logLevels.includes(it.level)), 50)
   }, [logMessages, logLevels])
 
-  useEffect(() => {
-    const subscription = deviceFacade.logs$.subscribe(logMessage => {
-      if (logMessage.direction !== "to-host" || !logMessage.message.startsWith("#")) {
-        return
-      }
-      nextMessageKey++
-      setLogMessages(s => {
-        const next = [parseLogMessage(logMessage, nextMessageKey), ...s]
-        return takeFirst(next, 1000)
-      })
-    })
-    return () => subscription.unsubscribe()
-  }, [deviceFacade, setLogMessages])
-
-  const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [popoverTargetEl, setPopoverTargetEl] = useState<HTMLElement | null>(null)
-
-  const handleClick = useCallback(() => {
-    setIsOpen(true)
-  }, [setIsOpen])
-
-  const handleClose = useCallback(() => {
-    setIsOpen(false)
-  }, [setIsOpen])
-
   const handleLogLevelsChange = useCallback((_: any, values: string[]) => {
     setLogLevels(values)
   }, [setLogLevels])
 
   const handleClearClick = useCallback(() => {
-    setLogMessages([])
-  }, [setLogMessages])
+    deviceFacade.clearLogs()
+  }, [deviceFacade])
 
-  const handleLogMessageClosed = useCallback((logMessage: ParsedLogMessage) => {
-    setLogMessages(s => s.filter(it => it !== logMessage))
-  }, [setLogMessages])
+  const handleLogMessageClosed = useCallback((logMessage: LogMessage) => {
+    deviceFacade.deleteLogMessage(logMessage.key)
+  }, [deviceFacade])
 
   return {
     logMessages,
     filteredLogMessages,
-    isOpen,
     logLevels,
-    popoverTargetEl: popoverTargetEl,
-    setPopoverTargetEl,
-    handleClick,
-    handleClose,
     handleLogLevelsChange,
     handleClearClick,
     handleLogMessageClosed,
   }
 }
 
-type ParsedLogMessage = {
-  key: number
-  timestamp: DateTime
-  level: string
-  component: string | null
-  message: string
-}
-
-function parseLogMessage(rawMessage: RawLogMessage, key: number): ParsedLogMessage {
-  const [level, component, ...messageParts] = rawMessage.message.substring(1).split(":")
-  const message = messageParts.length > 0 ? messageParts.join(":") : null
-
-  return {
-    key: key,
-    timestamp: rawMessage.timestamp,
-    level,
-    component: message ? component : null,
-    message: message ? message : component
-  }
-}
-
 const LogMessageAlert = memo(forwardRef((props: {
-  logMessage: ParsedLogMessage
-  onClose: (logMessage: ParsedLogMessage) => void
+  logMessage: LogMessage
+  onClose: (logMessage: LogMessage) => void
 }, ref) => {
   const { logMessage, onClose } = props
   const { timestamp, component, message } = logMessage
@@ -224,7 +176,7 @@ const LogMessageAlert = memo(forwardRef((props: {
   )
 }))
 
-function getSeverity(logMessage: ParsedLogMessage): ComponentProps<typeof Alert>["severity"] {
+function getSeverity(logMessage: LogMessage): ComponentProps<typeof Alert>["severity"] {
   switch (logMessage.level) {
     case "debug":
       return "info"
@@ -237,7 +189,7 @@ function getSeverity(logMessage: ParsedLogMessage): ComponentProps<typeof Alert>
   }
 }
 
-function getIcon(logMessage: ParsedLogMessage): ComponentProps<typeof Alert>["icon"] {
+function getIcon(logMessage: LogMessage): ComponentProps<typeof Alert>["icon"] {
   switch (logMessage.level) {
     case "debug":
       return <BugReportOutlinedIcon />

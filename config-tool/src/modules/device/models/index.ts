@@ -1,5 +1,6 @@
 export * from "./NotificationMessage"
-export * from "./RawLogMessage"
+export * from "./DeviceMessage"
+export * from "./LogMessage"
 
 export type DeviceInformation = {
   readonly deviceId: string
