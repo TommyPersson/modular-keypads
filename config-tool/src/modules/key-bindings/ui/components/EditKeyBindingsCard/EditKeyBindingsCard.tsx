@@ -1,4 +1,5 @@
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import {
   Autocomplete,
   type AutocompleteInputChangeReason,
@@ -444,16 +445,14 @@ const MacroValueVisualization = (props: {
   }
 
   return (
-    <Stack direction={"row"} gap={2} alignItems={"center"} flex={1} style={{ minWidth: 400, maxWidth: 400 }}>
-      <Stack direction={"row"} gap={1} alignItems={"center"} flex={1} style={{ minWidth: 0 }}>
-        <MacroTypeVisualization type={macro.type} />
-        <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{macro.name}</strong>
-      </Stack>
-      <Stack direction={"row"} gap={1} alignItems={"center"} flex={1} style={{ minWidth: 0 }}>
-        <FolderOutlinedIcon />
+    <Stack direction={"row"} gap={2} alignItems={"center"} flex={1} style={{ maxWidth: 400 }}>
+      <Stack direction={"row"} gap={0.5} alignItems={"center"} flex={1} style={{ minWidth: 0, paddingLeft: 4 }}>
         <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {macro.directory ?? "<root>"}
         </span>
+        <ChevronRightOutlinedIcon />
+        <MacroTypeVisualization type={macro.type} />
+        <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{macro.name}</strong>
       </Stack>
     </Stack>
   )
