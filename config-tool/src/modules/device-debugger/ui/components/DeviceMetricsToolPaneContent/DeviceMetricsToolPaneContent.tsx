@@ -30,11 +30,16 @@ export const DeviceMetricsToolPaneContent = () => {
           </TableHead>
           <TableBody>
             {state.metrics.map(metric => (
-              <TableRow key={metric.name}>
+              <TableRow key={metric.name} hover>
                 <TableCell><code>{metric.name}</code></TableCell>
                 <TableCell align={"right"}><MetricValueText metric={metric} /></TableCell>
               </TableRow>
             ))}
+            {state.metrics.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={2} align={"center"}><em>No metrics available</em></TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>

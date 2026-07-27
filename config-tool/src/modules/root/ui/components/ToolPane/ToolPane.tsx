@@ -16,7 +16,7 @@ export const ToolPane = () => {
   }
 
   return (
-    <Paper style={{ height: "100%" }}>
+    <Paper style={{ height: "100%", width: 700 }}>
       {content}
     </Paper>
   )

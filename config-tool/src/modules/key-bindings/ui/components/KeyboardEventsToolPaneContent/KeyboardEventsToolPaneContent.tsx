@@ -40,7 +40,7 @@ export const KeyboardEventsToolPaneContent = () => {
 
 
   return (
-    <Stack direction={"column"} sx={{ width: 700 }}>
+    <Stack direction={"column"}>
       <CardHeader
         title={
           <Stack spacing={1} direction={"row"} alignItems={"center"}>

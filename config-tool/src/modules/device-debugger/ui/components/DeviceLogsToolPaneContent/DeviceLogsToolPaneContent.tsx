@@ -37,7 +37,7 @@ export const DeviceLogsToolPaneContent = () => {
   const state = useDeviceLogsToolPaneState()
 
   return (
-    <Stack style={{ width: 700 }}>
+    <Stack>
       <CardHeader
         title={
           <Stack spacing={1} direction={"row"} alignItems={"center"}>
