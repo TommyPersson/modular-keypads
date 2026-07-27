@@ -1,8 +1,5 @@
-import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined"
-
-import KeyboardAltOutlinedIcon from "@mui/icons-material/KeyboardAltOutlined"
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, Toolbar, Tooltip } from "@mui/material"
-import { DeviceLogsToolPaneIcon } from "@src/modules/device-debugger/ui"
+import { AllAppModules } from "@src/AllAppModules"
 import { useToolPaneContext } from "@src/modules/root/ui/components/ToolPane/ToolPaneContext"
 
 import classes from "./ToolPaneNavBar.module.css"
@@ -23,24 +20,18 @@ export const ToolPaneNavBar = () => {
     >
       <Toolbar />
       <List>
-        <ToolPaneNavItem
-          title={"Keyboard Events"}
-          selected={selectedToolId === "keyboard-events"}
-          onSelect={() => setSelectedToolId("keyboard-events")}
-          icon={<KeyboardAltOutlinedIcon />}
-        />
-        <ToolPaneNavItem
-          title={"Device Metrics"}
-          selected={selectedToolId === "device-metrics"}
-          onSelect={() => setSelectedToolId("device-metrics")}
-          icon={<AssessmentOutlinedIcon />}
-        />
-        <ToolPaneNavItem
-          title={"Device Logs"}
-          selected={selectedToolId === "device-logs"}
-          onSelect={() => setSelectedToolId("device-logs")}
-          icon={<DeviceLogsToolPaneIcon />}
-        />
+        {...AllAppModules
+          .flatMap(it => it.toolPanes)
+          .map(it =>
+            <ToolPaneNavItem
+              key={it.id}
+              title={it.title}
+              icon={it.icon}
+              selected={it.id === selectedToolId}
+              onSelect={() => setSelectedToolId(it.id)}
+            />
+          )
+        }
       </List>
     </Drawer>
   )

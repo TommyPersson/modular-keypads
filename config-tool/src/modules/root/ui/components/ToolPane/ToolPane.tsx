@@ -1,6 +1,5 @@
 import { Paper } from "@mui/material"
-import { DeviceLogsToolPaneContent } from "@src/modules/device-debugger/ui"
-import { DeviceMetricsToolPaneContent } from "@src/modules/device-debugger/ui/components/DeviceMetricsToolPaneContent"
+import { AllAppModules } from "@src/AllAppModules"
 import {
   KeyboardEventsToolPaneContent
 } from "@src/modules/key-bindings/ui/components/KeyboardEventsToolPaneContent/KeyboardEventsToolPaneContent"
@@ -24,13 +23,15 @@ export const ToolPane = () => {
 }
 
 function renderContent(toolId: string | null) {
+  const toolPanes = AllAppModules.flatMap(it => it.toolPanes)
+  const toolPane = toolPanes.find(it => it.id === toolId)
+  if (toolPane?.component) {
+    return toolPane.component
+  }
+
   switch (toolId) {
     case 'keyboard-events':
       return <KeyboardEventsToolPaneContent />
-    case 'device-metrics':
-      return <DeviceMetricsToolPaneContent />
-    case 'device-logs':
-      return <DeviceLogsToolPaneContent />
     default:
       return null
   }
