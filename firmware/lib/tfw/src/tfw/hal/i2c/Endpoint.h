@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "Event.h"
 
 namespace tfw::hal::i2c {
     template <class TStruct>
@@ -10,4 +11,8 @@ namespace tfw::hal::i2c {
     };
 
     const std::uint8_t MAX_PACKET_SIZE = 30; // 32 is the underlying Wire buffer, but if we use it we often read ETB characters
+
+    namespace endpoints::builtin {
+        inline EndpointDescriptor<Event> Events{.id = 0xee};
+    }
 };

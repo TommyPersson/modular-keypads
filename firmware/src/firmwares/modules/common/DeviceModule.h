@@ -39,12 +39,12 @@ namespace devices {
         }
     }
 
-    class DeviceModule {
+    class DeviceModule :
+        tfw::utils::observables::Observer<DeviceSwitchEvent>,
+        tfw::utils::observables::Observer<DeviceRotaryEncoderEvent> {
     public:
-        virtual ~DeviceModule() = default;
-
-        virtual void setup() = 0;
-        virtual void loop() = 0;
+        virtual void setup();
+        virtual void loop();
 
         virtual tfw::utils::registers::RegisterManager& getRegisters() = 0;
         virtual const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() = 0;
@@ -53,20 +53,30 @@ namespace devices {
 
         tfw::utils::void_result flashIdentificationLights(uint32_t durationMs);
         tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs);
-
         tfw::utils::void_result rename(const std::string_view& deviceName);
 
-        tfw::utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return getRuntime().onSwitchEvent(); }
+        tfw::utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
 
         tfw::utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() {
-            return getRuntime().onRotaryEncoderEvent();
+            return deviceRotaryEncoderEventSubject;
         }
 
+        void observe(const DeviceSwitchEvent& event) override;
+        void observe(const DeviceRotaryEncoderEvent& event) override;
+
     protected:
-        explicit DeviceModule(DeviceLocation deviceLocation, tfw::hal::i2c::Client& i2cClient);
+        explicit DeviceModule(
+            const DeviceConfiguration& configuration,
+            DeviceLocation deviceLocation,
+            tfw::hal::i2c::Client& i2cClient
+        );
 
         virtual DeviceRuntime& getRuntime() = 0;
 
+        tfw::utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
+        tfw::utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
+
+        const DeviceConfiguration configuration;
         DeviceLocation deviceLocation;
         tfw::hal::i2c::Client& i2cClient;
     };

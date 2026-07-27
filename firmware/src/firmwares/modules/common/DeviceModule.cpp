@@ -4,17 +4,66 @@
 #include <firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h>
 #include <tfw/hal/logging.h>
 
+#include "firmwares/common/events/RemoteEventTypes.h"
 #include "firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("DeviceModule");
 }
 
+
 devices::DeviceModule::DeviceModule(
+    const DeviceConfiguration& configuration,
     DeviceLocation deviceLocation,
     tfw::hal::i2c::Client& i2cClient
-) : deviceLocation(deviceLocation),
+) : configuration(configuration),
+    deviceLocation(deviceLocation),
     i2cClient(i2cClient) {
+}
+
+void devices::DeviceModule::setup() {
+    this->getRuntime().onSwitchEvent().addObserver(this);
+    this->getRuntime().onRotaryEncoderEvent().addObserver(this);
+}
+
+void devices::DeviceModule::loop() {
+    if (deviceLocation == DeviceLocation::Remote) {
+        const auto result = i2cClient.readEndpoint(configuration.address, tfw::hal::i2c::endpoints::builtin::Events);
+        if (result.has_error) {
+            return;
+        }
+
+        const auto remoteEvent = *result.value;
+        if (remoteEvent.type == 0) {
+            return;
+        }
+
+        logger->info("event: %02x", remoteEvent.type);
+
+        const auto remoteEventType = static_cast<RemoteEventType>(remoteEvent.type);
+
+        if (remoteEventType == RemoteEventType::BUTTON_PRESSED) {
+            logger->info("button pressed event");
+
+            this->deviceSwitchEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .switchNumber = remoteEvent.args[0],
+                    .state = tfw::hal::buttons::ButtonState::PRESSED,
+                }
+            );
+        } else if (remoteEventType == RemoteEventType::BUTTON_RELEASED) {
+            logger->info("button released event");
+
+            this->deviceSwitchEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .switchNumber = remoteEvent.args[0],
+                    .state = tfw::hal::buttons::ButtonState::UNPRESSED,
+                }
+            );
+        }
+    }
 }
 
 tfw::utils::void_result devices::DeviceModule::flashIdentificationLights(uint32_t durationMs) {
@@ -30,7 +79,8 @@ tfw::utils::void_result devices::DeviceModule::flashIdentificationLights(uint32_
     }
 }
 
-tfw::utils::void_result devices::DeviceModule::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
+tfw::utils::void_result
+devices::DeviceModule::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
     if (deviceLocation == DeviceLocation::Remote) {
         return i2cClient.sendCommand(
             this->getConfiguration().address,
@@ -55,5 +105,17 @@ tfw::utils::void_result devices::DeviceModule::rename(const std::string_view& de
         );
     } else {
         return this->getRuntime().renameDevice(deviceName);
+    }
+}
+
+void devices::DeviceModule::observe(const DeviceSwitchEvent& event) {
+    if (deviceLocation == DeviceLocation::Local) { // TODO rewrite solution to split remote and local devices more clearly. dont rely on register refresing from remote devices.
+        deviceSwitchEventSubject.notify(event);
+    }
+}
+
+void devices::DeviceModule::observe(const DeviceRotaryEncoderEvent& event) {
+    if (deviceLocation == DeviceLocation::Local) {
+        deviceRotaryEncoderEventSubject.notify(event);
     }
 }

@@ -142,12 +142,12 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
     keyBindingSubSystem->observe(event);
 
     // TODO temporary debugging
-    if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 11 && event.deviceId == 0x4981c113a8d59f45) {
+    if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 11) {
         refreshConnectedDevices();
     }
 
 #ifdef SOC_USB_OTG_SUPPORTED
-    if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 12 && event.deviceId == 0x4981c113a8d59f45) {
+    if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 12) {
         chip_usb_set_persist_flags(USBDC_BOOT_DFU);
         REG_WRITE(RTC_CNTL_OPTION1_REG, RTC_CNTL_FORCE_DOWNLOAD_BOOT);
         esp_restart();

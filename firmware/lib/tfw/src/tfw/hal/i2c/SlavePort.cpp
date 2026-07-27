@@ -15,6 +15,12 @@ namespace tfw::hal::i2c {
         selectedEndpoint(endpoints[0]),
         twoWire(twoWire),
         receiveArena(32) {
+
+        uint8_t i = 0;
+        for (auto& endpoint : endpoints) {
+            endpoint.id = i;
+            i++;
+        }
     }
 
     SlavePort::~SlavePort() = default;
@@ -67,10 +73,53 @@ namespace tfw::hal::i2c {
     void SlavePort::onRequestCallback() {
         std::lock_guard guard(lock);
 
+        if (selectedEndpoint.id == i2c::endpoints::builtin::Events.id) {
+            const auto event = this->pollEvent();
+            if (event == nullptr) {
+                constexpr auto emptyEvent = Event{};
+                //constexpr auto emptyEvent = Event{ .type = 0x43};
+                const auto bytes = reinterpret_cast<const uint8_t*>(&emptyEvent);
+                twoWire.write(bytes, sizeof(emptyEvent));
+                return;
+            }
+
+            /*constexpr auto emptyEvent = Event{ .type = 0x42};
+            const auto bytes = reinterpret_cast<const uint8_t*>(&emptyEvent);
+            twoWire.write(bytes, sizeof(emptyEvent));*/
+
+            const auto bytes = reinterpret_cast<const uint8_t*>(event);
+            twoWire.write(bytes, sizeof(*event));
+            return;
+        }
+
         twoWire.write(selectedEndpoint.data, selectedEndpoint.length);
     }
 
     void SlavePort::selectEndpoint(const uint8_t endpointId) {
         selectedEndpoint = this->endpoints[endpointId];
+    }
+
+    void SlavePort::enqueueEvent(const Event& event) {
+        this->eventQueue[eventProducerIndex] = event;
+
+        eventProducerIndex++;
+        if (eventProducerIndex >= 255) {
+            eventProducerIndex = 0;
+        }
+    }
+
+    Event* SlavePort::pollEvent() {
+        if (eventConsumerIndex == eventProducerIndex) {
+            return nullptr;
+        }
+
+        auto& event = this->eventQueue[eventConsumerIndex];
+
+        eventConsumerIndex++;
+        if (eventConsumerIndex >= 255) {
+            eventConsumerIndex = 0;
+        }
+
+        return &event;
     }
 }

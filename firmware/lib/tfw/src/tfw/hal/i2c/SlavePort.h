@@ -7,10 +7,13 @@
 #include <tfw/utils/allocations.h>
 
 #include "Endpoint.h"
+#include "Event.h"
 #include "Pins.h"
+#include "tfw/utils/result.h"
 
 namespace tfw::hal::i2c {
     struct EndpointData {
+        uint8_t id;
         uint8_t data[MAX_PACKET_SIZE];
         uint8_t length;
     };
@@ -41,11 +44,15 @@ namespace tfw::hal::i2c {
             }
         }
 
+        void enqueueEvent(const Event& event);
+
         void addCommandHandler(void* handler);
 
     private:
         void onReceiveCallback(int len);
         void onRequestCallback();
+
+        Event* pollEvent();
 
         void selectEndpoint(uint8_t endpointId);
 
@@ -53,6 +60,10 @@ namespace tfw::hal::i2c {
         EndpointData& selectedEndpoint;
 
         TwoWire& twoWire;
+
+        Event eventQueue[255]{};
+        uint8_t eventConsumerIndex = 0;
+        uint8_t eventProducerIndex = 0;
 
         tfw::utils::allocations::Arena receiveArena;
 

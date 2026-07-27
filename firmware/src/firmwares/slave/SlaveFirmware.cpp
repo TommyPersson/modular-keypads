@@ -7,6 +7,8 @@
 #include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
+#include "firmwares/common/events/RemoteEventTypes.h"
+
 namespace {
     auto logger = tfw::hal::logging::createLogger("SlaveFirmware");
 }
@@ -14,7 +16,8 @@ namespace {
 using namespace firmwares::slave;
 
 SlaveFirmware::SlaveFirmware(ServiceLocator& serviceLocator) :
-    slavePort(serviceLocator.i2cSlavePort), Firmware(serviceLocator) {
+    slavePort(serviceLocator.i2cSlavePort),
+    Firmware(serviceLocator) {
 }
 
 SlaveFirmware::~SlaveFirmware() = default;
@@ -38,30 +41,35 @@ void SlaveFirmware::setup() {
     auto pins = localModuleFactory->getI2cPins();
 
     auto deviceAddress = configuration.address;
-    if (deviceAddress > 0) {
-        const auto deviceId = configuration.id;
-        const auto deviceName = configuration.name;
-
-        devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
-        deviceInformationStruct.deviceId = deviceId;
-        deviceInformationStruct.deviceType = configuration.type;
-
-        slavePort.updateEndpoint(
-            devices::common::i2c::endpoints::DeviceInformation,
-            &deviceInformationStruct
-        );
-
-        slavePort.updateEndpoint(
-            devices::common::i2c::endpoints::DeviceName,
-            deviceName.c_str()
-        );
-
-        slavePort.setup(deviceAddress, pins);
-
-        slavePort.addCommandHandler(new i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
-        slavePort.addCommandHandler(new i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device));
-        slavePort.addCommandHandler(new i2c::commands::RenameDeviceRemoteCommandHandler(*device));
+    if (deviceAddress == 0) {
+        logger->error("Device needs to have an address configured.");
+        return;
     }
+
+    const auto deviceId = configuration.id;
+    const auto deviceName = configuration.name;
+
+    devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
+    deviceInformationStruct.deviceId = deviceId;
+    deviceInformationStruct.deviceType = configuration.type;
+
+    slavePort.updateEndpoint(
+        devices::common::i2c::endpoints::DeviceInformation,
+        &deviceInformationStruct
+    );
+
+    slavePort.updateEndpoint(
+        devices::common::i2c::endpoints::DeviceName,
+        deviceName.c_str()
+    );
+
+    slavePort.setup(deviceAddress, pins);
+
+    slavePort.addCommandHandler(new i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new i2c::commands::RenameDeviceRemoteCommandHandler(*device));
+
+    device->onSwitchEvent().addObserver(this);
 }
 
 void SlaveFirmware::loop() {
@@ -78,11 +86,31 @@ void SlaveFirmware::loop() {
         &registersStruct,
         device->getRegisterDescriptors().size()
     );
-/*
-    gpio_wakeup_enable((gpio_num_t)11, GPIO_INTR_LOW_LEVEL);
-    gpio_wakeup_enable((gpio_num_t)10, GPIO_INTR_LOW_LEVEL);
-    esp_sleep_enable_gpio_wakeup();
-    esp_sleep_enable_timer_wakeup(1000);
-    esp_light_sleep_start();
-    */
+    /*
+        gpio_wakeup_enable((gpio_num_t)11, GPIO_INTR_LOW_LEVEL);
+        gpio_wakeup_enable((gpio_num_t)10, GPIO_INTR_LOW_LEVEL);
+        esp_sleep_enable_gpio_wakeup();
+        esp_sleep_enable_timer_wakeup(1000);
+        esp_light_sleep_start();
+        */
+}
+
+void SlaveFirmware::observe(const devices::DeviceSwitchEvent& event) {
+    if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
+        slavePort.enqueueEvent(
+            tfw::hal::i2c::Event{
+                .type = static_cast<uint8_t>(RemoteEventType::BUTTON_PRESSED),
+                .deviceId = event.deviceId,
+                .args = {event.switchNumber}
+            }
+        );
+    } else if (event.state == tfw::hal::buttons::ButtonState::UNPRESSED) {
+        slavePort.enqueueEvent(
+            tfw::hal::i2c::Event{
+                .type = static_cast<uint8_t>(RemoteEventType::BUTTON_RELEASED),
+                .deviceId = event.deviceId,
+                .args = {event.switchNumber}
+            }
+        );
+    }
 }

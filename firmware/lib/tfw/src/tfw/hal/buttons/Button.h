@@ -7,10 +7,10 @@
 
 namespace tfw::hal::buttons {
 
-    enum class ButtonState {
-        PRESSED,
-        UNPRESSED,
-        UNKNOWN,
+    enum class ButtonState : uint8_t {
+        PRESSED = 0x01,
+        UNPRESSED = 0x02,
+        UNKNOWN = 0xff,
     };
 
     struct ButtonStateChangedEvent {

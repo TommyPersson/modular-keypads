@@ -21,8 +21,7 @@ DeviceModuleM::DeviceModuleM(
     std::unique_ptr<DeviceRuntime>& deviceRuntime,
     std::unique_ptr<Notifier>& notifier,
     tfw::hal::i2c::Client& i2cClient
-) : DeviceModule(deviceLocation, i2cClient),
-    configuration(configuration),
+) : DeviceModule(configuration, deviceLocation, i2cClient),
     indicatorLedManager(std::move(indicatorLedManager)),
     registerManager(std::move(registerManager)),
     registerRefresher(std::move(registerRefresher)),

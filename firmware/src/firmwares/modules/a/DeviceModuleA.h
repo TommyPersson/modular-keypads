@@ -63,7 +63,6 @@ namespace devices::a {
         }
 
     private:
-        const DeviceConfiguration configuration;
         std::unique_ptr<IndicatorLedManager> indicatorLedManager;
         std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
