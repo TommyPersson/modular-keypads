@@ -25,14 +25,12 @@ namespace devices::m {
     class DeviceModuleM final : public DeviceModule {
     public:
         DeviceModuleM(
-            DeviceLocation deviceLocation,
             const DeviceConfiguration& configuration,
             std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
             std::unique_ptr<tfw::utils::registers::RegisterManager>& registerManager,
             std::unique_ptr<RegisterRefresher>& registerRefresher,
             std::unique_ptr<DeviceRuntime>& deviceRuntime,
-            std::unique_ptr<Notifier>& notifier,
-            tfw::hal::i2c::Client& i2cClient
+            std::unique_ptr<Notifier>& notifier
         );
         ~DeviceModuleM() override;
 

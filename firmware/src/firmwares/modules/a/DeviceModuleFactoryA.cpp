@@ -33,14 +33,12 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
     );
 
     return std::make_unique<DeviceModuleA>(
-        DeviceLocation::Local,
         config,
         indicatorLeds,
         registers,
         registerRefresher,
         runtime,
-        notifier,
-        serviceLocator.i2cClient
+        notifier
     );
 }
 

@@ -61,15 +61,11 @@ namespace devices {
 
     protected:
         explicit DeviceModule(
-            const DeviceConfiguration& configuration,
-            DeviceLocation deviceLocation,
-            tfw::hal::i2c::Client& i2cClient
+            const DeviceConfiguration& configuration
         );
 
         virtual DeviceRuntime& getRuntime() = 0;
 
         const DeviceConfiguration configuration;
-        DeviceLocation deviceLocation;
-        tfw::hal::i2c::Client& i2cClient;
     };
 }
