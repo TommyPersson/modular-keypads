@@ -1,9 +1,9 @@
 #include "Firmware.h"
 
 
+#include <tfw/hal/logging.h>
 #include "../common/ServiceLocator.h"
 #include "../master/MasterFirmware.h"
-#include "../../mkp/devices/a/DeviceFactoryA.h"
 #include "../slave/SlaveFirmware.h"
 #include "commands/ListRegistersCommandHandler.h"
 #include "commands/ListRegisterValuesCommandHandler.h"
@@ -18,7 +18,7 @@
 #include "commands/ResetDeviceCommandHandler.h"
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "metrics/BaseMetrics.h"
-#include <tfw/hal/logging.h>
+#include "mkp/devices/a/DeviceFactoryA.h"
 
 
 namespace {
@@ -46,12 +46,12 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ListRegisterValuesCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>(serviceLocator.metricRegistry));
 
-    deviceFactories.emplace_back(std::make_unique<devices::a::DeviceFactoryA>());
+    deviceFactories.emplace_back(std::make_unique<mkp::devices::a::DeviceFactoryA>());
 
     firmware::metrics::base::register_all(serviceLocator.metricRegistry);
 }
 
-devices::DeviceFactory* Firmware::getDeviceFactory(char deviceType) const {
+mkp::devices::common::DeviceFactory* Firmware::getDeviceFactory(char deviceType) const {
     for (const auto& factory : deviceFactories) {
         if (factory->matches(deviceType)) {
             return factory.get();

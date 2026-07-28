@@ -5,7 +5,7 @@
 
 class ResetDeviceCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ResetDeviceCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit ResetDeviceCommandHandler(mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager);
     ~ResetDeviceCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
 };

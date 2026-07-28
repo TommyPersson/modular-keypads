@@ -18,8 +18,8 @@ class KeyBindingSubSystem
       tfw::utils::observables::Observer<common::macros::MacroRemoved>,
       tfw::utils::observables::Observer<common::keybindings::KeyBindingSet>,
       tfw::utils::observables::Observer<common::keybindings::KeyBindingCleared>,
-      tfw::utils::observables::Observer<devices::DeviceSwitchEvent>,
-      tfw::utils::observables::Observer<devices::DeviceRotaryEncoderEvent> {
+      tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
+      tfw::utils::observables::Observer<mkp::devices::common::DeviceRotaryEncoderEvent> {
 public:
     KeyBindingSubSystem(
         common::macros::MacroStorage& macroStorage,
@@ -39,15 +39,15 @@ public:
     void observe(const common::macros::MacroRemoved& event) override;
     void observe(const common::keybindings::KeyBindingSet& event) override;
     void observe(const common::keybindings::KeyBindingCleared& event) override;
-    void observe(const devices::DeviceSwitchEvent& event) override;
-    void observe(const devices::DeviceRotaryEncoderEvent& event) override;
+    void observe(const mkp::devices::common::DeviceSwitchEvent& event) override;
+    void observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) override;
 
 private:
     void refreshCompiledMacros();
     void refreshKeyBindings();
 
-    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const devices::DeviceSwitchEvent& event);
-    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const devices::DeviceRotaryEncoderEvent& event);
+    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const mkp::devices::common::DeviceSwitchEvent& event);
+    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const mkp::devices::common::DeviceRotaryEncoderEvent& event);
 
     void executeMacroFor(const std::shared_ptr<common::keybindings::KeyBinding>& keyBinding);
 

@@ -24,7 +24,7 @@ void SwitchStateChangeNotifier::observe(const tfw::hal::buttons::ButtonStateChan
     }
 }
 
-void SwitchStateChangeNotifier::observe(const devices::DeviceSwitchEvent& event) {
+void SwitchStateChangeNotifier::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
         notifier.notify(
             {

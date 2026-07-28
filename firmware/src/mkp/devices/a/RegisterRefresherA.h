@@ -5,14 +5,16 @@
 
 #include "../common/RegisterRefresher.h"
 
-class RegisterRefresherA final : public RegisterRefresher {
-public:
-    explicit RegisterRefresherA(tfw::utils::registers::RegisterManager& registers);
-    ~RegisterRefresherA() override;
+namespace mkp::devices::a {
+    class RegisterRefresherA final : public common::RegisterRefresher {
+    public:
+        explicit RegisterRefresherA(tfw::utils::registers::RegisterManager& registers);
+        ~RegisterRefresherA() override;
 
-    void setup() override;
-    void loop() override;
+        void setup() override;
+        void loop() override;
 
-private:
-    std::unique_ptr<tfw::ic::MCP23x17> mcp23x17;
-};
+    private:
+        std::unique_ptr<tfw::ic::MCP23x17> mcp23x17;
+    };
+}

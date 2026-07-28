@@ -5,7 +5,7 @@
 
 class FlashButtonIdentificationLightCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit FlashButtonIdentificationLightCommandHandler(const std::vector<devices::Device*>& devices);
+    explicit FlashButtonIdentificationLightCommandHandler(const std::vector<mkp::devices::common::Device*>& devices);
     ~FlashButtonIdentificationLightCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    const std::vector<devices::Device*>& devices;
+    const std::vector<mkp::devices::common::Device*>& devices;
 };

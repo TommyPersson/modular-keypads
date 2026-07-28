@@ -5,7 +5,9 @@
 
 class ReadDeviceAddressCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ReadDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit ReadDeviceAddressCommandHandler(
+        mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
+    );
     ~ReadDeviceAddressCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +17,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
 };

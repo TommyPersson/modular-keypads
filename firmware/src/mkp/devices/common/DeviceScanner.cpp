@@ -10,6 +10,8 @@ namespace {
     auto logger = tfw::hal::logging::createLogger("DeviceScanner");
 }
 
+using namespace mkp::devices::common;
+
 DeviceScanner::DeviceScanner(tfw::hal::i2c::Client& client) :
     client(client) {
 }

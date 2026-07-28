@@ -1,6 +1,6 @@
 #include "DeviceTypeDetector.h"
 
-using namespace devices;
+using namespace mkp::devices::common;
 
 DeviceTypeDetector::DeviceTypeDetector() {
     shiftRegister = std::make_unique<tfw::ic::L74165>(

@@ -2,7 +2,7 @@
 
 #include <tfw/ic/L74165.h>
 
-namespace devices {
+namespace mkp::devices::common {
     class DeviceTypeDetector {
     public:
         DeviceTypeDetector();

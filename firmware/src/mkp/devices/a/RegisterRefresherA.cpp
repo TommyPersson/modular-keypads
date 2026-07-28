@@ -2,6 +2,8 @@
 
 #include "LocalDeviceA.h"
 
+using namespace mkp::devices::a;
+
 RegisterRefresherA::RegisterRefresherA(tfw::utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {
     this->mcp23x17 = tfw::ic::spi(

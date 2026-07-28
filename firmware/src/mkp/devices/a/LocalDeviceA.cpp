@@ -11,7 +11,8 @@ namespace {
     auto logger = tfw::hal::logging::createLogger("LocalDeviceA");
 }
 
-using namespace devices::a;
+using namespace mkp::devices::a;
+using namespace mkp::devices::common;
 
 LocalDeviceA::LocalDeviceA(
     const DeviceConfiguration& configuration,

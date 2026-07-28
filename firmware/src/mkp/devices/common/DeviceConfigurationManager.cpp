@@ -18,9 +18,11 @@ namespace {
     }
 }
 
+using namespace mkp::devices::common;
+
 DeviceConfigurationManager::DeviceConfigurationManager(
     Preferences& preferences,
-    devices::DeviceTypeDetector& deviceTypeDetector
+    DeviceTypeDetector& deviceTypeDetector
 ) : preferences(preferences),
     deviceTypeDetector(deviceTypeDetector) {
 }

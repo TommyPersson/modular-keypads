@@ -1,7 +1,7 @@
 #include "ResetDeviceCommandHandler.h"
 
 ResetDeviceCommandHandler::ResetDeviceCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
 ) : CommandHandler("reset.device"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }

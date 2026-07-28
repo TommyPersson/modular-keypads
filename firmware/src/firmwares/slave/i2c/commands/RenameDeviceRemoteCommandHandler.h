@@ -15,13 +15,13 @@ namespace firmwares::slave::i2c::commands {
 
     class RenameDeviceRemoteCommandHandler : public RemoteCommandHandler<RenameDeviceParams> {
     public:
-        explicit RenameDeviceRemoteCommandHandler(devices::LocalDevice& device);
+        explicit RenameDeviceRemoteCommandHandler(mkp::devices::common::LocalDevice& device);
 
         ~RenameDeviceRemoteCommandHandler() override;
 
         tfw::utils::void_result execute(const RenameDeviceParams* params) override;
 
     private:
-        devices::LocalDevice& device;
+        mkp::devices::common::LocalDevice& device;
     };
 }

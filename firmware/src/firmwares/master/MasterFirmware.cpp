@@ -33,6 +33,8 @@ namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");
 }
 
+using namespace mkp::devices::common;
+
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
     macroStorage = std::make_unique<common::macros::MacroStorage>();
@@ -141,7 +143,7 @@ void MasterFirmware::refreshRemoteDevices() {
     }
 }
 
-void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
+void MasterFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
     keyBindingSubSystem->observe(event);
 
     // TODO temporary debugging
@@ -158,6 +160,6 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
 #endif
 }
 
-void MasterFirmware::observe(const devices::DeviceRotaryEncoderEvent& event) {
+void MasterFirmware::observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) {
     keyBindingSubSystem->observe(event);
 }

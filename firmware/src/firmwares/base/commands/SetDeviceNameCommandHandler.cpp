@@ -8,7 +8,7 @@ namespace {
 }
 
 SetDeviceNameCommandHandler::SetDeviceNameCommandHandler(
-    std::vector<devices::Device*>& devices
+    std::vector<mkp::devices::common::Device*>& devices
 ) : CommandHandler("set.device.name"),
     devices(devices) {
 }

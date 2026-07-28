@@ -3,7 +3,7 @@
 #include "mkp/devices/common/LocalDevice.h"
 #include "mkp/devices/common/RegisterRefresher.h"
 
-namespace devices::a {
+namespace mkp::devices::a {
     namespace i2c {
         inline auto pins = tfw::hal::i2c::Pins{
             .SDA = 11,
@@ -17,26 +17,26 @@ namespace devices::a {
         const inline std::vector all = {&IOA, &IOB};
     }
 
-    inline const std::vector<std::shared_ptr<DeviceCapability>> capabilities = {
-        std::make_shared<PushButtonCapability>(1, registers::IOB, 7, 0),
-        std::make_shared<PushButtonCapability>(2, registers::IOA, 0, 11),
-        std::make_shared<PushButtonCapability>(3, registers::IOB, 6, 1),
-        std::make_shared<PushButtonCapability>(4, registers::IOA, 1, 10),
-        std::make_shared<PushButtonCapability>(5, registers::IOB, 5, 2),
-        std::make_shared<PushButtonCapability>(6, registers::IOA, 2, 9),
-        std::make_shared<PushButtonCapability>(7, registers::IOB, 4, 3),
-        std::make_shared<PushButtonCapability>(8, registers::IOA, 3, 8),
-        std::make_shared<PushButtonCapability>(9, registers::IOB, 3, 4),
-        std::make_shared<PushButtonCapability>(10, registers::IOA, 4, 7),
-        std::make_shared<PushButtonCapability>(11, registers::IOB, 2, 5),
-        std::make_shared<PushButtonCapability>(12, registers::IOA, 5, 6),
+    inline const std::vector<std::shared_ptr<common::DeviceCapability>> capabilities = {
+        std::make_shared<common::PushButtonCapability>(1, registers::IOB, 7, 0),
+        std::make_shared<common::PushButtonCapability>(2, registers::IOA, 0, 11),
+        std::make_shared<common::PushButtonCapability>(3, registers::IOB, 6, 1),
+        std::make_shared<common::PushButtonCapability>(4, registers::IOA, 1, 10),
+        std::make_shared<common::PushButtonCapability>(5, registers::IOB, 5, 2),
+        std::make_shared<common::PushButtonCapability>(6, registers::IOA, 2, 9),
+        std::make_shared<common::PushButtonCapability>(7, registers::IOB, 4, 3),
+        std::make_shared<common::PushButtonCapability>(8, registers::IOA, 3, 8),
+        std::make_shared<common::PushButtonCapability>(9, registers::IOB, 3, 4),
+        std::make_shared<common::PushButtonCapability>(10, registers::IOA, 4, 7),
+        std::make_shared<common::PushButtonCapability>(11, registers::IOB, 2, 5),
+        std::make_shared<common::PushButtonCapability>(12, registers::IOA, 5, 6),
     };
 
-    class LocalDeviceA final : public LocalDevice {
+    class LocalDeviceA final : public common::LocalDevice {
     public:
         LocalDeviceA(
-            const DeviceConfiguration& configuration,
-            const DeviceConfigurationManager& configurationManager,
+            const common::DeviceConfiguration& configuration,
+            const common::DeviceConfigurationManager& configurationManager,
             const NotifierFactory& notifierFactory
         );
         ~LocalDeviceA() override;
@@ -44,9 +44,9 @@ namespace devices::a {
         void setup() override;
         void loop() override;
 
-        const DeviceConfiguration& getConfiguration() const override { return configuration; }
+        const common::DeviceConfiguration& getConfiguration() const override { return configuration; }
 
-        const std::vector<std::shared_ptr<devices::DeviceCapability>>& getCapabilities() const override {
+        const std::vector<std::shared_ptr<common::DeviceCapability>>& getCapabilities() const override {
             return capabilities;
         }
 
@@ -57,6 +57,6 @@ namespace devices::a {
         tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
 
     private:
-        std::unique_ptr<RegisterRefresher> registerRefresher;
+        std::unique_ptr<common::RegisterRefresher> registerRefresher;
     };
 }

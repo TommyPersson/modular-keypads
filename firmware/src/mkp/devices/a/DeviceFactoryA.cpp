@@ -2,8 +2,8 @@
 
 #include "LocalDeviceA.h"
 
-using namespace devices;
-using namespace devices::a;
+using namespace mkp::devices::common;
+using namespace mkp::devices::a;
 
 DeviceFactoryA::~DeviceFactoryA() = default;
 

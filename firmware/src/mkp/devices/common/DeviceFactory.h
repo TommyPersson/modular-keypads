@@ -5,7 +5,7 @@
 #include "LocalDevice.h"
 #include "RemoteDevice.h"
 
-namespace devices {
+namespace mkp::devices::common {
     class DeviceFactory {
     public:
         virtual ~DeviceFactory() = default;

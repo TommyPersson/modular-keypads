@@ -5,38 +5,40 @@
 
 #include "DeviceTypeDetector.h"
 
-struct DeviceConfiguration {
-    uint64_t id;
-    std::string name;
-    char type;
-    uint8_t address;
-};
+namespace mkp::devices::common {
+    struct DeviceConfiguration {
+        uint64_t id;
+        std::string name;
+        char type;
+        uint8_t address;
+    };
 
-class DeviceConfigurationManager {
-public:
-    explicit DeviceConfigurationManager(
-        Preferences& preferences,
-        devices::DeviceTypeDetector& deviceTypeDetector
-    );
+    class DeviceConfigurationManager {
+    public:
+        explicit DeviceConfigurationManager(
+            Preferences& preferences,
+            DeviceTypeDetector& deviceTypeDetector
+        );
 
-    ~DeviceConfigurationManager() = default;
+        ~DeviceConfigurationManager() = default;
 
-    void begin() const;
+        void begin() const;
 
-    uint64_t getDeviceId() const;
-    std::string getDeviceVersion() const;
+        uint64_t getDeviceId() const;
+        std::string getDeviceVersion() const;
 
-    uint8_t getDeviceAddress() const;
-    bool setDeviceAddress(uint8_t deviceAddress) const;
+        uint8_t getDeviceAddress() const;
+        bool setDeviceAddress(uint8_t deviceAddress) const;
 
-    std::string getDeviceName() const;
-    bool setDeviceName(const std::string_view& deviceName) const;
+        std::string getDeviceName() const;
+        bool setDeviceName(const std::string_view& deviceName) const;
 
-    char getDeviceType() const;
+        char getDeviceType() const;
 
-    DeviceConfiguration getDeviceConfiguration() const;
+        DeviceConfiguration getDeviceConfiguration() const;
 
-private:
-    Preferences& preferences;
-    devices::DeviceTypeDetector& deviceTypeDetector;
-};
+    private:
+        Preferences& preferences;
+        DeviceTypeDetector& deviceTypeDetector;
+    };
+}

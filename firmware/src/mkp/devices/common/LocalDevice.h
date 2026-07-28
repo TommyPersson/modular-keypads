@@ -7,7 +7,7 @@
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 
-namespace devices {
+namespace mkp::devices::common {
     class LocalDevice :
         public Device,
         tfw::utils::observables::Observer<DeviceSwitchEvent>,

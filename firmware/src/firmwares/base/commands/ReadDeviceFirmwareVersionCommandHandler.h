@@ -5,7 +5,7 @@
 
 class ReadDeviceFirmwareVersionCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ReadDeviceFirmwareVersionCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit ReadDeviceFirmwareVersionCommandHandler(mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceFirmwareVersionCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
 };

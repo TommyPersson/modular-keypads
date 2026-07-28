@@ -1,7 +1,7 @@
 #include "ListConnectedDevices.h"
 
 ListConnectedDevices::ListConnectedDevices(
-    std::vector<devices::Device*>& devices
+    std::vector<mkp::devices::common::Device*>& devices
 ) : CommandHandler("list.connected.devices"),
     devices(devices) {
 }

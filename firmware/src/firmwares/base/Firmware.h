@@ -5,14 +5,13 @@
 #include <Wire.h>
 #include <tfw/hal/uart.h>
 #include <tfw/utils/streams.h>
-
-#include "../../mkp/devices/common/DeviceConfigurationManager.h"
-#include "../common/ServiceLocator.h"
-
 #include <tfw/utils/commands.h>
 
-#include "../../mkp/devices/common/LocalDevice.h"
-#include "../../mkp/devices/common/DeviceFactory.h"
+#include "../common/ServiceLocator.h"
+#include "mkp/devices/common/DeviceConfigurationManager.h"
+#include "mkp/devices/common/DeviceFactory.h"
+#include "mkp/devices/common/LocalDevice.h"
+
 
 class Firmware {
 public:
@@ -27,19 +26,19 @@ public:
 
 protected:
     void addCommandHandler(const std::shared_ptr<tfw::utils::commands::CommandHandler>& commandHandler) const;
-    devices::DeviceFactory* getDeviceFactory(char deviceType) const;
+    mkp::devices::common::DeviceFactory* getDeviceFactory(char deviceType) const;
 
     void registerMetrics();
 
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
     tfw::hal::uart::SerialPort& serialPort;
     ServiceLocator& serviceLocator;
 
-    std::unique_ptr<devices::LocalDevice> deviceModule;
+    std::unique_ptr<mkp::devices::common::LocalDevice> deviceModule;
     std::optional<tfw::utils::registers::RegisterManager*> registers;
 
 private:
     std::unique_ptr<tfw::utils::streams::LineStreamer> lineStreamer;
     std::unique_ptr<tfw::utils::commands::CommandProcessor> commandProcessor;
-    std::vector<std::unique_ptr<devices::DeviceFactory>> deviceFactories;
+    std::vector<std::unique_ptr<mkp::devices::common::DeviceFactory>> deviceFactories;
 };

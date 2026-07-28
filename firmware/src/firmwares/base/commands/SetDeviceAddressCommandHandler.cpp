@@ -8,7 +8,7 @@ namespace {
 }
 
 SetDeviceAddressCommandHandler::SetDeviceAddressCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
 ) : CommandHandler("set.device.address"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }

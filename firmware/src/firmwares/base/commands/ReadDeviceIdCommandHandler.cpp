@@ -4,7 +4,7 @@
 
 
 ReadDeviceIdCommandHandler::ReadDeviceIdCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
 ) : CommandHandler("read.device.id"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }

@@ -7,6 +7,7 @@
 
 using namespace common::macros;
 using namespace common::keybindings;
+using namespace mkp::devices::common;
 
 // TODO lots of allocation stuff to optimize
 
@@ -149,15 +150,15 @@ void KeyBindingSubSystem::observe(const KeyBindingCleared& event) {
     keyBindingsNeedRefresh = true;
 }
 
-void KeyBindingSubSystem::observe(const devices::DeviceSwitchEvent& event) {
+void KeyBindingSubSystem::observe(const DeviceSwitchEvent& event) {
     executeMacroFor(findKeyBinding(event));
 }
 
-void KeyBindingSubSystem::observe(const devices::DeviceRotaryEncoderEvent& event) {
+void KeyBindingSubSystem::observe(const DeviceRotaryEncoderEvent& event) {
     executeMacroFor(findKeyBinding(event));
 }
 
-std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const devices::DeviceSwitchEvent& event) {
+std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const DeviceSwitchEvent& event) {
     if (event.state != tfw::hal::buttons::ButtonState::PRESSED) {
         return nullptr;
     }
@@ -174,7 +175,7 @@ std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const devices::D
     return nullptr;
 }
 
-std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const devices::DeviceRotaryEncoderEvent& event) {
+std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const DeviceRotaryEncoderEvent& event) {
     for (const auto& keyBinding : keyBindings) {
         if (keyBinding->trigger->type == ROTARY_ENCODER) {
             const auto& trigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding->trigger);

@@ -5,13 +5,12 @@
 #include <tfw/hal/usb.h>
 
 #include "firmwares/common/notifications/NotifierFactory.h"
-#include "../../mkp/devices/common/DeviceConfigurationManager.h"
+#include "mkp/devices/common/DeviceConfigurationManager.h"
 #include "firmwares/common/FirmwareModeDetector.h"
-#include <tfw/hal/i2c.h>
 #include <tfw/hal/i2c.h>
 
 struct ServiceLocator {
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
     tfw::hal::uart::SerialPort& serialPort;
     NotifierFactory& notifierFactory;
     tfw::hal::i2c::Client& i2cClient;

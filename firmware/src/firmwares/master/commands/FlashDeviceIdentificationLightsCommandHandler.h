@@ -5,7 +5,7 @@
 
 class FlashDeviceIdentificationLightsCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit FlashDeviceIdentificationLightsCommandHandler(const std::vector<devices::Device*>& devices);
+    explicit FlashDeviceIdentificationLightsCommandHandler(const std::vector<mkp::devices::common::Device*>& devices);
     ~FlashDeviceIdentificationLightsCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    const std::vector<devices::Device*>& devices;
+    const std::vector<mkp::devices::common::Device*>& devices;
 };

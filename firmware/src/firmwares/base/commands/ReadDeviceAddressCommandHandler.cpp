@@ -3,7 +3,7 @@
 #include <tfw/utils/allocations.h>
 
 ReadDeviceAddressCommandHandler::ReadDeviceAddressCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
 ) : CommandHandler("read.device.address"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }

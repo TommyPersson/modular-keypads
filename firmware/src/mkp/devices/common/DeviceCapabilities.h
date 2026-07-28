@@ -3,7 +3,7 @@
 #include <vector>
 #include <tfw/utils/registers.h>
 
-namespace devices {
+namespace mkp::devices::common {
     struct DeviceCapabilities {
         std::vector<int> pushButtons;
         std::vector<int> leds;

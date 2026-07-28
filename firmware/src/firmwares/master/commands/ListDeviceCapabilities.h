@@ -5,7 +5,7 @@
 
 class ListDeviceCapabilities final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ListDeviceCapabilities(std::vector<devices::Device*>& devices);
+    explicit ListDeviceCapabilities(std::vector<mkp::devices::common::Device*>& devices);
     ~ListDeviceCapabilities() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    std::vector<devices::Device*>& devices;
+    std::vector<mkp::devices::common::Device*>& devices;
 };

@@ -16,13 +16,13 @@ namespace firmwares::slave::i2c::commands {
 
     class FlashButtonIdentificationLightRemoteCommandHandler : public RemoteCommandHandler<FlashButtonIdentificationLightParams> {
     public:
-        explicit FlashButtonIdentificationLightRemoteCommandHandler(devices::LocalDevice& device);
+        explicit FlashButtonIdentificationLightRemoteCommandHandler(mkp::devices::common::LocalDevice& device);
 
         ~FlashButtonIdentificationLightRemoteCommandHandler() override;
 
         tfw::utils::void_result execute(const FlashButtonIdentificationLightParams* params) override;
 
     private:
-        devices::LocalDevice& device;
+        mkp::devices::common::LocalDevice& device;
     };
 }

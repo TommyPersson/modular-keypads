@@ -6,7 +6,7 @@
 #include "../../../firmwares/common/notifications/NotifierFactory.h"
 #include "../../../firmwares/common/notifications/SwitchStateChangeNotifier.h"
 
-namespace devices {
+namespace mkp::devices::common {
     class RemoteDevice : public Device {
     public:
         explicit RemoteDevice(

@@ -8,14 +8,14 @@
 #include "firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
 #include "firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
+using namespace mkp::devices::common;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("RemoteDevice");
-
-    std::vector<std::shared_ptr<devices::DeviceCapability>> noCapabilities;
 }
 
-devices::RemoteDevice::RemoteDevice(
+
+RemoteDevice::RemoteDevice(
     const DeviceConfiguration& configuration,
     const NotifierFactory& notifierFactory,
     const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
@@ -28,14 +28,14 @@ devices::RemoteDevice::RemoteDevice(
     deviceSwitchEventSubject.addObserver(switchStateChangeNotifier.get());
 }
 
-devices::RemoteDevice::~RemoteDevice() {
+RemoteDevice::~RemoteDevice() {
     deviceSwitchEventSubject.removeObserver(switchStateChangeNotifier.get());
 }
 
-void devices::RemoteDevice::setup() {
+void RemoteDevice::setup() {
 }
 
-void devices::RemoteDevice::loop() {
+void RemoteDevice::loop() {
     const auto result = i2cClient.readEndpoint(configuration.address, tfw::hal::i2c::endpoints::builtin::Events);
     if (result.has_error) {
         return;
@@ -67,15 +67,15 @@ void devices::RemoteDevice::loop() {
     }
 }
 
-const DeviceConfiguration& devices::RemoteDevice::getConfiguration() const {
+const DeviceConfiguration& RemoteDevice::getConfiguration() const {
     return configuration;
 }
 
-const std::vector<std::shared_ptr<devices::DeviceCapability>>& devices::RemoteDevice::getCapabilities() const {
+const std::vector<std::shared_ptr<mkp::devices::common::DeviceCapability>>& RemoteDevice::getCapabilities() const {
     return capabilities;
 }
 
-tfw::utils::void_result devices::RemoteDevice::flashIdentificationLights(uint32_t durationMs) {
+tfw::utils::void_result RemoteDevice::flashIdentificationLights(uint32_t durationMs) {
     return i2cClient.sendCommand(
         this->getConfiguration().address,
         firmwares::slave::i2c::commands::FlashDeviceIdentificationLights,
@@ -83,7 +83,7 @@ tfw::utils::void_result devices::RemoteDevice::flashIdentificationLights(uint32_
     );
 }
 
-tfw::utils::void_result devices::RemoteDevice::
+tfw::utils::void_result RemoteDevice::
 flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
     return i2cClient.sendCommand(
         this->getConfiguration().address,
@@ -92,7 +92,7 @@ flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
     );
 }
 
-tfw::utils::void_result devices::RemoteDevice::rename(const std::string_view& deviceName) {
+tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName) {
     auto params = firmwares::slave::i2c::commands::RenameDeviceParams{};
     strncpy(&params.name[0], deviceName.data(), sizeof(params.name));
 

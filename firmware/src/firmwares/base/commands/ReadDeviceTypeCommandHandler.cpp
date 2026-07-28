@@ -1,7 +1,7 @@
 #include "ReadDeviceTypeCommandHandler.h"
 
 ReadDeviceTypeCommandHandler::ReadDeviceTypeCommandHandler(
-    DeviceConfigurationManager& deviceConfigurationManager
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
 ) : CommandHandler("read.device.type"),
     deviceConfigurationManager(deviceConfigurationManager) {
 }

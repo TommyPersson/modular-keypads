@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../../mkp/devices/common/DeviceConfigurationManager.h"
+#include "mkp/devices/common/DeviceConfigurationManager.h"
 #include <tfw/utils/commands.h>
 
 class ReadDeviceTypeCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ReadDeviceTypeCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit ReadDeviceTypeCommandHandler(mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceTypeCommandHandler() override;
     tfw::utils::void_result execute(
         const std::span<const std::string_view>& args,
@@ -14,5 +14,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
 };

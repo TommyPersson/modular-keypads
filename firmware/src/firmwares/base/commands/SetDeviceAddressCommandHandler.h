@@ -1,11 +1,13 @@
 #pragma once
 
-#include "../../../mkp/devices/common/DeviceConfigurationManager.h"
+#include "mkp/devices/common/DeviceConfigurationManager.h"
 #include <tfw/utils/commands.h>
 
 class SetDeviceAddressCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit SetDeviceAddressCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit SetDeviceAddressCommandHandler(
+        mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager
+    );
     ~SetDeviceAddressCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +17,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
 };

@@ -3,7 +3,7 @@
 using namespace firmwares::slave::i2c::commands;
 
 RenameDeviceRemoteCommandHandler::RenameDeviceRemoteCommandHandler(
-    devices::LocalDevice& device
+    mkp::devices::common::LocalDevice& device
 ) : RemoteCommandHandler(RenameDevice.id),
     device(device) {
 }

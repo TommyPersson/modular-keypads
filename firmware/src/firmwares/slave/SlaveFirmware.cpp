@@ -49,17 +49,17 @@ void SlaveFirmware::setup() {
     const auto deviceId = configuration.id;
     const auto deviceName = configuration.name;
 
-    devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
+    mkp::devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
     deviceInformationStruct.deviceId = deviceId;
     deviceInformationStruct.deviceType = configuration.type;
 
     slavePort.updateEndpoint(
-        devices::common::i2c::endpoints::DeviceInformation,
+        mkp::devices::common::i2c::endpoints::DeviceInformation,
         &deviceInformationStruct
     );
 
     slavePort.updateEndpoint(
-        devices::common::i2c::endpoints::DeviceName,
+        mkp::devices::common::i2c::endpoints::DeviceName,
         deviceName.c_str()
     );
 
@@ -77,12 +77,12 @@ void SlaveFirmware::loop() {
 
     device->loop();
 
-    devices::common::i2c::structs::DeviceRegisters registersStruct;
+    mkp::devices::common::i2c::structs::DeviceRegisters registersStruct;
     auto registerData = device->getRegisters().readAll();
     std::memcpy(&registersStruct.data, registerData.data(), sizeof(registersStruct.data));
 
     slavePort.updateEndpoint(
-        devices::common::i2c::endpoints::DeviceRegisters,
+        mkp::devices::common::i2c::endpoints::DeviceRegisters,
         &registersStruct,
         device->getRegisterDescriptors().size()
     );
@@ -95,7 +95,7 @@ void SlaveFirmware::loop() {
         */
 }
 
-void SlaveFirmware::observe(const devices::DeviceSwitchEvent& event) {
+void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
         slavePort.enqueueEvent(
             tfw::hal::i2c::Event{

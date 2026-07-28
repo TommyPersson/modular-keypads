@@ -5,7 +5,7 @@
 
 class ReadDeviceNameCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ReadDeviceNameCommandHandler(DeviceConfigurationManager& deviceConfigurationManager);
+    explicit ReadDeviceNameCommandHandler(mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager);
     ~ReadDeviceNameCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    DeviceConfigurationManager& deviceConfigurationManager;
+    mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;
 };
