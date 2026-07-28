@@ -3,7 +3,7 @@
 #include <tfw/utils/strings.h>
 
 FlashButtonIdentificationLightCommandHandler::FlashButtonIdentificationLightCommandHandler(
-    const std::vector<devices::DeviceModule*>& devices
+    const std::vector<devices::Device*>& devices
 ) : CommandHandler("flash.button.identification.light"),
     devices(devices) {
 }

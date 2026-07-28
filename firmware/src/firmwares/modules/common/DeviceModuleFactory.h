@@ -14,11 +14,6 @@ namespace devices {
             ServiceLocator& serviceLocator
         ) = 0;
 
-        virtual std::unique_ptr<DeviceModule> createRemote(
-            DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
-        ) = 0;
-
         virtual bool matches(char deviceType) = 0;
 
         virtual tfw::hal::i2c::Pins getI2cPins() = 0;

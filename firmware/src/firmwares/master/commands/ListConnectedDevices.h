@@ -5,7 +5,7 @@
 
 class ListConnectedDevices : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ListConnectedDevices(std::vector<devices::DeviceModule*>& devices);
+    explicit ListConnectedDevices(std::vector<devices::Device*>& devices);
     ~ListConnectedDevices() override;
 
     tfw::utils::void_result execute(
@@ -15,5 +15,5 @@ public:
     ) override;
 
 private:
-    std::vector<devices::DeviceModule*>& devices;
+    std::vector<devices::Device*>& devices;
 };

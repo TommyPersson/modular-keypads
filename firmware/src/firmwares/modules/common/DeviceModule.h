@@ -5,6 +5,8 @@
 #include <firmwares/common/runtimes/DeviceRuntime.h>
 #include <firmwares/common/DeviceLocation.h>
 
+#include "firmwares/common/Device.h"
+
 namespace devices {
     namespace common {
         namespace i2c {
@@ -40,26 +42,19 @@ namespace devices {
     }
 
     class DeviceModule :
+        public Device,
         tfw::utils::observables::Observer<DeviceSwitchEvent>,
         tfw::utils::observables::Observer<DeviceRotaryEncoderEvent> {
     public:
-        virtual void setup();
-        virtual void loop();
+        void setup() override;
+        void loop() override;
 
         virtual tfw::utils::registers::RegisterManager& getRegisters() = 0;
         virtual const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() = 0;
-        virtual const DeviceConfiguration& getConfiguration() const = 0;
-        virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
 
-        tfw::utils::void_result flashIdentificationLights(uint32_t durationMs);
-        tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs);
-        tfw::utils::void_result rename(const std::string_view& deviceName);
-
-        tfw::utils::observables::Observable<DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
-
-        tfw::utils::observables::Observable<DeviceRotaryEncoderEvent>& onRotaryEncoderEvent() {
-            return deviceRotaryEncoderEventSubject;
-        }
+        tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) override;
+        tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) override;
+        tfw::utils::void_result rename(const std::string_view& deviceName) override;
 
         void observe(const DeviceSwitchEvent& event) override;
         void observe(const DeviceRotaryEncoderEvent& event) override;
@@ -72,9 +67,6 @@ namespace devices {
         );
 
         virtual DeviceRuntime& getRuntime() = 0;
-
-        tfw::utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
-        tfw::utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
 
         const DeviceConfiguration configuration;
         DeviceLocation deviceLocation;

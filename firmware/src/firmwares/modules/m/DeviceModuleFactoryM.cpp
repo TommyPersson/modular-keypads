@@ -43,43 +43,6 @@ std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createLocal(
     );
 }
 
-std::unique_ptr<DeviceModule> DeviceModuleFactoryM::createRemote(
-    DeviceConfiguration& config,
-    ServiceLocator& serviceLocator
-) {
-    auto registers = std::make_unique<tfw::utils::registers::RegisterManager>();
-
-    auto indicatorLeds = IndicatorLedManager::NoOp(5);
-
-    std::unique_ptr<RegisterRefresher> registerRefresher = std::make_unique<RemoteRegisterRefresher>(
-        *registers,
-        serviceLocator.i2cClient,
-        config.address,
-        registers::all.size()
-    );
-
-    auto notifier = serviceLocator.notifierFactory.create(config.id);
-
-    std::unique_ptr<DeviceRuntime> runtime = std::make_unique<DeviceRuntimeM>(
-        config.id,
-        *registers,
-        *indicatorLeds,
-        *notifier,
-        serviceLocator.deviceConfigurationManager
-    );
-
-    return std::make_unique<DeviceModuleM>(
-        DeviceLocation::Remote,
-        config,
-        indicatorLeds,
-        registers,
-        registerRefresher,
-        runtime,
-        notifier,
-        serviceLocator.i2cClient
-    );
-}
-
 bool DeviceModuleFactoryM::matches(char deviceType) {
     return deviceType == 'm' || deviceType == 'M';
 }

@@ -99,7 +99,7 @@ void MasterFirmware::loop() {
 
     loopTimerMetric->measure([this] {
         localDevice->loop();
-        for (const auto& device : connectedDevices) {
+        for (const auto& device : remoteDevices) {
             device->loop();
         }
     });
@@ -111,7 +111,7 @@ void MasterFirmware::loop() {
 void MasterFirmware::refreshConnectedDevices() {
     allDevices.clear();
     allDevices.push_back(localDevice.get());
-    connectedDevices.clear();
+    remoteDevices.clear();
 
     DeviceScanner scanner(serviceLocator.i2cClient);
     auto scanResult = scanner.scan();
@@ -126,13 +126,13 @@ void MasterFirmware::refreshConnectedDevices() {
             continue;
         }
 
-        auto remoteDevice = moduleFactory->createRemote(*deviceConfiguration, serviceLocator);
-        remoteDevice->setup();
-        connectedDevices.push_back(std::move(remoteDevice));
+        auto remoteDevice2 = std::make_unique<devices::RemoteDevice>(*deviceConfiguration, serviceLocator.notifierFactory, serviceLocator.i2cClient);
+        remoteDevices.push_back(std::move(remoteDevice2));
     }
 
-    for (const auto& device : connectedDevices) {
+    for (const auto& device : remoteDevices) {
         allDevices.push_back(device.get());
+        device->setup();
         device->onSwitchEvent().addObserver(this);
         device->onRotaryEncoderEvent().addObserver(this);
     }

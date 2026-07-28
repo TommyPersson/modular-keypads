@@ -23,3 +23,21 @@ void SwitchStateChangeNotifier::observe(const tfw::hal::buttons::ButtonStateChan
             );
     }
 }
+
+void SwitchStateChangeNotifier::observe(const devices::DeviceSwitchEvent& event) {
+    if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
+        notifier.notify(
+            {
+                .type = "switch.pressed",
+                .args = {std::to_string(event.switchNumber)}
+            }
+            );
+    } else if (event.state == tfw::hal::buttons::ButtonState::UNPRESSED) {
+        notifier.notify(
+            {
+                .type = "switch.released",
+                .args = {std::to_string(event.switchNumber)}
+            }
+            );
+    }
+}

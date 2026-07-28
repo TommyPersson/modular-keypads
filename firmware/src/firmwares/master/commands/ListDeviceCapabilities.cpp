@@ -4,7 +4,7 @@
 #include <tfw/utils/strings.h>
 
 ListDeviceCapabilities::ListDeviceCapabilities(
-    std::vector<devices::DeviceModule*>& devices
+    std::vector<devices::Device*>& devices
 ) : CommandHandler("list.device.capabilities"), devices(devices) {
 }
 
@@ -18,7 +18,7 @@ tfw::utils::void_result ListDeviceCapabilities::execute(
     const auto& deviceIdStr = args[0];
     const auto deviceId = tfw::utils::strings::atou64(deviceIdStr, 16);
 
-    const devices::DeviceModule* foundDevice = nullptr;
+    const devices::Device* foundDevice = nullptr;
     for (const auto& device : devices) {
         if (device->getConfiguration().id == deviceId) {
             foundDevice = device;

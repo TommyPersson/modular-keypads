@@ -8,7 +8,6 @@ class DeviceModuleFactoryA final : public devices::DeviceModuleFactory {
 public:
     ~DeviceModuleFactoryA() override;
     std::unique_ptr<DeviceModule> createLocal(DeviceConfiguration& config, ServiceLocator& serviceLocator) override;
-    std::unique_ptr<DeviceModule> createRemote(DeviceConfiguration& config, ServiceLocator& serviceLocator) override;
     bool matches(char deviceType) override;
     tfw::hal::i2c::Pins getI2cPins() override;
 };

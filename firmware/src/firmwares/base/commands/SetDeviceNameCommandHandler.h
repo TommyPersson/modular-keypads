@@ -6,7 +6,7 @@
 
 class SetDeviceNameCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit SetDeviceNameCommandHandler(std::vector<devices::DeviceModule*>& devices);
+    explicit SetDeviceNameCommandHandler(std::vector<devices::Device*>& devices);
     ~SetDeviceNameCommandHandler() override;
 
     tfw::utils::void_result execute(
@@ -16,5 +16,5 @@ public:
     ) override;
 
 private:
-    std::vector<devices::DeviceModule*>& devices;
+    std::vector<devices::Device*>& devices;
 };
