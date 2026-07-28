@@ -1,45 +1,19 @@
 #include "DeviceModuleFactoryA.h"
 
-#include <firmwares/common/runtimes/RegisterRefresher.h>
 #include <firmwares/common/runtimes/RemoteRegisterRefresher.h>
 
-#include "DeviceModuleA.h"
-#include "DeviceRuntimeA.h"
-#include "LocalRegisterRefresherA.h"
+#include "../../../mkp/devices/a/LocalDeviceA.h"
 
 using namespace devices;
 using namespace devices::a;
 
 DeviceModuleFactoryA::~DeviceModuleFactoryA() = default;
 
-std::unique_ptr<DeviceModule> DeviceModuleFactoryA::createLocal(
+std::unique_ptr<LocalDevice> DeviceModuleFactoryA::createLocal(
     DeviceConfiguration& config,
     ServiceLocator& serviceLocator
 ) {
-    auto registers = std::make_unique<tfw::utils::registers::RegisterManager>();
-
-    auto indicatorLeds = IndicatorLedManager::NeoPixel(12, 48);
-
-    std::unique_ptr<RegisterRefresher> registerRefresher = std::make_unique<LocalRegisterRefresherA>(*registers);
-
-    auto notifier = serviceLocator.notifierFactory.create(config.id);
-
-    std::unique_ptr<DeviceRuntime> runtime = std::make_unique<DeviceRuntimeA>(
-        config.id,
-        *registers,
-        *indicatorLeds,
-        *notifier,
-        serviceLocator.deviceConfigurationManager
-    );
-
-    return std::make_unique<DeviceModuleA>(
-        config,
-        indicatorLeds,
-        registers,
-        registerRefresher,
-        runtime,
-        notifier
-    );
+    return std::make_unique<LocalDeviceA>(config, serviceLocator.deviceConfigurationManager, serviceLocator.notifierFactory);
 }
 
 bool DeviceModuleFactoryA::matches(char deviceType) {

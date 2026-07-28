@@ -1,6 +1,6 @@
 #include "ListDeviceCapabilities.h"
 
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 #include <tfw/utils/strings.h>
 
 ListDeviceCapabilities::ListDeviceCapabilities(

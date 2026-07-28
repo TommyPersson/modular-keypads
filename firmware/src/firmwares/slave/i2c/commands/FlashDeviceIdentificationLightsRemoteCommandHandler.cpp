@@ -3,7 +3,7 @@
 using namespace firmwares::slave::i2c::commands;
 
 FlashDeviceIdentificationLightsRemoteCommandHandler::FlashDeviceIdentificationLightsRemoteCommandHandler(
-    devices::DeviceModule& device
+    devices::LocalDevice& device
 ) : RemoteCommandHandler(FlashDeviceIdentificationLights.id),
     device(device) {
 }

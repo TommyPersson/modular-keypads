@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tfw/utils/commands.h>
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 
 class ListDeviceCapabilities final : public tfw::utils::commands::CommandHandler {
 public:

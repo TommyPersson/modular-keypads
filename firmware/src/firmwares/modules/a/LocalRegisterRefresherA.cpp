@@ -1,6 +1,6 @@
 #include "LocalRegisterRefresherA.h"
 
-#include "DeviceModuleA.h"
+#include "../../../mkp/devices/a/LocalDeviceA.h"
 
 LocalRegisterRefresherA::LocalRegisterRefresherA(tfw::utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {

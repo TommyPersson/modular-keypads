@@ -2,14 +2,14 @@
 
 #include <memory>
 
-#include "DeviceModule.h"
+#include "../../../mkp/devices/common/LocalDevice.h"
 
 namespace devices {
     class DeviceModuleFactory {
     public:
         virtual ~DeviceModuleFactory() = default;
 
-        virtual std::unique_ptr<DeviceModule> createLocal(
+        virtual std::unique_ptr<LocalDevice> createLocal(
             DeviceConfiguration& config,
             ServiceLocator& serviceLocator
         ) = 0;

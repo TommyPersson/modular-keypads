@@ -11,7 +11,7 @@
 
 #include <tfw/utils/commands.h>
 
-#include "firmwares/modules/common/DeviceModule.h"
+#include "../../mkp/devices/common/LocalDevice.h"
 #include "firmwares/modules/common/DeviceModuleFactory.h"
 
 class Firmware {
@@ -35,7 +35,7 @@ protected:
     tfw::hal::uart::SerialPort& serialPort;
     ServiceLocator& serviceLocator;
 
-    std::unique_ptr<devices::DeviceModule> deviceModule;
+    std::unique_ptr<devices::LocalDevice> deviceModule;
     std::optional<tfw::utils::registers::RegisterManager*> registers;
 
 private:

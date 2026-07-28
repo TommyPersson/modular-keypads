@@ -5,8 +5,8 @@
 
 #include "TestModeController.h"
 #include "firmwares/common/keybindings/KeyBindingStorage.h"
-#include "firmwares/common/runtimes/DeviceRuntime.h"
 #include "firmwares/common/macros/MacroStorage.h"
+#include "mkp/devices/common/Device.h"
 
 struct CompiledMacro {
     uint16_t macroId;

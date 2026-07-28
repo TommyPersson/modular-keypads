@@ -1,8 +1,8 @@
 #pragma once
 
-#include <firmwares/modules/common/DeviceModule.h>
-
 #include <tfw/utils/commands.h>
+
+#include "mkp/devices/common/LocalDevice.h"
 
 class SetDeviceNameCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:

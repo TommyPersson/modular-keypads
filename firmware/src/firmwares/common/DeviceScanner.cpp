@@ -1,6 +1,6 @@
 #include "DeviceScanner.h"
 
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 
 #include <tfw/hal/i2c.h>
 #include <tfw/utils/strings.h>

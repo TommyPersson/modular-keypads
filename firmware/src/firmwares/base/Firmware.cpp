@@ -4,7 +4,6 @@
 #include "../common/ServiceLocator.h"
 #include "../master/MasterFirmware.h"
 #include "../modules/a/DeviceModuleFactoryA.h"
-#include "../modules/m/DeviceModuleFactoryM.h"
 #include "../slave/SlaveFirmware.h"
 #include "commands/ListRegistersCommandHandler.h"
 #include "commands/ListRegisterValuesCommandHandler.h"
@@ -18,7 +17,6 @@
 #include "commands/ReadRegisterCommandHandler.h"
 #include "commands/ResetDeviceCommandHandler.h"
 #include "commands/SetDeviceAddressCommandHandler.h"
-#include "commands/SetDeviceNameCommandHandler.h"
 #include "metrics/BaseMetrics.h"
 #include <tfw/hal/logging.h>
 
@@ -48,7 +46,6 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ListRegisterValuesCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>(serviceLocator.metricRegistry));
 
-    moduleFactories.emplace_back(std::make_unique<devices::m::DeviceModuleFactoryM>());
     moduleFactories.emplace_back(std::make_unique<devices::a::DeviceModuleFactoryA>());
 
     firmware::metrics::base::register_all(serviceLocator.metricRegistry);

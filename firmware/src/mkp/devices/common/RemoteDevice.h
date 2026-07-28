@@ -3,9 +3,8 @@
 #include <tfw/hal/i2c/Client.h>
 
 #include "Device.h"
-#include "runtimes/DeviceRuntime.h"
-#include "notifications/NotifierFactory.h"
-#include "notifications/SwitchStateChangeNotifier.h"
+#include "../../../firmwares/common/notifications/NotifierFactory.h"
+#include "../../../firmwares/common/notifications/SwitchStateChangeNotifier.h"
 
 namespace devices {
     class RemoteDevice : public Device {

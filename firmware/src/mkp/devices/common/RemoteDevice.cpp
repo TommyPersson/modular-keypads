@@ -2,16 +2,15 @@
 
 #include <tfw/hal/logging/Logger.h>
 
-#include "events/RemoteEventTypes.h"
-#include "firmwares/modules/a/DeviceModuleA.h"
-#include "firmwares/modules/m/DeviceModuleM.h"
+#include "../../../firmwares/common/events/RemoteEventTypes.h"
+#include "../a/LocalDeviceA.h"
 #include "firmwares/slave/i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
 #include "firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
 #include "firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
 
 namespace {
-    auto logger = tfw::hal::logging::createLogger("DeviceModule");
+    auto logger = tfw::hal::logging::createLogger("RemoteDevice");
 
     std::vector<std::shared_ptr<devices::DeviceCapability>> noCapabilities;
 }
@@ -73,7 +72,6 @@ const DeviceConfiguration& devices::RemoteDevice::getConfiguration() const {
 const std::vector<std::shared_ptr<devices::DeviceCapability>>& devices::RemoteDevice::getCapabilities() const {
     switch (configuration.type) {
     case 'a': return a::capabilities;
-    case 'm': return m::capabilities;
     default: return noCapabilities;
     }
 }

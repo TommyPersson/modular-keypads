@@ -1,6 +1,6 @@
 #include "RemoteRegisterRefresher.h"
 
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 
 RemoteRegisterRefresher::RemoteRegisterRefresher(
     tfw::utils::registers::RegisterManager& registers,

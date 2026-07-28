@@ -3,7 +3,7 @@
 #include "firmwares/base/Firmware.h"
 #include "TestModeController.h"
 #include "KeyBindingSubSystem.h"
-#include "firmwares/common/RemoteDevice.h"
+#include "../../mkp/devices/common/RemoteDevice.h"
 
 class MasterFirmware final : public Firmware,
                              tfw::utils::observables::Observer<devices::DeviceSwitchEvent>,
@@ -23,7 +23,7 @@ private:
 
     TestModeController testModeController;
 
-    std::unique_ptr<devices::DeviceModule> localDevice;
+    std::unique_ptr<devices::LocalDevice> localDevice;
     std::vector<std::unique_ptr<devices::Device>> remoteDevices;
     std::vector<devices::Device*> allDevices;
 

@@ -2,11 +2,17 @@
 
 #include <firmwares/common/DeviceConfigurationManager.h>
 #include <firmwares/common/DeviceCapabilities.h>
-#include <firmwares/common/runtimes/DeviceRuntime.h>
 #include <firmwares/common/runtimes/RegisterRefresher.h>
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 
 namespace devices::a {
+    namespace i2c {
+        inline auto pins = tfw::hal::i2c::Pins{
+            .SDA = 11,
+            .SCL = 10
+        };
+    }
+
     namespace registers {
         const tfw::utils::registers::RegisterDescriptor IOA{.name = "IOA", .index = 0};
         const tfw::utils::registers::RegisterDescriptor IOB{.name = "IOB", .index = 1};
@@ -28,43 +34,31 @@ namespace devices::a {
         std::make_shared<PushButtonCapability>(12, registers::IOA, 5, 6),
     };
 
-    class DeviceModuleA final : public DeviceModule {
+    class LocalDeviceA final : public LocalDevice {
     public:
-        DeviceModuleA(
+        LocalDeviceA(
             const DeviceConfiguration& configuration,
-            std::unique_ptr<IndicatorLedManager>& indicatorLedManager,
-            std::unique_ptr<tfw::utils::registers::RegisterManager>& registerManager,
-            std::unique_ptr<RegisterRefresher>& registerRefresher,
-            std::unique_ptr<DeviceRuntime>& deviceRuntime,
-            std::unique_ptr<Notifier>& notifier
+            const DeviceConfigurationManager& configurationManager,
+            const NotifierFactory& notifierFactory
         );
-        ~DeviceModuleA() override;
+        ~LocalDeviceA() override;
 
         void setup() override;
         void loop() override;
 
-        tfw::utils::registers::RegisterManager& getRegisters() override;
-
-        const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() override {
-            return registers::all;
-        }
-
         const DeviceConfiguration& getConfiguration() const override { return configuration; }
 
-        const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const override {
+        const std::vector<std::shared_ptr<devices::DeviceCapability>>& getCapabilities() const override {
             return capabilities;
         }
 
-    protected:
-        DeviceRuntime& getRuntime() override {
-            return *deviceRuntime;
+        const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const override {
+            return registers::all;
         }
 
+        tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
+
     private:
-        std::unique_ptr<IndicatorLedManager> indicatorLedManager;
-        std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;
         std::unique_ptr<RegisterRefresher> registerRefresher;
-        std::unique_ptr<DeviceRuntime> deviceRuntime;
-        std::unique_ptr<Notifier> notifier;
     };
 }

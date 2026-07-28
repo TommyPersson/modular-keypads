@@ -1,6 +1,6 @@
 #pragma once
 
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 
 #include <tfw/hal/i2c.h>
 
@@ -16,13 +16,13 @@ namespace firmwares::slave::i2c::commands {
 
     class FlashButtonIdentificationLightRemoteCommandHandler : public RemoteCommandHandler<FlashButtonIdentificationLightParams> {
     public:
-        explicit FlashButtonIdentificationLightRemoteCommandHandler(devices::DeviceModule& device);
+        explicit FlashButtonIdentificationLightRemoteCommandHandler(devices::LocalDevice& device);
 
         ~FlashButtonIdentificationLightRemoteCommandHandler() override;
 
         tfw::utils::void_result execute(const FlashButtonIdentificationLightParams* params) override;
 
     private:
-        devices::DeviceModule& device;
+        devices::LocalDevice& device;
     };
 }

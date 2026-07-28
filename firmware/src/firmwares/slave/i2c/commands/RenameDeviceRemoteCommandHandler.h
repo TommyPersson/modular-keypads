@@ -1,6 +1,6 @@
 #pragma once
 
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 
 #include <tfw/hal/i2c.h>
 
@@ -15,13 +15,13 @@ namespace firmwares::slave::i2c::commands {
 
     class RenameDeviceRemoteCommandHandler : public RemoteCommandHandler<RenameDeviceParams> {
     public:
-        explicit RenameDeviceRemoteCommandHandler(devices::DeviceModule& device);
+        explicit RenameDeviceRemoteCommandHandler(devices::LocalDevice& device);
 
         ~RenameDeviceRemoteCommandHandler() override;
 
         tfw::utils::void_result execute(const RenameDeviceParams* params) override;
 
     private:
-        devices::DeviceModule& device;
+        devices::LocalDevice& device;
     };
 }

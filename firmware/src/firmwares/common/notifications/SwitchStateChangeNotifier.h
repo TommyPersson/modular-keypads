@@ -2,9 +2,9 @@
 
 #include <tfw/hal/buttons/Button.h>
 #include <tfw/utils/observables.h>
-#include "firmwares/common/runtimes/DeviceRuntime.h"
 
 #include "Notifier.h"
+#include "mkp/devices/common/Device.h"
 
 class SwitchStateChangeNotifier
     : public tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent>,

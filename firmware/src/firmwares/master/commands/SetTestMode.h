@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tfw/utils/commands.h>
-#include <firmwares/modules/common/DeviceModule.h>
+#include "mkp/devices/common/LocalDevice.h"
 #include "../TestModeController.h"
 
 class SetTestMode : public tfw::utils::commands::CommandHandler {
