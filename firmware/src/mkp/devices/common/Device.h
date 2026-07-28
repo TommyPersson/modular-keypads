@@ -2,8 +2,8 @@
 
 #include <tfw/hal/i2c/Client.h>
 
-#include "firmwares/common/DeviceCapabilities.h"
-#include "firmwares/common/DeviceConfigurationManager.h"
+#include "DeviceCapabilities.h"
+#include "DeviceConfigurationManager.h"
 #include "tfw/hal/buttons/Button.h"
 #include "tfw/hal/encoders/RotaryEncoder.h"
 

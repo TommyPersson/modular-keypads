@@ -1,6 +1,6 @@
 #pragma once
 
-#include "firmwares/common/DeviceConfigurationManager.h"
+#include "../../../mkp/devices/common/DeviceConfigurationManager.h"
 #include <tfw/utils/commands.h>
 
 class ReadDeviceAddressCommandHandler final : public tfw::utils::commands::CommandHandler {

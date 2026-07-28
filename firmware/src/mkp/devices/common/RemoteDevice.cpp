@@ -18,9 +18,11 @@ namespace {
 devices::RemoteDevice::RemoteDevice(
     const DeviceConfiguration& configuration,
     const NotifierFactory& notifierFactory,
+    const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
     tfw::hal::i2c::Client& i2cClient
 ) : configuration(configuration),
-    i2cClient(i2cClient) {
+    i2cClient(i2cClient),
+    capabilities(capabilities) {
     notifier = notifierFactory.create(configuration.id);
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(*notifier);
     deviceSwitchEventSubject.addObserver(switchStateChangeNotifier.get());
@@ -70,10 +72,7 @@ const DeviceConfiguration& devices::RemoteDevice::getConfiguration() const {
 }
 
 const std::vector<std::shared_ptr<devices::DeviceCapability>>& devices::RemoteDevice::getCapabilities() const {
-    switch (configuration.type) {
-    case 'a': return a::capabilities;
-    default: return noCapabilities;
-    }
+    return capabilities;
 }
 
 tfw::utils::void_result devices::RemoteDevice::flashIdentificationLights(uint32_t durationMs) {

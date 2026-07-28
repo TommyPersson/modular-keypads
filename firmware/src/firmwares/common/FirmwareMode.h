@@ -1,7 +1,7 @@
 #pragma once
 
 namespace devices {
-    enum class DeviceMode {
+    enum class FirmwareMode {
         Master,
         Slave
     };

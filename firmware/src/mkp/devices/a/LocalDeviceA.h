@@ -1,9 +1,7 @@
 #pragma once
 
-#include <firmwares/common/DeviceConfigurationManager.h>
-#include <firmwares/common/DeviceCapabilities.h>
-#include <firmwares/common/runtimes/RegisterRefresher.h>
 #include "mkp/devices/common/LocalDevice.h"
+#include "mkp/devices/common/RegisterRefresher.h"
 
 namespace devices::a {
     namespace i2c {

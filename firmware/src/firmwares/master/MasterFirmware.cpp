@@ -11,7 +11,7 @@
 
 #include <firmwares/base/commands/SetDeviceNameCommandHandler.h>
 
-#include "../common/DeviceScanner.h"
+#include "../../mkp/devices/common/DeviceScanner.h"
 #include "../common/keybindings/KeyBindingStorage.h"
 #include "../common/macros/MacroStorage.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
@@ -74,7 +74,7 @@ void MasterFirmware::setup() {
 
     auto localDeviceConfiguration = deviceConfigurationManager.getDeviceConfiguration();
 
-    auto localModuleFactory = getModuleFactory(localDeviceConfiguration.type);
+    auto localModuleFactory = getDeviceFactory(localDeviceConfiguration.type);
     if (localModuleFactory == nullptr) {
         logger->error("No module factory found for type: %c", localDeviceConfiguration.type);
         return;
@@ -88,46 +88,49 @@ void MasterFirmware::setup() {
 
     registers = &localDevice->getRegisters();
 
-    auto pins = localModuleFactory->getI2cPins();
+    auto pins = localDevice->getI2cPins();
     serviceLocator.i2cClient.setup(pins);
 
-    refreshConnectedDevices();
+    refreshRemoteDevices();
 }
 
 void MasterFirmware::loop() {
     Firmware::loop();
 
-    loopTimerMetric->measure([this] {
-        localDevice->loop();
-        for (const auto& device : remoteDevices) {
-            device->loop();
+    loopTimerMetric->measure(
+        [this] {
+            localDevice->loop();
+            for (const auto& device : remoteDevices) {
+                device->loop();
+            }
         }
-    });
+    );
 
     keyBindingSubSystem->loop();
 }
 
 // TODO allow connected devices to use open drain outputs to signal their presence?
-void MasterFirmware::refreshConnectedDevices() {
+void MasterFirmware::refreshRemoteDevices() {
     allDevices.clear();
     allDevices.push_back(localDevice.get());
     remoteDevices.clear();
 
     DeviceScanner scanner(serviceLocator.i2cClient);
-    auto scanResult = scanner.scan();
+    const auto scanResult = scanner.scan();
     for (const auto& deviceConfiguration : scanResult) {
         logger->info("Found device at %i: %08llx", deviceConfiguration->address, deviceConfiguration->id);
         logger->info("Device name: %s", deviceConfiguration->name.c_str());
         logger->info("Device type: %c", deviceConfiguration->type);
 
-        auto moduleFactory = getModuleFactory(deviceConfiguration->type);
-        if (moduleFactory == nullptr) {
-            logger->error("No module factory found for type: %c", deviceConfiguration->type);
+        const auto deviceFactory = getDeviceFactory(deviceConfiguration->type);
+        if (deviceFactory == nullptr) {
+            logger->error("No device factory found for type: %c", deviceConfiguration->type);
             continue;
         }
 
-        auto remoteDevice2 = std::make_unique<devices::RemoteDevice>(*deviceConfiguration, serviceLocator.notifierFactory, serviceLocator.i2cClient);
-        remoteDevices.push_back(std::move(remoteDevice2));
+        auto device = deviceFactory->createRemote(*deviceConfiguration, serviceLocator);
+
+        remoteDevices.push_back(std::move(device));
     }
 
     for (const auto& device : remoteDevices) {
@@ -143,7 +146,7 @@ void MasterFirmware::observe(const devices::DeviceSwitchEvent& event) {
 
     // TODO temporary debugging
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 11) {
-        refreshConnectedDevices();
+        refreshRemoteDevices();
     }
 
 #ifdef SOC_USB_OTG_SUPPORTED

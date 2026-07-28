@@ -4,7 +4,7 @@
 
 #include <tfw/hal/logging.h>
 
-#include "firmwares/modules/a/LocalRegisterRefresherA.h"
+#include "RegisterRefresherA.h"
 #include "tfw/utils/strings.h"
 
 namespace {
@@ -18,15 +18,15 @@ LocalDeviceA::LocalDeviceA(
     const DeviceConfigurationManager& configurationManager,
     const NotifierFactory& notifierFactory
 ) : LocalDevice(configuration, configurationManager, notifierFactory, IndicatorLedManager::NeoPixel(12, 48)) {
-    registerRefresher = std::make_unique<LocalRegisterRefresherA>(*registerManager);
+    registerRefresher = std::make_unique<RegisterRefresherA>(*registerManager);
 }
 
 LocalDeviceA::~LocalDeviceA() = default;
 
 void LocalDeviceA::setup() {
-    registerRefresher->setup();
-
     LocalDevice::setup();
+
+    registerRefresher->setup();
 }
 
 void LocalDeviceA::loop() {

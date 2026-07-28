@@ -1,8 +1,8 @@
-#include "LocalRegisterRefresherA.h"
+#include "RegisterRefresherA.h"
 
-#include "../../../mkp/devices/a/LocalDeviceA.h"
+#include "LocalDeviceA.h"
 
-LocalRegisterRefresherA::LocalRegisterRefresherA(tfw::utils::registers::RegisterManager& registers) :
+RegisterRefresherA::RegisterRefresherA(tfw::utils::registers::RegisterManager& registers) :
     RegisterRefresher(registers) {
     this->mcp23x17 = tfw::ic::spi(
         {
@@ -16,9 +16,9 @@ LocalRegisterRefresherA::LocalRegisterRefresherA(tfw::utils::registers::Register
     );
 }
 
-LocalRegisterRefresherA::~LocalRegisterRefresherA() = default;
+RegisterRefresherA::~RegisterRefresherA() = default;
 
-void LocalRegisterRefresherA::setup() {
+void RegisterRefresherA::setup() {
     mcp23x17->begin();
 
     // Set all pins as input
@@ -34,7 +34,7 @@ void LocalRegisterRefresherA::setup() {
     mcp23x17->writeRegister(tfw::ic::registers::IOPOLB, 0xff);
 }
 
-void LocalRegisterRefresherA::loop() {
+void RegisterRefresherA::loop() {
     registers.write(devices::a::registers::IOA, mcp23x17->readPortA());
     registers.write(devices::a::registers::IOB, mcp23x17->readPortB());
 }

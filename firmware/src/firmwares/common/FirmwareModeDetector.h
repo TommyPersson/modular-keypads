@@ -2,14 +2,14 @@
 
 #include <../../../lib/tfw/src/tfw/hal/gpio/PhysicalInputPin.h>
 
-#include "DeviceMode.h"
+#include "FirmwareMode.h"
 
 namespace devices {
-    class DeviceModeDetector {
+    class FirmwareModeDetector {
     public:
         void setup();
 
-        DeviceMode detectDeviceMode() const;
+        FirmwareMode detectFirmwareMode() const;
     private:
         std::unique_ptr<tfw::hal::gpio::InputPin> vbusPin;
     };

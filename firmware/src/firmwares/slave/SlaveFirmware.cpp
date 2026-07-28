@@ -27,20 +27,20 @@ void SlaveFirmware::setup() {
 
     auto configuration = serviceLocator.deviceConfigurationManager.getDeviceConfiguration();
 
-    auto localModuleFactory = getModuleFactory(configuration.type);
-    if (localModuleFactory == nullptr) {
-        logger->error("No module factory found for type: %c", configuration.type);
+    const auto deviceFactory = getDeviceFactory(configuration.type);
+    if (deviceFactory == nullptr) {
+        logger->error("No device factory found for type: %c", configuration.type);
         return;
     }
 
-    device = localModuleFactory->createLocal(configuration, serviceLocator);
+    device = deviceFactory->createLocal(configuration, serviceLocator);
     device->setup();
 
     registers = &device->getRegisters();
 
-    auto pins = localModuleFactory->getI2cPins();
+    const auto i2cPins = device->getI2cPins();
 
-    auto deviceAddress = configuration.address;
+    const auto deviceAddress = configuration.address;
     if (deviceAddress == 0) {
         logger->error("Device needs to have an address configured.");
         return;
@@ -63,7 +63,7 @@ void SlaveFirmware::setup() {
         deviceName.c_str()
     );
 
-    slavePort.setup(deviceAddress, pins);
+    slavePort.setup(deviceAddress, i2cPins);
 
     slavePort.addCommandHandler(new i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
     slavePort.addCommandHandler(new i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device));

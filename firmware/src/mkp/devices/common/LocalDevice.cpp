@@ -2,7 +2,7 @@
 
 #include <tfw/hal/logging.h>
 
-#include "firmwares/common/runtimes/RegisterRefresher.h"
+#include "RegisterRefresher.h"
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("DeviceModule");

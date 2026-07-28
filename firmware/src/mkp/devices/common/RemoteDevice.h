@@ -12,6 +12,7 @@ namespace devices {
         explicit RemoteDevice(
             const DeviceConfiguration& configuration,
             const NotifierFactory& notifierFactory,
+            const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
             tfw::hal::i2c::Client& i2cClient
         );
         ~RemoteDevice() override;
@@ -30,6 +31,8 @@ namespace devices {
         DeviceConfiguration configuration;
         std::unique_ptr<Notifier> notifier;
         std::unique_ptr<SwitchStateChangeNotifier> switchStateChangeNotifier;
+
+        const std::vector<std::shared_ptr<DeviceCapability>>& capabilities;
 
         tfw::hal::i2c::Client& i2cClient;
     };

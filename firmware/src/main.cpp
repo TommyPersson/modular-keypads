@@ -11,38 +11,35 @@
 #include <memory>
 
 #include "firmwares/base/Firmware.h"
-#include "firmwares/common/DeviceConfigurationManager.h"
+#include "mkp/devices/common/DeviceConfigurationManager.h"
 #include "firmwares/common/ServiceLocator.h"
 #include "firmwares/common/notifications/NotifierFactory.h"
 
 #include "esp_pm.h"
 
-std::unique_ptr<Firmware> firmware;
-std::unique_ptr<Preferences> preferences;
-std::unique_ptr<tfw::hal::uart::SerialPort> serialPort;
-std::unique_ptr<NotifierFactory> notifierFactory;
-std::unique_ptr<DeviceConfigurationManager> deviceConfigurationManager;
-std::unique_ptr<tfw::hal::i2c::Client> i2cClient;
-std::unique_ptr<tfw::hal::i2c::SlavePort> i2cSlavePort;
-std::unique_ptr<tfw::hal::usb::Connection> usbConnection;
-std::unique_ptr<tfw::hal::metrics::MetricRegistry> metricRegistry;
-std::unique_ptr<devices::DeviceTypeDetector> deviceTypeDetector;
-std::unique_ptr<devices::DeviceModeDetector> deviceModeDetector;
-
-std::unique_ptr<ServiceLocator> serviceLocator;
-
-
 namespace {
+    std::unique_ptr<Firmware> firmware;
+    std::unique_ptr<Preferences> preferences;
+    std::unique_ptr<tfw::hal::uart::SerialPort> serialPort;
+    std::unique_ptr<NotifierFactory> notifierFactory;
+    std::unique_ptr<DeviceConfigurationManager> deviceConfigurationManager;
+    std::unique_ptr<tfw::hal::i2c::Client> i2cClient;
+    std::unique_ptr<tfw::hal::i2c::SlavePort> i2cSlavePort;
+    std::unique_ptr<tfw::hal::usb::Connection> usbConnection;
+    std::unique_ptr<tfw::hal::metrics::MetricRegistry> metricRegistry;
+    std::unique_ptr<devices::DeviceTypeDetector> deviceTypeDetector;
+    std::unique_ptr<devices::FirmwareModeDetector> deviceModeDetector;
+
+    std::unique_ptr<ServiceLocator> serviceLocator;
+
     esp_err_t pmResult;
-}
 
 #if !ARDUINO_USB_CDC_ON_BOOT
-USBCDC TheSerial;
+    USBCDC TheSerial;
 #else
 #define TheSerial Serial
 #endif
-
-
+}
 
 void setup() {
     esp_pm_config_t config{
@@ -59,7 +56,7 @@ void setup() {
     serialPort = tfw::hal::uart::SerialPort::from(TheSerial);
     preferences = std::make_unique<Preferences>();
     deviceTypeDetector = std::make_unique<devices::DeviceTypeDetector>();
-    deviceModeDetector = std::make_unique<devices::DeviceModeDetector>();
+    deviceModeDetector = std::make_unique<devices::FirmwareModeDetector>();
     deviceConfigurationManager = std::make_unique<DeviceConfigurationManager>(*preferences, *deviceTypeDetector);
     notifierFactory = std::make_unique<NotifierFactory>(TheSerial);
     i2cClient = std::make_unique<tfw::hal::i2c::Client>(Wire);

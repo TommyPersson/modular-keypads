@@ -3,7 +3,7 @@
 
 #include "../common/ServiceLocator.h"
 #include "../master/MasterFirmware.h"
-#include "../modules/a/DeviceModuleFactoryA.h"
+#include "../../mkp/devices/a/DeviceFactoryA.h"
 #include "../slave/SlaveFirmware.h"
 #include "commands/ListRegistersCommandHandler.h"
 #include "commands/ListRegisterValuesCommandHandler.h"
@@ -46,15 +46,15 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->addCommandHandler(std::make_shared<ListRegisterValuesCommandHandler>(registers));
     this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>(serviceLocator.metricRegistry));
 
-    moduleFactories.emplace_back(std::make_unique<devices::a::DeviceModuleFactoryA>());
+    deviceFactories.emplace_back(std::make_unique<devices::a::DeviceFactoryA>());
 
     firmware::metrics::base::register_all(serviceLocator.metricRegistry);
 }
 
-devices::DeviceModuleFactory* Firmware::getModuleFactory(char deviceType) const {
-    for (const auto& moduleFactory : moduleFactories) {
-        if (moduleFactory->matches(deviceType)) {
-            return moduleFactory.get();
+devices::DeviceFactory* Firmware::getDeviceFactory(char deviceType) const {
+    for (const auto& factory : deviceFactories) {
+        if (factory->matches(deviceType)) {
+            return factory.get();
         }
     }
 
@@ -77,9 +77,9 @@ void Firmware::addCommandHandler(const std::shared_ptr<tfw::utils::commands::Com
 }
 
 std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
-    const auto deviceMode = serviceLocator.deviceModeDetector.detectDeviceMode();
+    const auto deviceMode = serviceLocator.deviceModeDetector.detectFirmwareMode();
 
-    if (deviceMode == devices::DeviceMode::Master) {
+    if (deviceMode == devices::FirmwareMode::Master) {
         return std::make_unique<MasterFirmware>(serviceLocator);
     }
 

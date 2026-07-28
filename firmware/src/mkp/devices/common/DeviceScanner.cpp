@@ -3,8 +3,8 @@
 #include "mkp/devices/common/LocalDevice.h"
 
 #include <tfw/hal/i2c.h>
-#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
+#include <tfw/utils/strings.h>
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("DeviceScanner");

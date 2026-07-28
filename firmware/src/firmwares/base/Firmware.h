@@ -6,13 +6,13 @@
 #include <tfw/hal/uart.h>
 #include <tfw/utils/streams.h>
 
-#include "../common/DeviceConfigurationManager.h"
+#include "../../mkp/devices/common/DeviceConfigurationManager.h"
 #include "../common/ServiceLocator.h"
 
 #include <tfw/utils/commands.h>
 
 #include "../../mkp/devices/common/LocalDevice.h"
-#include "firmwares/modules/common/DeviceModuleFactory.h"
+#include "../../mkp/devices/common/DeviceFactory.h"
 
 class Firmware {
 public:
@@ -27,7 +27,7 @@ public:
 
 protected:
     void addCommandHandler(const std::shared_ptr<tfw::utils::commands::CommandHandler>& commandHandler) const;
-    devices::DeviceModuleFactory* getModuleFactory(char deviceType) const;
+    devices::DeviceFactory* getDeviceFactory(char deviceType) const;
 
     void registerMetrics();
 
@@ -41,5 +41,5 @@ protected:
 private:
     std::unique_ptr<tfw::utils::streams::LineStreamer> lineStreamer;
     std::unique_ptr<tfw::utils::commands::CommandProcessor> commandProcessor;
-    std::vector<std::unique_ptr<devices::DeviceModuleFactory>> moduleFactories;
+    std::vector<std::unique_ptr<devices::DeviceFactory>> deviceFactories;
 };

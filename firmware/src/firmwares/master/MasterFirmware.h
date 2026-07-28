@@ -19,7 +19,7 @@ public:
     void observe(const devices::DeviceRotaryEncoderEvent& event) override;
 
 private:
-    void refreshConnectedDevices();
+    void refreshRemoteDevices();
 
     TestModeController testModeController;
 
