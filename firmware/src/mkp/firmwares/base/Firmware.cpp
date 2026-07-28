@@ -2,9 +2,7 @@
 
 
 #include <tfw/hal/logging.h>
-#include "../common/ServiceLocator.h"
-#include "../master/MasterFirmware.h"
-#include "../slave/SlaveFirmware.h"
+#include "ServiceLocator.h"
 #include "commands/ListRegistersCommandHandler.h"
 #include "commands/ListRegisterValuesCommandHandler.h"
 #include "commands/PingCommandHandler.h"
@@ -19,6 +17,8 @@
 #include "commands/SetDeviceAddressCommandHandler.h"
 #include "metrics/BaseMetrics.h"
 #include "mkp/devices/a/DeviceFactoryA.h"
+#include "mkp/firmwares//slave/SlaveFirmware.h"
+#include "mkp/firmwares/master/MasterFirmware.h"
 
 
 namespace {
@@ -68,7 +68,7 @@ void Firmware::setup() {
 }
 
 void Firmware::loop() {
-    tfw::hal::time::delayUs(1000);
+    tfw::hal::time::delayUs(100);
     lineStreamer->update();
 }
 

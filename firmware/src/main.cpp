@@ -10,9 +10,8 @@
 
 #include <memory>
 
-#include "firmwares/base/Firmware.h"
 #include "mkp/devices/common/DeviceConfigurationManager.h"
-#include "firmwares/common/ServiceLocator.h"
+#include "mkp/firmwares/base/Firmware.h"
 #include "firmwares/common/notifications/NotifierFactory.h"
 
 #include "esp_pm.h"

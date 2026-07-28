@@ -9,11 +9,9 @@
 
 #endif
 
-#include <firmwares/base/commands/SetDeviceNameCommandHandler.h>
+#include <tfw/hal/logging.h>
+#include <tfw/utils/strings.h>
 
-#include "../../mkp/devices/common/DeviceScanner.h"
-#include "../common/keybindings/KeyBindingStorage.h"
-#include "../common/macros/MacroStorage.h"
 #include "commands/ClearKeyBindingCommandHandler.h"
 #include "commands/DeleteMacroCommandHandler.h"
 #include "commands/FlashButtonIdentificationLightCommandHandler.h"
@@ -26,8 +24,9 @@
 #include "commands/SaveMacroCommandHandler.h"
 #include "commands/SetKeyBindingCommandHandler.h"
 #include "commands/SetTestMode.h"
-#include <tfw/utils/strings.h>
-#include <tfw/hal/logging.h>
+#include "mkp/devices/common/DeviceScanner.h"
+#include "mkp/firmwares/base/commands/SetDeviceNameCommandHandler.h"
+
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");

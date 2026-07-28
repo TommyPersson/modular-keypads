@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "mkp/firmwares/base/ServiceLocator.h"
 #include "LocalDevice.h"
 #include "RemoteDevice.h"
 

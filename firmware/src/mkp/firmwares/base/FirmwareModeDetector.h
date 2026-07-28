@@ -1,6 +1,6 @@
 #pragma once
 
-#include <../../../lib/tfw/src/tfw/hal/gpio/PhysicalInputPin.h>
+#include <tfw/hal/gpio/PhysicalInputPin.h>
 
 #include "FirmwareMode.h"
 

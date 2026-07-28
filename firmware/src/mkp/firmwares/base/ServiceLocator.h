@@ -1,13 +1,13 @@
 #pragma once
 
-#include <tfw/hal/uart.h>
 #include <tfw/hal/metrics.h>
+#include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
+#include <tfw/hal/i2c.h>
 
+#include "FirmwareModeDetector.h"
 #include "firmwares/common/notifications/NotifierFactory.h"
 #include "mkp/devices/common/DeviceConfigurationManager.h"
-#include "firmwares/common/FirmwareModeDetector.h"
-#include <tfw/hal/i2c.h>
 
 struct ServiceLocator {
     mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager;

@@ -7,7 +7,7 @@
 #include <tfw/utils/streams.h>
 #include <tfw/utils/commands.h>
 
-#include "../common/ServiceLocator.h"
+#include "ServiceLocator.h"
 #include "mkp/devices/common/DeviceConfigurationManager.h"
 #include "mkp/devices/common/DeviceFactory.h"
 #include "mkp/devices/common/LocalDevice.h"

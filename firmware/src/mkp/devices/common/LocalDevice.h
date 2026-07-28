@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <firmwares/common/ServiceLocator.h>
 
 #include "Device.h"
 #include "firmwares/common/indicatorleds/IndicatorLedManager.h"
+#include "firmwares/common/notifications/NotifierFactory.h"
 #include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
 
 namespace mkp::devices::common {

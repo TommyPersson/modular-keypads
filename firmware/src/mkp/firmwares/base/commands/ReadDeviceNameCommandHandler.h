@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../../mkp/devices/common/DeviceConfigurationManager.h"
+#include "mkp/devices/common/DeviceConfigurationManager.h"
 #include <tfw/utils/commands.h>
 
-class ResetDeviceCommandHandler final : public tfw::utils::commands::CommandHandler {
+class ReadDeviceNameCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:
-    explicit ResetDeviceCommandHandler(mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager);
-    ~ResetDeviceCommandHandler() override;
+    explicit ReadDeviceNameCommandHandler(mkp::devices::common::DeviceConfigurationManager& deviceConfigurationManager);
+    ~ReadDeviceNameCommandHandler() override;
 
     tfw::utils::void_result execute(
         const std::span<const std::string_view>& args,

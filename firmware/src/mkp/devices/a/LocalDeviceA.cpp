@@ -1,11 +1,9 @@
 #include "LocalDeviceA.h"
 
-#include <firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h>
-
 #include <tfw/hal/logging.h>
+#include <tfw/utils/strings.h>
 
 #include "RegisterRefresherA.h"
-#include "tfw/utils/strings.h"
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("LocalDeviceA");

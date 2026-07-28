@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../../mkp/devices/common/LocalDevice.h"
 #include <tfw/utils/commands.h>
+
+#include "mkp/devices/common/LocalDevice.h"
 
 class FlashButtonIdentificationLightCommandHandler final : public tfw::utils::commands::CommandHandler {
 public:

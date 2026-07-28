@@ -3,10 +3,9 @@
 #include <tfw/hal/logging/Logger.h>
 
 #include "../../../firmwares/common/events/RemoteEventTypes.h"
-#include "../a/LocalDeviceA.h"
-#include "firmwares/slave/i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
-#include "firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
-#include "firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"
+#include "mkp/firmwares/slave/i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
+#include "mkp/firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
+#include "mkp/firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
 using namespace mkp::devices::common;
 

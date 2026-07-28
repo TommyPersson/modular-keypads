@@ -1,9 +1,9 @@
 #pragma once
 
-#include "firmwares/base/Firmware.h"
-#include "TestModeController.h"
+#include "mkp/firmwares/base/Firmware.h"
+
 #include "KeyBindingSubSystem.h"
-#include "../../mkp/devices/common/RemoteDevice.h"
+#include "TestModeController.h"
 
 class MasterFirmware final : public Firmware,
                              tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
