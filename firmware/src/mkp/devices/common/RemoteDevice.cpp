@@ -43,34 +43,36 @@ void RemoteDevice::loop() {
 
     remoteEventsAvailable = false;
 
-    const auto result = i2cClient.readEndpoint(configuration.address, tfw::hal::i2c::endpoints::builtin::Events);
-    if (result.has_error) {
-        return;
-    }
+    while (true) {
+        const auto result = i2cClient.readEndpoint(configuration.address, tfw::hal::i2c::endpoints::builtin::Events);
+        if (result.has_error) {
+            return;
+        }
 
-    const auto remoteEvent = *result.value;
-    if (remoteEvent.type == 0) {
-        return;
-    }
+        const auto remoteEvent = *result.value;
+        if (remoteEvent.type == 0) {
+            return;
+        }
 
-    const auto remoteEventType = static_cast<RemoteEventType>(remoteEvent.type);
+        const auto remoteEventType = static_cast<RemoteEventType>(remoteEvent.type);
 
-    if (remoteEventType == RemoteEventType::BUTTON_PRESSED) {
-        this->deviceSwitchEventSubject.notify(
-            {
-                .deviceId = remoteEvent.deviceId,
-                .switchNumber = remoteEvent.args[0],
-                .state = tfw::hal::buttons::ButtonState::PRESSED,
-            }
-        );
-    } else if (remoteEventType == RemoteEventType::BUTTON_RELEASED) {
-        this->deviceSwitchEventSubject.notify(
-            {
-                .deviceId = remoteEvent.deviceId,
-                .switchNumber = remoteEvent.args[0],
-                .state = tfw::hal::buttons::ButtonState::UNPRESSED,
-            }
-        );
+        if (remoteEventType == RemoteEventType::BUTTON_PRESSED) {
+            this->deviceSwitchEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .switchNumber = remoteEvent.args[0],
+                    .state = tfw::hal::buttons::ButtonState::PRESSED,
+                }
+            );
+        } else if (remoteEventType == RemoteEventType::BUTTON_RELEASED) {
+            this->deviceSwitchEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .switchNumber = remoteEvent.args[0],
+                    .state = tfw::hal::buttons::ButtonState::UNPRESSED,
+                }
+            );
+        }
     }
 }
 

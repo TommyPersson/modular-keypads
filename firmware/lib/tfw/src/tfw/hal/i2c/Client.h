@@ -20,7 +20,11 @@ namespace tfw::hal::i2c {
         }
 
         template <class TParams>
-        utils::void_result sendCommand(const uint8_t address, const commands::RemoteCommandDescriptor<TParams>& command, const TParams& params) {
+        utils::void_result sendCommand(
+            const uint8_t address, // TODO add device ID for "sub devices?"
+            const commands::RemoteCommandDescriptor<TParams>& command,
+            const TParams& params
+        ) {
             uint8_t message[sizeof(TParams) + 1] = {};
             message[0] = command.id;
             memcpy(&message[1], &params, sizeof(TParams));
@@ -61,7 +65,7 @@ namespace tfw::hal::i2c {
 
     private:
         bool setEndpoint(uint8_t address, uint8_t endpointId) {
-            auto result = sendCommand(address, commands::builtin::SetEndpoint, { .endpointId = endpointId });
+            auto result = sendCommand(address, commands::builtin::SetEndpoint, {.endpointId = endpointId});
             return !result.has_error;
         }
 
