@@ -107,12 +107,7 @@ namespace tfw::hal::i2c {
     }
 
     void SlavePort::enqueueEvent(const Event& event) {
-        this->eventQueue[eventProducerIndex] = event;
-
-        eventProducerIndex++;
-        if (eventProducerIndex >= 255) {
-            eventProducerIndex = 0;
-        }
+        eventQueue.enqueue(event);
     }
 
     void SlavePort::triggerEventInterrupt() const {
@@ -121,17 +116,6 @@ namespace tfw::hal::i2c {
     }
 
     Event* SlavePort::pollEvent() {
-        if (eventConsumerIndex == eventProducerIndex) {
-            return nullptr;
-        }
-
-        auto& event = this->eventQueue[eventConsumerIndex];
-
-        eventConsumerIndex++;
-        if (eventConsumerIndex >= 255) {
-            eventConsumerIndex = 0;
-        }
-
-        return &event;
+        return eventQueue.dequeue();
     }
 }

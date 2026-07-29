@@ -11,6 +11,7 @@
 #include "Pins.h"
 #include "tfw/hal/gpio/OutputPin.h"
 #include "tfw/utils/result.h"
+#include "tfw/utils/ring_queue.h"
 
 namespace tfw::hal::i2c {
     struct EndpointData {
@@ -63,9 +64,7 @@ namespace tfw::hal::i2c {
 
         TwoWire& twoWire;
 
-        Event eventQueue[255]{};
-        uint8_t eventConsumerIndex = 0;
-        uint8_t eventProducerIndex = 0;
+        utils::ring_queue<Event> eventQueue{255};
         std::unique_ptr<gpio::OutputPin> eventInterruptOutputPin;
 
         tfw::utils::allocations::Arena receiveArena;
