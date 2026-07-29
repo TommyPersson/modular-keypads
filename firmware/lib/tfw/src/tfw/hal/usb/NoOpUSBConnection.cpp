@@ -3,6 +3,9 @@
 void tfw::hal::usb::NoOpConnection::setup() {
 }
 
+void tfw::hal::usb::NoOpConnection::update() {
+}
+
 bool tfw::hal::usb::NoOpConnection::isConnected() {
     return false;
 }

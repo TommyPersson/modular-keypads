@@ -47,6 +47,7 @@ void Firmware::setup() {
 void Firmware::loop() {
     tfw::hal::time::delayUs(100);
     lineStreamer->update();
+    serviceLocator.usbConnection.update();
 }
 
 void Firmware::addCommandHandler(const std::shared_ptr<tfw::utils::commands::CommandHandler>& commandHandler) const {

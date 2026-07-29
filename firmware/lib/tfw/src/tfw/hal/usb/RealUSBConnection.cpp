@@ -50,9 +50,21 @@ void tfw::hal::usb::RealConnection::setup() {
     consumerControl.begin();
     systemControl.begin();
 
-    hal::time::delayMs(500);
+    time::delayMs(500);
 
     keyboard.releaseAll();
+}
+
+void tfw::hal::usb::RealConnection::update() {
+    const auto now = time::micros();
+    if (now - lastKeyboardWriteTime > 10'000) { // Without a delay then repeated characters can be missed.
+        const auto nextChar = characterOutputQueue.dequeue();
+        if (nextChar != nullptr) {
+            keyboard.write(*nextChar);
+        }
+
+        lastKeyboardWriteTime = now;
+    }
 }
 
 bool tfw::hal::usb::RealConnection::isConnected() {
@@ -84,9 +96,7 @@ void tfw::hal::usb::RealConnection::sendAction(Action& action) {
     const auto typeAction = dynamic_cast<TypeAction*>(&action);
     if (typeAction != nullptr) {
         for (auto& character : typeAction->text) {
-            keyboard.write(character);
-            hal::time::delayMs(10); // Without a delay then repeated characters can be missed.
-            // TODO enqueue actions instead in order to not block
+            characterOutputQueue.enqueue(character);
         }
     }
 }

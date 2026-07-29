@@ -9,6 +9,7 @@ namespace tfw::hal::usb {
         virtual ~Connection() = default;
 
         virtual void setup() = 0;
+        virtual void update() = 0;
         virtual bool isConnected() = 0;
 
         virtual void sendAction(Action& action) = 0;
