@@ -9,7 +9,7 @@ void tfw::ic::L74165::setup() {
     config.pinCE->init();
     config.pinCLK->init();
     config.pinLD->init();
-    config.pinQ->init();
+    config.pinQ->setup();
 
     config.pinLD->setHigh();
     config.pinCE->setHigh();

@@ -9,6 +9,7 @@
 #include "Endpoint.h"
 #include "Event.h"
 #include "Pins.h"
+#include "tfw/hal/gpio/OutputPin.h"
 #include "tfw/utils/result.h"
 
 namespace tfw::hal::i2c {
@@ -23,7 +24,7 @@ namespace tfw::hal::i2c {
         explicit SlavePort(TwoWire& twoWire);
         ~SlavePort();
 
-        void setup(uint8_t address, Pins pins);
+        void setup(uint8_t address, Pins pins, uint8_t eventInterruptPin);
 
         template <class TStruct>
         void updateEndpoint(
@@ -45,6 +46,7 @@ namespace tfw::hal::i2c {
         }
 
         void enqueueEvent(const Event& event);
+        void triggerEventInterrupt() const;
 
         void addCommandHandler(void* handler);
 
@@ -64,6 +66,7 @@ namespace tfw::hal::i2c {
         Event eventQueue[255]{};
         uint8_t eventConsumerIndex = 0;
         uint8_t eventProducerIndex = 0;
+        std::unique_ptr<gpio::OutputPin> eventInterruptOutputPin;
 
         tfw::utils::allocations::Arena receiveArena;
 

@@ -47,7 +47,7 @@ namespace tfw::hal::spi {
     void SPISerialBus::begin() {
         config.pinSCK.init();
         config.pinMOSI.init();
-        config.pinMISO->init();
+        config.pinMISO->setup();
         config.pinCS.init();
         config.pinCS.setHigh();
 

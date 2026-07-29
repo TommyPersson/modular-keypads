@@ -6,6 +6,8 @@
 #include "Pins.h"
 #include <tfw/hal/logging.h>
 
+#include "tfw/hal/gpio/OutputPin.h"
+
 namespace {
     auto logger = tfw::hal::logging::createLogger("SlavePort");
 }
@@ -15,7 +17,6 @@ namespace tfw::hal::i2c {
         selectedEndpoint(endpoints[0]),
         twoWire(twoWire),
         receiveArena(32) {
-
         uint8_t i = 0;
         for (auto& endpoint : endpoints) {
             endpoint.id = i;
@@ -25,17 +26,23 @@ namespace tfw::hal::i2c {
 
     SlavePort::~SlavePort() = default;
 
-    void SlavePort::setup(const uint8_t address, Pins pins) {
+    void SlavePort::setup(const uint8_t address, Pins pins, const uint8_t eventInterruptPin) {
         twoWire.onReceive([this](const int len) { onReceiveCallback(len); });
         twoWire.onRequest([this]() { onRequestCallback(); });
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
 
-        addCommandHandler(new commands::LambdaRemoteCommandHandler<commands::builtin::SetEndpointParams>(
-            commands::builtin::SetEndpoint.id,
-            [this](const commands::builtin::SetEndpointParams& params) -> utils::void_result {
-                this->selectEndpoint(params.endpointId);
-                return utils::void_result::success();
-            }));
+        addCommandHandler(
+            new commands::LambdaRemoteCommandHandler<commands::builtin::SetEndpointParams>(
+                commands::builtin::SetEndpoint.id,
+                [this](const commands::builtin::SetEndpointParams& params) -> utils::void_result {
+                    this->selectEndpoint(params.endpointId);
+                    return utils::void_result::success();
+                }
+            )
+        );
+
+        eventInterruptOutputPin = gpio::OutputPin::physical(eventInterruptPin, OPEN_DRAIN);
+        eventInterruptOutputPin->init();
     }
 
     void SlavePort::addCommandHandler(void* handler) {
@@ -106,6 +113,11 @@ namespace tfw::hal::i2c {
         if (eventProducerIndex >= 255) {
             eventProducerIndex = 0;
         }
+    }
+
+    void SlavePort::triggerEventInterrupt() const {
+        eventInterruptOutputPin->setLow();
+        eventInterruptOutputPin->setHigh();
     }
 
     Event* SlavePort::pollEvent() {

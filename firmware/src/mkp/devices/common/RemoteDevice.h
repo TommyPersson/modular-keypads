@@ -27,6 +27,8 @@ namespace mkp::devices::common {
         tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) override;
         tfw::utils::void_result rename(const std::string_view& deviceName) override;
 
+        void onRemoteEventsAvailable();
+
     private:
         DeviceConfiguration configuration;
         std::unique_ptr<components::notifications::Notifier> notifier;
@@ -35,5 +37,6 @@ namespace mkp::devices::common {
         const std::vector<std::shared_ptr<DeviceCapability>>& capabilities;
 
         tfw::hal::i2c::Client& i2cClient;
+        bool remoteEventsAvailable;
     };
 }

@@ -2,6 +2,20 @@
 
 #include <Arduino.h>
 
+#include "tfw/hal/logging/Logger.h"
+
+namespace {
+    auto logger = tfw::hal::logging::createLogger("PhysicalInputPin");;
+
+    using namespace tfw::hal::gpio;
+
+    std::vector<bool> triggeredInterrupts(255);
+
+    void interruptHandler(void* pin) {
+        auto inputPin = static_cast<PhysicalInputPin*>(pin);
+        triggeredInterrupts[inputPin->pinNumber] = true;
+    }
+}
 
 namespace tfw::hal::gpio {
     PhysicalInputPin::PhysicalInputPin(const std::uint8_t pinNumber) :
@@ -16,7 +30,7 @@ namespace tfw::hal::gpio {
 
     PhysicalInputPin::~PhysicalInputPin() = default;
 
-    void PhysicalInputPin::init() const {
+    void PhysicalInputPin::setup() const {
         pinMode(pinNumber, INPUT | modeFlags);
     }
 
@@ -26,5 +40,17 @@ namespace tfw::hal::gpio {
 
     std::uint16_t PhysicalInputPin::readAnalog() const {
         return analogRead(pinNumber);
+    }
+
+    void PhysicalInputPin::setupInterrupt(uint8_t mode) {
+        attachInterruptArg(pinNumber, interruptHandler, this, mode);
+    }
+
+    void PhysicalInputPin::checkForInterrupt() {
+        if (triggeredInterrupts[pinNumber]) {
+            triggeredInterrupts[pinNumber] = false;
+
+            interruptSubject.notify(InputPinInterruptEvent{ .pin = this });
+        }
     }
 }

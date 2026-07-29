@@ -55,6 +55,7 @@ namespace mkp::devices::a {
         }
 
         tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
+        uint8_t getEventInterruptPin() const override { return 21; }
 
     private:
         std::unique_ptr<common::RegisterRefresher> registerRefresher;

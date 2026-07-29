@@ -5,12 +5,12 @@
 #include "OutputPin.h"
 
 namespace tfw::hal::gpio {
-    OutputPin::OutputPin(const std::uint8_t pinNumber) :
-        pinNumber(pinNumber) {
+    OutputPin::OutputPin(const std::uint8_t pinNumber, const std::uint8_t modeFlags) :
+        pinNumber(pinNumber), modeFlags(modeFlags) {
     }
 
     void OutputPin::init() const {
-        pinMode(pinNumber, OUTPUT);
+        pinMode(pinNumber, OUTPUT | modeFlags);
     }
 
 
@@ -26,7 +26,7 @@ namespace tfw::hal::gpio {
         digitalWrite(pinNumber, LOW);
     }
 
-    std::unique_ptr<OutputPin> OutputPin::physical(std::uint8_t pinNumber) {
-        return std::make_unique<OutputPin>(pinNumber);
+    std::unique_ptr<OutputPin> OutputPin::physical(std::uint8_t pinNumber, std::uint8_t modeFlags) {
+        return std::make_unique<OutputPin>(pinNumber, modeFlags);
     }
 }

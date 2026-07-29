@@ -37,6 +37,12 @@ void RemoteDevice::setup() {
 }
 
 void RemoteDevice::loop() {
+    if (!remoteEventsAvailable) {
+        return;
+    }
+
+    remoteEventsAvailable = false;
+
     const auto result = i2cClient.readEndpoint(configuration.address, tfw::hal::i2c::endpoints::builtin::Events);
     if (result.has_error) {
         return;
@@ -102,4 +108,8 @@ tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName)
         firmwares::slave::i2c::commands::RenameDevice,
         params
     );
+}
+
+void RemoteDevice::onRemoteEventsAvailable() {
+    remoteEventsAvailable = true;
 }

@@ -21,6 +21,7 @@ namespace mkp::devices::common {
         tfw::utils::registers::RegisterManager& getRegisters() const;
         virtual const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
         virtual tfw::hal::i2c::Pins getI2cPins() const = 0;
+        virtual uint8_t getEventInterruptPin() const = 0;
 
         tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) override;
         tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) override;

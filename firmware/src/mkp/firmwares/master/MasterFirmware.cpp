@@ -68,6 +68,12 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
 
 MasterFirmware::~MasterFirmware() = default;
 
+namespace {
+    void testinterrupt() {
+        logger->info("Test interrupt");
+    }
+}
+
 void MasterFirmware::setup() {
     Firmware::setup();
 
@@ -95,10 +101,17 @@ void MasterFirmware::setup() {
     serviceLocator.i2cClient.setup(pins);
 
     refreshRemoteDevices();
+
+    slaveEventInterruptInputPin = tfw::hal::gpio::InputPin::physical(localDevice->getEventInterruptPin(), INPUT_PULLUP);
+    slaveEventInterruptInputPin->setup();
+    slaveEventInterruptInputPin->setupInterrupt(RISING);
+    slaveEventInterruptInputPin->onInterruptEvent().addObserver(this);
 }
 
 void MasterFirmware::loop() {
     Firmware::loop();
+
+    slaveEventInterruptInputPin->checkForInterrupt();
 
     loopTimerMetric->measure(
         [this] {
@@ -164,3 +177,12 @@ void MasterFirmware::observe(const DeviceSwitchEvent& event) {
 void MasterFirmware::observe(const DeviceRotaryEncoderEvent& event) {
     keyBindingExecutor->observe(event);
 }
+
+void MasterFirmware::observe(const tfw::hal::gpio::InputPinInterruptEvent& event) {
+    if (event.pin == slaveEventInterruptInputPin.get()) {
+        for (const auto& device : remoteDevices) {
+            device->onRemoteEventsAvailable();
+        }
+    }
+}
+

@@ -14,6 +14,7 @@ namespace {
 }
 
 using namespace mkp::firmwares::base;
+using namespace firmwares::slave::i2c::commands;
 
 SlaveFirmware::SlaveFirmware(ServiceLocator& serviceLocator) :
     slavePort(serviceLocator.i2cSlavePort),
@@ -38,8 +39,6 @@ void SlaveFirmware::setup() {
 
     registers = &device->getRegisters();
 
-    const auto i2cPins = device->getI2cPins();
-
     const auto deviceAddress = configuration.address;
     if (deviceAddress == 0) {
         logger->error("Device needs to have an address configured.");
@@ -63,15 +62,11 @@ void SlaveFirmware::setup() {
         deviceName.c_str()
     );
 
-    slavePort.setup(deviceAddress, i2cPins);
+    slavePort.setup(deviceAddress, device->getI2cPins(), device->getEventInterruptPin());
 
-    slavePort.addCommandHandler(
-        new firmwares::slave::i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device)
-    );
-    slavePort.addCommandHandler(
-        new firmwares::slave::i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device)
-    );
-    slavePort.addCommandHandler(new firmwares::slave::i2c::commands::RenameDeviceRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new FlashButtonIdentificationLightRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new RenameDeviceRemoteCommandHandler(*device));
 
     device->onSwitchEvent().addObserver(this);
 }
@@ -117,4 +112,6 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
             }
         );
     }
+
+    slavePort.triggerEventInterrupt();
 }
