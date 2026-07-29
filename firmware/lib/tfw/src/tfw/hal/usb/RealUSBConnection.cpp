@@ -57,7 +57,7 @@ void tfw::hal::usb::RealConnection::setup() {
 
 void tfw::hal::usb::RealConnection::update() {
     const auto now = time::micros();
-    if (now - lastKeyboardWriteTime > 10'000) { // Without a delay then repeated characters can be missed.
+    if (now - lastKeyboardWriteTime > 1'000) { // Without a delay then repeated characters can be missed.
         const auto nextChar = characterOutputQueue.dequeue();
         if (nextChar != nullptr) {
             keyboard.write(*nextChar);
