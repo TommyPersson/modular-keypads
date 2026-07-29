@@ -3,9 +3,9 @@
 #include <memory>
 
 #include "Device.h"
-#include "firmwares/common/indicatorleds/IndicatorLedManager.h"
-#include "firmwares/common/notifications/NotifierFactory.h"
-#include "firmwares/common/notifications/SwitchStateChangeNotifier.h"
+#include "mkp/components/leds/IndicatorLedManager.h"
+#include "mkp/components/notifications/NotifierFactory.h"
+#include "mkp/components/notifications/SwitchStateChangeNotifier.h"
 
 namespace mkp::devices::common {
     class LocalDevice :

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tfw/utils/commands.h>
-#include "firmwares/common/macros/MacroStorage.h"
+#include "mkp/components/macros/MacroStorage.h"
 
 namespace mkp::firmwares::master::commands {
     class SaveMacro : public tfw::utils::commands::CommandHandler {

@@ -4,8 +4,8 @@
 #include <tfw/hal/usb.h>
 
 #include "TestModeController.h"
-#include "firmwares/common/keybindings/KeyBindingStorage.h"
-#include "firmwares/common/macros/MacroStorage.h"
+#include "mkp/components/macros/MacroStorage.h"
+#include "mkp/components/keybindings/KeyBindingStorage.h"
 #include "mkp/devices/common/Device.h"
 
 struct CompiledMacro {

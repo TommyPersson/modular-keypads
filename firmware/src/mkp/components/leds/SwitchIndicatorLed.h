@@ -2,7 +2,7 @@
 
 #include <tfw/hal/buttons/Button.h>
 
-#include "firmwares/common/indicatorleds/IndicatorLed.h"
+#include "mkp/components/leds/IndicatorLed.h"
 
 class SwitchIndicatorLed final : tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent> {
 public:

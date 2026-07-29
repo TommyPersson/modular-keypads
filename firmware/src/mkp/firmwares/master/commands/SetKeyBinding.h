@@ -1,7 +1,8 @@
 #pragma once
 
 #include <tfw/utils/commands.h>
-#include "firmwares/common/keybindings/KeyBindingStorage.h"
+
+#include "mkp/components/keybindings/KeyBindingStorage.h"
 
 namespace mkp::firmwares::master::commands {
     class SetKeyBinding : public tfw::utils::commands::CommandHandler {

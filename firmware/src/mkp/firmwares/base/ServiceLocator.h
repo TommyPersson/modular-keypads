@@ -6,7 +6,7 @@
 #include <tfw/hal/i2c.h>
 
 #include "FirmwareModeDetector.h"
-#include "firmwares/common/notifications/NotifierFactory.h"
+#include "../../components/notifications/NotifierFactory.h"
 #include "mkp/devices/common/DeviceConfigurationManager.h"
 
 namespace mkp::firmwares::base {

@@ -12,7 +12,7 @@
 
 #include "mkp/devices/common/DeviceConfigurationManager.h"
 #include "mkp/firmwares/base/Firmware.h"
-#include "firmwares/common/notifications/NotifierFactory.h"
+#include "mkp/components/notifications/NotifierFactory.h"
 
 #include "esp_pm.h"
 

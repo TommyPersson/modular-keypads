@@ -2,7 +2,7 @@
 
 #include <tfw/hal/logging/Logger.h>
 
-#include "../../../firmwares/common/events/RemoteEventTypes.h"
+#include "mkp/components/events/RemoteEventTypes.h"
 #include "mkp/firmwares/slave/i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
 #include "mkp/firmwares/slave/i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
 #include "mkp/firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"

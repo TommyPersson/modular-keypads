@@ -3,8 +3,8 @@
 #include <tfw/hal/i2c/Client.h>
 
 #include "Device.h"
-#include "../../../firmwares/common/notifications/NotifierFactory.h"
-#include "../../../firmwares/common/notifications/SwitchStateChangeNotifier.h"
+#include "mkp/components/notifications/NotifierFactory.h"
+#include "mkp/components/notifications/SwitchStateChangeNotifier.h"
 
 namespace mkp::devices::common {
     class RemoteDevice : public Device {

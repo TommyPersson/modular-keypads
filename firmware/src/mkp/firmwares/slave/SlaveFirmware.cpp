@@ -1,13 +1,13 @@
 #include "SlaveFirmware.h"
 
-#include "i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
-#include "i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
-#include "i2c/commands/RenameDeviceRemoteCommandHandler.h"
-
-#include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
+#include <tfw/utils/strings.h>
 
-#include "firmwares/common/events/RemoteEventTypes.h"
+#include "mkp/components/events/RemoteEventTypes.h"
+
+#include "i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
+#include "i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
+#include "i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("SlaveFirmware");
@@ -65,8 +65,12 @@ void SlaveFirmware::setup() {
 
     slavePort.setup(deviceAddress, i2cPins);
 
-    slavePort.addCommandHandler(new firmwares::slave::i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
-    slavePort.addCommandHandler(new firmwares::slave::i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(
+        new firmwares::slave::i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device)
+    );
+    slavePort.addCommandHandler(
+        new firmwares::slave::i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device)
+    );
     slavePort.addCommandHandler(new firmwares::slave::i2c::commands::RenameDeviceRemoteCommandHandler(*device));
 
     device->onSwitchEvent().addObserver(this);

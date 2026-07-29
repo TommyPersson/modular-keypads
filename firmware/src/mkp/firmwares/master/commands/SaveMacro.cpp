@@ -1,6 +1,6 @@
 #include "SaveMacro.h"
 
-#include "firmwares/common/macros/MacroDataSerializers.h"
+#include "mkp/components/macros/MacroDataSerializers.h"
 #include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
