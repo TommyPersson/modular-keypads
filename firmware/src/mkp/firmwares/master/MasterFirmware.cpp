@@ -12,27 +12,16 @@
 #include <tfw/hal/logging.h>
 #include <tfw/utils/strings.h>
 
-#include "commands/ClearKeyBindingCommandHandler.h"
-#include "commands/DeleteMacroCommandHandler.h"
-#include "commands/FlashButtonIdentificationLightCommandHandler.h"
-#include "commands/FlashDeviceIdentificationLightsCommandHandler.h"
-#include "commands/GetTestMode.h"
-#include "commands/ListConnectedDevices.h"
-#include "commands/ListDeviceCapabilities.h"
-#include "commands/ListKeyBindingsCommandHandler.h"
-#include "commands/ListStoredMacrosCommandHandler.h"
-#include "commands/SaveMacroCommandHandler.h"
-#include "commands/SetKeyBindingCommandHandler.h"
-#include "commands/SetTestMode.h"
+#include "commands/All.h"
 #include "mkp/devices/common/DeviceScanner.h"
-#include "mkp/firmwares/base/commands/SetDeviceNameCommandHandler.h"
-
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");
 }
 
 using namespace mkp::devices::common;
+using namespace mkp::firmwares::base;
+using namespace mkp::firmwares::master::commands;
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
@@ -46,20 +35,31 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         serviceLocator.metricRegistry
     );
 
+    addCommandHandler(std::make_shared<Ping>());
+    addCommandHandler(std::make_shared<ReadDeviceId>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<ReadDeviceFirmwareVersion>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<ReadDeviceType>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<ReadDeviceAddress>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<ReadDeviceName>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<SetDeviceAddress>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<ResetDevice>(deviceConfigurationManager));
+    addCommandHandler(std::make_shared<ListRegisters>(registers));
+    addCommandHandler(std::make_shared<ReadRegister>(registers));
+    addCommandHandler(std::make_shared<ListRegisterValues>(registers));
+    addCommandHandler(std::make_shared<ReadMetrics>(serviceLocator.metricRegistry));
     addCommandHandler(std::make_shared<ListConnectedDevices>(allDevices));
     addCommandHandler(std::make_shared<ListDeviceCapabilities>(allDevices));
     addCommandHandler(std::make_shared<GetTestMode>(testModeController));
     addCommandHandler(std::make_shared<SetTestMode>(testModeController));
-    addCommandHandler(std::make_shared<SaveMacroCommandHandler>(*macroStorage));
-    addCommandHandler(std::make_shared<DeleteMacroCommandHandler>(*macroStorage));
-    addCommandHandler(std::make_shared<ListStoredMacrosCommandHandler>(*macroStorage));
-    addCommandHandler(std::make_shared<ListKeyBindingsCommandHandler>(*keyBindingStorage));
-    addCommandHandler(std::make_shared<SetKeyBindingCommandHandler>(*keyBindingStorage));
-    addCommandHandler(std::make_shared<ClearKeyBindingCommandHandler>(*keyBindingStorage));
-    addCommandHandler(std::make_shared<FlashDeviceIdentificationLightsCommandHandler>(allDevices));
-    addCommandHandler(std::make_shared<FlashButtonIdentificationLightCommandHandler>(allDevices));
-    addCommandHandler(std::make_shared<SetDeviceNameCommandHandler>(allDevices));
-    // TODO move all (uart) commands to "master" directory? It is by definition the only one accepting commands.
+    addCommandHandler(std::make_shared<SaveMacro>(*macroStorage));
+    addCommandHandler(std::make_shared<DeleteMacro>(*macroStorage));
+    addCommandHandler(std::make_shared<ListStoredMacros>(*macroStorage));
+    addCommandHandler(std::make_shared<ListKeyBindings>(*keyBindingStorage));
+    addCommandHandler(std::make_shared<SetKeyBinding>(*keyBindingStorage));
+    addCommandHandler(std::make_shared<ClearKeyBinding>(*keyBindingStorage));
+    addCommandHandler(std::make_shared<FlashDeviceIdentificationLights>(allDevices));
+    addCommandHandler(std::make_shared<FlashButtonIdentificationLight>(allDevices));
+    addCommandHandler(std::make_shared<SetDeviceName>(allDevices));
 
     loopTimerMetric = serviceLocator.metricRegistry.timer("firmware.master.device_loop_time_us");
 }

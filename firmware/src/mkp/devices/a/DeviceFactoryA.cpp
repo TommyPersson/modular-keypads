@@ -4,6 +4,7 @@
 
 using namespace mkp::devices::common;
 using namespace mkp::devices::a;
+using namespace mkp::firmwares::base;
 
 DeviceFactoryA::~DeviceFactoryA() = default;
 

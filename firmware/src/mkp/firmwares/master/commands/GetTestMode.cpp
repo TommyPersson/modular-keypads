@@ -1,5 +1,7 @@
 #include "GetTestMode.h"
 
+using namespace mkp::firmwares::master::commands;
+
 GetTestMode::GetTestMode(TestModeController& testModeController)
     : CommandHandler("get.test.mode"),
       testModeController(testModeController) {

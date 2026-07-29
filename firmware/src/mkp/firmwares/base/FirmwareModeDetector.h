@@ -4,7 +4,7 @@
 
 #include "FirmwareMode.h"
 
-namespace devices {
+namespace mkp::firmwares::base {
     class FirmwareModeDetector {
     public:
         void setup();

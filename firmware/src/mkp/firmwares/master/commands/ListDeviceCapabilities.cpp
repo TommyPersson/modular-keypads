@@ -1,7 +1,10 @@
 #include "ListDeviceCapabilities.h"
 
-#include "mkp/devices/common/LocalDevice.h"
 #include <tfw/utils/strings.h>
+
+#include "mkp/devices/common/LocalDevice.h"
+
+using namespace mkp::firmwares::master::commands;
 
 ListDeviceCapabilities::ListDeviceCapabilities(
     std::vector<mkp::devices::common::Device*>& devices

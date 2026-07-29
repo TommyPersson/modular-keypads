@@ -2,7 +2,7 @@
 
 #include <LittleFS.h>
 
-namespace firmware::metrics::littlefs {
+namespace mkp::firmwares::base::metrics::littlefs {
     void register_all(tfw::hal::metrics::MetricRegistry& registry) {
         registry.add(tfw::hal::metrics::lambda_gauge("littlefs.total_bytes", []() {
             return LittleFS.totalBytes();

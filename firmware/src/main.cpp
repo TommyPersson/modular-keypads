@@ -17,7 +17,7 @@
 #include "esp_pm.h"
 
 namespace {
-    std::unique_ptr<Firmware> firmware;
+    std::unique_ptr<mkp::firmwares::base::Firmware> firmware;
     std::unique_ptr<Preferences> preferences;
     std::unique_ptr<tfw::hal::uart::SerialPort> serialPort;
     std::unique_ptr<NotifierFactory> notifierFactory;
@@ -27,9 +27,9 @@ namespace {
     std::unique_ptr<tfw::hal::usb::Connection> usbConnection;
     std::unique_ptr<tfw::hal::metrics::MetricRegistry> metricRegistry;
     std::unique_ptr<mkp::devices::common::DeviceTypeDetector> deviceTypeDetector;
-    std::unique_ptr<devices::FirmwareModeDetector> deviceModeDetector;
+    std::unique_ptr<mkp::firmwares::base::FirmwareModeDetector> deviceModeDetector;
 
-    std::unique_ptr<ServiceLocator> serviceLocator;
+    std::unique_ptr<mkp::firmwares::base::ServiceLocator> serviceLocator;
 
     esp_err_t pmResult;
 
@@ -55,7 +55,7 @@ void setup() {
     serialPort = tfw::hal::uart::SerialPort::from(TheSerial);
     preferences = std::make_unique<Preferences>();
     deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>();
-    deviceModeDetector = std::make_unique<devices::FirmwareModeDetector>();
+    deviceModeDetector = std::make_unique<mkp::firmwares::base::FirmwareModeDetector>();
     deviceConfigurationManager = std::make_unique<mkp::devices::common::DeviceConfigurationManager>(
         *preferences,
         *deviceTypeDetector
@@ -66,8 +66,8 @@ void setup() {
     usbConnection = tfw::hal::usb::Connection::create();
     metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>();
 
-    serviceLocator = std::make_unique<ServiceLocator>(
-        ServiceLocator{
+    serviceLocator = std::make_unique<mkp::firmwares::base::ServiceLocator>(
+        mkp::firmwares::base::ServiceLocator{
             .deviceConfigurationManager = *deviceConfigurationManager,
             .serialPort = *serialPort,
             .notifierFactory = *notifierFactory,
@@ -81,7 +81,7 @@ void setup() {
 
     deviceModeDetector->setup();
 
-    firmware = Firmware::create(*serviceLocator);
+    firmware = mkp::firmwares::base::Firmware::create(*serviceLocator);
     firmware->setup();
 }
 

@@ -1,5 +1,7 @@
 #include "SetTestMode.h"
 
+using namespace mkp::firmwares::master::commands;
+
 SetTestMode::SetTestMode(TestModeController& testModeController)
     : CommandHandler("set.test.mode"),
       testModeController(testModeController) {}

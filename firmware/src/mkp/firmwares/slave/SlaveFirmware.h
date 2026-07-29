@@ -3,10 +3,10 @@
 #include "mkp/firmwares/base/Firmware.h"
 
 class SlaveFirmware final
-    : public Firmware,
+    : public mkp::firmwares::base::Firmware,
       tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent> {
 public:
-    explicit SlaveFirmware(ServiceLocator& serviceLocator);
+    explicit SlaveFirmware(mkp::firmwares::base::ServiceLocator& serviceLocator);
     ~SlaveFirmware() override;
 
     void setup() override;

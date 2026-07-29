@@ -1,0 +1,39 @@
+#include "SetDeviceName.h"
+
+#include <tfw/utils/strings.h>
+#include <tfw/hal/logging.h>
+
+namespace {
+    auto logger = tfw::hal::logging::createLogger("SetDeviceNameCommandHandler");
+}
+
+using namespace mkp::firmwares::master::commands;
+
+SetDeviceName::SetDeviceName(
+    std::vector<mkp::devices::common::Device*>& devices
+) : CommandHandler("set.device.name"),
+    devices(devices) {
+}
+
+SetDeviceName::~SetDeviceName() = default;
+
+tfw::utils::void_result SetDeviceName::execute(
+    const std::span<const std::string_view>& args,
+    tfw::utils::commands::CommandResponseWriter& responseWriter,
+    tfw::utils::allocations::Arena& arena
+) {
+    const auto deviceId = tfw::utils::strings::atou64(args[0], 16);
+    const auto deviceName = args[1];
+
+    if (deviceName.size() > 15) {
+        return tfw::utils::void_result::error("device.name.too.long");
+    }
+
+    for (const auto device : devices) {
+        if (device->getConfiguration().id == deviceId) {
+            return device->rename(deviceName);
+        }
+    }
+
+    return tfw::utils::void_result::success();
+}

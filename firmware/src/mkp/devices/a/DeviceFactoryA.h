@@ -10,12 +10,12 @@ namespace mkp::devices::a {
 
         std::unique_ptr<common::LocalDevice> createLocal(
             common::DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
+            firmwares::base::ServiceLocator& serviceLocator
         ) override;
 
         std::unique_ptr<common::RemoteDevice> createRemote(
             common::DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
+            firmwares::base::ServiceLocator& serviceLocator
         ) override;
     };
 }

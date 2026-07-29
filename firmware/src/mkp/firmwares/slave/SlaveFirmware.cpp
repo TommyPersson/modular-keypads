@@ -13,7 +13,7 @@ namespace {
     auto logger = tfw::hal::logging::createLogger("SlaveFirmware");
 }
 
-using namespace firmwares::slave;
+using namespace mkp::firmwares::base;
 
 SlaveFirmware::SlaveFirmware(ServiceLocator& serviceLocator) :
     slavePort(serviceLocator.i2cSlavePort),
@@ -65,9 +65,9 @@ void SlaveFirmware::setup() {
 
     slavePort.setup(deviceAddress, i2cPins);
 
-    slavePort.addCommandHandler(new i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
-    slavePort.addCommandHandler(new i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device));
-    slavePort.addCommandHandler(new i2c::commands::RenameDeviceRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new firmwares::slave::i2c::commands::FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new firmwares::slave::i2c::commands::FlashButtonIdentificationLightRemoteCommandHandler(*device));
+    slavePort.addCommandHandler(new firmwares::slave::i2c::commands::RenameDeviceRemoteCommandHandler(*device));
 
     device->onSwitchEvent().addObserver(this);
 }

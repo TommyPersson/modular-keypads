@@ -13,12 +13,12 @@ namespace mkp::devices::common {
 
         virtual std::unique_ptr<LocalDevice> createLocal(
             DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
+            firmwares::base::ServiceLocator& serviceLocator
         ) = 0;
 
         virtual std::unique_ptr<RemoteDevice> createRemote(
             DeviceConfiguration& config,
-            ServiceLocator& serviceLocator
+            firmwares::base::ServiceLocator& serviceLocator
         ) = 0;
 
         virtual bool matches(char deviceType) = 0;

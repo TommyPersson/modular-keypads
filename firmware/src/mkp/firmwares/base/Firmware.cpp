@@ -3,18 +3,6 @@
 
 #include <tfw/hal/logging.h>
 #include "ServiceLocator.h"
-#include "commands/ListRegistersCommandHandler.h"
-#include "commands/ListRegisterValuesCommandHandler.h"
-#include "commands/PingCommandHandler.h"
-#include "commands/ReadDeviceAddressCommandHandler.h"
-#include "commands/ReadDeviceFirmwareVersionCommandHandler.h"
-#include "commands/ReadDeviceIdCommandHandler.h"
-#include "commands/ReadDeviceNameCommandHandler.h"
-#include "commands/ReadDeviceTypeCommandHandler.h"
-#include "commands/ReadMetricsCommandHandler.h"
-#include "commands/ReadRegisterCommandHandler.h"
-#include "commands/ResetDeviceCommandHandler.h"
-#include "commands/SetDeviceAddressCommandHandler.h"
 #include "metrics/BaseMetrics.h"
 #include "mkp/devices/a/DeviceFactoryA.h"
 #include "mkp/firmwares//slave/SlaveFirmware.h"
@@ -25,6 +13,8 @@ namespace {
     auto logger = tfw::hal::logging::createLogger("Firmware");
 }
 
+using namespace mkp::firmwares::base;
+
 Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
@@ -33,22 +23,9 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->commandProcessor = std::make_unique<tfw::utils::commands::CommandProcessor>(serialPort.stream());
     this->lineStreamer->addObserver(this->commandProcessor.get());
 
-    this->addCommandHandler(std::make_shared<PingCommandHandler>());
-    this->addCommandHandler(std::make_shared<ReadDeviceIdCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ReadDeviceFirmwareVersionCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ReadDeviceTypeCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ReadDeviceAddressCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ReadDeviceNameCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<SetDeviceAddressCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ResetDeviceCommandHandler>(deviceConfigurationManager));
-    this->addCommandHandler(std::make_shared<ListRegistersCommandHandler>(registers));
-    this->addCommandHandler(std::make_shared<ReadRegisterCommandHandler>(registers));
-    this->addCommandHandler(std::make_shared<ListRegisterValuesCommandHandler>(registers));
-    this->addCommandHandler(std::make_shared<ReadMetricsCommandHandler>(serviceLocator.metricRegistry));
-
     deviceFactories.emplace_back(std::make_unique<mkp::devices::a::DeviceFactoryA>());
 
-    firmware::metrics::base::register_all(serviceLocator.metricRegistry);
+    metrics::register_all(serviceLocator.metricRegistry);
 }
 
 mkp::devices::common::DeviceFactory* Firmware::getDeviceFactory(char deviceType) const {
@@ -79,7 +56,7 @@ void Firmware::addCommandHandler(const std::shared_ptr<tfw::utils::commands::Com
 std::unique_ptr<Firmware> Firmware::create(ServiceLocator& serviceLocator) {
     const auto deviceMode = serviceLocator.deviceModeDetector.detectFirmwareMode();
 
-    if (deviceMode == devices::FirmwareMode::Master) {
+    if (deviceMode == FirmwareMode::Master) {
         return std::make_unique<MasterFirmware>(serviceLocator);
     }
 

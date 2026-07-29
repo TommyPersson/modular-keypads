@@ -86,6 +86,7 @@ void tfw::hal::usb::RealConnection::sendAction(Action& action) {
         for (auto& character : typeAction->text) {
             keyboard.write(character);
             hal::time::delayMs(10); // Without a delay then repeated characters can be missed.
+            // TODO enqueue actions instead in order to not block
         }
     }
 }

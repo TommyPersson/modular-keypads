@@ -1,5 +1,7 @@
 #include "ListConnectedDevices.h"
 
+using namespace mkp::firmwares::master::commands;
+
 ListConnectedDevices::ListConnectedDevices(
     std::vector<mkp::devices::common::Device*>& devices
 ) : CommandHandler("list.connected.devices"),

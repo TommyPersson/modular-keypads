@@ -5,11 +5,11 @@
 #include "KeyBindingSubSystem.h"
 #include "TestModeController.h"
 
-class MasterFirmware final : public Firmware,
+class MasterFirmware final : public mkp::firmwares::base::Firmware,
                              tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
                              tfw::utils::observables::Observer<mkp::devices::common::DeviceRotaryEncoderEvent> {
 public:
-    explicit MasterFirmware(ServiceLocator& serviceLocator);
+    explicit MasterFirmware(mkp::firmwares::base::ServiceLocator& serviceLocator);
     ~MasterFirmware() override;
 
     void setup() override;

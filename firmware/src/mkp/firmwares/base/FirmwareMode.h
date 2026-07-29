@@ -1,6 +1,6 @@
 #pragma once
 
-namespace devices {
+namespace mkp::firmwares::base {
     enum class FirmwareMode {
         Master,
         Slave
