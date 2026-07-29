@@ -19,15 +19,17 @@ namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");
 }
 
+using namespace mkp::components::keybindings;
+using namespace mkp::components::macros;
 using namespace mkp::devices::common;
 using namespace mkp::firmwares::base;
 using namespace mkp::firmwares::master::commands;
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
-    macroStorage = std::make_unique<mkp::components::macros::MacroStorage>();
-    keyBindingStorage = std::make_unique<mkp::components::keybindings::KeyBindingStorage>();
-    keyBindingSubSystem = std::make_unique<KeyBindingSubSystem>(
+    macroStorage = std::make_unique<MacroStorage>();
+    keyBindingStorage = std::make_unique<KeyBindingStorage>();
+    keyBindingExecutor = std::make_unique<KeyBindingExecutor>(
         *macroStorage,
         *keyBindingStorage,
         testModeController,
@@ -71,7 +73,7 @@ void MasterFirmware::setup() {
 
     macroStorage->setup();
     keyBindingStorage->setup();
-    keyBindingSubSystem->setup();
+    keyBindingExecutor->setup();
 
     auto localDeviceConfiguration = deviceConfigurationManager.getDeviceConfiguration();
 
@@ -107,7 +109,7 @@ void MasterFirmware::loop() {
         }
     );
 
-    keyBindingSubSystem->loop();
+    keyBindingExecutor->loop();
 }
 
 // TODO allow connected devices to use open drain outputs to signal their presence?
@@ -142,8 +144,8 @@ void MasterFirmware::refreshRemoteDevices() {
     }
 }
 
-void MasterFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
-    keyBindingSubSystem->observe(event);
+void MasterFirmware::observe(const DeviceSwitchEvent& event) {
+    keyBindingExecutor->observe(event);
 
     // TODO temporary debugging
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 11) {
@@ -159,6 +161,6 @@ void MasterFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& even
 #endif
 }
 
-void MasterFirmware::observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) {
-    keyBindingSubSystem->observe(event);
+void MasterFirmware::observe(const DeviceRotaryEncoderEvent& event) {
+    keyBindingExecutor->observe(event);
 }

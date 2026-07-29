@@ -1,9 +1,8 @@
 #pragma once
 
 #include "mkp/firmwares/base/Firmware.h"
-
-#include "KeyBindingSubSystem.h"
-#include "TestModeController.h"
+#include "mkp/components/keybindings/KeyBindingExecutor.h"
+#include "mkp/components/keybindings/TestModeController.h"
 
 class MasterFirmware final : public mkp::firmwares::base::Firmware,
                              tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
@@ -29,7 +28,7 @@ private:
 
     std::unique_ptr<mkp::components::macros::MacroStorage> macroStorage;
     std::unique_ptr<mkp::components::keybindings::KeyBindingStorage> keyBindingStorage;
-    std::unique_ptr<KeyBindingSubSystem> keyBindingSubSystem;
+    std::unique_ptr<mkp::components::keybindings::KeyBindingExecutor> keyBindingExecutor;
 
     std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;
 };

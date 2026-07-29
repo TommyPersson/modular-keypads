@@ -1,4 +1,4 @@
-#include "KeyBindingSubSystem.h"
+#include "KeyBindingExecutor.h"
 
 #include <bitset>
 #include <tfw/utils/strings.h>
@@ -86,7 +86,7 @@ namespace {
     }
 }
 
-KeyBindingSubSystem::KeyBindingSubSystem(
+KeyBindingExecutor::KeyBindingExecutor(
     MacroStorage& macroStorage,
     KeyBindingStorage& keyBindingStorage,
     TestModeController& testModeController,
@@ -111,17 +111,17 @@ KeyBindingSubSystem::KeyBindingSubSystem(
     }));
 }
 
-KeyBindingSubSystem::~KeyBindingSubSystem() {
+KeyBindingExecutor::~KeyBindingExecutor() {
     macroStorage.onMacroSaved().removeObserver(this);
     macroStorage.onMacroRemoved().removeObserver(this);
     keyBindingStorage.onKeyBindingSet().removeObserver(this);
     keyBindingStorage.onKeyBindingCleared().removeObserver(this);
 }
 
-void KeyBindingSubSystem::setup() {
+void KeyBindingExecutor::setup() {
 }
 
-void KeyBindingSubSystem::loop() {
+void KeyBindingExecutor::loop() {
     if (macrosNeedRefresh) {
         refreshCompiledMacros();
         macrosNeedRefresh = false;
@@ -133,32 +133,32 @@ void KeyBindingSubSystem::loop() {
     }
 }
 
-void KeyBindingSubSystem::observe(const MacroSaved& event) {
+void KeyBindingExecutor::observe(const MacroSaved& event) {
     macrosNeedRefresh = true;
 }
 
-void KeyBindingSubSystem::observe(const MacroRemoved& event) {
+void KeyBindingExecutor::observe(const MacroRemoved& event) {
     macrosNeedRefresh = true;
     keyBindingStorage.removeAll(event.macroId);
 }
 
-void KeyBindingSubSystem::observe(const KeyBindingSet& event) {
+void KeyBindingExecutor::observe(const KeyBindingSet& event) {
     keyBindingsNeedRefresh = true;
 }
 
-void KeyBindingSubSystem::observe(const KeyBindingCleared& event) {
+void KeyBindingExecutor::observe(const KeyBindingCleared& event) {
     keyBindingsNeedRefresh = true;
 }
 
-void KeyBindingSubSystem::observe(const DeviceSwitchEvent& event) {
+void KeyBindingExecutor::observe(const DeviceSwitchEvent& event) {
     executeMacroFor(findKeyBinding(event));
 }
 
-void KeyBindingSubSystem::observe(const DeviceRotaryEncoderEvent& event) {
+void KeyBindingExecutor::observe(const DeviceRotaryEncoderEvent& event) {
     executeMacroFor(findKeyBinding(event));
 }
 
-std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const DeviceSwitchEvent& event) {
+std::shared_ptr<KeyBinding> KeyBindingExecutor::findKeyBinding(const DeviceSwitchEvent& event) {
     if (event.state != tfw::hal::buttons::ButtonState::PRESSED) {
         return nullptr;
     }
@@ -175,7 +175,7 @@ std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const DeviceSwit
     return nullptr;
 }
 
-std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const DeviceRotaryEncoderEvent& event) {
+std::shared_ptr<KeyBinding> KeyBindingExecutor::findKeyBinding(const DeviceRotaryEncoderEvent& event) {
     for (const auto& keyBinding : keyBindings) {
         if (keyBinding->trigger->type == ROTARY_ENCODER) {
             const auto& trigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding->trigger);
@@ -189,7 +189,7 @@ std::shared_ptr<KeyBinding> KeyBindingSubSystem::findKeyBinding(const DeviceRota
 }
 
 
-void KeyBindingSubSystem::executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding) {
+void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding) {
     if (testModeController.isEnabled()) {
         return;
     }
@@ -207,7 +207,7 @@ void KeyBindingSubSystem::executeMacroFor(const std::shared_ptr<KeyBinding>& key
     }
 }
 
-void KeyBindingSubSystem::refreshCompiledMacros() {
+void KeyBindingExecutor::refreshCompiledMacros() {
     macros.clear();
 
     macroStorage.forEach([&](const Macro& macro) {
@@ -220,7 +220,7 @@ void KeyBindingSubSystem::refreshCompiledMacros() {
     logger->info("Reloaded macros. # Found = %i", macros.size());
 }
 
-void KeyBindingSubSystem::refreshKeyBindings() {
+void KeyBindingExecutor::refreshKeyBindings() {
     keyBindings.clear();
 
     // TODO large fixed arena for keybinding data?

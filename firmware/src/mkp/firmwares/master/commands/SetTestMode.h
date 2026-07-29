@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tfw/utils/commands.h>
-#include "../TestModeController.h"
+#include "../../../components/keybindings/TestModeController.h"
 
 namespace mkp::firmwares::master::commands {
     class SetTestMode : public tfw::utils::commands::CommandHandler {
