@@ -4,14 +4,16 @@
 
 #include "mkp/components/leds/IndicatorLed.h"
 
-class SwitchIndicatorLed final : tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent> {
-public:
-    SwitchIndicatorLed(const tfw::hal::buttons::Button& button, IndicatorLed& indicatorLed);
-    ~SwitchIndicatorLed() override;
+namespace mkp::components::leds {
+    class SwitchIndicatorLed final : tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent> {
+    public:
+        SwitchIndicatorLed(const tfw::hal::buttons::Button& button, IndicatorLed& indicatorLed);
+        ~SwitchIndicatorLed() override;
 
-private:
-    void observe(const tfw::hal::buttons::ButtonStateChangedEvent& event) override;
+    private:
+        void observe(const tfw::hal::buttons::ButtonStateChangedEvent& event) override;
 
-    const tfw::hal::buttons::Button& button;
-    IndicatorLed& indicatorLed;
-};
+        const tfw::hal::buttons::Button& button;
+        IndicatorLed& indicatorLed;
+    };
+}

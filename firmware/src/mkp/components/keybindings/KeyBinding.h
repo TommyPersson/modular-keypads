@@ -3,7 +3,7 @@
 #include <memory>
 #include <tfw/hal/encoders/RotaryEncoder.h>
 
-namespace common::keybindings {
+namespace mkp::components::keybindings {
     enum TriggerType {
         PUSH_BUTTON = 0x01,
         ROTARY_ENCODER = 0x02,

@@ -3,7 +3,7 @@
 #include <tfw/utils/strings.h>
 #include <tfw/hal/logging.h>
 
-using namespace common::macros;
+using namespace mkp::components::macros;
 using namespace mkp::firmwares::master::commands;
 
 namespace {

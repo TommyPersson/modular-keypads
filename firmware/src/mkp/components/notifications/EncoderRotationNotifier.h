@@ -4,13 +4,15 @@
 #include <tfw/utils/observables.h>
 #include "Notifier.h"
 
-class EncoderRotationNotifier : public tfw::utils::observables::Observer<tfw::hal::encoders::EncoderRotatedEvent> {
-public:
-    explicit EncoderRotationNotifier(Notifier& notifier);
-    ~EncoderRotationNotifier() override;
+namespace mkp::components::notifications {
+    class EncoderRotationNotifier : public tfw::utils::observables::Observer<tfw::hal::encoders::EncoderRotatedEvent> {
+    public:
+        explicit EncoderRotationNotifier(Notifier& notifier);
+        ~EncoderRotationNotifier() override;
 
-    void observe(const tfw::hal::encoders::EncoderRotatedEvent& event) override;
+        void observe(const tfw::hal::encoders::EncoderRotatedEvent& event) override;
 
-private:
-    Notifier& notifier;
-};
+    private:
+        Notifier& notifier;
+    };
+}

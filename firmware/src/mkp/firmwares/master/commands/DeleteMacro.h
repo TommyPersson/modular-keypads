@@ -6,7 +6,7 @@
 namespace mkp::firmwares::master::commands {
     class DeleteMacro : public tfw::utils::commands::CommandHandler {
     public:
-        explicit DeleteMacro(common::macros::MacroStorage& macroStorage);
+        explicit DeleteMacro(mkp::components::macros::MacroStorage& macroStorage);
         ~DeleteMacro() override;
 
         tfw::utils::void_result execute(
@@ -16,6 +16,6 @@ namespace mkp::firmwares::master::commands {
         ) override;
 
     private:
-        common::macros::MacroStorage& macroStorage;
+        mkp::components::macros::MacroStorage& macroStorage;
     };
 }

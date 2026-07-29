@@ -1,5 +1,7 @@
 #include "NotifierFactory.h"
 
+using namespace mkp::components::notifications;
+
 NotifierFactory::NotifierFactory(Print& outputStream) : outputStream(outputStream) {
 }
 

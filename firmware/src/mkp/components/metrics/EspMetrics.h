@@ -2,6 +2,6 @@
 
 #include <tfw/hal/metrics.h>
 
-namespace mkp::firmwares::base::metrics {
+namespace mkp::components::metrics::esp {
     void register_all(tfw::hal::metrics::MetricRegistry& registry);
 }

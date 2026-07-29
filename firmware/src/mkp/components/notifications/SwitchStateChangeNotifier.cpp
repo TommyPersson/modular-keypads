@@ -1,6 +1,8 @@
 #include "SwitchStateChangeNotifier.h"
 
 
+using namespace mkp::components::notifications;
+
 SwitchStateChangeNotifier::SwitchStateChangeNotifier(Notifier& notifier) : notifier(notifier) {
 }
 

@@ -8,7 +8,7 @@
 
 #include <tfw/hal/logging.h>
 
-using namespace common::keybindings;
+using namespace mkp::components::keybindings;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("KeyBindingStorage");

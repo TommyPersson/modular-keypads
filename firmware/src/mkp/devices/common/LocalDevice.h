@@ -35,8 +35,8 @@ namespace mkp::devices::common {
         explicit LocalDevice(
             const DeviceConfiguration& configuration,
             const DeviceConfigurationManager& configurationManager,
-            const NotifierFactory& notifierFactory,
-            std::unique_ptr<IndicatorLedManager>&& indicatorLedManager
+            const components::notifications::NotifierFactory& notifierFactory,
+            std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager
         );
 
         void setupRegisters() const;
@@ -56,9 +56,9 @@ namespace mkp::devices::common {
         const DeviceConfiguration configuration;
         const DeviceConfigurationManager& configurationManager;
         std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;
-        std::unique_ptr<IndicatorLedManager> indicatorLedManager;
-        std::unique_ptr<Notifier> notifier;
-        std::unique_ptr<SwitchStateChangeNotifier> switchStateChangeNotifier;
+        std::unique_ptr<components::leds::IndicatorLedManager> indicatorLedManager;
+        std::unique_ptr<components::notifications::Notifier> notifier;
+        std::unique_ptr<components::notifications::SwitchStateChangeNotifier> switchStateChangeNotifier;
 
         std::vector<std::shared_ptr<tfw::hal::encoders::RotaryEncoder>> rotaryEncoders;
         std::vector<std::shared_ptr<tfw::hal::buttons::Button>> buttons;

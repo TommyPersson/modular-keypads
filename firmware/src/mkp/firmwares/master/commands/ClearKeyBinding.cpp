@@ -2,8 +2,8 @@
 
 #include <tfw/utils/strings.h>
 
-using namespace common::keybindings;
 using namespace mkp::firmwares::master::commands;
+using namespace mkp::components::keybindings;
 
 ClearKeyBinding::ClearKeyBinding(
     KeyBindingStorage& keyBindingStorage

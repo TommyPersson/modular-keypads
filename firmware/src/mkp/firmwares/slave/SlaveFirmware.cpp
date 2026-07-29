@@ -103,7 +103,7 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
         slavePort.enqueueEvent(
             tfw::hal::i2c::Event{
-                .type = static_cast<uint8_t>(RemoteEventType::BUTTON_PRESSED),
+                .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::BUTTON_PRESSED),
                 .deviceId = event.deviceId,
                 .args = {event.switchNumber}
             }
@@ -111,7 +111,7 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
     } else if (event.state == tfw::hal::buttons::ButtonState::UNPRESSED) {
         slavePort.enqueueEvent(
             tfw::hal::i2c::Event{
-                .type = static_cast<uint8_t>(RemoteEventType::BUTTON_RELEASED),
+                .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::BUTTON_RELEASED),
                 .deviceId = event.deviceId,
                 .args = {event.switchNumber}
             }

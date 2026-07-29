@@ -7,12 +7,13 @@ namespace {
 }
 
 using namespace mkp::devices::common;
+using namespace mkp::components::notifications;
 
 LocalDevice::LocalDevice(
     const DeviceConfiguration& configuration,
     const DeviceConfigurationManager& configurationManager,
     const NotifierFactory& notifierFactory,
-    std::unique_ptr<IndicatorLedManager>&& indicatorLedManager
+    std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager
 ) : configuration(configuration),
     configurationManager(configurationManager),
     indicatorLedManager(std::move(indicatorLedManager)),
@@ -128,7 +129,7 @@ tfw::utils::void_result LocalDevice::flashIdentificationLights(uint32_t duration
                 const auto indicatorLed = indicatorLedManager->get(pushButton->ledIndex);
                 if (indicatorLed) {
                     auto color = indicatorLed->makeColor(255, 0, 0, 0);
-                    indicatorLed->animate(tfw::utils::led::animations::pulse(color, durationMs));
+                    indicatorLed->animate(tfw::utils::leds::animations::pulse(color, durationMs));
                 }
             }
         }
@@ -151,7 +152,7 @@ LocalDevice::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durat
                 const auto indicatorLed = indicatorLedManager->get(pushButton->ledIndex);
                 if (indicatorLed) {
                     auto color = indicatorLed->makeColor(255, 0, 0, 0);
-                    indicatorLed->animate(tfw::utils::led::animations::pulse(color, durationMs));
+                    indicatorLed->animate(tfw::utils::leds::animations::pulse(color, durationMs));
                 }
             }
         }

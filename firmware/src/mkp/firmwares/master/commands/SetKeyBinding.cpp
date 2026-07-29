@@ -2,13 +2,14 @@
 
 #include <tfw/utils/strings.h>
 
-using namespace common::keybindings;
+using namespace mkp::components::keybindings;
 using namespace mkp::firmwares::master::commands;
 
 SetKeyBinding::SetKeyBinding(
     KeyBindingStorage& keyBindingStorage
 ) : CommandHandler("set.key.binding"),
-    keyBindingStorage(keyBindingStorage) {}
+    keyBindingStorage(keyBindingStorage) {
+}
 
 SetKeyBinding::~SetKeyBinding() = default;
 
@@ -32,7 +33,10 @@ tfw::utils::void_result SetKeyBinding::execute(
         keyBindingStorage.write(keyBinding);
     } else if (type == ROTARY_ENCODER) {
         const auto number = tfw::utils::strings::atol(args[2], 16);
-        const auto direction = static_cast<tfw::hal::encoders::RotaryEncoderDirection>(tfw::utils::strings::atol(args[3], 16));
+        const auto direction = static_cast<tfw::hal::encoders::RotaryEncoderDirection>(tfw::utils::strings::atol(
+            args[3],
+            16
+        ));
         const auto macroId = static_cast<uint16_t>(tfw::utils::strings::atol(args[4], 16));
 
         const auto keyBinding = KeyBinding{

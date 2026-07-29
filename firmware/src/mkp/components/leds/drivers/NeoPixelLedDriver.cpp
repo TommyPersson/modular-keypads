@@ -1,5 +1,7 @@
 #include "NeoPixelLedDriver.h"
 
+using namespace mkp::components::leds::drivers;
+
 NeoPixelLedDriver::NeoPixelLedDriver(uint16_t numberOfPixels, int16_t pin, neoPixelType type) :
     neoPixel(numberOfPixels, pin, type) {
 }

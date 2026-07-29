@@ -2,6 +2,8 @@
 
 #include <tfw/hal/time.h>
 
+using namespace mkp::components::leds;
+
 IndicatorLed::IndicatorLed(IndicatorLedDriver& driver, const uint8_t pixelIndex) :
     driver(driver),
     pixelIndex(pixelIndex),
@@ -53,6 +55,6 @@ uint32_t IndicatorLed::makeColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
 }
 
 
-void IndicatorLed::animate(const std::shared_ptr<tfw::utils::led::animations::Animation>& animation) {
+void IndicatorLed::animate(const std::shared_ptr<tfw::utils::leds::animations::Animation>& animation) {
     currentAnimation = animation;
 }

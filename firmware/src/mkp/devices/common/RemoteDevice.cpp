@@ -8,6 +8,8 @@
 #include "mkp/firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
 using namespace mkp::devices::common;
+using namespace mkp::components::notifications;
+using namespace mkp::components::events;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("RemoteDevice");
@@ -70,7 +72,7 @@ const DeviceConfiguration& RemoteDevice::getConfiguration() const {
     return configuration;
 }
 
-const std::vector<std::shared_ptr<mkp::devices::common::DeviceCapability>>& RemoteDevice::getCapabilities() const {
+const std::vector<std::shared_ptr<DeviceCapability>>& RemoteDevice::getCapabilities() const {
     return capabilities;
 }
 

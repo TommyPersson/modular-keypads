@@ -9,7 +9,7 @@
 
 #include "Macro.h"
 
-namespace common::macros {
+namespace mkp::components::macros {
     struct MacroSaved {
         uint16_t macroId;
     };

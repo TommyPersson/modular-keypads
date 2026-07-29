@@ -4,7 +4,7 @@
 
 #include <tfw/hal/time.h>
 
-namespace tfw::utils::led::animations {
+namespace tfw::utils::leds::animations {
     struct Animation {
         Animation(uint32_t durationMs, uint64_t startTimeMs) : durationMs(durationMs), startTimeMs(startTimeMs) {
         }

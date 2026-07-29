@@ -14,16 +14,16 @@ struct CompiledMacro {
 };
 
 class KeyBindingSubSystem
-    : tfw::utils::observables::Observer<common::macros::MacroSaved>,
-      tfw::utils::observables::Observer<common::macros::MacroRemoved>,
-      tfw::utils::observables::Observer<common::keybindings::KeyBindingSet>,
-      tfw::utils::observables::Observer<common::keybindings::KeyBindingCleared>,
+    : tfw::utils::observables::Observer<mkp::components::macros::MacroSaved>,
+      tfw::utils::observables::Observer<mkp::components::macros::MacroRemoved>,
+      tfw::utils::observables::Observer<mkp::components::keybindings::KeyBindingSet>,
+      tfw::utils::observables::Observer<mkp::components::keybindings::KeyBindingCleared>,
       tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
       tfw::utils::observables::Observer<mkp::devices::common::DeviceRotaryEncoderEvent> {
 public:
     KeyBindingSubSystem(
-        common::macros::MacroStorage& macroStorage,
-        common::keybindings::KeyBindingStorage& keyBindingStorage,
+        mkp::components::macros::MacroStorage& macroStorage,
+        mkp::components::keybindings::KeyBindingStorage& keyBindingStorage,
         TestModeController& testModeController,
         tfw::hal::usb::Connection& usbConnection,
         tfw::hal::metrics::MetricRegistry& metricRegistry
@@ -35,10 +35,10 @@ public:
 
     uint32_t getNumAssigned() const { return keyBindings.size(); }
 
-    void observe(const common::macros::MacroSaved& event) override;
-    void observe(const common::macros::MacroRemoved& event) override;
-    void observe(const common::keybindings::KeyBindingSet& event) override;
-    void observe(const common::keybindings::KeyBindingCleared& event) override;
+    void observe(const mkp::components::macros::MacroSaved& event) override;
+    void observe(const mkp::components::macros::MacroRemoved& event) override;
+    void observe(const mkp::components::keybindings::KeyBindingSet& event) override;
+    void observe(const mkp::components::keybindings::KeyBindingCleared& event) override;
     void observe(const mkp::devices::common::DeviceSwitchEvent& event) override;
     void observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) override;
 
@@ -46,19 +46,19 @@ private:
     void refreshCompiledMacros();
     void refreshKeyBindings();
 
-    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const mkp::devices::common::DeviceSwitchEvent& event);
-    std::shared_ptr<common::keybindings::KeyBinding> findKeyBinding(const mkp::devices::common::DeviceRotaryEncoderEvent& event);
+    std::shared_ptr<mkp::components::keybindings::KeyBinding> findKeyBinding(const mkp::devices::common::DeviceSwitchEvent& event);
+    std::shared_ptr<mkp::components::keybindings::KeyBinding> findKeyBinding(const mkp::devices::common::DeviceRotaryEncoderEvent& event);
 
-    void executeMacroFor(const std::shared_ptr<common::keybindings::KeyBinding>& keyBinding);
+    void executeMacroFor(const std::shared_ptr<mkp::components::keybindings::KeyBinding>& keyBinding);
 
     bool macrosNeedRefresh = true;
     bool keyBindingsNeedRefresh = true;
 
-    common::macros::MacroStorage& macroStorage;
-    common::keybindings::KeyBindingStorage& keyBindingStorage;
+    mkp::components::macros::MacroStorage& macroStorage;
+    mkp::components::keybindings::KeyBindingStorage& keyBindingStorage;
     TestModeController& testModeController;
     tfw::hal::usb::Connection& usbConnection;
 
-    std::vector<std::shared_ptr<common::keybindings::KeyBinding>> keyBindings;
+    std::vector<std::shared_ptr<mkp::components::keybindings::KeyBinding>> keyBindings;
     std::vector<std::shared_ptr<CompiledMacro>> macros;
 };

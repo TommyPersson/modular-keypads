@@ -3,6 +3,9 @@
 #include "drivers/NeoPixelLedDriver.h"
 #include "drivers/NoOpLedDriver.h"
 
+using namespace mkp::components::leds;
+using namespace mkp::components::leds::drivers;
+
 IndicatorLedDriver::IndicatorLedDriver() = default;
 
 IndicatorLedDriver::~IndicatorLedDriver() = default;

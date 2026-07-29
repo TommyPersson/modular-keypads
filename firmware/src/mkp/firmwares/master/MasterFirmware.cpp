@@ -25,8 +25,8 @@ using namespace mkp::firmwares::master::commands;
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
-    macroStorage = std::make_unique<common::macros::MacroStorage>();
-    keyBindingStorage = std::make_unique<common::keybindings::KeyBindingStorage>();
+    macroStorage = std::make_unique<mkp::components::macros::MacroStorage>();
+    keyBindingStorage = std::make_unique<mkp::components::keybindings::KeyBindingStorage>();
     keyBindingSubSystem = std::make_unique<KeyBindingSubSystem>(
         *macroStorage,
         *keyBindingStorage,

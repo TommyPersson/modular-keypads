@@ -6,7 +6,7 @@
 namespace mkp::firmwares::master::commands {
     class SaveMacro : public tfw::utils::commands::CommandHandler {
     public:
-        explicit SaveMacro(common::macros::MacroStorage& macroStorage);
+        explicit SaveMacro(mkp::components::macros::MacroStorage& macroStorage);
         ~SaveMacro() override;
 
         tfw::utils::void_result execute(
@@ -16,6 +16,6 @@ namespace mkp::firmwares::master::commands {
         ) override;
 
     private:
-        common::macros::MacroStorage& macroStorage;
+        mkp::components::macros::MacroStorage& macroStorage;
     };
 }

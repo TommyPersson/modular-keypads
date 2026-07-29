@@ -5,7 +5,7 @@
 #include <esp_system.h>
 #include <multi_heap.h>
 
-namespace mkp::firmwares::base::metrics::esp {
+namespace mkp::components::metrics::esp {
     void register_all(tfw::hal::metrics::MetricRegistry& registry) {
         registry.add(tfw::hal::metrics::lambda_gauge("esp.memory.global.free_heap_size", []() {
             return esp_get_free_heap_size();

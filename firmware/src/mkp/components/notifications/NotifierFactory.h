@@ -5,12 +5,14 @@
 
 #include "Notifier.h"
 
-class NotifierFactory {
-public:
-    explicit NotifierFactory(Print& outputStream);
-    ~NotifierFactory();
+namespace mkp::components::notifications {
+    class NotifierFactory {
+    public:
+        explicit NotifierFactory(Print& outputStream);
+        ~NotifierFactory();
 
-    std::unique_ptr<Notifier> create(uint64_t deviceId) const;
-private:
-    Print& outputStream;
-};
+        std::unique_ptr<Notifier> create(uint64_t deviceId) const;
+    private:
+        Print& outputStream;
+    };
+}

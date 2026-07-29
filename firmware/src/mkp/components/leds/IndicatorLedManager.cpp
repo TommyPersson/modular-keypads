@@ -2,6 +2,8 @@
 
 #include <tfw/hal/buttons/Button.h>
 
+using namespace mkp::components::leds;
+
 IndicatorLedManager::IndicatorLedManager(
     const uint16_t numberOfPixels,
     std::unique_ptr<IndicatorLedDriver> driver

@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-namespace common::macros {
+namespace mkp::components::macros {
     enum MacroType : uint8_t {
         SHORTCUT = 0x01,
         CONSUMER_CONTROL = 0x02,

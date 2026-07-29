@@ -37,7 +37,7 @@ namespace mkp::devices::a {
         LocalDeviceA(
             const common::DeviceConfiguration& configuration,
             const common::DeviceConfigurationManager& configurationManager,
-            const NotifierFactory& notifierFactory
+            const components::notifications::NotifierFactory& notifierFactory
         );
         ~LocalDeviceA() override;
 

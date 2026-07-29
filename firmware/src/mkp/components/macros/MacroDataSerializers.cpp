@@ -1,6 +1,6 @@
 #include "MacroDataSerializers.h"
 
-namespace common::macros {
+namespace mkp::components::macros {
     class ConsumerControlMacroDataSerializer final
         : public MacroDataStorageSerializer<ConsumerControlMacroData> {
     public:

@@ -5,8 +5,8 @@
 
 #include <tfw/hal/logging.h>
 
-using namespace common::macros;
-using namespace common::keybindings;
+using namespace mkp::components::macros;
+using namespace mkp::components::keybindings;
 using namespace mkp::devices::common;
 
 // TODO lots of allocation stuff to optimize

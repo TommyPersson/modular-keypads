@@ -7,7 +7,7 @@
 namespace mkp::firmwares::master::commands {
     class ClearKeyBinding : public tfw::utils::commands::CommandHandler {
     public:
-        explicit ClearKeyBinding(common::keybindings::KeyBindingStorage& keyBindingStorage);
+        explicit ClearKeyBinding(components::keybindings::KeyBindingStorage& keyBindingStorage);
         ~ClearKeyBinding() override;
 
         tfw::utils::void_result execute(
@@ -17,6 +17,6 @@ namespace mkp::firmwares::master::commands {
         ) override;
 
     private:
-        common::keybindings::KeyBindingStorage& keyBindingStorage;
+        components::keybindings::KeyBindingStorage& keyBindingStorage;
     };
 }

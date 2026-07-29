@@ -1,6 +1,7 @@
 #include "SwitchIndicatorLed.h"
 
 using namespace tfw::hal::buttons;
+using namespace mkp::components::leds;
 
 SwitchIndicatorLed::SwitchIndicatorLed(
     const Button& button,

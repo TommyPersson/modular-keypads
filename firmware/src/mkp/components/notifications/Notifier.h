@@ -4,14 +4,16 @@
 
 #include "Notification.h"
 
-class Notifier {
-public:
-    explicit Notifier(uint64_t deviceId, Print& outputStream);
-    ~Notifier();
+namespace mkp::components::notifications {
+    class Notifier {
+    public:
+        explicit Notifier(uint64_t deviceId, Print& outputStream);
+        ~Notifier();
 
-    void notify(const Notification& notification) const;
+        void notify(const Notification& notification) const;
 
-private:
-    Print& outputStream;
-    uint64_t deviceId;
-};
+    private:
+        Print& outputStream;
+        uint64_t deviceId;
+    };
+}

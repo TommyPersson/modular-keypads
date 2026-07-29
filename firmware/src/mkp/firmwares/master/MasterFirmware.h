@@ -27,8 +27,8 @@ private:
     std::vector<std::unique_ptr<mkp::devices::common::Device>> remoteDevices;
     std::vector<mkp::devices::common::Device*> allDevices;
 
-    std::unique_ptr<common::macros::MacroStorage> macroStorage;
-    std::unique_ptr<common::keybindings::KeyBindingStorage> keyBindingStorage;
+    std::unique_ptr<mkp::components::macros::MacroStorage> macroStorage;
+    std::unique_ptr<mkp::components::keybindings::KeyBindingStorage> keyBindingStorage;
     std::unique_ptr<KeyBindingSubSystem> keyBindingSubSystem;
 
     std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;

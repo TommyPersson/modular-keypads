@@ -11,6 +11,8 @@ namespace {
 
 using namespace mkp::devices::a;
 using namespace mkp::devices::common;
+using namespace mkp::components::notifications;
+using namespace mkp::components::leds;
 
 LocalDeviceA::LocalDeviceA(
     const DeviceConfiguration& configuration,

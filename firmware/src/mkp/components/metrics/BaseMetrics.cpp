@@ -10,7 +10,7 @@
 #include "LittleFsMetrics.h"
 #endif
 
-namespace mkp::firmwares::base::metrics {
+namespace mkp::components::metrics {
     void register_all(tfw::hal::metrics::MetricRegistry& registry) {
 #ifdef ESP32
         esp::register_all(registry);

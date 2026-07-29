@@ -4,7 +4,7 @@
 
 #include "MacroStorage.h"
 
-namespace common::macros {
+namespace mkp::components::macros {
     template <class T>
     class MacroDataStorageSerializer {
     public:

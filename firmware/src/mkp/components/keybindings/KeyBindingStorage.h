@@ -5,7 +5,7 @@
 #include <functional>
 #include <cerrno>
 
-namespace common::keybindings {
+namespace mkp::components::keybindings {
     struct KeyBindingSet {
     };
 

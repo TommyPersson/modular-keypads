@@ -11,7 +11,7 @@ namespace mkp::devices::common {
     public:
         explicit RemoteDevice(
             const DeviceConfiguration& configuration,
-            const NotifierFactory& notifierFactory,
+            const components::notifications::NotifierFactory& notifierFactory,
             const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
             tfw::hal::i2c::Client& i2cClient
         );
@@ -29,8 +29,8 @@ namespace mkp::devices::common {
 
     private:
         DeviceConfiguration configuration;
-        std::unique_ptr<Notifier> notifier;
-        std::unique_ptr<SwitchStateChangeNotifier> switchStateChangeNotifier;
+        std::unique_ptr<components::notifications::Notifier> notifier;
+        std::unique_ptr<components::notifications::SwitchStateChangeNotifier> switchStateChangeNotifier;
 
         const std::vector<std::shared_ptr<DeviceCapability>>& capabilities;
 

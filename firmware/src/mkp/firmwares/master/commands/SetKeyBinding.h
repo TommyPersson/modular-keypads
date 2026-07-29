@@ -7,7 +7,7 @@
 namespace mkp::firmwares::master::commands {
     class SetKeyBinding : public tfw::utils::commands::CommandHandler {
     public:
-        explicit SetKeyBinding(common::keybindings::KeyBindingStorage& keyBindingStorage);
+        explicit SetKeyBinding(components::keybindings::KeyBindingStorage& keyBindingStorage);
         ~SetKeyBinding() override;
 
         tfw::utils::void_result execute(
@@ -17,6 +17,6 @@ namespace mkp::firmwares::master::commands {
         ) override;
 
     private:
-        common::keybindings::KeyBindingStorage& keyBindingStorage;
+        components::keybindings::KeyBindingStorage& keyBindingStorage;
     };
 }

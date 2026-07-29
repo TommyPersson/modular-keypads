@@ -11,7 +11,7 @@
 
 #include "MacroDataSerializers.h"
 
-using namespace common::macros;
+using namespace mkp::components::macros;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("MacroStorage");

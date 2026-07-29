@@ -1,6 +1,7 @@
 #include "EncoderRotationNotifier.h"
 
 using namespace tfw::hal::encoders;
+using namespace mkp::components::notifications;
 
 EncoderRotationNotifier::EncoderRotationNotifier(Notifier& notifier) :
     notifier(notifier) {

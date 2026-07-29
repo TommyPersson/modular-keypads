@@ -3,7 +3,7 @@
 
 #include <tfw/hal/logging.h>
 #include "ServiceLocator.h"
-#include "metrics/BaseMetrics.h"
+#include "mkp/components/metrics/BaseMetrics.h"
 #include "mkp/devices/a/DeviceFactoryA.h"
 #include "mkp/firmwares//slave/SlaveFirmware.h"
 #include "mkp/firmwares/master/MasterFirmware.h"
@@ -25,7 +25,7 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
 
     deviceFactories.emplace_back(std::make_unique<mkp::devices::a::DeviceFactoryA>());
 
-    metrics::register_all(serviceLocator.metricRegistry);
+    components::metrics::register_all(serviceLocator.metricRegistry);
 }
 
 mkp::devices::common::DeviceFactory* Firmware::getDeviceFactory(char deviceType) const {

@@ -6,7 +6,7 @@
 namespace mkp::firmwares::master::commands {
     class ListStoredMacros : public tfw::utils::commands::CommandHandler {
     public:
-        explicit ListStoredMacros(common::macros::MacroStorage& macroStorage);
+        explicit ListStoredMacros(mkp::components::macros::MacroStorage& macroStorage);
         ~ListStoredMacros() override;
 
         tfw::utils::void_result execute(
@@ -16,6 +16,6 @@ namespace mkp::firmwares::master::commands {
         ) override;
 
     private:
-        common::macros::MacroStorage& macroStorage;
+        mkp::components::macros::MacroStorage& macroStorage;
     };
 }

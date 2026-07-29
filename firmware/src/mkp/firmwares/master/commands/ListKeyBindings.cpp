@@ -1,6 +1,6 @@
 #include "ListKeyBindings.h"
 
-using namespace common::keybindings;
+using namespace mkp::components::keybindings;
 using namespace mkp::firmwares::master::commands;
 
 ListKeyBindings::ListKeyBindings(
