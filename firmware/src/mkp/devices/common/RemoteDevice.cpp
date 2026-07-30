@@ -86,7 +86,8 @@ const std::vector<std::shared_ptr<DeviceCapability>>& RemoteDevice::getCapabilit
 
 tfw::utils::void_result RemoteDevice::flashIdentificationLights(uint32_t durationMs) {
     return i2cClient.sendCommand(
-        this->getConfiguration().address,
+        configuration.address,
+        configuration.id,
         firmwares::slave::i2c::commands::FlashDeviceIdentificationLights,
         {.durationMs = durationMs}
     );
@@ -95,7 +96,8 @@ tfw::utils::void_result RemoteDevice::flashIdentificationLights(uint32_t duratio
 tfw::utils::void_result RemoteDevice::
 flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
     return i2cClient.sendCommand(
-        this->getConfiguration().address,
+        configuration.address,
+        configuration.id,
         firmwares::slave::i2c::commands::FlashButtonIdentificationLight,
         {.buttonNumber = buttonNumber, .durationMs = durationMs}
     );
@@ -106,7 +108,8 @@ tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName)
     strncpy(&params.name[0], deviceName.data(), sizeof(params.name));
 
     return i2cClient.sendCommand(
-        this->getConfiguration().address,
+        configuration.address,
+        configuration.id,
         firmwares::slave::i2c::commands::RenameDevice,
         params
     );

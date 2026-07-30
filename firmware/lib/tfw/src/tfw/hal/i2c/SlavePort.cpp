@@ -52,7 +52,7 @@ namespace tfw::hal::i2c {
     void SlavePort::onReceiveCallback(const int len) {
         std::lock_guard guard(lock);
 
-        auto message = receiveArena.allocate(len);
+        auto messageBytes = receiveArena.allocate(len);
 
         int i = 0;
         while (Wire.available()) {
@@ -62,16 +62,17 @@ namespace tfw::hal::i2c {
                 continue;
             }
 
-            message[i++] = value;
+            messageBytes[i++] = value;
         }
 
         for (auto& commandPtr : knownCommandsHandlers) {
             const auto command = static_cast<commands::RemoteCommandHandler<commands::AnyParams>*>(commandPtr);
-            if (command->id != message[0]) {
+            const auto message = command->parseMessage(messageBytes);
+            if (message->commandId != command->id) {
                 continue;
             }
-            const auto params = command->parseData(message);
-            command->execute(params); // TODO what to do with returned errors?
+
+            command->execute(&message->params); // TODO what to do with returned errors?
         }
 
         receiveArena.reset();
@@ -84,15 +85,10 @@ namespace tfw::hal::i2c {
             const auto event = this->pollEvent();
             if (event == nullptr) {
                 constexpr auto emptyEvent = Event{};
-                //constexpr auto emptyEvent = Event{ .type = 0x43};
                 const auto bytes = reinterpret_cast<const uint8_t*>(&emptyEvent);
                 twoWire.write(bytes, sizeof(emptyEvent));
                 return;
             }
-
-            /*constexpr auto emptyEvent = Event{ .type = 0x42};
-            const auto bytes = reinterpret_cast<const uint8_t*>(&emptyEvent);
-            twoWire.write(bytes, sizeof(emptyEvent));*/
 
             const auto bytes = reinterpret_cast<const uint8_t*>(event);
             twoWire.write(bytes, sizeof(*event));
