@@ -9,7 +9,7 @@ namespace {
 
     using namespace tfw::hal::gpio;
 
-    std::vector<bool> triggeredInterrupts(255);
+    std::vector<bool> triggeredInterrupts(GPIO_NUM_MAX);
 
     void interruptHandler(void* pin) {
         auto inputPin = static_cast<PhysicalInputPin*>(pin);

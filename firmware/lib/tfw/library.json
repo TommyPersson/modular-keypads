@@ -1,22 +1,23 @@
 {
   "name": "tfw",
   "version": "1.0.0",
-  "description": "TODO",
-  "keywords": "",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/TommyPersson/modular-keypads"
-  },
+  "description": "Modular keyboard firmware utilities and hardware abstraction",
+  "keywords": "firmware, keyboard, utilities",
   "authors": [
     {
       "name": "Tommy Persson",
-      "email": "tommy.persson@gmail.com",
-      "maintainer": true
+      "email": "tommy.persson@gmail.com"
     }
   ],
   "license": "MIT",
-  "dependencies": {
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/modular-keypads.git"
   },
-  "frameworks": "arduino",
-  "platforms": "*"
+  "frameworks": ["arduino", "native"],
+  "platforms": ["espressif32", "native"],
+  "build": {
+    "srcDir": "src",
+    "includeDirs": ["src"]
+  }
 }

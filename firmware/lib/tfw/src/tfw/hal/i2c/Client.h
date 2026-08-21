@@ -2,10 +2,10 @@
 
 #include <Wire.h>
 
-#include "Endpoint.h"
-#include "Commands.h"
-#include "Pins.h"
 #include <tfw/utils/result.h>
+#include "Commands.h"
+#include "Endpoint.h"
+#include "Pins.h"
 
 namespace tfw::hal::i2c {
     class Client {
@@ -37,6 +37,7 @@ namespace tfw::hal::i2c {
             i2c.beginTransmission(address);
             i2c.write(bytes, sizeof(message));
             const auto result = i2c.endTransmission();
+            i2c.flush();
 
             if (result == 0) {
                 return utils::void_result::success();
@@ -83,18 +84,16 @@ namespace tfw::hal::i2c {
         TStruct* readCurrentEndpoint(const uint8_t address, const size_t size = sizeof(TStruct)) {
             memset(readBuffer, 0, sizeof(readBuffer));
 
+            i2c.flush();
             i2c.requestFrom(address, size);
 
             int i = 0;
             while (i2c.available()) {
                 int byte = i2c.read();
-                if (i == 0 && byte == 0x17) {
-                    // There is often an End of Transmission Block character on the bus?
-                    continue;
-                }
                 readBuffer[i] = byte;
                 i++;
             }
+            i2c.flush();
 
             auto data = reinterpret_cast<TStruct*>(&readBuffer);
             return data;

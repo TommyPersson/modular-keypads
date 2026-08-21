@@ -52,15 +52,15 @@ namespace tfw::hal::i2c {
         void addCommandHandler(void* handler);
 
     private:
+        void selectEndpoint(uint8_t endpointId);
+
+        EndpointData endpoints[255]{};
         void onReceiveCallback(int len);
         void onRequestCallback();
 
         Event* pollEvent();
 
-        void selectEndpoint(uint8_t endpointId);
-
-        EndpointData endpoints[255]{};
-        EndpointData& selectedEndpoint;
+        EndpointData* selectedEndpoint;
 
         TwoWire& twoWire;
 

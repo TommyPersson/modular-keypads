@@ -2,9 +2,9 @@
 
 #include <cstring>
 
+#include <tfw/hal/logging.h>
 #include "Commands.h"
 #include "Pins.h"
-#include <tfw/hal/logging.h>
 
 #include "tfw/hal/gpio/OutputPin.h"
 
@@ -14,7 +14,7 @@ namespace {
 
 namespace tfw::hal::i2c {
     SlavePort::SlavePort(TwoWire& twoWire) :
-        selectedEndpoint(endpoints[0]),
+        selectedEndpoint(&endpoints[0]),
         twoWire(twoWire),
         receiveArena(32) {
         uint8_t i = 0;
@@ -55,13 +55,8 @@ namespace tfw::hal::i2c {
         auto messageBytes = receiveArena.allocate(len);
 
         int i = 0;
-        while (Wire.available()) {
-            int value = Wire.read();
-
-            if (i == 0 && value == 0x17) {
-                continue;
-            }
-
+        while (twoWire.available()) {
+            int value = twoWire.read();
             messageBytes[i++] = value;
         }
 
@@ -76,12 +71,13 @@ namespace tfw::hal::i2c {
         }
 
         receiveArena.reset();
+        twoWire.flush();
     }
 
     void SlavePort::onRequestCallback() {
         std::lock_guard guard(lock);
 
-        if (selectedEndpoint.id == i2c::endpoints::builtin::Events.id) {
+        if (selectedEndpoint->id == i2c::endpoints::builtin::Events.id) {
             const auto event = this->pollEvent();
             if (event == nullptr) {
                 constexpr auto emptyEvent = Event{};
@@ -95,11 +91,11 @@ namespace tfw::hal::i2c {
             return;
         }
 
-        twoWire.write(selectedEndpoint.data, selectedEndpoint.length);
+        twoWire.write(selectedEndpoint->data, selectedEndpoint->length);
     }
 
     void SlavePort::selectEndpoint(const uint8_t endpointId) {
-        selectedEndpoint = this->endpoints[endpointId];
+        selectedEndpoint = &this->endpoints[endpointId];
     }
 
     void SlavePort::enqueueEvent(const Event& event) {
