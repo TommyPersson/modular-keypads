@@ -20,7 +20,8 @@ sub_module_centers = [
     ];
 
 sub_module_connector_offset = 31;
-sub_module_connector_size = [4.3, 22.7, 4];
+//sub_module_connector_size = [4.3, 22.7, 4];
+sub_module_connector_size = [5.1, 26.7, 4];
 sub_module_separation = 8;
 sub_module_shell_wall_width = 2;
 sub_module_shell_wall_height = pcb_thickness + sub_module_connector_size.z + module_top_thickness -

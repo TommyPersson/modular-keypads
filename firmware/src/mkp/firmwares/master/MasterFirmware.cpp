@@ -68,12 +68,6 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
 
 MasterFirmware::~MasterFirmware() = default;
 
-namespace {
-    void testinterrupt() {
-        logger->info("Test interrupt");
-    }
-}
-
 void MasterFirmware::setup() {
     Firmware::setup();
 
