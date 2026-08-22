@@ -3,9 +3,11 @@
 namespace tfw::ic {
     MCP23x17::MCP23x17(
         std::unique_ptr<tfw::hal::spi::SPIBus> bus,
-        std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin
+        std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin,
+        tfw::hal::time::Clock& clock
     ) : bus(std::move(bus)),
-        resetPin(std::move(resetPin)) {
+        resetPin(std::move(resetPin)),
+        clock(clock) {
     }
 
     MCP23x17::~MCP23x17() {
@@ -32,6 +34,7 @@ namespace tfw::ic {
         resetPin->init();
 
         resetPin->setLow();
+        clock.delayUs(1);
         resetPin->setHigh();
     }
 }

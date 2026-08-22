@@ -4,6 +4,7 @@
 // Test headers
 #include "../test_hal/StubSPIBus.h"
 #include "../test_hal/StubOutputPin.h"
+#include "../test_hal/VirtualClock.h"
 #include "MCP23x17Emulator.h"
 
 // Production code
@@ -11,6 +12,7 @@
 
 using namespace tfw::hal::spi;
 using namespace tfw::hal::spi::test;
+using namespace tfw::hal::time::test;
 using namespace tfw::ic::test;
 
 /**
@@ -27,23 +29,28 @@ protected:
     MCP23x17Test() = default;
 
     void SetUp() override {
+        // Create virtual clock for timing tracking
+        clock = std::make_unique<VirtualClock>();
+
         // Create stub serial bus
         auto stub_bus = std::make_unique<StubSPIBus>();
         auto* bus_ptr = stub_bus.get();
 
-        // Create reset pin stub and save reference before moving
-        auto reset_pin_ptr = std::make_unique<tfw::hal::gpio::test::StubOutputPin>(42);
+        // Create reset pin stub with clock reference and save reference before moving
+        auto reset_pin_ptr = std::make_unique<tfw::hal::gpio::test::StubOutputPin>(42, *clock);
         reset_pin = reset_pin_ptr.get();
 
         // Create emulator connected to the bus and reset pin
         // Emulator enforces proper initialization via reset sequence
         emulator = std::make_unique<MCP23x17Emulator>(*bus_ptr, *reset_pin);
 
-        // Create MCP23x17 driver with stub bus and reset pin
+        // Create MCP23x17 driver with stub bus, reset pin, and clock
         mcp23x17 = std::make_unique<tfw::ic::MCP23x17>(std::move(stub_bus),
-                                                        std::move(reset_pin_ptr));
+                                                        std::move(reset_pin_ptr),
+                                                        *clock);
     }
 
+    std::unique_ptr<VirtualClock> clock;
     std::unique_ptr<tfw::ic::MCP23x17> mcp23x17;
     std::unique_ptr<MCP23x17Emulator> emulator;
     tfw::hal::gpio::test::StubOutputPin* reset_pin = nullptr;

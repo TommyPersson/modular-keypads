@@ -3,23 +3,26 @@
 #include <cstdint>
 #include <stdexcept>
 #include <tfw/hal/gpio/InputPin.h>
+#include <tfw/hal/time/Clock.h>
 #include <tfw/utils/observables.h>
 
 namespace tfw::hal::gpio::test {
     struct InputPinValueChangedEvent {
         uint8_t pinNumber;
         uint8_t value;
+        uint64_t timestampNs = 0;  // Timestamp in nanoseconds when value changed
     };
 
     /**
      * Stub InputPin implementation for testing GPIO interactions.
-     * Provides an observable for value changes.
-     * Enforces initialization: read() calls return 0 until setup() is called.
+     * Provides an observable for value changes with timestamps.
+     * Enforces initialization: read() calls throw until setup() is called.
      */
     class StubInputPin : public InputPin {
     public:
-        explicit StubInputPin(uint8_t pinNumber)
+        explicit StubInputPin(uint8_t pinNumber, tfw::hal::time::Clock& clock)
             : InputPin(pinNumber),
+              _clock(clock),
               _value(0),
               _initialized(false) {
         }
@@ -58,10 +61,15 @@ namespace tfw::hal::gpio::test {
 
         void setValue(uint8_t value) {
             _value = value;
-            _valueChangedSubject.notify({.pinNumber = pinNumber, .value = value});
+            _valueChangedSubject.notify({
+                .pinNumber = pinNumber,
+                .value = value,
+                .timestampNs = _clock.nanos()
+            });
         }
 
     private:
+        tfw::hal::time::Clock& _clock;
         uint8_t _value;
         mutable bool _initialized = false;
         utils::observables::Observable<InputPinInterruptEvent> _interruptObservable;

@@ -2,14 +2,15 @@
 
 using namespace mkp::devices::common;
 
-DeviceTypeDetector::DeviceTypeDetector() {
+DeviceTypeDetector::DeviceTypeDetector(tfw::hal::time::Clock& clock) {
     shiftRegister = std::make_unique<tfw::ic::L74165>(
         tfw::ic::Config{
             .pinQ = tfw::hal::gpio::InputPin::physical(18),
             .pinCLK = tfw::hal::gpio::OutputPin::physical(17),
             .pinCE = tfw::hal::gpio::OutputPin::physical(15),
             .pinLD = tfw::hal::gpio::OutputPin::physical(16),
-        }
+        },
+        clock
     );
 }
 

@@ -4,6 +4,7 @@
 
 #include "../../hal/spi/SPIBus.h"
 #include "../../hal/gpio/OutputPin.h"
+#include "../../hal/time/Clock.h"
 
 namespace tfw::ic {
     namespace registers {
@@ -21,7 +22,8 @@ namespace tfw::ic {
     public:
         explicit MCP23x17(
             std::unique_ptr<tfw::hal::spi::SPIBus> bus,
-            std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin
+            std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin,
+            tfw::hal::time::Clock& clock
         );
         ~MCP23x17();
 
@@ -35,5 +37,6 @@ namespace tfw::ic {
     private:
         const std::unique_ptr<tfw::hal::spi::SPIBus> bus;
         std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin;
+        tfw::hal::time::Clock& clock;
     };
 }

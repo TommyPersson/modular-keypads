@@ -17,9 +17,10 @@ using namespace mkp::components::leds;
 LocalDeviceA::LocalDeviceA(
     const DeviceConfiguration& configuration,
     const DeviceConfigurationManager& configurationManager,
-    const NotifierFactory& notifierFactory
+    const NotifierFactory& notifierFactory,
+    tfw::hal::time::Clock& clock
 ) : LocalDevice(configuration, configurationManager, notifierFactory, IndicatorLedManager::NeoPixel(12, 48)) {
-    registerRefresher = std::make_unique<RegisterRefresherA>(*registerManager);
+    registerRefresher = std::make_unique<RegisterRefresherA>(*registerManager, clock);
 }
 
 LocalDeviceA::~LocalDeviceA() = default;

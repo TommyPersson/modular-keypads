@@ -74,15 +74,19 @@ namespace tfw::ic::test {
         /**
          * Observer method called when the reset pin state changes.
          * Tracks the reset sequence: LOW then HIGH completes initialization.
+         * Validates timing constraints on reset pulse.
          */
         void observe(const tfw::hal::gpio::test::OutputPinStateChangedEvent& event) override {
             if (event.pinNumber == _resetPin.pinNumber) {
                 if (event.state == 0 && !_resetInProgress) {
                     // Falling edge: reset sequence started
+                    _resetLowTimestampNs = event.timestampNs;
+                    _resetLowWasRecorded = true;
                     _resetInProgress = true;
                     _resetComplete = false;
                 } else if (event.state == 1 && _resetInProgress) {
                     // Rising edge after falling edge: reset sequence complete
+                    validateResetTiming(event.timestampNs);
                     _resetComplete = true;
                     _resetInProgress = false;
                 }
@@ -111,6 +115,29 @@ namespace tfw::ic::test {
         }
 
     private:
+        /**
+         * Validate reset pin pulse timing.
+         * MCP23x17 datasheet specifies minimum reset pulse width of ~1µs.
+         * We enforce 500ns to catch missing delays while allowing safety margin.
+         */
+        void validateResetTiming(uint64_t resetHighTimestampNs) {
+            // Minimum reset pulse width: 1µs (matches MCP23x17 datasheet spec)
+            constexpr uint64_t MIN_RESET_PULSE_WIDTH_NS = 1000;  // 1µs in nanoseconds
+
+            // Check if LOW was recorded (using UINT64_MAX as sentinel since timestamp can be 0)
+            if (_resetLowWasRecorded) {
+                uint64_t pulseWidth = resetHighTimestampNs - _resetLowTimestampNs;
+                if (pulseWidth < MIN_RESET_PULSE_WIDTH_NS) {
+                    throw std::logic_error(
+                        "MCP23x17Emulator: RESET pulse width too short (" +
+                        std::to_string(pulseWidth / 1000) + "µs < " +
+                        std::to_string(MIN_RESET_PULSE_WIDTH_NS / 1000) + "µs). "
+                        "MCP23x17 requires minimum 1µs reset pulse."
+                    );
+                }
+            }
+        }
+
         uint8_t handleRegisterRead(uint8_t reg) {
             if (reg >= _registers.size()) {
                 return 0;
@@ -141,8 +168,10 @@ namespace tfw::ic::test {
         tfw::hal::spi::test::StubSPIBus& _bus;
         tfw::hal::gpio::test::StubOutputPin& _resetPin;
 
-        // Reset sequence tracking
+        // Reset sequence tracking (timestamps in nanoseconds)
         bool _resetInProgress = false;
         bool _resetComplete = false;
+        bool _resetLowWasRecorded = false;  // Flag to detect when LOW was recorded (since timestamp can be 0)
+        uint64_t _resetLowTimestampNs = 0;  // Timestamp when reset pin went LOW
     };
 }

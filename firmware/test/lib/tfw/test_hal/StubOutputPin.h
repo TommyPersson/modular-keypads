@@ -3,23 +3,25 @@
 #include <cstdint>
 #include <stdexcept>
 #include <tfw/hal/gpio/OutputPin.h>
+#include <tfw/hal/time/Clock.h>
 #include <tfw/utils/observables.h>
 
 namespace tfw::hal::gpio::test {
     struct OutputPinStateChangedEvent {
         uint8_t pinNumber;
         uint8_t state;
+        uint64_t timestampNs = 0;  // Timestamp in nanoseconds when state changed
     };
 
     /**
      * Stub OutputPin implementation for testing GPIO interactions.
-     * Notifies observers when state changes occur.
-     * Enforces initialization: set() calls are ignored until init() is called.
+     * Notifies observers when state changes occur with timestamps.
+     * Enforces initialization: set() calls throw until init() is called.
      */
     class StubOutputPin : public OutputPin {
     public:
-        explicit StubOutputPin(uint8_t pinNumber, uint8_t modeFlags = 0)
-            : OutputPin(pinNumber, modeFlags) {
+        explicit StubOutputPin(uint8_t pinNumber, tfw::hal::time::Clock& clock, uint8_t modeFlags = 0)
+            : OutputPin(pinNumber, modeFlags), _clock(clock) {
         }
 
         void init() const override {
@@ -30,7 +32,11 @@ namespace tfw::hal::gpio::test {
             if (!_initialized) {
                 throw std::logic_error("StubOutputPin::set() called before init()");
             }
-            _stateChangedSubject.notify({.pinNumber = pinNumber, .state = state});
+            _stateChangedSubject.notify({
+                .pinNumber = pinNumber,
+                .state = state,
+                .timestampNs = _clock.nanos()
+            });
         }
 
         void setHigh() const override {
@@ -46,6 +52,7 @@ namespace tfw::hal::gpio::test {
         }
 
     private:
+        tfw::hal::time::Clock& _clock;
         mutable bool _initialized = false;
         mutable utils::observables::Subject<OutputPinStateChangedEvent> _stateChangedSubject;
     };

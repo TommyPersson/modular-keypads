@@ -19,7 +19,8 @@ std::unique_ptr<LocalDevice> DeviceFactoryA::createLocal(
     return std::make_unique<LocalDeviceA>(
         config,
         serviceLocator.deviceConfigurationManager,
-        serviceLocator.notifierFactory
+        serviceLocator.notifierFactory,
+        serviceLocator.clock
     );
 }
 

@@ -4,6 +4,7 @@
 #include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
 #include <tfw/hal/i2c.h>
+#include <tfw/hal/time/Clock.h>
 
 #include "FirmwareModeDetector.h"
 #include "mkp/components/notifications/NotifierFactory.h"
@@ -19,5 +20,6 @@ namespace mkp::firmwares::base {
         tfw::hal::usb::Connection& usbConnection;
         tfw::hal::metrics::MetricRegistry& metricRegistry;
         FirmwareModeDetector& deviceModeDetector;
+        tfw::hal::time::Clock& clock;
     };
 }

@@ -6,7 +6,7 @@
 
 using namespace mkp::devices::a;
 
-RegisterRefresherA::RegisterRefresherA(tfw::utils::registers::RegisterManager& registers) :
+RegisterRefresherA::RegisterRefresherA(tfw::utils::registers::RegisterManager& registers, tfw::hal::time::Clock& clock) :
     RegisterRefresher(registers) {
     // Create SPI configuration
     auto spiConfig = std::make_unique<tfw::hal::spi::SPIConfig>(tfw::hal::spi::SPIConfig{
@@ -20,10 +20,11 @@ RegisterRefresherA::RegisterRefresherA(tfw::utils::registers::RegisterManager& r
     // Create SPI serial bus
     auto serialBus = std::make_unique<tfw::hal::spi::AndroidSPIBus>(std::move(spiConfig));
 
-    // Create MCP23x17 with serial bus and reset pin
+    // Create MCP23x17 with serial bus, reset pin, and clock
     this->mcp23x17 = std::make_unique<tfw::ic::MCP23x17>(
         std::move(serialBus),
-        tfw::hal::gpio::OutputPin::physical(42)
+        tfw::hal::gpio::OutputPin::physical(42),
+        clock
     );
 }
 

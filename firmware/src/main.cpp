@@ -8,6 +8,7 @@
 #include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
 #include <tfw/hal/streams/OutputStream.h>
+#include <tfw/hal/time/PlatformClock.h>
 
 #include <memory>
 
@@ -30,6 +31,7 @@ namespace {
     std::unique_ptr<mkp::devices::common::DeviceTypeDetector> deviceTypeDetector;
     std::unique_ptr<mkp::firmwares::base::FirmwareModeDetector> deviceModeDetector;
     std::unique_ptr<tfw::hal::streams::OutputStream> loggingOutput;
+    std::unique_ptr<tfw::hal::time::PlatformClock> platformClock;
 
     std::unique_ptr<mkp::firmwares::base::ServiceLocator> serviceLocator;
 
@@ -44,7 +46,8 @@ namespace {
     void setupServiceLocator() {
         serialPort = tfw::hal::uart::SerialPort::from(TheSerial);
         preferences = std::make_unique<Preferences>();
-        deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>();
+        platformClock = std::make_unique<tfw::hal::time::PlatformClock>();
+        deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>(*platformClock);
         deviceModeDetector = std::make_unique<mkp::firmwares::base::FirmwareModeDetector>();
         deviceConfigurationManager = std::make_unique<mkp::devices::common::DeviceConfigurationManager>(
             *preferences,
@@ -66,6 +69,7 @@ namespace {
                 .usbConnection = *usbConnection,
                 .metricRegistry = *metricRegistry,
                 .deviceModeDetector = *deviceModeDetector,
+                .clock = *platformClock,
             }
         );
     }

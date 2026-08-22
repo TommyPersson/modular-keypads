@@ -2,6 +2,7 @@
 
 #include "mkp/devices/common/LocalDevice.h"
 #include "mkp/devices/common/RegisterRefresher.h"
+#include <tfw/hal/time/Clock.h>
 
 namespace mkp::devices::a {
     namespace i2c {
@@ -37,7 +38,8 @@ namespace mkp::devices::a {
         LocalDeviceA(
             const common::DeviceConfiguration& configuration,
             const common::DeviceConfigurationManager& configurationManager,
-            const components::notifications::NotifierFactory& notifierFactory
+            const components::notifications::NotifierFactory& notifierFactory,
+            tfw::hal::time::Clock& clock
         );
         ~LocalDeviceA() override;
 

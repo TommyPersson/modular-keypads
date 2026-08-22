@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
 #include <tfw/utils/observables.h>
 #include "../test_hal/StubInputPin.h"
 #include "../test_hal/StubOutputPin.h"
@@ -48,12 +49,14 @@ namespace tfw::ic::test {
 
         /**
          * Observer method called when any subscribed pin state changes.
-         * Updates emulator state based on the pin change.
+         * Updates emulator state based on the pin change and validates timing constraints.
          */
         void observe(const tfw::hal::gpio::test::OutputPinStateChangedEvent& event) override {
             if (event.pinNumber == _pinLD.pinNumber) {
+                validateLDTiming(event);
                 handleLDChange(event.state);
             } else if (event.pinNumber == _pinCLK.pinNumber) {
+                validateCLKTiming(event);
                 handleCLKChange(event.state);
             } else if (event.pinNumber == _pinCE.pinNumber) {
                 handleCEChange(event.state);
@@ -69,6 +72,62 @@ namespace tfw::ic::test {
         }
 
     private:
+        /**
+         * Validate LD pin timing constraints.
+         * 74HC165 datasheet specifies minimum pulse width of ~15ns.
+         * We enforce 50ns (3.3x margin) to catch missing/insufficient delays.
+         */
+        void validateLDTiming(const tfw::hal::gpio::test::OutputPinStateChangedEvent& event) {
+            // Minimum LD pulse width: 50ns (74HC165 typical is ~15ns)
+            constexpr uint64_t MIN_LD_PULSE_WIDTH_NS = 50;
+
+            if (_ldPrevious == 1 && event.state == 0) {
+                // LD going LOW - record the time
+                _ldLowTimestampNs = event.timestampNs;
+            } else if (_ldPrevious == 0 && event.state == 1) {
+                // LD going HIGH - validate pulse width
+                if (_ldLowTimestampNs > 0) {
+                    uint64_t pulseWidth = event.timestampNs - _ldLowTimestampNs;
+                    if (pulseWidth < MIN_LD_PULSE_WIDTH_NS) {
+                        throw std::logic_error(
+                            "L74165Emulator: LD pulse width too short (" +
+                            std::to_string(pulseWidth) + "ns < " +
+                            std::to_string(MIN_LD_PULSE_WIDTH_NS) + "ns). "
+                            "74HC165 requires minimum 15ns (using 50ns margin)."
+                        );
+                    }
+                }
+            }
+        }
+
+        /**
+         * Validate CLK pin timing constraints.
+         * 74HC165 datasheet specifies minimum pulse width of ~15ns.
+         * We enforce 50ns (3.3x margin) to catch missing/insufficient delays.
+         */
+        void validateCLKTiming(const tfw::hal::gpio::test::OutputPinStateChangedEvent& event) {
+            // Minimum CLK pulse width: 50ns (74HC165 typical is ~15ns)
+            constexpr uint64_t MIN_CLK_PULSE_WIDTH_NS = 50;
+
+            if (_clkPrevious == 1 && event.state == 0) {
+                // CLK going LOW - record the time
+                _clkLowTimestampNs = event.timestampNs;
+            } else if (_clkPrevious == 0 && event.state == 1) {
+                // CLK going HIGH - validate pulse width
+                if (_clkLowTimestampNs > 0) {
+                    uint64_t pulseWidth = event.timestampNs - _clkLowTimestampNs;
+                    if (pulseWidth < MIN_CLK_PULSE_WIDTH_NS) {
+                        throw std::logic_error(
+                            "L74165Emulator: CLK pulse width too short (" +
+                            std::to_string(pulseWidth) + "ns < " +
+                            std::to_string(MIN_CLK_PULSE_WIDTH_NS) + "ns). "
+                            "74HC165 requires minimum 15ns (using 50ns margin)."
+                        );
+                    }
+                }
+            }
+        }
+
         /**
          * Handle LD (load) pin state change.
          * Detects rising edge and loads parallel data.
@@ -121,6 +180,10 @@ namespace tfw::ic::test {
         uint8_t _clkPrevious; // Previous state of CLK for edge detection
         uint8_t _cePrevious; // Previous state of CE
         int _shiftPosition; // Current bit position (7 = MSB, 0 = LSB)
+
+        // Timing tracking for constraint validation (in nanoseconds)
+        uint64_t _ldLowTimestampNs = 0; // Timestamp when LD went LOW
+        uint64_t _clkLowTimestampNs = 0; // Timestamp when CLK went LOW
 
         // Pin references (guaranteed to be valid for emulator lifetime)
         tfw::hal::gpio::test::StubInputPin& _pinQ;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tfw/hal/gpio.h>
+#include <tfw/hal/time/Clock.h>
 
 namespace tfw::ic
 {
@@ -14,7 +15,7 @@ namespace tfw::ic
     class L74165
     {
     public:
-        explicit L74165(Config config);
+        explicit L74165(Config config, tfw::hal::time::Clock& clock);
 
         void setup();
 
@@ -23,5 +24,6 @@ namespace tfw::ic
 
     private:
         const Config config;
+        tfw::hal::time::Clock& clock;
     };
 }

@@ -1,11 +1,12 @@
 #pragma once
 
 #include <tfw/ic/L74165.h>
+#include <tfw/hal/time/Clock.h>
 
 namespace mkp::devices::common {
     class DeviceTypeDetector {
     public:
-        DeviceTypeDetector();
+        explicit DeviceTypeDetector(tfw::hal::time::Clock& clock);
 
         void setup() const;
 

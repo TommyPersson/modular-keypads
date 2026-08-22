@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Clock.h"
+
 #ifdef ESP32
 #include <esp32-hal.h>
 #endif

@@ -4,6 +4,7 @@
 // Test headers
 #include "../test_hal/StubInputPin.h"
 #include "../test_hal/StubOutputPin.h"
+#include "../test_hal/VirtualClock.h"
 #include "L74165Emulator.h"
 
 // Production code
@@ -11,6 +12,7 @@
 
 using namespace tfw::hal::gpio;
 using namespace tfw::hal::gpio::test;
+using namespace tfw::hal::time::test;
 using namespace tfw::ic::test;
 
 /**
@@ -26,11 +28,14 @@ protected:
     L74165Test() = default;
 
     void SetUp() override {
-        // Create stub pins
-        auto pin_q = std::make_unique<StubInputPin>(21);
-        auto pin_clk = std::make_unique<StubOutputPin>(19);
-        auto pin_ce = std::make_unique<StubOutputPin>(18);
-        auto pin_ld = std::make_unique<StubOutputPin>(17);
+        // Create virtual clock for timing tracking
+        clock = std::make_unique<VirtualClock>();
+
+        // Create stub pins with clock reference
+        auto pin_q = std::make_unique<StubInputPin>(21, *clock);
+        auto pin_clk = std::make_unique<StubOutputPin>(19, *clock);
+        auto pin_ce = std::make_unique<StubOutputPin>(18, *clock);
+        auto pin_ld = std::make_unique<StubOutputPin>(17, *clock);
 
         // Create emulator connected to the pins
         emulator = std::make_unique<L74165Emulator>(
@@ -48,10 +53,11 @@ protected:
             std::move(pin_ld)
         };
 
-        // Create L74165 driver
-        l74165 = std::make_unique<tfw::ic::L74165>(std::move(config));
+        // Create L74165 driver with config and clock
+        l74165 = std::make_unique<tfw::ic::L74165>(std::move(config), *clock);
     }
 
+    std::unique_ptr<VirtualClock> clock;
     std::unique_ptr<tfw::ic::L74165> l74165;
     std::unique_ptr<L74165Emulator> emulator;
 };
