@@ -8,12 +8,16 @@ namespace tfw::hal::time {
     inline uint64_t micros() {
 #ifdef ESP32
         return ::micros();
+#else
+        return 0;
 #endif
     }
 
     inline uint64_t millis() {
 #ifdef ESP32
         return ::millis();
+#else
+        return 0;
 #endif
     }
 
