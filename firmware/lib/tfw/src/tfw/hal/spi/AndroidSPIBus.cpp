@@ -1,20 +1,20 @@
 #ifdef ARDUINO
 
-#include "SPISerialBus.h"
+#include "AndroidSPIBus.h"
 
 #include <Arduino.h>
 
 namespace tfw::hal::spi {
-    SPISerialBus::SPISerialBus(std::unique_ptr<SPIConfig> config) :
+    AndroidSPIBus::AndroidSPIBus(std::unique_ptr<SPIConfig> config) :
         config(std::move(config)) {
         spi = std::make_unique<SPIClass>(this->config->spiBus);
         spiSettings = std::make_unique<SPISettings>(1000000, MSBFIRST, SPI_MODE0);
     }
 
-    SPISerialBus::~SPISerialBus() {
+    AndroidSPIBus::~AndroidSPIBus() {
     }
 
-    uint8_t SPISerialBus::read8(uint8_t address, uint8_t reg) const {
+    uint8_t AndroidSPIBus::read8(uint8_t address, uint8_t reg) const {
         // TODO use address
 
         const int8_t readOperation = 0b01000001;
@@ -30,7 +30,7 @@ namespace tfw::hal::spi {
         return response;
     }
 
-    uint8_t SPISerialBus::write8(uint8_t address, uint8_t reg, uint8_t data) const {
+    uint8_t AndroidSPIBus::write8(uint8_t address, uint8_t reg, uint8_t data) {
         // TODO use address
 
         const int8_t writeOperation = 0b01000000;
@@ -46,7 +46,7 @@ namespace tfw::hal::spi {
         return response;
     }
 
-    void SPISerialBus::begin() {
+    void AndroidSPIBus::begin() {
         config->pinSCK->init();
         config->pinMOSI->init();
         config->pinMISO->setup();

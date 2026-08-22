@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdexcept>
 #include <tfw/hal/gpio/InputPin.h>
 #include <tfw/utils/observables.h>
 
@@ -13,16 +14,18 @@ namespace tfw::hal::gpio::test {
     /**
      * Stub InputPin implementation for testing GPIO interactions.
      * Provides an observable for value changes.
+     * Enforces initialization: read() calls return 0 until setup() is called.
      */
     class StubInputPin : public InputPin {
     public:
         explicit StubInputPin(uint8_t pinNumber)
             : InputPin(pinNumber),
-              _value(0) {
+              _value(0),
+              _initialized(false) {
         }
 
         void setup() const override {
-            // No-op for testing
+            _initialized = true;
         }
 
         void setupInterrupt(uint8_t mode) override {
@@ -35,6 +38,9 @@ namespace tfw::hal::gpio::test {
         }
 
         uint8_t read() const override {
+            if (!_initialized) {
+                throw std::logic_error("StubInputPin::read() called before setup()");
+            }
             return _value;
         }
 
@@ -57,6 +63,7 @@ namespace tfw::hal::gpio::test {
 
     private:
         uint8_t _value;
+        mutable bool _initialized = false;
         utils::observables::Observable<InputPinInterruptEvent> _interruptObservable;
         mutable utils::observables::Subject<InputPinValueChangedEvent> _valueChangedSubject;
     };

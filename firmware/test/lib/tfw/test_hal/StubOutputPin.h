@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdexcept>
 #include <tfw/hal/gpio/OutputPin.h>
 #include <tfw/utils/observables.h>
 
@@ -13,6 +14,7 @@ namespace tfw::hal::gpio::test {
     /**
      * Stub OutputPin implementation for testing GPIO interactions.
      * Notifies observers when state changes occur.
+     * Enforces initialization: set() calls are ignored until init() is called.
      */
     class StubOutputPin : public OutputPin {
     public:
@@ -21,10 +23,13 @@ namespace tfw::hal::gpio::test {
         }
 
         void init() const override {
-            // No-op in test environment
+            _initialized = true;
         }
 
         void set(uint8_t state) const override {
+            if (!_initialized) {
+                throw std::logic_error("StubOutputPin::set() called before init()");
+            }
             _stateChangedSubject.notify({.pinNumber = pinNumber, .state = state});
         }
 
@@ -41,6 +46,7 @@ namespace tfw::hal::gpio::test {
         }
 
     private:
+        mutable bool _initialized = false;
         mutable utils::observables::Subject<OutputPinStateChangedEvent> _stateChangedSubject;
     };
 }

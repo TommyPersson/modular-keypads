@@ -1,17 +1,26 @@
 #pragma once
 
-#ifdef ARDUINO
-
 #include <memory>
 
-#include "../../hal/spi/SPIConfig.h"
-#include "../../hal/spi/SPISerialBus.h"
+#include "../../hal/spi/SPIBus.h"
+#include "../../hal/gpio/OutputPin.h"
 
 namespace tfw::ic {
+    namespace registers {
+        constexpr uint8_t IODIRA = 0x00;
+        constexpr uint8_t IODIRB = 0x01;
+        constexpr uint8_t IOPOLA = 0x02;
+        constexpr uint8_t IOPOLB = 0x03;
+        constexpr uint8_t GPPUA = 0x0c;
+        constexpr uint8_t GPPUB = 0x0d;
+        constexpr uint8_t GPIOA = 0x12;
+        constexpr uint8_t GPIOB = 0x13;
+    }
+
     class MCP23x17 {
     public:
         explicit MCP23x17(
-            std::unique_ptr<tfw::hal::spi::SPISerialBus> bus,
+            std::unique_ptr<tfw::hal::spi::SPIBus> bus,
             std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin
         );
         ~MCP23x17();
@@ -24,25 +33,7 @@ namespace tfw::ic {
         void begin();
 
     private:
-        const std::unique_ptr<tfw::hal::spi::SPISerialBus> bus;
+        const std::unique_ptr<tfw::hal::spi::SPIBus> bus;
         std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin;
     };
-
-    std::unique_ptr<MCP23x17> spi(
-        tfw::hal::spi::SPIConfig config,
-        std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin
-    );
-
-    namespace registers {
-        constexpr uint8_t IODIRA = 0x00;
-        constexpr uint8_t IODIRB = 0x01;
-        constexpr uint8_t IOPOLA = 0x02;
-        constexpr uint8_t IOPOLB = 0x03;
-        constexpr uint8_t GPPUA = 0x0c;
-        constexpr uint8_t GPPUB = 0x0d;
-        constexpr uint8_t GPIOA = 0x12;
-        constexpr uint8_t GPIOB = 0x13;
-    }
 }
-
-#endif // ARDUINO
