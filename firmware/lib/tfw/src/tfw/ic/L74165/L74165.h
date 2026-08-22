@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef ARDUINO
-
 #include <tfw/hal/gpio.h>
 
 namespace tfw::ic
@@ -27,5 +25,3 @@ namespace tfw::ic
         const Config config;
     };
 }
-
-#endif // ARDUINO

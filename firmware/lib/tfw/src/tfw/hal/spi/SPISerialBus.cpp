@@ -5,9 +5,9 @@
 #include <Arduino.h>
 
 namespace tfw::hal::spi {
-    SPISerialBus::SPISerialBus(const SPIConfig& config) :
-        config(config) {
-        spi = std::make_unique<SPIClass>(config.spiBus);
+    SPISerialBus::SPISerialBus(std::unique_ptr<SPIConfig> config) :
+        config(std::move(config)) {
+        spi = std::make_unique<SPIClass>(this->config->spiBus);
         spiSettings = std::make_unique<SPISettings>(1000000, MSBFIRST, SPI_MODE0);
     }
 
@@ -19,13 +19,13 @@ namespace tfw::hal::spi {
 
         const int8_t readOperation = 0b01000001;
 
-        config.pinCS.setLow();
+        config->pinCS->setLow();
         spi->beginTransaction(*spiSettings);
         spi->transfer(readOperation);
         spi->transfer(reg);
         const uint8_t response = spi->transfer(0xFF);
         spi->endTransaction();
-        config.pinCS.setHigh();
+        config->pinCS->setHigh();
 
         return response;
     }
@@ -35,25 +35,25 @@ namespace tfw::hal::spi {
 
         const int8_t writeOperation = 0b01000000;
 
-        config.pinCS.setLow();
+        config->pinCS->setLow();
         spi->beginTransaction(*spiSettings);
         spi->transfer(writeOperation);
         spi->transfer(reg);
         const uint8_t response = spi->transfer(data);
         spi->endTransaction();
-        config.pinCS.setHigh();
+        config->pinCS->setHigh();
 
         return response;
     }
 
     void SPISerialBus::begin() {
-        config.pinSCK.init();
-        config.pinMOSI.init();
-        config.pinMISO->setup();
-        config.pinCS.init();
-        config.pinCS.setHigh();
+        config->pinSCK->init();
+        config->pinMOSI->init();
+        config->pinMISO->setup();
+        config->pinCS->init();
+        config->pinCS->setHigh();
 
-        spi->begin(config.pinSCK.pinNumber, config.pinMISO->pinNumber, config.pinMOSI.pinNumber, config.pinCS.pinNumber);
+        spi->begin(config->pinSCK->pinNumber, config->pinMISO->pinNumber, config->pinMOSI->pinNumber, config->pinCS->pinNumber);
     }
 }
 

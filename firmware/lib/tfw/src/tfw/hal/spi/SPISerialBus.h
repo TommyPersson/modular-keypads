@@ -10,7 +10,7 @@
 namespace tfw::hal::spi {
     class SPISerialBus final {
     public:
-        explicit SPISerialBus(const SPIConfig& config);
+        explicit SPISerialBus(std::unique_ptr<SPIConfig> config);
         ~SPISerialBus();
 
         uint8_t read8(uint8_t address, uint8_t reg) const;
@@ -18,7 +18,7 @@ namespace tfw::hal::spi {
         void begin();
 
     private:
-        SPIConfig config;
+        std::unique_ptr<SPIConfig> config;
         std::unique_ptr<SPIClass> spi;
         std::unique_ptr<SPISettings> spiSettings;
     };

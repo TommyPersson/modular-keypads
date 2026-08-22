@@ -26,8 +26,10 @@ namespace tfw::hal::gpio {
 
         virtual utils::observables::Observable<InputPinInterruptEvent>& onInterruptEvent() = 0;
 
+#ifdef ARDUINO
         static std::unique_ptr<InputPin> physical(std::uint8_t pinNumber);
         static std::unique_ptr<InputPin> physical(std::uint8_t pinNumber, std::uint8_t modeFlags);
+#endif
 
         const std::uint8_t pinNumber;
     };

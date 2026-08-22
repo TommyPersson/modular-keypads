@@ -9,12 +9,12 @@ RegisterRefresherA::RegisterRefresherA(tfw::utils::registers::RegisterManager& r
     this->mcp23x17 = tfw::ic::spi(
         {
             .spiBus = FSPI,
-            .pinSCK = tfw::hal::gpio::OutputPin(41),
-            .pinMOSI = tfw::hal::gpio::OutputPin(40),
+            .pinSCK = tfw::hal::gpio::OutputPin::physical(41),
+            .pinMOSI = tfw::hal::gpio::OutputPin::physical(40),
             .pinMISO = tfw::hal::gpio::InputPin::physical(39),
-            .pinCS = tfw::hal::gpio::OutputPin(38),
+            .pinCS = tfw::hal::gpio::OutputPin::physical(38),
         },
-        tfw::hal::gpio::OutputPin(42)
+        tfw::hal::gpio::OutputPin::physical(42)
     );
 }
 

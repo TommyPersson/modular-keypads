@@ -12,7 +12,7 @@ namespace tfw::ic {
     public:
         explicit MCP23x17(
             std::unique_ptr<tfw::hal::spi::SPISerialBus> bus,
-            tfw::hal::gpio::OutputPin resetPin
+            std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin
         );
         ~MCP23x17();
 
@@ -25,12 +25,12 @@ namespace tfw::ic {
 
     private:
         const std::unique_ptr<tfw::hal::spi::SPISerialBus> bus;
-        tfw::hal::gpio::OutputPin resetPin;
+        std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin;
     };
 
     std::unique_ptr<MCP23x17> spi(
-        const tfw::hal::spi::SPIConfig& config,
-        tfw::hal::gpio::OutputPin resetPin
+        tfw::hal::spi::SPIConfig config,
+        std::unique_ptr<tfw::hal::gpio::OutputPin> resetPin
     );
 
     namespace registers {
