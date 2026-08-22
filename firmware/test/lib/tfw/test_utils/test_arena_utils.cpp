@@ -8,7 +8,7 @@ using namespace tfw::utils::allocations::arena::strings;
 
 class ArenaUtilsTest : public ::testing::Test {
 protected:
-    Arena arena{1024};
+    Arena arena{8192};
 };
 
 // ============================================================================
@@ -367,7 +367,6 @@ TEST_F(ArenaUtilsTest, Sprintf2ThenSplit) {
     EXPECT_EQ(parts[1], "two");
     EXPECT_EQ(parts[2], "three");
 }
-
 TEST_F(ArenaUtilsTest, MultipleOperationsOnArena) {
     const ArenaAllocator<std::string_view> allocator(arena);
 
