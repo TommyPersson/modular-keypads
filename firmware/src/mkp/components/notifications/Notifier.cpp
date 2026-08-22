@@ -3,7 +3,7 @@
 using namespace mkp::components::notifications;
 
 Notifier::Notifier(const uint64_t deviceId, Print& outputStream) :
-    deviceId(deviceId), outputStream(outputStream) {
+    outputStream(outputStream), deviceId(deviceId) {
 }
 
 Notifier::~Notifier() = default;

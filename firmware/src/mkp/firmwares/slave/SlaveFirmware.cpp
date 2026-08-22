@@ -17,8 +17,8 @@ using namespace mkp::firmwares::base;
 using namespace firmwares::slave::i2c::commands;
 
 SlaveFirmware::SlaveFirmware(ServiceLocator& serviceLocator) :
-    slavePort(serviceLocator.i2cSlavePort),
-    Firmware(serviceLocator) {
+    Firmware(serviceLocator),
+    slavePort(serviceLocator.i2cSlavePort) {
 }
 
 SlaveFirmware::~SlaveFirmware() = default;

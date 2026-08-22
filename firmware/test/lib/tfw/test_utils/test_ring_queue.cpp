@@ -213,12 +213,12 @@ TEST_F(RingQueueTest, LargeBufferSequentialAccess) {
     ring_queue<int> q(LARGE_SIZE);
 
     // Enqueue many items
-    for (int i = 0; i < MEDIUM_SIZE; i++) {
+    for (size_t i = 0; i < MEDIUM_SIZE; i++) {
         q.enqueue(i);
     }
 
     // Dequeue all and verify order
-    for (int i = 0; i < MEDIUM_SIZE; i++) {
+    for (size_t i = 0; i < MEDIUM_SIZE; i++) {
         int* val = q.dequeue();
         ASSERT_NE(val, nullptr);
         EXPECT_EQ(*val, i);
@@ -314,7 +314,6 @@ TEST_F(RingQueueTest, MixedEnqueueDequeue) {
 
     int enqueued = 0;
     int dequeued_count = 0;
-    int expected_dequeued = 0;
 
     // Pattern: enqueue 3, dequeue 2, repeat
     for (int cycle = 0; cycle < 10; cycle++) {
@@ -326,7 +325,6 @@ TEST_F(RingQueueTest, MixedEnqueueDequeue) {
             int* val = q.dequeue();
             if (val != nullptr) {
                 dequeued_count++;
-                expected_dequeued = cycle * 2 + i;  // Track what we expect at this point
             }
         }
     }

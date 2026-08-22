@@ -69,7 +69,7 @@ void LineStreamer::populateReceiveBuffer() {
     receiveBufferIndex = 0;
     receiveBufferLength = 0;
 
-    int available = this->inputStream.available();
+    size_t available = static_cast<size_t>(this->inputStream.available());
     if (available <= 0) {
         return;
     }

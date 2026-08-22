@@ -16,8 +16,8 @@ LocalDevice::LocalDevice(
     std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager
 ) : configuration(configuration),
     configurationManager(configurationManager),
-    indicatorLedManager(std::move(indicatorLedManager)),
     registerManager(std::make_unique<tfw::utils::registers::RegisterManager>()),
+    indicatorLedManager(std::move(indicatorLedManager)),
     notifier(notifierFactory.create(configuration.id)) {
 
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(*notifier);

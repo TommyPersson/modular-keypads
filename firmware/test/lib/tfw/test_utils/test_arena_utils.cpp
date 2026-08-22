@@ -249,7 +249,10 @@ TEST_F(ArenaUtilsTest, SprintfComplexFormat) {
 }
 
 TEST_F(ArenaUtilsTest, SprintfEmpty) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
     const auto result = sprintf(arena, "");
+#pragma GCC diagnostic pop
 
     EXPECT_EQ(result, "");
 }
@@ -329,7 +332,10 @@ TEST_F(ArenaUtilsTest, Sprintf2WithBinary) {
 }
 
 TEST_F(ArenaUtilsTest, Sprintf2Empty) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
     const auto result = sprintf2(arena, "");
+#pragma GCC diagnostic pop
 
     EXPECT_EQ(result, "");
 }

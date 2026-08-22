@@ -75,6 +75,7 @@ void setup() {
     esp_pm_config_t config{
         .max_freq_mhz = 80,
         .min_freq_mhz = 80,
+        .light_sleep_enable = false,
     };
 
     pmResult = esp_pm_configure(&config);

@@ -22,8 +22,8 @@ RemoteDevice::RemoteDevice(
     const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
     tfw::hal::i2c::Client& i2cClient
 ) : configuration(configuration),
-    i2cClient(i2cClient),
-    capabilities(capabilities) {
+    capabilities(capabilities),
+    i2cClient(i2cClient) {
     notifier = notifierFactory.create(configuration.id);
     switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(*notifier);
     deviceSwitchEventSubject.addObserver(switchStateChangeNotifier.get());

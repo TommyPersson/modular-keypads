@@ -14,6 +14,7 @@ namespace tfw::hal::logging {
     namespace {
         std::optional<tfw::hal::streams::OutputStream*> globalOutputStream;
 
+#ifdef ESP32
         int esp_vprintf(const char* format, va_list args) {
             const auto ostream = globalOutputStream.value_or(nullptr);
             if (ostream == nullptr) {
@@ -31,6 +32,7 @@ namespace tfw::hal::logging {
 
             return numPrinted;
         }
+#endif
     }
 
     void initialize(tfw::hal::streams::OutputStream* outputStream) {

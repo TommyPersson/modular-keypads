@@ -17,8 +17,8 @@ namespace tfw::utils::allocations::arena::strings {
         vector parts(allocator);
         parts.reserve(initialCapacity);
 
-        int nextPartOffset = 0;
-        for (int i = 0; i < str.length(); i++) {
+        size_t nextPartOffset = 0;
+        for (size_t i = 0; i < str.length(); i++) {
             const auto c = str[i];
 
             if (c == delimiter) {
@@ -46,7 +46,7 @@ namespace tfw::utils::allocations::arena::strings {
 
         ostringstream ss(std::ios_base::out, allocator);
 
-        for (int i = 0; i < strings.size(); i++) {
+        for (size_t i = 0; i < strings.size(); i++) {
             ss << strings[i];
             if (i != strings.size() - 1) {
                 ss << delimiter;
@@ -65,7 +65,7 @@ namespace tfw::utils::allocations::arena::strings {
 
         ostringstream ss(std::ios_base::out, allocator);
 
-        for (int i = 0; i < strings.size(); i++) {
+        for (size_t i = 0; i < strings.size(); i++) {
             ss << strings[i];
             if (i != strings.size() - 1) {
                 ss << delimiter;

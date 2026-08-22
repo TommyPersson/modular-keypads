@@ -31,11 +31,11 @@ tfw::utils::void_result ListKeyBindings::execute(
 
             responseWriter.writeLineF(
                 "0x%02x:%08llx:0x%02x:0x%02x:0x%04x",
-                trigger.type,
+                static_cast<unsigned int>(trigger.type),
                 trigger.deviceId,
-                trigger.number,
-                trigger.direction,
-                keyBinding.macroId
+                static_cast<unsigned int>(trigger.number),
+                static_cast<unsigned int>(trigger.direction),
+                static_cast<unsigned int>(keyBinding.macroId)
             );
         }
     });
