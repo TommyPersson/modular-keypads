@@ -36,7 +36,7 @@ void CommandProcessor::observe(const LineReceivedEvent& value) {
         if (result.has_error) {
             logger->error(
                 "Execution error for '%.*s' (%i): '%s'",
-                command.type.length(),
+                static_cast<int>(command.type.length()),
                 command.type.data(),
                 command.id,
                 result.error_code
@@ -46,7 +46,7 @@ void CommandProcessor::observe(const LineReceivedEvent& value) {
             outputStream.printf("%%%i.0\n", command.id);
         }
     } else {
-        logger->error("unknown.command: %.*s", command.type.length(), command.type.data());
+        logger->error("unknown.command: %.*s", static_cast<int>(command.type.length()), command.type.data());
     }
 
     arena.reset();

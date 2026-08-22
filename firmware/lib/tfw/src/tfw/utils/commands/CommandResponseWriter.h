@@ -13,7 +13,7 @@ namespace tfw::utils::commands {
         ~CommandResponseWriter();
 
         void writeLine(const std::string_view& line) {
-            writeLineF("%.*s", line.length(), line.data());
+            writeLineF("%.*s", static_cast<int>(line.length()), line.data());
         }
 
         void writeLineF(const char* format, ...) __attribute__((format(printf, 2, 3))) {
