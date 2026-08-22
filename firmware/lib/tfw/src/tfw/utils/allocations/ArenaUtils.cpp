@@ -80,6 +80,9 @@ namespace tfw::utils::allocations::arena::strings {
         va_start(args, format);
 
         const auto bufferSize = static_cast<size_t>(vsnprintf(nullptr, 0, format, args) + 1);
+        va_end(args);
+
+        va_start(args, format);
         const auto buffer = reinterpret_cast<char*>(arena.allocate(bufferSize));
 
         std::vsnprintf(buffer, bufferSize, format, args);
