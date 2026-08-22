@@ -14,7 +14,7 @@ namespace tfw::hal::logging {
     namespace {
         std::optional<tfw::hal::streams::OutputStream*> globalOutputStream;
 
-        int esp_vprintf(const char* format, const va_list args) {
+        int esp_vprintf(const char* format, va_list args) {
             const auto ostream = globalOutputStream.value_or(nullptr);
             if (ostream == nullptr) {
                 return 0;

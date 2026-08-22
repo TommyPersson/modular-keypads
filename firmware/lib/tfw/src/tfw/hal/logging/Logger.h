@@ -41,7 +41,7 @@ namespace tfw::hal::logging {
         };
 
     private:
-        void vlog(const char* level, const char* format, const va_list args) const {
+        void vlog(const char* level, const char* format, va_list args) const {
             const auto ostream = outputStream.value_or(nullptr);
             if (ostream == nullptr) {
                 return;
