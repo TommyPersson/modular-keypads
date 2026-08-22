@@ -1,0 +1,86 @@
+name: Firmware CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build and run tests
+        working-directory: ./firmware
+        run: platformio test -e test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: firmware/.pio/build/test/
+
+  build:
+    name: ESP32 Firmware Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build ESP32 firmware
+        working-directory: ./firmware
+        run: platformio run -e s3-module
+
+      - name: Upload firmware build
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: esp32-firmware
+          path: firmware/.pio/build/s3-module/
+
+  verify:
+    name: Verify CI Success
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: always()
+
+    steps:
+      - name: Check test results
+        if: needs.test.result != 'success'
+        run: |
+          echo "Tests failed!"
+          exit 1
+
+      - name: Check build results
+        if: needs.build.result != 'success'
+        run: |
+          echo "ESP32 build failed!"
+          exit 1
+
+      - name: CI workflow succeeded
+        run: echo "✓ All checks passed"
