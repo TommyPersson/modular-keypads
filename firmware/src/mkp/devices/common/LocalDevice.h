@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <tfw/hal/time.h>
+
 #include "Device.h"
 #include "mkp/components/leds/IndicatorLedManager.h"
 #include "mkp/components/notifications/NotifierFactory.h"
@@ -37,7 +39,8 @@ namespace mkp::devices::common {
             const DeviceConfiguration& configuration,
             const DeviceConfigurationManager& configurationManager,
             const components::notifications::NotifierFactory& notifierFactory,
-            std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager
+            std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager,
+            tfw::hal::time::Clock& clock
         );
 
         void setupRegisters() const;
@@ -56,6 +59,7 @@ namespace mkp::devices::common {
 
         const DeviceConfiguration configuration;
         const DeviceConfigurationManager& configurationManager;
+        tfw::hal::time::Clock& clock;
         std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;
         std::unique_ptr<components::leds::IndicatorLedManager> indicatorLedManager;
         std::unique_ptr<components::notifications::Notifier> notifier;

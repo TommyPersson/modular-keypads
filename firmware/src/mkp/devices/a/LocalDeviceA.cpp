@@ -19,7 +19,7 @@ LocalDeviceA::LocalDeviceA(
     const DeviceConfigurationManager& configurationManager,
     const NotifierFactory& notifierFactory,
     tfw::hal::time::Clock& clock
-) : LocalDevice(configuration, configurationManager, notifierFactory, IndicatorLedManager::NeoPixel(12, 48)) {
+) : LocalDevice(configuration, configurationManager, notifierFactory, IndicatorLedManager::NeoPixel(12, 48, clock), clock) {
     registerRefresher = std::make_unique<RegisterRefresherA>(*registerManager, clock);
 }
 

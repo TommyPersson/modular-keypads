@@ -4,7 +4,7 @@
 #include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
 #include <tfw/hal/i2c.h>
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 
 #include "FirmwareModeDetector.h"
 #include "mkp/components/notifications/NotifierFactory.h"

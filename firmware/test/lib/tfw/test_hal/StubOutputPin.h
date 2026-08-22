@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <tfw/hal/gpio/OutputPin.h>
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 #include <tfw/utils/observables.h>
 
 namespace tfw::hal::gpio::test {

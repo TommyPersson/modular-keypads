@@ -2,7 +2,7 @@
 
 #include "mkp/devices/common/LocalDevice.h"
 #include "mkp/devices/common/RegisterRefresher.h"
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 
 namespace mkp::devices::a {
     namespace i2c {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tfw/utils/leds.h>
+#include <tfw/hal/time.h>
 
 #include "IndicatorLedDriver.h"
 
@@ -9,7 +10,7 @@ namespace mkp::components::leds {
 
     class IndicatorLed {
     public:
-        IndicatorLed(IndicatorLedDriver& driver, uint8_t pixelIndex);
+        IndicatorLed(IndicatorLedDriver& driver, uint8_t pixelIndex, tfw::hal::time::Clock& clock);
         IndicatorLed(const IndicatorLed& other);
         ~IndicatorLed();
 
@@ -25,6 +26,7 @@ namespace mkp::components::leds {
 
     private:
         IndicatorLedDriver& driver;
+        tfw::hal::time::Clock& clock;
 
         uint8_t pixelIndex;
         uint32_t color;

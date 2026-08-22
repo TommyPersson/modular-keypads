@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tfw/ic/L74165.h>
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 
 namespace mkp::devices::common {
     class DeviceTypeDetector {

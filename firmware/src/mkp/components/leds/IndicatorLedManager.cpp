@@ -6,11 +6,12 @@ using namespace mkp::components::leds;
 
 IndicatorLedManager::IndicatorLedManager(
     const uint16_t numberOfPixels,
-    std::unique_ptr<IndicatorLedDriver> driver
-    ) : driver(std::move(driver)) {
+    std::unique_ptr<IndicatorLedDriver> driver,
+    tfw::hal::time::Clock& clock
+    ) : driver(std::move(driver)), clock(clock) {
 
     for (int i = 0; i < numberOfPixels; i++) {
-        leds.emplace_back(std::make_shared<IndicatorLed>(*this->driver, i));
+        leds.emplace_back(std::make_shared<IndicatorLed>(*this->driver, i, clock));
     }
 }
 
@@ -46,11 +47,12 @@ std::shared_ptr<IndicatorLed>& IndicatorLedManager::get(const uint8_t pixelNumbe
 std::unique_ptr<IndicatorLedManager> IndicatorLedManager::NeoPixel(
     uint16_t numberOfPixels,
     int16_t pin,
+    tfw::hal::time::Clock& clock,
     neoPixelType type
     ) {
-    return std::make_unique<IndicatorLedManager>(numberOfPixels, IndicatorLedDriver::NeoPixel(numberOfPixels, pin, type));
+    return std::make_unique<IndicatorLedManager>(numberOfPixels, IndicatorLedDriver::NeoPixel(numberOfPixels, pin, type), clock);
 }
 
-std::unique_ptr<IndicatorLedManager> IndicatorLedManager::NoOp(uint16_t numberOfPixels) {
-    return std::make_unique<IndicatorLedManager>(numberOfPixels, IndicatorLedDriver::NoOp());
+std::unique_ptr<IndicatorLedManager> IndicatorLedManager::NoOp(uint16_t numberOfPixels, tfw::hal::time::Clock& clock) {
+    return std::make_unique<IndicatorLedManager>(numberOfPixels, IndicatorLedDriver::NoOp(), clock);
 }

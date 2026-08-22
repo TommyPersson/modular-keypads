@@ -2,7 +2,7 @@
 
 #include <tfw/ic/MCP23x17.h>
 #include <tfw/utils/registers.h>
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 
 #include "../common/RegisterRefresher.h"
 

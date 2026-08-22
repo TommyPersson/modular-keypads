@@ -53,7 +53,7 @@ void Firmware::setup() {
 }
 
 void Firmware::loop() {
-    tfw::hal::time::delayUs(100);
+    serviceLocator.clock.delayUs(100);
     lineStreamer->update();
     serviceLocator.usbConnection.update();
 }

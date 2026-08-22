@@ -59,7 +59,7 @@ namespace tfw::utils::leds::animations {
         uint32_t color;
     };
 
-    inline std::shared_ptr<Animation> pulse(uint32_t color, uint32_t durationMs) {
-        return std::make_shared<Pulse>(color, durationMs, tfw::hal::time::millis());
+    inline std::shared_ptr<Animation> pulse(uint32_t color, uint32_t durationMs, tfw::hal::time::Clock& clock) {
+        return std::make_shared<Pulse>(color, durationMs, clock.millis());
     }
 }

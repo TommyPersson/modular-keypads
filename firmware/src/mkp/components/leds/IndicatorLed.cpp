@@ -1,11 +1,10 @@
 #include "IndicatorLed.h"
 
-#include <tfw/hal/time.h>
-
 using namespace mkp::components::leds;
 
-IndicatorLed::IndicatorLed(IndicatorLedDriver& driver, const uint8_t pixelIndex) :
+IndicatorLed::IndicatorLed(IndicatorLedDriver& driver, const uint8_t pixelIndex, tfw::hal::time::Clock& clock) :
     driver(driver),
+    clock(clock),
     pixelIndex(pixelIndex),
     color(0),
     overriddenColor(0) {
@@ -17,7 +16,7 @@ IndicatorLed::~IndicatorLed() = default;
 
 void IndicatorLed::update() {
     if (currentAnimation) {
-        const auto now = tfw::hal::time::millis();
+        const auto now = clock.millis();
         const auto animatedColor = currentAnimation->getColor(now);
 
         color = animatedColor;

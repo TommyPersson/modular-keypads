@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 
 namespace tfw::hal::time::test {
     /**

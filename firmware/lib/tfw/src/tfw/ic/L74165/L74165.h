@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tfw/hal/gpio.h>
-#include <tfw/hal/time/Clock.h>
+#include <tfw/hal/time.h>
 
 namespace tfw::ic
 {
