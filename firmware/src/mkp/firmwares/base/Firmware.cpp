@@ -1,6 +1,7 @@
 #include "Firmware.h"
 
-
+#include <tfw/hal/streams/InputStream.h>
+#include <tfw/hal/streams/OutputStream.h>
 #include <tfw/hal/logging.h>
 #include "ServiceLocator.h"
 #include "mkp/components/metrics/BaseMetrics.h"
@@ -19,8 +20,15 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     deviceConfigurationManager(serviceLocator.deviceConfigurationManager),
     serialPort(serviceLocator.serialPort),
     serviceLocator(serviceLocator) {
-    this->lineStreamer = std::make_unique<tfw::utils::streams::LineStreamer>(serialPort.stream());
-    this->commandProcessor = std::make_unique<tfw::utils::commands::CommandProcessor>(serialPort.stream());
+    this->inputStream = std::unique_ptr<tfw::hal::streams::InputStream>(
+        tfw::hal::streams::createArduinoInputStream(serialPort.stream())
+    );
+    this->outputStream = std::unique_ptr<tfw::hal::streams::OutputStream>(
+        tfw::hal::streams::createArduinoOutputStream(serialPort.stream())
+    );
+
+    this->lineStreamer = std::make_unique<tfw::utils::streams::LineStreamer>(*this->inputStream);
+    this->commandProcessor = std::make_unique<tfw::utils::commands::CommandProcessor>(*this->outputStream);
     this->lineStreamer->addObserver(this->commandProcessor.get());
 
     deviceFactories.emplace_back(std::make_unique<mkp::devices::a::DeviceFactoryA>());

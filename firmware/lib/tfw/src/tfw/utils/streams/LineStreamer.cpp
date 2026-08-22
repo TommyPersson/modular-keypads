@@ -1,8 +1,10 @@
 #include "LineStreamer.h"
 
+#include <cstring>
+
 using namespace tfw::utils::streams;
 
-LineStreamer::LineStreamer(Stream& inputStream, size_t bufferSize) :
+LineStreamer::LineStreamer(tfw::hal::streams::InputStream& inputStream, size_t bufferSize) :
     inputStream(inputStream),
     bufferSize(bufferSize),
     lineBuffer(new char[bufferSize]),
@@ -72,7 +74,16 @@ void LineStreamer::populateReceiveBuffer() {
         return;
     }
 
-    const size_t numRead = this->inputStream.readBytes(this->receiveBuffer, available);
+    // Read available bytes using the InputStream interface
+    size_t numRead = 0;
+    while (numRead < available && numRead < bufferSize) {
+        int byte = this->inputStream.read();
+        if (byte < 0) {
+            break;  // No more data available
+        }
+        this->receiveBuffer[numRead++] = static_cast<char>(byte);
+    }
+
     if (numRead <= 0) {
         return;
     }

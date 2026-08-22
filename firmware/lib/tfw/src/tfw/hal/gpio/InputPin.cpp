@@ -1,3 +1,5 @@
+#ifdef ARDUINO
+
 #include <Arduino.h>
 
 #include "InputPin.h"
@@ -16,3 +18,5 @@ namespace tfw::hal::gpio {
         return std::make_unique<PhysicalInputPin>(pinNumber, modeFlags);
     }
 }
+
+#endif // ARDUINO

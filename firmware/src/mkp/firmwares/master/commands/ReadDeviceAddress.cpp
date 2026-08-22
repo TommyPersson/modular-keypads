@@ -18,7 +18,7 @@ tfw::utils::void_result ReadDeviceAddress::execute(
     tfw::utils::allocations::Arena& arena
 ) {
     auto address = this->deviceConfigurationManager.getDeviceAddress();
-    auto addressStr = tfw::utils::allocations::arena::strings::sprintf(arena, "0x%02x", address);
+    auto addressStr = tfw::utils::allocations::arena::strings::sprintf2(arena, "0x{:02x}", address);
 
     responseWriter.writeLine(addressStr);
 

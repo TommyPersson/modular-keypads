@@ -1,3 +1,5 @@
+#ifdef ARDUINO
+
 #include <Arduino.h>
 
 #include <cstdint>
@@ -30,3 +32,5 @@ namespace tfw::hal::gpio {
         return std::make_unique<OutputPin>(pinNumber, modeFlags);
     }
 }
+
+#endif // ARDUINO

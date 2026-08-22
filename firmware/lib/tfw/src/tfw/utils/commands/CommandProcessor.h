@@ -6,6 +6,7 @@
 #include <tfw/utils/streams.h>
 #include <tfw/utils/allocations.h>
 #include <tfw/utils/observables.h>
+#include <tfw/hal/streams/OutputStream.h>
 
 namespace tfw::utils::commands {
     struct ParsedCommand {
@@ -16,7 +17,7 @@ namespace tfw::utils::commands {
 
     class CommandProcessor final : public observables::Observer<streams::LineReceivedEvent> {
     public:
-        explicit CommandProcessor(Print& outputStream);
+        explicit CommandProcessor(tfw::hal::streams::OutputStream& outputStream);
         ~CommandProcessor() override;
 
         void addHandler(const std::shared_ptr<CommandHandler>& handler);
@@ -29,7 +30,7 @@ namespace tfw::utils::commands {
         ParsedCommand parseCommand(const std::string_view& rawCommand);
 
         std::list<std::shared_ptr<CommandHandler>> handlers;
-        Print& outputStream;
+        tfw::hal::streams::OutputStream& outputStream;
         tfw::utils::allocations::Arena arena;
     };
 }

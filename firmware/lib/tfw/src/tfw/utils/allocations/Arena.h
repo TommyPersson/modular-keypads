@@ -91,13 +91,13 @@ namespace tfw::utils::allocations {
 
 
     template <class T, class U>
-    constexpr bool operator==(const ArenaAllocator<T>&, const ArenaAllocator<U>&) noexcept {
-        return true;
+    constexpr bool operator==(const ArenaAllocator<T>& a, const ArenaAllocator<U>& b) noexcept {
+        return a.arena == b.arena;
     }
 
     template <class T, class U>
-    constexpr bool operator!=(const ArenaAllocator<T>&, const ArenaAllocator<U>&) noexcept {
-        return false;
+    constexpr bool operator!=(const ArenaAllocator<T>& a, const ArenaAllocator<U>& b) noexcept {
+        return a.arena != b.arena;
     }
 
     namespace arena {

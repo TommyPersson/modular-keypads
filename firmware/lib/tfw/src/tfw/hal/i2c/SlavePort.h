@@ -2,7 +2,10 @@
 
 #include <memory>
 #include <mutex>
+
+#ifdef ARDUINO
 #include <Wire.h>
+#endif
 
 #include <tfw/utils/allocations.h>
 
@@ -14,6 +17,11 @@
 #include "tfw/utils/ring_queue.h"
 
 namespace tfw::hal::i2c {
+    #ifdef ARDUINO
+    using TwoWireType = TwoWire;
+    #else
+    class TwoWireType;  // Forward declaration for non-Arduino builds
+    #endif
     struct EndpointData {
         uint8_t id;
         uint8_t data[MAX_PACKET_SIZE];
@@ -22,7 +30,7 @@ namespace tfw::hal::i2c {
 
     class SlavePort {
     public:
-        explicit SlavePort(TwoWire& twoWire);
+        explicit SlavePort(TwoWireType& twoWire);
         ~SlavePort();
 
         void setup(uint8_t address, Pins pins, uint8_t eventInterruptPin);
@@ -62,7 +70,7 @@ namespace tfw::hal::i2c {
 
         EndpointData* selectedEndpoint;
 
-        TwoWire& twoWire;
+        TwoWireType& twoWire;
 
         utils::ring_queue<Event> eventQueue{255};
         std::unique_ptr<gpio::OutputPin> eventInterruptOutputPin;

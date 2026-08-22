@@ -59,15 +59,14 @@ namespace {
         }
 
         if (!dataPart.empty()) {
-            return tfw::utils::allocations::arena::strings::sprintf(
+            // Using modern sprintf2() - native string_view support, no %.*s workarounds needed
+            return tfw::utils::allocations::arena::strings::sprintf2(
                 arena,
-                "%i:%.*s:0x%02x:%.*s",
+                "{}:{}:0x{:02x}:{}",
                 macro.data->id,
-                macro.name.length(),
-                macro.name.data(),
-                macro.data->type,
-                dataPart.length(),
-                dataPart.data()
+                macro.name,
+                static_cast<uint8_t>(macro.data->type),
+                dataPart
             );
         }
 

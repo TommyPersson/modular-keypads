@@ -6,13 +6,13 @@
 
 namespace tfw::hal::logging {
     Logger::Logger(
-        std::optional<Print*>& outputStream,
+        std::optional<tfw::hal::streams::OutputStream*>& outputStream,
         const std::string& name
     ) : outputStream(outputStream), name(name) {
     }
 
     namespace {
-        std::optional<Print*> globalOutputStream;
+        std::optional<tfw::hal::streams::OutputStream*> globalOutputStream;
 
         int esp_vprintf(const char* format, const va_list args) {
             const auto ostream = globalOutputStream.value_or(nullptr);
@@ -33,7 +33,7 @@ namespace tfw::hal::logging {
         }
     }
 
-    void initialize(Print* outputStream) {
+    void initialize(tfw::hal::streams::OutputStream* outputStream) {
         globalOutputStream = outputStream;
 
 #ifdef ESP32

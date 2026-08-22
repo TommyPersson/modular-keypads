@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef ARDUINO
+
 #include <memory>
 
 #include "../../hal/spi/SPIConfig.h"
@@ -42,3 +44,5 @@ namespace tfw::ic {
         constexpr uint8_t GPIOB = 0x13;
     }
 }
+
+#endif // ARDUINO

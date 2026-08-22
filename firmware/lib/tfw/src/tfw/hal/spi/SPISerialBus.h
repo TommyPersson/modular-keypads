@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef ARDUINO
+
 #include <memory>
 #include <SPI.h>
 
@@ -21,3 +23,5 @@ namespace tfw::hal::spi {
         std::unique_ptr<SPISettings> spiSettings;
     };
 }
+
+#endif // ARDUINO

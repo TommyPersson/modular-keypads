@@ -45,9 +45,14 @@ namespace tfw::utils::strings {
     }
 
     inline size_t uriDecode(const std::string_view& text, char* buffer, size_t length) {
-        uint32_t bi = 0;
+        if (length == 0) {
+            return 0;
+        }
 
-        for (uint32_t i = 0; i < text.length() && bi < length; ++i, ++bi) {
+        uint32_t bi = 0;
+        size_t max_chars = length - 1;  // Reserve space for null terminator
+
+        for (uint32_t i = 0; i < text.length() && bi < max_chars; ++i, ++bi) {
             char c = text[i];
             if (c == '%') {
                 c = atol(text.substr(i + 1, 2), 16);
@@ -57,7 +62,6 @@ namespace tfw::utils::strings {
         }
 
         buffer[bi] = '\0';
-
         return bi;
     }
 }

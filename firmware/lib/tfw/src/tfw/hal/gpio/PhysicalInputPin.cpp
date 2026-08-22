@@ -1,3 +1,5 @@
+#ifdef ARDUINO
+
 #include "PhysicalInputPin.h"
 
 #include <Arduino.h>
@@ -54,3 +56,5 @@ namespace tfw::hal::gpio {
         }
     }
 }
+
+#endif // ARDUINO

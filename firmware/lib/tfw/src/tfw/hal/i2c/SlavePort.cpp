@@ -1,6 +1,9 @@
 #include "SlavePort.h"
 
+#ifdef ARDUINO
+
 #include <cstring>
+#include <Wire.h>
 
 #include <tfw/hal/logging.h>
 #include "Commands.h"
@@ -13,7 +16,7 @@ namespace {
 }
 
 namespace tfw::hal::i2c {
-    SlavePort::SlavePort(TwoWire& twoWire) :
+    SlavePort::SlavePort(TwoWireType& twoWire) :
         selectedEndpoint(&endpoints[0]),
         twoWire(twoWire),
         receiveArena(32) {
@@ -111,3 +114,5 @@ namespace tfw::hal::i2c {
         return eventQueue.dequeue();
     }
 }
+
+#endif // ARDUINO

@@ -13,7 +13,7 @@ namespace {
 using namespace tfw::utils::commands;
 using namespace tfw::utils::streams;
 
-CommandProcessor::CommandProcessor(Print& outputStream) :
+CommandProcessor::CommandProcessor(tfw::hal::streams::OutputStream& outputStream) :
     outputStream(outputStream),
     arena(4096) {
 }

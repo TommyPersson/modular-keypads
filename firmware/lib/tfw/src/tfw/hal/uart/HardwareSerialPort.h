@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef ARDUINO
+
 #include <HardwareSerial.h>
 
 #include "SerialPort.h"
@@ -17,3 +19,5 @@ namespace tfw::hal::uart {
         HardwareSerial& serial;
     };
 }
+
+#endif // ARDUINO

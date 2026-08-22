@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#ifdef ARDUINO
+
 #include "HardwareSerialPort.h"
 #include "HWCDCSerialPort.h"
 
@@ -24,3 +26,5 @@ namespace tfw::hal::uart {
 		return std::make_unique<HWCDCSerialPort>(serial);
 	}
 }
+
+#endif // ARDUINO

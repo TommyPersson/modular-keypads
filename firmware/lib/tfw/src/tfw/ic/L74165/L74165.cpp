@@ -1,3 +1,5 @@
+#ifdef ARDUINO
+
 #include "L74165.h"
 
 #include <tfw/hal/time/Time.h>
@@ -45,3 +47,5 @@ uint8_t tfw::ic::L74165::read() {
 
     return result;
 }
+
+#endif // ARDUINO

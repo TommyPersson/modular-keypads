@@ -87,7 +87,7 @@ namespace tfw::utils::allocations::arena::strings {
         va_end(args);
 
         // ReSharper disable once CppDFALocalValueEscapesFunction
-        return {buffer, bufferSize};
+        return {buffer, bufferSize - 1};  // Exclude null terminator from string_view length
     }
 
 }

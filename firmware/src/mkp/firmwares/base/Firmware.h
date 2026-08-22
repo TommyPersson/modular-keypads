@@ -4,6 +4,8 @@
 #include <optional>
 #include <Wire.h>
 #include <tfw/hal/uart.h>
+#include <tfw/hal/streams/InputStream.h>
+#include <tfw/hal/streams/OutputStream.h>
 #include <tfw/utils/streams.h>
 #include <tfw/utils/commands.h>
 
@@ -39,6 +41,8 @@ namespace mkp::firmwares::base {
         std::optional<tfw::utils::registers::RegisterManager*> registers;
 
     private:
+        std::unique_ptr<tfw::hal::streams::InputStream> inputStream;
+        std::unique_ptr<tfw::hal::streams::OutputStream> outputStream;
         std::unique_ptr<tfw::utils::streams::LineStreamer> lineStreamer;
         std::unique_ptr<tfw::utils::commands::CommandProcessor> commandProcessor;
         std::vector<std::unique_ptr<mkp::devices::common::DeviceFactory>> deviceFactories;

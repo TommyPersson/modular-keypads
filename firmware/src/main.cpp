@@ -7,6 +7,7 @@
 #include <tfw/hal/logging.h>
 #include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
+#include <tfw/hal/streams/OutputStream.h>
 
 #include <memory>
 
@@ -28,6 +29,7 @@ namespace {
     std::unique_ptr<tfw::hal::metrics::MetricRegistry> metricRegistry;
     std::unique_ptr<mkp::devices::common::DeviceTypeDetector> deviceTypeDetector;
     std::unique_ptr<mkp::firmwares::base::FirmwareModeDetector> deviceModeDetector;
+    std::unique_ptr<tfw::hal::streams::OutputStream> loggingOutput;
 
     std::unique_ptr<mkp::firmwares::base::ServiceLocator> serviceLocator;
 
@@ -79,7 +81,10 @@ void setup() {
 
     setCpuFrequencyMhz(80);
 
-    tfw::hal::logging::initialize(&TheSerial);
+    loggingOutput = std::unique_ptr<tfw::hal::streams::OutputStream>(
+        tfw::hal::streams::createArduinoOutputStream(TheSerial)
+    );
+    tfw::hal::logging::initialize(loggingOutput.get());
 
     setupServiceLocator();
 

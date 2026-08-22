@@ -14,8 +14,8 @@
     "type": "git",
     "url": "https://github.com/user/modular-keypads.git"
   },
-  "frameworks": ["arduino", "native"],
-  "platforms": ["espressif32", "native"],
+  "frameworks": ["*"],
+  "platforms": ["*"],
   "build": {
     "srcDir": "src",
     "includeDirs": ["src"]

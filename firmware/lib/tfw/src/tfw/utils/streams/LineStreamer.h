@@ -1,9 +1,11 @@
 #pragma once
 
 #include <memory>
-#include <Stream.h>
+#include <cstdint>
+#include <string_view>
 
-#include <tfw/utils/observables.h>
+#include "tfw/hal/streams/InputStream.h"
+#include "tfw/utils/observables.h"
 
 namespace tfw::utils::streams {
     struct LineReceivedEvent {
@@ -12,7 +14,7 @@ namespace tfw::utils::streams {
 
     class LineStreamer {
     public:
-        explicit LineStreamer(Stream& inputStream, size_t bufferSize = 1024);
+        explicit LineStreamer(tfw::hal::streams::InputStream& inputStream, size_t bufferSize = 1024);
         ~LineStreamer();
 
         void addObserver(observables::Observer<LineReceivedEvent>* observer);
@@ -26,7 +28,7 @@ namespace tfw::utils::streams {
 
         observables::Subject<LineReceivedEvent> lineSubject;
 
-        Stream& inputStream;
+        tfw::hal::streams::InputStream& inputStream;
         const size_t bufferSize;
         char* lineBuffer;
         char* receiveBuffer;

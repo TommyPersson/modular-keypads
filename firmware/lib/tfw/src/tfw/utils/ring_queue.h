@@ -13,6 +13,11 @@ namespace tfw::utils {
             void enqueue(T item) {
                 buffer[producerIndex] = item;
                 producerIndex = (producerIndex + 1) % buffer.size();
+
+                // If producer caught up to consumer, advance consumer
+                if (producerIndex == consumerIndex) {
+                    consumerIndex = (producerIndex + 1) % buffer.size();
+                }
             }
 
             T* dequeue() {

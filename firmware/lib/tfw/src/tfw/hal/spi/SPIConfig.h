@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef ARDUINO
+
+#include <memory>
+
 #include "../gpio/OutputPin.h"
 #include "../gpio/InputPin.h"
 
@@ -12,3 +16,5 @@ struct SPIConfig {
     tfw::hal::gpio::OutputPin pinCS;
 };
 }
+
+#endif // ARDUINO

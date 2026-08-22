@@ -1,5 +1,7 @@
 #include "RegisterBitReader.h"
 
+#include <cassert>
+
 namespace tfw::hal::bitreaders {
     RegisterBitReader::RegisterBitReader(
         const tfw::utils::registers::Register& reg,

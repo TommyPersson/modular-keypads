@@ -1,3 +1,5 @@
+#ifdef ARDUINO
+
 #include "MCP23x17.h"
 
 #include <tfw/hal/time.h>
@@ -46,3 +48,5 @@ namespace tfw::ic {
         return std::make_unique<MCP23x17>(std::make_unique<tfw::hal::spi::SPISerialBus>(config), resetPin);
     }
 }
+
+#endif // ARDUINO

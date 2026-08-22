@@ -2,13 +2,15 @@
 
 #include <cstdarg>
 #include <memory>
-#include <Print.h>
 #include <optional>
+#include <string>
+
+#include "tfw/hal/streams/OutputStream.h"
 
 namespace tfw::hal::logging {
     class Logger {
     public:
-        explicit Logger(std::optional<Print*>& outputStream, const std::string& name);
+        explicit Logger(std::optional<tfw::hal::streams::OutputStream*>& outputStream, const std::string& name);
 
         void info(const char* format, ...) const __attribute__((format(printf, 2, 3))) {
             va_list args;
@@ -57,10 +59,10 @@ namespace tfw::hal::logging {
             ostream->flush();
         };
 
-        std::optional<Print*>& outputStream;
+        std::optional<tfw::hal::streams::OutputStream*>& outputStream;
         std::string name;
     };
 
-    void initialize(Print* outputStream);
+    void initialize(tfw::hal::streams::OutputStream* outputStream);
     std::shared_ptr<Logger> createLogger(const std::string& name);
 }

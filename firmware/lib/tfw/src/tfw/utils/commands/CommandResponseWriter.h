@@ -2,13 +2,14 @@
 
 #include <cstdarg>
 #include <string>
+#include <string_view>
 
-#include <Print.h>
+#include "tfw/hal/streams/OutputStream.h"
 
 namespace tfw::utils::commands {
     class CommandResponseWriter {
     public:
-        CommandResponseWriter(int commandId, Print& outputStream);
+        CommandResponseWriter(int commandId, tfw::hal::streams::OutputStream& outputStream);
         ~CommandResponseWriter();
 
         void writeLine(const std::string_view& line) {
@@ -31,6 +32,6 @@ namespace tfw::utils::commands {
     private:
         const int commandId;
         int sequenceNumber;
-        Print& outputStream;
+        tfw::hal::streams::OutputStream& outputStream;
     };
 }

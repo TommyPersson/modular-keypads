@@ -1,3 +1,5 @@
+#ifdef ARDUINO
+
 #include "SPISerialBus.h"
 
 #include <Arduino.h>
@@ -54,3 +56,5 @@ namespace tfw::hal::spi {
         spi->begin(config.pinSCK.pinNumber, config.pinMISO->pinNumber, config.pinMOSI.pinNumber, config.pinCS.pinNumber);
     }
 }
+
+#endif // ARDUINO
