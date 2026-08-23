@@ -57,7 +57,7 @@ namespace {
         i2cClient = std::make_unique<tfw::hal::i2c::Client>(Wire);
         i2cSlavePort = std::make_unique<tfw::hal::i2c::SlavePort>(Wire);
         usbConnection = tfw::hal::usb::Connection::create();
-        metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>();
+        metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>(*platformClock);
 
         serviceLocator = std::make_unique<mkp::firmwares::base::ServiceLocator>(
             mkp::firmwares::base::ServiceLocator{

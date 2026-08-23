@@ -7,6 +7,7 @@
 #include <string_view>
 
 #include <tfw/hal/time.h>
+#include <tfw/utils/ring_queue.h>
 
 namespace tfw::hal::metrics {
     struct MetricReport {
@@ -49,37 +50,40 @@ namespace tfw::hal::metrics {
 
     class TimerMetric {
     public:
-        explicit TimerMetric(const std::string& name) : name(name) {
+        explicit TimerMetric(const std::string& name, tfw::hal::time::Clock& clock) : name(name), clock(clock) {
         };
         ~TimerMetric() = default;
 
         void measure(const std::function<void()>& block) {
-            const auto start = hal::time::micros();
+            const auto start = clock.micros();
             block();
-            const auto end = hal::time::micros();
+            const auto end = clock.micros();
             const auto duration = end - start;
             timeLatest = duration;
 
-            ringData[ringNext++] = duration;
-
-            if (ringNext >= ringMax) {
-                ringNext = 0;
-            }
-
-            ringCount = std::min<uint8_t>(1 + ringCount, ringMax);
+            measurements.enqueue(duration);
         }
 
         void prepareReports() {
+            const auto itemCount = measurements.size();
+            if (itemCount == 0) {
+                timeAverage = 0;
+                timeMin = 0;
+                timeMax = 0;
+                return;
+            }
+
             uint64_t min = std::numeric_limits<uint64_t>::max();
             uint64_t max = 0;
             uint64_t sum = 0;
-            for (const auto time : ringData) {
+
+            measurements.forEach([&](uint64_t time) {
                 sum += time;
                 min = std::min<uint64_t>(time, min);
                 max = std::max<uint64_t>(time, max);
-            }
+            });
 
-            timeAverage = sum / ringCount;
+            timeAverage = sum / itemCount;
             timeMin = min;
             timeMax = max;
         }
@@ -103,15 +107,13 @@ namespace tfw::hal::metrics {
         const std::string name;
 
     private:
+        tfw::hal::time::Clock& clock;
         const std::string averageName = name + ".average";
         const std::string latestName = name + ".latest";
         const std::string minName = name + ".min";
         const std::string maxName = name + ".max";
 
-        uint8_t ringNext = 0;
-        uint8_t ringCount = 0;
-        uint8_t ringMax = 100;
-        uint64_t ringData[100]{};
+        tfw::utils::ring_queue<uint64_t> measurements{100};
 
         uint64_t timeAverage = 0;
         uint64_t timeLatest = 0;
@@ -128,6 +130,9 @@ namespace tfw::hal::metrics {
 
     class MetricRegistry {
     public:
+        explicit MetricRegistry(tfw::hal::time::Clock& clock) : clock(clock) {
+        }
+
         std::shared_ptr<TimerMetric> timer(const std::string& name) {
             for (auto& timer : timers) {
                 if (timer->name == name) {
@@ -135,7 +140,7 @@ namespace tfw::hal::metrics {
                 }
             }
 
-            auto timer = std::make_shared<TimerMetric>(name);
+            auto timer = std::make_shared<TimerMetric>(name, clock);
             timers.push_back(timer);
 
             return timer;
@@ -160,6 +165,7 @@ namespace tfw::hal::metrics {
         }
 
     private:
+        tfw::hal::time::Clock& clock;
         std::vector<std::shared_ptr<GaugeMetric>> gauges{};
         std::vector<std::shared_ptr<TimerMetric>> timers{};
     };

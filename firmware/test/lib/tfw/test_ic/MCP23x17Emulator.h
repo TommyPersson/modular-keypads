@@ -5,8 +5,8 @@
 #include <memory>
 #include <stdexcept>
 #include <tfw/utils/observables.h>
-#include "../test_hal/StubSPIBus.h"
-#include "../test_hal/StubOutputPin.h"
+#include "../hal/StubSPIBus.h"
+#include "../hal/StubOutputPin.h"
 
 namespace tfw::ic::test {
     /**

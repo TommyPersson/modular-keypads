@@ -2,9 +2,9 @@
 #include <memory>
 
 // Test headers
-#include "../test_hal/StubSPIBus.h"
-#include "../test_hal/StubOutputPin.h"
-#include "../test_hal/VirtualClock.h"
+#include "../hal/StubSPIBus.h"
+#include "../hal/StubOutputPin.h"
+#include "../hal/VirtualClock.h"
 #include "MCP23x17Emulator.h"
 
 // Production code

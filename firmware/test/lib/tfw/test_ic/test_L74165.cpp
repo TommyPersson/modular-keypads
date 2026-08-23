@@ -2,9 +2,9 @@
 #include <memory>
 
 // Test headers
-#include "../test_hal/StubInputPin.h"
-#include "../test_hal/StubOutputPin.h"
-#include "../test_hal/VirtualClock.h"
+#include "../hal/StubInputPin.h"
+#include "../hal/StubOutputPin.h"
+#include "../hal/VirtualClock.h"
 #include "L74165Emulator.h"
 
 // Production code

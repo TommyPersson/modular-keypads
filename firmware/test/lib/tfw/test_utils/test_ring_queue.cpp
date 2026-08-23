@@ -44,7 +44,7 @@ TEST_F(RingQueueTest, DequeueAfterEnqueueReturnsNull) {
 
 // Multiple items
 TEST_F(RingQueueTest, EnqueueMultipleItems) {
-    ring_queue<int> q(4);  // Size 4 for 3 items to avoid immediate overwrite
+    ring_queue<int> q(3);
     q.enqueue(1);
     q.enqueue(2);
     q.enqueue(3);
@@ -64,7 +64,7 @@ TEST_F(RingQueueTest, EnqueueMultipleItems) {
 }
 
 TEST_F(RingQueueTest, ItemsDequeueInFifoOrder) {
-    ring_queue<int> q(6);  // Size 6 for 5 items
+    ring_queue<int> q(5);
     std::vector<int> enqueued = {10, 20, 30, 40, 50};
 
     for (int val : enqueued) {
@@ -80,7 +80,7 @@ TEST_F(RingQueueTest, ItemsDequeueInFifoOrder) {
 
 // Ring behavior (wraparound)
 TEST_F(RingQueueTest, WraparoundBasic) {
-    ring_queue<int> q(3);  // Size 3 for 2 items
+    ring_queue<int> q(2);
 
     // Fill the queue
     q.enqueue(1);
@@ -99,7 +99,7 @@ TEST_F(RingQueueTest, WraparoundBasic) {
 }
 
 TEST_F(RingQueueTest, WraparoundWithInterleavedOps) {
-    ring_queue<int> q(5);  // Size 5 for 4 items
+    ring_queue<int> q(4);
 
     q.enqueue(1);
     q.enqueue(2);
@@ -115,7 +115,7 @@ TEST_F(RingQueueTest, WraparoundWithInterleavedOps) {
 }
 
 TEST_F(RingQueueTest, CompleteWrapCycle) {
-    ring_queue<int> q(3);  // Size 3 for 2 items
+    ring_queue<int> q(2);
 
     // Cycle 1
     q.enqueue(1);
@@ -138,11 +138,11 @@ TEST_F(RingQueueTest, CompleteWrapCycle) {
 
 // Overwrite behavior (producer catches consumer)
 TEST_F(RingQueueTest, ProducerOverwritesWhenBufferFull) {
-    ring_queue<int> q(3);  // Size 3 for 2 items to force overflow
+    ring_queue<int> q(2);
 
     q.enqueue(1);
     q.enqueue(2);
-    q.enqueue(3);  // This overwrites position 0 (where 1 was), consumer advances
+    q.enqueue(3);  // This overwrites position 0 (where 1 was), advancing consumer
 
     int* val1 = q.dequeue();
     ASSERT_NE(val1, nullptr);
@@ -156,7 +156,7 @@ TEST_F(RingQueueTest, ProducerOverwritesWhenBufferFull) {
 }
 
 TEST_F(RingQueueTest, MultipleOverwrites) {
-    ring_queue<int> q(4);  // Size 4 for 3 items
+    ring_queue<int> q(3);
 
     // Fill queue
     q.enqueue(1);
@@ -192,7 +192,7 @@ TEST_F(RingQueueTest, WorksWithStructs) {
         }
     };
 
-    ring_queue<Point> q(3);  // Size 3 for 2 items
+    ring_queue<Point> q(2);
 
     q.enqueue({10, 20});
     q.enqueue({30, 40});
@@ -228,7 +228,7 @@ TEST_F(RingQueueTest, LargeBufferSequentialAccess) {
 }
 
 TEST_F(RingQueueTest, LargeBufferWithManyWraps) {
-    ring_queue<int> q(11);  // Size 11 for 10 items
+    ring_queue<int> q(10);
 
     // Multiple cycles through the buffer
     for (int cycle = 0; cycle < 3; cycle++) {
@@ -246,7 +246,7 @@ TEST_F(RingQueueTest, LargeBufferWithManyWraps) {
 
 // Edge cases
 TEST_F(RingQueueTest, QueueOfSizeOne) {
-    ring_queue<int> q(2);  // Size 2 for 1 item
+    ring_queue<int> q(1);
 
     q.enqueue(42);
     EXPECT_EQ(*q.dequeue(), 42);
@@ -267,7 +267,7 @@ TEST_F(RingQueueTest, AlternatingEnqueueDequeue) {
 }
 
 TEST_F(RingQueueTest, PointerValidityAcrossOperations) {
-    ring_queue<int> q(4);  // Size 4 for 3 items
+    ring_queue<int> q(3);
 
     q.enqueue(1);
     q.enqueue(2);
@@ -294,7 +294,7 @@ TEST_F(RingQueueTest, PointerValidityAcrossOperations) {
 
 // Stress tests
 TEST_F(RingQueueTest, StressSmallBuffer) {
-    ring_queue<int> q(6);  // Size 6 for 5 items
+    ring_queue<int> q(5);
 
     for (int cycle = 0; cycle < 100; cycle++) {
         for (int i = 0; i < 5; i++) {
