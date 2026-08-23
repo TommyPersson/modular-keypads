@@ -1,6 +1,5 @@
 #pragma once
 
-#include <format>
 #include <span>
 #include <string_view>
 
@@ -27,14 +26,4 @@ namespace tfw::utils::allocations::arena::strings {
     );
 
     std::string_view sprintf(Arena& arena, const char* format, ...) __attribute__((format(printf, 2, 3)));
-
-    /// Modern C++20 overload using std::format (type-safe, no need for format specifiers)
-    template<typename... Args>
-    std::string_view sprintf2(Arena& arena, std::format_string<Args...> format, Args&&... args) {
-        const auto formatted = std::format(format, std::forward<Args>(args)...);
-        const auto buffer = reinterpret_cast<char*>(arena.allocate(formatted.size() + 1));
-        std::memcpy(buffer, formatted.data(), formatted.size());
-        buffer[formatted.size()] = '\0';
-        return {buffer, formatted.size()};
-    }
 }

@@ -3,8 +3,6 @@
 // <expected> is not available in this compiler version, so we just do something simple for now.
 
 #include <cstdint>
-#include <cstdarg>
-#include <cstring>
 #include <cstdio>
 #include <string>
 #include <memory>
@@ -84,18 +82,6 @@ namespace tfw::utils {
             result r;
             r.has_error = true;
             r.error_code = error_code;
-            return r;
-        }
-
-        // New method that accepts a format string and uses arena allocator
-        template<typename... Args>
-        static result errorf(allocations::Arena& arena, const char* format, Args... args) {
-            const auto buffer_size = static_cast<size_t>(std::snprintf(nullptr, 0, format, args...) + 1);
-            const auto buffer = reinterpret_cast<char*>(arena.allocate(buffer_size));
-            std::snprintf(buffer, buffer_size, format, args...);
-            result r;
-            r.has_error = true;
-            r.error_code = buffer;
             return r;
         }
 
