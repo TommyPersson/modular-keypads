@@ -12,7 +12,7 @@
 **Reason:** Chaining with `cd` changes the command structure and prevents matching permission allowlist rules, causing unnecessary permission prompts.
 
 ### Build & Test Commands
-- Execute `platformio run` and `platformio test` directly from the root directory using Bash
+- Execute `platformio run` and `platformio test` directly from the root directory using PowerShell
 - Use patterns that match existing permission allowlist entries:
   - ✅ `platformio run -e s3-module`
   - ✅ `platformio test -e test`

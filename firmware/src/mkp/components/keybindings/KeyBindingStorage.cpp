@@ -1,20 +1,21 @@
 #include "KeyBindingStorage.h"
 
-#include <LittleFS.h>
-
-#include <tfw/hal/files.h>
+#include <tfw/hal/fs/FileUtilities.h>
 #include <tfw/utils/strings.h>
 #include <tfw/utils/allocations.h>
 
 #include <tfw/hal/logging.h>
 
 using namespace mkp::components::keybindings;
+using namespace tfw::hal::fs;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("KeyBindingStorage");
-
     auto filePath = "/data/key-bindings.txt";
     auto tempFilePath = "/data/key-bindings.txt.tmp";
+}
+
+KeyBindingStorage::KeyBindingStorage(FileSystem& fileSystem) : fileSystem(fileSystem) {
 }
 
 namespace {
@@ -86,17 +87,15 @@ namespace {
 }
 
 void KeyBindingStorage::setup() {
-    if (!LittleFS.begin(false)) {
-        logger->error("Unable to initialize file system");
-    }
+    // FileSystem initialization is handled by the injected dependency
 }
 
-error_t KeyBindingStorage::write(const KeyBinding& keyBinding) {
+int KeyBindingStorage::write(const KeyBinding& keyBinding) {
     remove(*keyBinding.trigger);
 
-    fs::File outputFile = LittleFS.open(filePath, "a", true);
+    const auto outputFile = fileSystem.open(filePath, FileMode::Append, true);
     if (!outputFile) {
-        logger->error("Failed to open '%s'", tempFilePath);
+        logger->error("Failed to open '%s'", filePath);
         return -1;
     }
 
@@ -104,17 +103,17 @@ error_t KeyBindingStorage::write(const KeyBinding& keyBinding) {
 
     auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
 
-    outputFile.println(serializedKeyBinding.data());
+    outputFile->println(serializedKeyBinding.data());
 
-    outputFile.close();
+    outputFile->close();
 
     onKeyBindingSetSubject.notify({});
 
     return 0;
 }
 
-error_t KeyBindingStorage::remove(const Trigger& trigger) {
-    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+int KeyBindingStorage::remove(const Trigger& trigger) {
+    const auto tempOutputFile = fileSystem.open(tempFilePath, FileMode::Write, true);
     if (!tempOutputFile) {
         logger->error("Failed to open '%s'", tempFilePath);
         return -1;
@@ -125,24 +124,24 @@ error_t KeyBindingStorage::remove(const Trigger& trigger) {
     forEach([&](const KeyBinding& keyBinding) {
         if (*keyBinding.trigger != trigger) {
             const auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
-            tempOutputFile.println(serializedKeyBinding.data());
+            tempOutputFile->println(serializedKeyBinding.data());
         }
 
         arena.reset();
     });
 
-    tempOutputFile.close();
+    tempOutputFile->close();
 
-    LittleFS.remove(filePath);
-    LittleFS.rename(tempFilePath, filePath);
+    fileSystem.remove(filePath);
+    fileSystem.rename(tempFilePath, filePath);
 
     onKeyBindingClearedSubject.notify({});
 
     return 0;
 }
 
-error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
-    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+int KeyBindingStorage::removeAll(const uint16_t& macroId) {
+    const auto tempOutputFile = fileSystem.open(tempFilePath, FileMode::Write, true);
     if (!tempOutputFile) {
         logger->error("Failed to open '%s'", tempFilePath);
         return -1;
@@ -153,16 +152,16 @@ error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
     forEach([&](const KeyBinding& keyBinding) {
         if (keyBinding.macroId != macroId) {
             const auto serializedKeyBinding = serializeKeyBinding(keyBinding, arena);
-            tempOutputFile.println(serializedKeyBinding.data());
+            tempOutputFile->println(serializedKeyBinding.data());
         }
 
         arena.reset();
     });
 
-    tempOutputFile.close();
+    tempOutputFile->close();
 
-    LittleFS.remove(filePath);
-    LittleFS.rename(tempFilePath, filePath);
+    fileSystem.remove(filePath);
+    fileSystem.rename(tempFilePath, filePath);
 
     onKeyBindingClearedSubject.notify({});
 
@@ -172,12 +171,13 @@ error_t KeyBindingStorage::removeAll(const uint16_t& macroId) {
 void KeyBindingStorage::forEach(const std::function<void(const KeyBinding&)>& callback) {
     tfw::utils::allocations::Arena arena(1024);
 
-    const auto rc = tfw::utils::files::iterateLines(
+    const auto rc = iterateLines(
+        fileSystem,
         filePath,
         [&](const std::string_view& line) {
-            const auto macro = deserializeKeyBinding(line, arena);
-            if (macro != nullptr) {
-                callback(*macro);
+            const auto keyBinding = deserializeKeyBinding(line, arena);
+            if (keyBinding != nullptr) {
+                callback(*keyBinding);
             }
 
             arena.reset();
@@ -187,4 +187,12 @@ void KeyBindingStorage::forEach(const std::function<void(const KeyBinding&)>& ca
     if (rc != 0) {
         logger->error("Failed to read '%s' (%i)", filePath, rc);
     }
+}
+
+uint64_t KeyBindingStorage::count() {
+    uint64_t num = 0;
+    forEach([&](const KeyBinding&) {
+        num += 1;
+    });
+    return num;
 }

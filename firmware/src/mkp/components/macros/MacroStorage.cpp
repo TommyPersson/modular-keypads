@@ -1,11 +1,8 @@
 #include "MacroStorage.h"
 
-#include <FS.h>
-#include <LittleFS.h>
-
 #include <tfw/utils/strings.h>
 #include <tfw/utils/allocations.h>
-#include <tfw/hal/files.h>
+#include <tfw/hal/fs.h>
 
 #include <tfw/hal/logging.h>
 
@@ -75,14 +72,15 @@ namespace {
     }
 }
 
-void MacroStorage::setup() {
-    if (!LittleFS.begin(false)) {
-        logger->error("Unable to initialize file system");
-    }
+MacroStorage::MacroStorage(tfw::hal::fs::FileSystem& fileSystem) : fileSystem(fileSystem) {
+
 }
 
-error_t MacroStorage::write(const Macro& macro) {
-    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+void MacroStorage::setup() {
+}
+
+int MacroStorage::write(const Macro& macro) {
+    const auto tempOutputFile = fileSystem.open(tempFilePath, tfw::hal::fs::FileMode::Write, true);
     if (!tempOutputFile) {
         logger->error("Failed to open '%s'", tempFilePath);
         return -1;
@@ -91,29 +89,38 @@ error_t MacroStorage::write(const Macro& macro) {
     tfw::utils::allocations::Arena arena(2048);
 
     uint16_t highestIdSeen = 0;
+    bool macroFound = false;
 
     forEach([&](const Macro& storedMacro) {
-        auto serializedMacro = storedMacro.data->id == macro.data->id
-                                   ? serializeStoredMacro(macro, arena) // Overwrite with new
-                                   : serializeStoredMacro(storedMacro, arena); // Re-write existing
+        if (storedMacro.data->id == macro.data->id) {
+            // Overwrite with new macro
+            auto serializedMacro = serializeStoredMacro(macro, arena);
+            tempOutputFile->println(serializedMacro.data());
+            macroFound = true;
+        } else {
+            // Re-write existing macro
+            auto serializedMacro = serializeStoredMacro(storedMacro, arena);
+            tempOutputFile->println(serializedMacro.data());
+        }
 
         highestIdSeen = std::max(highestIdSeen, storedMacro.data->id);
-
-        tempOutputFile.println(serializedMacro.data());
 
         arena.reset();
     });
 
-    if (macro.data->id <= 0) {
-        macro.data->id = highestIdSeen + 1;
+    // Write the new macro if it wasn't found in existing macros
+    if (!macroFound) {
+        if (macro.data->id <= 0) {
+            macro.data->id = highestIdSeen + 1;
+        }
         auto serializedMacro = serializeStoredMacro(macro, arena);
-        tempOutputFile.println(serializedMacro.data());
+        tempOutputFile->println(serializedMacro.data());
     }
 
-    tempOutputFile.close();
+    tempOutputFile->close();
 
-    LittleFS.remove(filePath);
-    LittleFS.rename(tempFilePath, filePath);
+    fileSystem.remove(filePath);
+    fileSystem.rename(tempFilePath, filePath);
 
     numStored.reset();
 
@@ -122,8 +129,8 @@ error_t MacroStorage::write(const Macro& macro) {
     return 0;
 }
 
-error_t MacroStorage::remove(uint16_t id) {
-    fs::File tempOutputFile = LittleFS.open(tempFilePath, "w", true);
+int MacroStorage::remove(uint16_t id) {
+    const auto tempOutputFile = fileSystem.open(tempFilePath, tfw::hal::fs::FileMode::Write, true);
     if (!tempOutputFile) {
         logger->error("Failed to open '%s'", tempFilePath);
         return -1;
@@ -134,16 +141,16 @@ error_t MacroStorage::remove(uint16_t id) {
     forEach([&](const Macro& storedMacro) {
         if (storedMacro.data->id != id) {
             auto serializedMacro = serializeStoredMacro(storedMacro, arena);
-            tempOutputFile.println(serializedMacro.data());
+            tempOutputFile->println(serializedMacro.data());
         }
 
         arena.reset();
     });
 
-    tempOutputFile.close();
+    tempOutputFile->close();
 
-    LittleFS.remove(filePath);
-    LittleFS.rename(tempFilePath, filePath);
+    fileSystem.remove(filePath);
+    fileSystem.rename(tempFilePath, filePath);
 
     numStored.reset();
 
@@ -155,7 +162,8 @@ error_t MacroStorage::remove(uint16_t id) {
 void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
     tfw::utils::allocations::Arena arena(1024);
 
-    const auto rc = tfw::utils::files::iterateLines(
+    const auto rc = tfw::hal::fs::iterateLines(
+        fileSystem,
         filePath,
         [&](const std::string_view& line) {
             const auto macro = deserializeStoredMacro(line, arena);
@@ -172,13 +180,17 @@ void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
     }
 }
 
+uint64_t MacroStorage::count() {
+    uint64_t num = 0;
+    forEach([&](const Macro&) {
+        num += 1;
+    });
+    return num;
+}
+
 uint64_t MacroStorage::getNumStored() {
     if (!numStored.has_value()) {
-        uint64_t num = 0;
-        forEach([&](const Macro& storedMacro) {
-            num += 1;
-        });
-        numStored = num;
+        numStored = count();
     }
 
     return numStored.value();

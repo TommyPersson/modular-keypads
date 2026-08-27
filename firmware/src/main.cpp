@@ -31,7 +31,8 @@ namespace {
     std::unique_ptr<mkp::devices::common::DeviceTypeDetector> deviceTypeDetector;
     std::unique_ptr<mkp::firmwares::base::FirmwareModeDetector> deviceModeDetector;
     std::unique_ptr<tfw::hal::streams::OutputStream> loggingOutput;
-    std::unique_ptr<tfw::hal::time::PlatformClock> platformClock;
+    std::unique_ptr<tfw::hal::time::PlatformClock> clock;
+    std::unique_ptr<tfw::hal::fs::FileSystem> fileSystem;
 
     std::unique_ptr<mkp::firmwares::base::ServiceLocator> serviceLocator;
 
@@ -46,8 +47,8 @@ namespace {
     void setupServiceLocator() {
         serialPort = tfw::hal::uart::SerialPort::from(TheSerial);
         preferences = std::make_unique<Preferences>();
-        platformClock = std::make_unique<tfw::hal::time::PlatformClock>();
-        deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>(*platformClock);
+        clock = std::make_unique<tfw::hal::time::PlatformClock>();
+        deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>(*clock);
         deviceModeDetector = std::make_unique<mkp::firmwares::base::FirmwareModeDetector>();
         deviceConfigurationManager = std::make_unique<mkp::devices::common::DeviceConfigurationManager>(
             *preferences,
@@ -57,7 +58,8 @@ namespace {
         i2cClient = std::make_unique<tfw::hal::i2c::Client>(Wire);
         i2cSlavePort = std::make_unique<tfw::hal::i2c::SlavePort>(Wire);
         usbConnection = tfw::hal::usb::Connection::create();
-        metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>(*platformClock);
+        metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>(*clock);
+        fileSystem = std::make_unique<tfw::hal::fs::ArduinoFileSystem>();
 
         serviceLocator = std::make_unique<mkp::firmwares::base::ServiceLocator>(
             mkp::firmwares::base::ServiceLocator{
@@ -69,7 +71,8 @@ namespace {
                 .usbConnection = *usbConnection,
                 .metricRegistry = *metricRegistry,
                 .deviceModeDetector = *deviceModeDetector,
-                .clock = *platformClock,
+                .clock = *clock,
+                .fileSystem = *fileSystem
             }
         );
     }
@@ -93,6 +96,7 @@ void setup() {
 
     setupServiceLocator();
 
+    fileSystem->begin();
     deviceModeDetector->setup();
 
     firmware = mkp::firmwares::base::Firmware::create(*serviceLocator);

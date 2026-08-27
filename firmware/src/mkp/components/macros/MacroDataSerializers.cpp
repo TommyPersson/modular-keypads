@@ -111,7 +111,7 @@ namespace mkp::components::macros {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "%.*s",
-                data.text.length(),
+                static_cast<int>(data.text.length()),
                 data.text.data()
             );
         }

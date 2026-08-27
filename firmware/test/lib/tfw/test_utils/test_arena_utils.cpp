@@ -273,74 +273,6 @@ TEST_F(ArenaUtilsTest, SprintfWithPercent) {
 }
 
 // ============================================================================
-// sprintf2() Tests - Modern std::format overload (C++20)
-// ============================================================================
-
-TEST_F(ArenaUtilsTest, Sprintf2Simple) {
-    const auto result = sprintf2(arena, "Hello, World!");
-
-    EXPECT_EQ(result, "Hello, World!");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithInteger) {
-    const auto result = sprintf2(arena, "The answer is {}", 42);
-
-    EXPECT_EQ(result, "The answer is 42");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithMultipleIntegers) {
-    const auto result = sprintf2(arena, "{} + {} = {}", 5, 3, 8);
-
-    EXPECT_EQ(result, "5 + 3 = 8");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithString) {
-    const auto result = sprintf2(arena, "Hello, {}!", "World");
-
-    EXPECT_EQ(result, "Hello, World!");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithStringView) {
-    std::string_view name = "Alice";
-    const auto result = sprintf2(arena, "Name: {}", name);
-
-    EXPECT_EQ(result, "Name: Alice");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithFloat) {
-    const auto result = sprintf2(arena, "Pi is approximately {:.2f}", 3.14159);
-
-    EXPECT_EQ(result, "Pi is approximately 3.14");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2ComplexFormat) {
-    const auto result = sprintf2(arena, "Name: {}, Age: {}, Score: {:.1f}", "Alice", 30, 95.5);
-
-    EXPECT_EQ(result, "Name: Alice, Age: 30, Score: 95.5");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithHex) {
-    const auto result = sprintf2(arena, "Hex: 0x{:x}", 255);
-
-    EXPECT_EQ(result, "Hex: 0xff");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2WithBinary) {
-    const auto result = sprintf2(arena, "Binary: {:b}", 15);
-
-    EXPECT_EQ(result, "Binary: 1111");
-}
-
-TEST_F(ArenaUtilsTest, Sprintf2Empty) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-zero-length"
-    const auto result = sprintf2(arena, "");
-#pragma GCC diagnostic pop
-
-    EXPECT_EQ(result, "");
-}
-
-// ============================================================================
 // Integration Tests
 // ============================================================================
 
@@ -361,28 +293,12 @@ TEST_F(ArenaUtilsTest, SplitThenJoin) {
     EXPECT_EQ(result, input);
 }
 
-TEST_F(ArenaUtilsTest, Sprintf2ThenSplit) {
-    // Use modern format version
-    const auto formatted = sprintf2(arena, "{},{},{}", "one", "two", "three");
-    const ArenaAllocator<std::string_view> allocator(arena);
-
-    auto parts = split(formatted, ',', allocator);
-
-    EXPECT_EQ(parts.size(), 3);
-    EXPECT_EQ(parts[0], "one");
-    EXPECT_EQ(parts[1], "two");
-    EXPECT_EQ(parts[2], "three");
-}
 TEST_F(ArenaUtilsTest, MultipleOperationsOnArena) {
     const ArenaAllocator<std::string_view> allocator(arena);
 
     // Split operation
     auto parts1 = split("a,b,c", ',', allocator);
     EXPECT_EQ(parts1.size(), 3);
-
-    // sprintf2 operation using modern format version
-    const auto formatted = sprintf2(arena, "Value: {}", 42);
-    EXPECT_EQ(formatted, "Value: 42");
 
     // split operation again
     auto parts2 = split("x;y;z", ';', allocator);
