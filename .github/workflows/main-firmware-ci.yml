@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - '**'
+    paths:
+      - firmware/main/**
   pull_request:
     branches:
       - master
@@ -26,7 +28,7 @@ jobs:
         run: pip install platformio
 
       - name: Build and run tests
-        working-directory: ./firmware
+        working-directory: ./firmware/main
         run: platformio test -e test
 
       - name: Upload test results
@@ -34,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: test-results
-          path: firmware/.pio/build/test/
+          path: firmware/main/.pio/build/test/
 
   build:
     name: ESP32 Firmware Build
@@ -53,7 +55,7 @@ jobs:
         run: pip install platformio
 
       - name: Build ESP32 firmware
-        working-directory: ./firmware
+        working-directory: ./firmware/main
         run: platformio run -e s3-module
 
       - name: Upload firmware build
@@ -61,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: esp32-firmware
-          path: firmware/.pio/build/s3-module/
+          path: firmware/main/.pio/build/s3-module/
 
   verify:
     name: Verify CI Success
