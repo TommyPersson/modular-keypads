@@ -1,4 +1,4 @@
-name: Firmware CI
+name: Main Firmware CI
 
 on:
   push:
