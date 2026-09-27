@@ -1,11 +1,6 @@
 #include "Smc2Firmware.h"
 
-#include <tinyNeoPixel.h>
 #include <Arduino.h>
-
-namespace {
-    auto pixels = tinyNeoPixel(6, PIN_PC5, NEO_GRB + NEO_KHZ800);
-}
 
 using namespace smc::firmwares;
 
@@ -18,15 +13,14 @@ Smc2Firmware::~Smc2Firmware() {
 void Smc2Firmware::setup() {
     Firmware::setup();
 
-    pixels.begin();
-    pixels.setBrightness(50);
-    pixels.setPixelColor(5, tinyNeoPixel::Color(255, 0, 0));
-    pixels.setPixelColor(4, tinyNeoPixel::Color(0, 255, 0));
-    pixels.setPixelColor(3, tinyNeoPixel::Color(0, 0, 255));
-    pixels.setPixelColor(2, tinyNeoPixel::Color(255, 255, 0));
-    pixels.setPixelColor(1, tinyNeoPixel::Color(0, 255, 255));
-    pixels.setPixelColor(0, tinyNeoPixel::Color(255, 0, 255));
-    pixels.show();
+    leds.setup();
+    leds.setBrightness(50);
+    leds.setColor(5, 255, 0, 0);
+    leds.setColor(4, 0, 255, 0);
+    leds.setColor(3, 0, 0, 255);
+    leds.setColor(2, 255, 255, 0);
+    leds.setColor(1, 0, 255, 255);
+    leds.setColor(0, 255, 0, 255);
 
     for (auto& button : buttons) {
         button.setup();
@@ -43,11 +37,11 @@ void Smc2Firmware::update(const uint32_t deltaUs, smc::events::EventQueue& queue
 
         auto ledIndex = buttonLedMap[button.number - 1];
         if (button.isPressed()) {
-            pixels.setPixelColor(ledIndex, tinyNeoPixel::Color(255, 255, 255));
+            leds.setColor(ledIndex, 255, 255, 255);
         } else {
-            pixels.setPixelColor(ledIndex, tinyNeoPixel::Color(0, 0, 0));
+            leds.setColor(ledIndex, 0, 0, 0);
         }
     }
 
-    pixels.show();
+    leds.update(deltaUs, queue);
 }

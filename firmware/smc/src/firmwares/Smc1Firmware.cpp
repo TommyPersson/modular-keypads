@@ -1,11 +1,6 @@
 #include "Smc1Firmware.h"
 
-#include <tinyNeoPixel.h>
 #include <Arduino.h>
-
-namespace {
-    auto pixels = tinyNeoPixel(4, PIN_PC5, NEO_GRB + NEO_KHZ800);
-}
 
 using namespace smc::firmwares;
 
@@ -19,13 +14,8 @@ Smc1Firmware::~Smc1Firmware() {
 void Smc1Firmware::setup() {
     Firmware::setup();
 
-    pixels.begin();
-    pixels.setBrightness(50);
-    pixels.setPixelColor(0, tinyNeoPixel::Color(0, 0, 0));
-    pixels.setPixelColor(1, tinyNeoPixel::Color(0, 0, 0));
-    pixels.setPixelColor(2, tinyNeoPixel::Color(0, 0, 0));
-    pixels.setPixelColor(3, tinyNeoPixel::Color(0, 0, 0));
-    pixels.show();
+    leds.setup();
+    leds.setBrightness(50);
 
     for (auto& button : buttons) {
         button.setup();
@@ -42,11 +32,11 @@ void Smc1Firmware::update(const uint32_t deltaUs, smc::events::EventQueue& queue
 
         auto ledIndex = buttonLedMap[button.number - 1];
         if (button.isPressed()) {
-            pixels.setPixelColor(ledIndex, tinyNeoPixel::Color(255, 255, 255));
+            leds.setColor(ledIndex, 255, 255, 255);
         } else {
-            pixels.setPixelColor(ledIndex, tinyNeoPixel::Color(0, 0, 0));
+            leds.setColor(ledIndex, 0, 0, 0);
         }
     }
 
-    pixels.show();
+    leds.update(deltaUs, queue);
 }

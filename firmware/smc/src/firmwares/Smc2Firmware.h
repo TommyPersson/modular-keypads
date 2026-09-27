@@ -4,6 +4,7 @@
 
 #include "Firmware.h"
 #include "hal/buttons/PushButton.h"
+#include "hal/leds/IndicatorLeds.h"
 
 namespace smc::firmwares {
     class Smc2Firmware : public Firmware {
@@ -22,6 +23,8 @@ namespace smc::firmwares {
             smc::hal::buttons::PushButton(5, PIN_PB1),
             smc::hal::buttons::PushButton(6, PIN_PB2),
         };
+
+        smc::hal::leds::IndicatorLeds leds = smc::hal::leds::IndicatorLeds(6, PIN_PC5);
 
         uint8_t buttonLedMap[6] = {0, 1, 2, 5, 4, 3};
     };

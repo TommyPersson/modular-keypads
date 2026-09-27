@@ -2,6 +2,7 @@
 
 #include "firmwares/Firmware.h"
 #include "firmwares/FirmwareFactory.h"
+#include "hal/spi/SpiSlave.h"
 
 namespace {
     auto firmwareFactory = smc::firmwares::FirmwareFactory(
@@ -13,9 +14,9 @@ namespace {
         }
     );
 
+    smc::hal::spi::SpiSlave spiSlave;
     smc::firmwares::Firmware* firmware = nullptr;
     smc::events::EventQueue eventQueue;
-    smc::events::EventQueue spiEventQueue;
 
     uint32_t prevUs = 0;
 }
@@ -23,11 +24,8 @@ namespace {
 void setup() {
     Serial.swap(1);
     Serial.begin(9600);
-    pinMode(PIN_PC5, OUTPUT);
 
-    delayMicroseconds(100);
-    digitalWrite(PIN_PC5, LOW);
-    delayMicroseconds(100);
+    spiSlave.setup();
 
     firmware = firmwareFactory.create();
     firmware->setup();
@@ -40,10 +38,11 @@ void loop() {
     const auto deltaUs = currentUs - prevUs;
     prevUs = currentUs;
 
+    spiSlave.update(deltaUs, eventQueue);
     firmware->update(deltaUs, eventQueue);
 
     while (const auto* event = eventQueue.dequeue()) {
-        spiEventQueue.enqueue(*event);
+        spiSlave.enqueueEvent(*event);
 
         Serial.printf("%i %i\n\r", event->type, event->data);
     }

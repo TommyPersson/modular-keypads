@@ -6,6 +6,7 @@
 
 namespace smc::events {
     namespace types {
+        inline constexpr uint8_t NONE = 0;
         inline constexpr uint8_t PUSH_BUTTON_PRESSED = 1;
         inline constexpr uint8_t PUSH_BUTTON_RELEASED = 2;
         inline constexpr uint8_t PUSH_BUTTON_LONG_PRESSED = 3;
