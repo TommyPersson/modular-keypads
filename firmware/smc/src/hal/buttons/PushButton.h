@@ -13,6 +13,7 @@ namespace smc::hal::buttons {
         PRESSED = 1,
         UNPRESSED = 2,
         UNKNOWN = 3,
+        LONG_PRESSED = 4,
     };
 
     class PushButton : public Component {
@@ -24,6 +25,7 @@ namespace smc::hal::buttons {
         void update(uint32_t deltaUs, events::EventQueue& queue) override;
 
         bool isPressed() const;
+        bool isLongPressed() const;
 
         const uint8_t number;
     private:
@@ -32,7 +34,6 @@ namespace smc::hal::buttons {
         uint8_t pin;
         uint32_t timeSinceUpdateUs = 0;
         int32_t timeUntilLongPress = 0;
-        bool hasEmittedLongPress = false;
         State state = State::UNKNOWN;
     };
 

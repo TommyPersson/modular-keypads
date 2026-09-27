@@ -23,21 +23,20 @@ void PushButton::update(uint32_t deltaUs, events::EventQueue& queue) {
         return;
     }
 
-    auto newState = readState();
-    if (newState != state && state != State::UNKNOWN) {
-        if (newState == State::PRESSED) {
-            timeUntilLongPress = 500000;
-            hasEmittedLongPress = false;
-            queue.enqueue({.type = events::types::PUSH_BUTTON_PRESSED, .data = number});
-        } else if (newState == State::UNPRESSED) {
-            queue.enqueue({.type = events::types::PUSH_BUTTON_RELEASED, .data = number});
-        }
+    const auto newState = readState();
+    if (state == State::UNKNOWN) {
+        state = newState;
+    } else if (newState == State::PRESSED && state == State::UNPRESSED) {
+        state = State::PRESSED;
+        timeUntilLongPress = 500000;
+        queue.enqueue({.type = events::types::PUSH_BUTTON_PRESSED, .data = number});
+    } else if (newState == State::UNPRESSED && isPressed()) {
+        state = State::UNPRESSED;
+        queue.enqueue({.type = events::types::PUSH_BUTTON_RELEASED, .data = number});
     }
 
-    state = newState;
-
-    if (state == State::PRESSED && timeUntilLongPress == 0 && !hasEmittedLongPress) {
-        hasEmittedLongPress = true;
+    if (state == State::PRESSED && timeUntilLongPress == 0) {
+        state = State::LONG_PRESSED;
         queue.enqueue({.type = events::types::PUSH_BUTTON_LONG_PRESSED, .data = number});
     }
 
@@ -45,7 +44,11 @@ void PushButton::update(uint32_t deltaUs, events::EventQueue& queue) {
 }
 
 bool PushButton::isPressed() const {
-    return state == State::PRESSED;
+    return state == State::PRESSED || state == State::LONG_PRESSED;
+}
+
+bool PushButton::isLongPressed() const {
+    return state == State::LONG_PRESSED;
 }
 
 State PushButton::readState() const {

@@ -3,7 +3,7 @@
 #include <pins_arduino.h>
 
 #include "Firmware.h"
-#include "hal/buttons/PushButton.h"
+#include "hal/buttons/PushButtonWithIndicator.h"
 
 namespace smc::firmwares {
     class Smc1Firmware : public Firmware {
@@ -16,13 +16,11 @@ namespace smc::firmwares {
         void doUpdate(uint32_t deltaUs, events::EventQueue& queue) override;
 
     private:
-        hal::buttons::PushButton buttons[4] = {
-            hal::buttons::PushButton(1, PIN_PA3),
-            hal::buttons::PushButton(2, PIN_PA4),
-            hal::buttons::PushButton(3, PIN_PB0),
-            hal::buttons::PushButton(4, PIN_PB1),
+        hal::buttons::PushButtonWithIndicator buttons[4] = {
+            hal::buttons::PushButtonWithIndicator(1, PIN_PA3, leds, 0),
+            hal::buttons::PushButtonWithIndicator(2, PIN_PA4, leds, 1),
+            hal::buttons::PushButtonWithIndicator(3, PIN_PB0, leds, 3),
+            hal::buttons::PushButtonWithIndicator(4, PIN_PB1, leds, 2),
         };
-
-        uint8_t buttonLedMap[4] = {0, 1, 3, 2};
     };
 }
