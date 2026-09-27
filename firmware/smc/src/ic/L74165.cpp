@@ -1,6 +1,6 @@
 #include "L74165.h"
 
-#include <api/Common.h>
+#include <Arduino.h>
 
 using namespace smc::ic::L74165;
 

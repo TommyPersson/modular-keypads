@@ -4,19 +4,17 @@
 
 using namespace smc::firmwares;
 
-Smc1Firmware::Smc1Firmware() {
-
+namespace {
+    constexpr uint8_t LED_BRIGHTNESS = 50;
 }
 
-Smc1Firmware::~Smc1Firmware() {
+Smc1Firmware::Smc1Firmware()
+    : Firmware(4) {
 }
 
-void Smc1Firmware::setup() {
-    Firmware::setup();
+Smc1Firmware::~Smc1Firmware() = default;
 
-    leds.setup();
-    leds.setBrightness(50);
-
+void Smc1Firmware::doSetup() {
     for (auto& button : buttons) {
         button.setup();
     }
@@ -24,19 +22,15 @@ void Smc1Firmware::setup() {
     Serial.printf("SMC1 firmware setup complete!\r\n");
 }
 
-void Smc1Firmware::update(const uint32_t deltaUs, smc::events::EventQueue& queue) {
-    Firmware::update(deltaUs, queue);
-
+void Smc1Firmware::doUpdate(const uint32_t deltaUs, smc::events::EventQueue& queue) {
     for (auto& button : buttons) {
         button.update(deltaUs, queue);
 
         auto ledIndex = buttonLedMap[button.number - 1];
         if (button.isPressed()) {
-            leds.setColor(ledIndex, 255, 255, 255);
+            leds.setColor(ledIndex, 255, 255, 255, LED_BRIGHTNESS);
         } else {
-            leds.setColor(ledIndex, 0, 0, 0);
+            leds.setColor(ledIndex, 0, 0, 0, LED_BRIGHTNESS);
         }
     }
-
-    leds.update(deltaUs, queue);
 }

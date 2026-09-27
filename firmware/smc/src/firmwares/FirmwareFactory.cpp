@@ -6,7 +6,7 @@
 
 using namespace smc::firmwares;
 
-FirmwareFactory::FirmwareFactory(const smc::ic::L74165::Config typeSelectorConfig)
+FirmwareFactory::FirmwareFactory(const ic::L74165::Config typeSelectorConfig)
     : typeSelector(typeSelectorConfig) {
 }
 
