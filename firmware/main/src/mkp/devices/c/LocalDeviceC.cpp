@@ -54,8 +54,16 @@ void LocalDeviceC::setup() {
     subDevice3->setup();
 
     subDevice1->onSwitchEvent().addObserver(this);
+    subDevice1->onConnected().addObserver(this);
+    subDevice1->onDisconnected().addObserver(this);
+
     subDevice2->onSwitchEvent().addObserver(this);
+    subDevice2->onConnected().addObserver(this);
+    subDevice2->onDisconnected().addObserver(this);
+
     subDevice3->onSwitchEvent().addObserver(this);
+    subDevice3->onConnected().addObserver(this);
+    subDevice3->onDisconnected().addObserver(this);
 
     pinModReset = OutputPin::physical(4);
     pinModReset->init();
@@ -72,4 +80,12 @@ void LocalDeviceC::loop() {
     subDevice3->update();
 
     registerRefresher->loop();
+}
+
+void LocalDeviceC::observe(const SubDeviceConnectedEvent& event) {
+    logger->info("[%i] Sub Device Connected: %08llx (type = %02x)", event.subDeviceNumber, event.subDeviceId, event.subDeviceType);
+}
+
+void LocalDeviceC::observe(const SubDeviceDisconnectedEvent& event) {
+    logger->info("[%i] Sub Device Disconnected: %08llx", event.subDeviceNumber, event.subDeviceId);
 }

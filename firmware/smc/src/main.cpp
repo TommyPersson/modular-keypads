@@ -25,10 +25,12 @@ void setup() {
     Serial.swap(1);
     Serial.begin(9600);
 
-    spiSlave.setup();
-
     firmware = firmwareFactory.create();
     firmware->setup();
+
+    spiSlave.setup();
+    spiSlave.setDeviceType(firmware->deviceType());
+    spiSlave.enqueueEvent({ .type = smc::events::types::BOOTED });
 }
 
 void loop() {

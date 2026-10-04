@@ -25,6 +25,8 @@ namespace smc::firmwares {
             leds.update(deltaUs, queue);
         }
 
+        virtual uint8_t deviceType() = 0;
+
     protected:
         virtual void doSetup() {}
         virtual void doUpdate(uint32_t deltaUs, events::EventQueue& queue) {}

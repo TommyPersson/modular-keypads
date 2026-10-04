@@ -30,8 +30,9 @@ namespace {
     }
 
     constexpr uint8_t READ_DEVICE_ID = 0x01;
-    constexpr uint8_t READ_EVENTS = 0x02;
-    constexpr uint8_t ACK_EVENT = 0x03;
+    constexpr uint8_t READ_DEVICE_TYPE = 0x02;
+    constexpr uint8_t READ_EVENTS = 0x03;
+    constexpr uint8_t ACK_EVENT = 0x04;
 }
 
 SubDevice::SubDevice(
@@ -42,12 +43,10 @@ SubDevice::SubDevice(
 ) : number(number),
     spi(spi),
     pinCS(pinCS),
-    pinINT(pinINT),
-    eventsAvailable(false) {
+    pinINT(pinINT) {
 }
 
-SubDevice::~SubDevice() {
-}
+SubDevice::~SubDevice() = default;
 
 void SubDevice::setup() {
     pinCS.init();
@@ -58,50 +57,100 @@ void SubDevice::setup() {
 }
 
 void SubDevice::update() {
+    pollEvents();
+
+    //if (scanScheduled) {
+    //        scanScheduled = false;
+    scan();
+    //    }
+}
+
+void SubDevice::scan() {
+    uint32_t scannedDeviceId;
+    auto valid = transact(READ_DEVICE_ID, reinterpret_cast<uint8_t*>(&scannedDeviceId), sizeof(scannedDeviceId));
+    if (!valid) {
+        auto previousDeviceId = deviceId;
+        deviceId = 0;
+
+        if (previousDeviceId != 0) {
+            disconnectedSubject.notify({.subDeviceNumber = number, .subDeviceId = previousDeviceId});
+        }
+
+        return;
+    }
+
+    uint8_t scannedDeviceType;
+    auto valid2 = transact(READ_DEVICE_TYPE, &scannedDeviceType, sizeof(scannedDeviceType));
+    if (!valid2) {
+        this->deviceType = 0;
+        return;
+    }
+
+    auto wasUpdated = this->deviceId != scannedDeviceId;
+
+    this->deviceId = scannedDeviceId;
+    this->deviceType = scannedDeviceType;
+
+    if (wasUpdated) {
+        connectedSubject.notify(
+            {
+                .subDeviceNumber = number,
+                .subDeviceId = deviceId,
+                .subDeviceType = deviceType
+            }
+        );
+    }
+}
+
+void SubDevice::observe(const InputPinInterruptEvent& event) {
+    eventsAvailable = !pinINT.read();
+}
+
+void SubDevice::pollEvents() {
     if (eventsAvailable) {
         uint8_t event[2];
         while (true) {
             auto valid = transact(READ_EVENTS, event, sizeof(event));
-            if (valid) {
-                if (event[0] == 0x00) {
-                    break;
-                }
+            if (!valid) {
+                break;
+            }
 
-                uint8_t status;
-                transact(ACK_EVENT, &status, 1);
+            if (event[0] == 0x00) {
+                break;
+            }
 
-                logger->info("[%i] Event: %02x.%02x", number, event[0], event[1]);
-                if (event[0] == 0x01) {
-                    logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
-                    auto switchNumber = event[1];
-                    this->deviceSwitchEventSubject.notify(
-                        {
-                            .deviceId = 0x1234,
-                            .switchNumber = switchNumber,
-                            .state = tfw::hal::buttons::ButtonState::PRESSED
-                        }
-                    );
-                } else if (event[0] == 0x02) {
-                    logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
-                    auto switchNumber = event[1];
-                    this->deviceSwitchEventSubject.notify(
-                        {
-                            .deviceId = 0x1234,
-                            .switchNumber = switchNumber,
-                            .state = tfw::hal::buttons::ButtonState::UNPRESSED
-                        }
-                    );
-                }
-            } else {
-                logger->error("[%i] crc error during read events", number);
+            uint8_t status;
+            transact(ACK_EVENT, &status, 1);
+
+            logger->info("[%i] Event: %02x.%02x", number, event[0], event[1]);
+            if (event[0] == 0x11) {
+                logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
+                auto switchNumber = event[1];
+                this->deviceSwitchEventSubject.notify(
+                    {
+                        .deviceId = 0x1234,
+                        .switchNumber = switchNumber,
+                        .state = tfw::hal::buttons::ButtonState::PRESSED
+                    }
+                );
+            } else if (event[0] == 0x12) {
+                logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
+                auto switchNumber = event[1];
+                this->deviceSwitchEventSubject.notify(
+                    {
+                        .deviceId = 0x1234,
+                        .switchNumber = switchNumber,
+                        .state = tfw::hal::buttons::ButtonState::UNPRESSED
+                    }
+                );
+            }
+
+            if (event[0] == 0x01) {
+                scanScheduled = true;
             }
         }
     }
 
-    eventsAvailable = !pinINT.read();
-}
-
-void SubDevice::observe(const InputPinInterruptEvent& event) {
     eventsAvailable = !pinINT.read();
 }
 

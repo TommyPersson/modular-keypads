@@ -20,7 +20,7 @@ namespace {
     constexpr uint8_t INT_bm = PIN4_bm;
 
     // TODO Placeholder until the device has an ID structure
-    constexpr uint8_t DEVICE_ID[] = { 0x5A, 0xC3, 0x01, 0x7E };
+    constexpr uint8_t DEVICE_ID[] = {0x5A, 0xC3, 0x01, 0x7E};
 
     struct Response {
         const uint8_t* data;
@@ -29,13 +29,15 @@ namespace {
 
     smc::events::EventQueue* eventQueue = nullptr;
 
+    uint8_t deviceType = 0;
+
     // Whether the oldest queued event has been returned by READ_EVENTS and awaits an ACK_EVENT.
     // Modified from the ISRs, and from enqueueEvent() with interrupts disabled.
     bool hasReadEvent = false;
 
     // Transaction state, only accessed from the ISRs below
     bool awaitingCommand = true;
-    Response response = { nullptr, 0 };
+    Response response = {nullptr, 0};
     uint8_t responseIndex = 0;
     uint8_t responseCrc = 0;
     uint8_t eventResponse[2] = {};
@@ -51,31 +53,33 @@ namespace {
 
     Response responseFor(const uint8_t command) {
         switch (command) {
-            case commands::READ_DEVICE_ID:
-                return { DEVICE_ID, sizeof(DEVICE_ID) };
-            case commands::READ_EVENTS: {
-                // Copy out: the slot can be overwritten by an enqueue while the master is reading
-                const auto* event = eventQueue->peek();
-                hasReadEvent = event != nullptr;
-                eventResponse[0] = event ? event->type : smc::events::types::NONE;
-                eventResponse[1] = event ? event->data : 0;
-                return { eventResponse, sizeof(eventResponse) };
-            }
-            case commands::ACK_EVENT:
-                if (hasReadEvent) {
-                    eventQueue->dequeue();
-                    hasReadEvent = false;
-                    ackResponse[0] = ackStatus::REMOVED;
+        case commands::READ_DEVICE_ID:
+            return {DEVICE_ID, sizeof(DEVICE_ID)};
+        case commands::READ_DEVICE_TYPE:
+            return { &deviceType, sizeof(deviceType)};
+        case commands::READ_EVENTS: {
+            // Copy out: the slot can be overwritten by an enqueue while the master is reading
+            const auto* event = eventQueue->peek();
+            hasReadEvent = event != nullptr;
+            eventResponse[0] = event ? event->type : smc::events::types::NONE;
+            eventResponse[1] = event ? event->data : 0;
+            return {eventResponse, sizeof(eventResponse)};
+        }
+        case commands::ACK_EVENT:
+            if (hasReadEvent) {
+                eventQueue->dequeue();
+                hasReadEvent = false;
+                ackResponse[0] = ackStatus::REMOVED;
 
-                    if (eventQueue->size() == 0) {
-                        PORTC.OUTSET = INT_bm;
-                    }
-                } else {
-                    ackResponse[0] = ackStatus::NOTHING_PENDING;
+                if (eventQueue->size() == 0) {
+                    PORTC.OUTSET = INT_bm;
                 }
-                return { ackResponse, sizeof(ackResponse) };
-            default:
-                return { nullptr, 0 };
+            } else {
+                ackResponse[0] = ackStatus::NOTHING_PENDING;
+            }
+            return {ackResponse, sizeof(ackResponse)};
+        default:
+            return {nullptr, 0};
         }
     }
 
@@ -95,7 +99,7 @@ namespace {
 
     void beginTransaction() {
         awaitingCommand = true;
-        response = { nullptr, 0 };
+        response = {nullptr, 0};
         responseIndex = 0;
 
         PORTC.DIRSET = MISO_bm;
@@ -124,7 +128,7 @@ void SpiSlave::setup() {
     // transfer completes, before the interrupt can respond, so responses came out one byte late.
     SPI0.CTRLB = SPI_MODE_0_gc;
     SPI0.INTCTRL = SPI_IE_bm;
-    SPI0.CTRLA = SPI_ENABLE_bm;  // Slave (MASTER = 0), MSB first (DORD = 0)
+    SPI0.CTRLA = SPI_ENABLE_bm; // Slave (MASTER = 0), MSB first (DORD = 0)
 }
 
 void SpiSlave::update(uint32_t deltaUs, smc::events::EventQueue& queue) {
@@ -143,8 +147,20 @@ void SpiSlave::update(uint32_t deltaUs, smc::events::EventQueue& queue) {
         collisions = writeCollisions;
     }
 
-    Serial.printf("SS low: %u, SS high: %u, SPI interrupts: %u, commands: %u, write collisions: %u, SS now: %s\r\n",
-                  falling, rising, interrupts, commands, collisions, (PORTC.IN & SS_bm) ? "high" : "low");
+    Serial.printf(
+        "SS low: %u, SS high: %u, SPI interrupts: %u, commands: %u, write collisions: %u, SS now: %s\r\n",
+        falling,
+        rising,
+        interrupts,
+        commands,
+        collisions,
+        (PORTC.IN & SS_bm) ? "high" : "low"
+    );
+}
+
+void SpiSlave::setDeviceType(uint8_t deviceType) {
+    this->deviceType = deviceType;
+    ::deviceType = deviceType;
 }
 
 void SpiSlave::enqueueEvent(const events::Event& event) {

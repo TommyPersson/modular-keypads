@@ -11,6 +11,8 @@ namespace smc::firmwares {
         Smc2Firmware();
         ~Smc2Firmware() override;
 
+        uint8_t deviceType() override { return 0x02; }
+
     protected:
         void doSetup() override;
         void doUpdate(uint32_t deltaUs, events::EventQueue& queue) override;

@@ -24,7 +24,10 @@ namespace mkp::devices::c {
     inline const std::vector<std::shared_ptr<common::DeviceCapability>> capabilities = {
     };
 
-    class LocalDeviceC final : public common::LocalDevice{
+    class LocalDeviceC final
+        : public common::LocalDevice,
+          public tfw::utils::observables::Observer<SubDeviceConnectedEvent>,
+          public tfw::utils::observables::Observer<SubDeviceDisconnectedEvent> {
     public:
         LocalDeviceC(
             const common::DeviceConfiguration& configuration,
@@ -49,6 +52,9 @@ namespace mkp::devices::c {
 
         tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
         uint8_t getEventInterruptPin() const override { return 21; }
+
+        void observe(const SubDeviceConnectedEvent& event) override;
+        void observe(const SubDeviceDisconnectedEvent& event) override;
 
     private:
         std::unique_ptr<SubDevice> subDevice1;

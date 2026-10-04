@@ -7,8 +7,9 @@
 namespace smc::hal::spi {
     namespace commands {
         inline constexpr uint8_t READ_DEVICE_ID = 0x01;
-        inline constexpr uint8_t READ_EVENTS = 0x02;
-        inline constexpr uint8_t ACK_EVENT = 0x03;
+        inline constexpr uint8_t READ_DEVICE_TYPE = 0x02;
+        inline constexpr uint8_t READ_EVENTS = 0x03;
+        inline constexpr uint8_t ACK_EVENT = 0x04;
     }
 
     namespace ackStatus {
@@ -48,9 +49,12 @@ namespace smc::hal::spi {
         void setup() override;
         void update(uint32_t deltaUs, events::EventQueue& queue) override;
 
+        void setDeviceType(uint8_t deviceType);
+
         void enqueueEvent(const events::Event& event);
 
     private:
+        uint8_t deviceType = 0;
         // Dequeued from the SPI interrupt; only modify with interrupts disabled
         events::EventQueue eventQueue;
     };
