@@ -6,6 +6,7 @@
 #include "ServiceLocator.h"
 #include "mkp/components/metrics/BaseMetrics.h"
 #include "mkp/devices/a/DeviceFactoryA.h"
+#include "mkp/devices/c/DeviceFactoryC.h"
 #include "mkp/firmwares//slave/SlaveFirmware.h"
 #include "mkp/firmwares/master/MasterFirmware.h"
 
@@ -32,6 +33,7 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     this->lineStreamer->addObserver(this->commandProcessor.get());
 
     deviceFactories.emplace_back(std::make_unique<mkp::devices::a::DeviceFactoryA>());
+    deviceFactories.emplace_back(std::make_unique<mkp::devices::c::DeviceFactoryC>());
 
     components::metrics::register_all(serviceLocator.metricRegistry);
 }

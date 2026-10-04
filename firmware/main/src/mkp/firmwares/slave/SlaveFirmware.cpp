@@ -95,6 +95,8 @@ void SlaveFirmware::loop() {
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
+    logger->info("Device switch event observed?");
+
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
         slavePort.enqueueEvent(
             tfw::hal::i2c::Event{

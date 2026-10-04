@@ -10,10 +10,10 @@
 namespace tfw::hal::spi {
 struct SPIConfig {
     uint8_t spiBus;
-    std::unique_ptr<tfw::hal::gpio::OutputPin> pinSCK;
-    std::unique_ptr<tfw::hal::gpio::OutputPin> pinMOSI;
-    std::shared_ptr<tfw::hal::gpio::InputPin> pinMISO;
-    std::unique_ptr<tfw::hal::gpio::OutputPin> pinCS;
+    std::shared_ptr<gpio::OutputPin> pinSCK;
+    std::shared_ptr<gpio::OutputPin> pinMOSI;
+    std::shared_ptr<gpio::InputPin> pinMISO;
+    std::shared_ptr<gpio::OutputPin> pinCS;
 };
 }
 

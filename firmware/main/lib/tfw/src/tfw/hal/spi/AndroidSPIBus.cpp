@@ -53,7 +53,12 @@ namespace tfw::hal::spi {
         config->pinCS->init();
         config->pinCS->setHigh();
 
-        spi->begin(config->pinSCK->pinNumber, config->pinMISO->pinNumber, config->pinMOSI->pinNumber, config->pinCS->pinNumber);
+        spi->begin(
+            config->pinSCK->pinNumber,
+            config->pinMISO->pinNumber,
+            config->pinMOSI->pinNumber,
+            -1
+        );
     }
 }
 

@@ -24,6 +24,7 @@ char DeviceTypeDetector::detectDeviceType() const {
 
     switch (typeCode) {
     case 0x01: return 'a';
+    case 0x03: return 'c';
     default: return 'g';
     }
 }

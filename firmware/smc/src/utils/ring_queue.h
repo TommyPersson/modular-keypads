@@ -35,6 +35,10 @@ namespace smc::utils {
                 return nullptr;
             }
 
+            T* peek() {
+                return itemCount > 0 ? &buffer[consumerIndex] : nullptr;
+            }
+
             uint8_t size() const {
                 return itemCount;
             }

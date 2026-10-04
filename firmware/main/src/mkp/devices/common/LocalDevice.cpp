@@ -95,6 +95,7 @@ tfw::utils::void_result LocalDevice::rename(const std::string_view& deviceName) 
 }
 
 void LocalDevice::observe(const DeviceSwitchEvent& event) {
+    logger->info("observing?");
     deviceSwitchEventSubject.notify(event);
 }
 

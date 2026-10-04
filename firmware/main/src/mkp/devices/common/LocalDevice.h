@@ -12,10 +12,10 @@
 namespace mkp::devices::common {
     class LocalDevice :
         public Device,
-        tfw::utils::observables::Observer<DeviceSwitchEvent>,
-        tfw::utils::observables::Observer<DeviceRotaryEncoderEvent>,
-        tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent>,
-        tfw::utils::observables::Observer<tfw::hal::encoders::EncoderRotatedEvent> {
+        public tfw::utils::observables::Observer<DeviceSwitchEvent>,
+        public tfw::utils::observables::Observer<DeviceRotaryEncoderEvent>,
+        public tfw::utils::observables::Observer<tfw::hal::buttons::ButtonStateChangedEvent>,
+        public tfw::utils::observables::Observer<tfw::hal::encoders::EncoderRotatedEvent> {
     public:
         void setup() override;
         void loop() override;
