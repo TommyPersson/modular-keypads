@@ -3,8 +3,8 @@ include <../../common/shared-variables.scad>
 include <./shared-variables.scad>
 
 inner_diameter = 21.70;
-spoke_width = 2.8; // 3.2
-spoke_depth = 1.0; // 0.8
+spoke_width = 3; // 3.2
+spoke_depth = 0.5; // 0.8
 spoke_height = 7.5; //7.5;
 
 encoder_cover();

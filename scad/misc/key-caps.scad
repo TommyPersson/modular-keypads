@@ -1,8 +1,6 @@
 use <../common/shared-utils.scad>
 include <../common/shared-variables.scad>
 
-width_x = u_1 * 1.5 - 1;
-depth_y = u_1 - 1;
 height_z = 3.5;
 shell_thickness = 1;
 
@@ -12,24 +10,38 @@ pole_height_z = 3.5;
 pole_separation = 5.7;
 pole_standoff_height = 0.5;
 
-cap_u_1_5();
+translate([0, 60]) {
+    cap_u_1_5();
+}
+translate([0, 120]) {
+    cap_u_1();
+}
+
+module cap_u_1() {
+    width_x = u_1 * 1 - 1;
+    depth_y = u_1 - 1;
+
+    shell([width_x, depth_y]);
+    poles();
+}
 
 module cap_u_1_5() {
-    //
-    shell([width_x, depth_y]);
+    width_x = u_1 * 1.5 - 1;
+    depth_y = u_1 - 1;
 
+    shell([width_x, depth_y]);
     poles();
 }
 
 module shell(size) {
     difference() {
         linear_extrude(height_z) {
-            rounded_rectangle([width_x, depth_y], corner_radius = 2, center = true);
+            rounded_rectangle(size, corner_radius = 2, center = true);
         }
 
         translate([0, 0, shell_thickness]) {
             linear_extrude(height_z - shell_thickness) {
-                rounded_rectangle([width_x - shell_thickness * 2, depth_y - shell_thickness * 2], corner_radius = 2,
+                rounded_rectangle([size.x - shell_thickness * 2, size.y - shell_thickness * 2], corner_radius = 2,
                 center = true);
             }
         }
