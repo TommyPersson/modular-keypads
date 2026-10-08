@@ -71,12 +71,6 @@ namespace mkp::devices::common {
                 char deviceName[tfw::hal::i2c::MAX_PACKET_SIZE]{};
             };
 
-            struct DeviceRegisters {
-                // The amount may vary between devices so the actual read-site uses a length override
-                // based on the number of registers.
-                uint8_t data[tfw::hal::i2c::MAX_PACKET_SIZE]{};
-            };
-
             struct SubDeviceInformation {
                 uint64_t deviceId = 0;
                 char subDeviceType = 0;
@@ -87,7 +81,6 @@ namespace mkp::devices::common {
         namespace endpoints {
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
-            inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{.id = 0x03};
         }
     }
 }

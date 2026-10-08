@@ -46,6 +46,18 @@ void loop() {
     prevUs = currentUs;
 
     spiSlave.update(deltaUs, eventQueue);
+
+    smc::hal::spi::Command command;
+    while (spiSlave.dequeueCommand(command)) {
+        switch (command.type) {
+        case smc::hal::spi::commands::FLASH_IDENTIFICATION_LIGHTS:
+            firmware->flashIdentificationLights();
+            break;
+        default:
+            break;
+        }
+    }
+
     firmware->update(deltaUs, eventQueue);
 
     while (const auto* event = eventQueue.dequeue()) {

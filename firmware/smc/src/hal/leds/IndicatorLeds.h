@@ -33,6 +33,8 @@ namespace smc::hal::leds {
 
         void setColor(uint8_t index, uint8_t r, uint8_t g, uint8_t b, uint8_t brightness = 255);
 
+        uint8_t size() const { return count; }
+
     private:
         const uint8_t count;
         tinyNeoPixel pixels;

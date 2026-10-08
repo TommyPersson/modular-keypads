@@ -35,6 +35,8 @@ namespace {
     // Modified from the ISRs, and from enqueueEvent() with interrupts disabled.
     bool hasReadEvent = false;
 
+    CommandQueue* commandQueue = nullptr;
+
     // Transaction state, only accessed from the ISRs below
     bool awaitingCommand = true;
     Response response = {nullptr, 0};
@@ -42,6 +44,7 @@ namespace {
     uint8_t responseCrc = 0;
     uint8_t eventResponse[2] = {};
     uint8_t ackResponse[1] = {};
+    const uint8_t acceptedResponse[1] = {responses::ACCEPTED};
 
     // TODO Temporary diagnostics, printed from update()
     volatile uint16_t ssFallingEdges = 0;
@@ -78,6 +81,9 @@ namespace {
                 ackResponse[0] = ackStatus::NOTHING_PENDING;
             }
             return {ackResponse, sizeof(ackResponse)};
+        case commands::FLASH_IDENTIFICATION_LIGHTS:
+            commandQueue->enqueue({.type = command});
+            return {acceptedResponse, sizeof(acceptedResponse)};
         default:
             return {nullptr, 0};
         }
@@ -113,6 +119,7 @@ namespace {
 
 void SpiSlave::setup() {
     ::eventQueue = &eventQueue;
+    ::commandQueue = &commandQueue;
 
     PORTMUX.CTRLB |= PORTMUX_SPI0_bm;
 
@@ -179,6 +186,18 @@ void SpiSlave::enqueueEvent(const events::Event& event) {
         eventQueue.enqueue(event);
         PORTC.OUTCLR = INT_bm;
     }
+}
+
+bool SpiSlave::dequeueCommand(Command& command) {
+    bool dequeued = false;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        // Copy out: the slot can be overwritten by the ISR once interrupts are enabled again
+        if (const auto* next = commandQueue.dequeue()) {
+            command = *next;
+            dequeued = true;
+        }
+    }
+    return dequeued;
 }
 
 ISR(PORTC_PORT_vect) {

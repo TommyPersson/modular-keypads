@@ -52,6 +52,8 @@ namespace mkp::devices::c {
 
         std::span<Device* const> getSubDevices() const override;
 
+        tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) override;
+
         tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
         uint8_t getEventInterruptPin() const override { return 21; }
 

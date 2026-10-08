@@ -36,6 +36,9 @@ namespace {
     constexpr uint8_t READ_DEVICE_TYPE = 0x02;
     constexpr uint8_t READ_EVENTS = 0x03;
     constexpr uint8_t ACK_EVENT = 0x04;
+    constexpr uint8_t FLASH_IDENTIFICATION_LIGHTS = 0x05;
+
+    constexpr uint8_t RESPONSE_ACCEPTED = 0x01;
 }
 
 SubDevice::SubDevice(
@@ -89,6 +92,12 @@ const std::vector<std::shared_ptr<DeviceCapability>>& SubDevice::getCapabilities
 }
 
 void_result SubDevice::flashIdentificationLights(uint32_t durationMs) {
+    // The SMC uses a fixed duration
+    uint8_t status;
+    if (!transact(FLASH_IDENTIFICATION_LIGHTS, &status, sizeof(status)) || status != RESPONSE_ACCEPTED) {
+        return void_result::error("flash.identification.lights.failed");
+    }
+
     return void_result::success();
 }
 
@@ -216,6 +225,16 @@ void SubDevice::pollEvents() {
 }
 
 bool SubDevice::transact(const uint8_t command, uint8_t* response, const size_t length, const uint32_t pauseUs) {
+    for (uint8_t attempt = 0; attempt < MAX_TRANSACT_ATTEMPTS; attempt++) {
+        if (transactOnce(command, response, length, pauseUs)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool SubDevice::transactOnce(const uint8_t command, uint8_t* response, const size_t length, const uint32_t pauseUs) {
     uint8_t crc = 0;
 
     spi.beginTransaction(spiSettings);

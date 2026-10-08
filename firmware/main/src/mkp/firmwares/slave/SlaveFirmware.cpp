@@ -75,16 +75,6 @@ void SlaveFirmware::loop() {
     Firmware::loop();
 
     device->loop();
-
-    mkp::devices::common::i2c::structs::DeviceRegisters registersStruct;
-    auto registerData = device->getRegisters().readAll();
-    std::memcpy(&registersStruct.data, registerData.data(), sizeof(registersStruct.data));
-
-    slavePort.updateEndpoint(
-        mkp::devices::common::i2c::endpoints::DeviceRegisters,
-        &registersStruct,
-        device->getRegisterDescriptors().size()
-    );
     /*
         gpio_wakeup_enable((gpio_num_t)11, GPIO_INTR_LOW_LEVEL);
         gpio_wakeup_enable((gpio_num_t)10, GPIO_INTR_LOW_LEVEL);

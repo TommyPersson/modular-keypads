@@ -90,6 +90,17 @@ std::span<Device* const> LocalDeviceC::getSubDevices() const {
     return subDevices;
 }
 
+tfw::utils::void_result LocalDeviceC::flashIdentificationLights(const uint32_t durationMs) {
+    // Sub-devices can be disconnected at any time, so their failures are ignored
+    for (const auto subDevice : subDevices) {
+        if (subDevice->getConfiguration().id != 0) {
+            subDevice->flashIdentificationLights(durationMs);
+        }
+    }
+
+    return LocalDevice::flashIdentificationLights(durationMs);
+}
+
 void LocalDeviceC::observe(const SubDeviceConnectedEvent& event) {
     subDeviceConnectedSubject.notify({ .deviceId = event.subDeviceId });
 }
