@@ -79,6 +79,7 @@ namespace mkp::devices::c {
         };
 
         std::optional<ScanResult> scanIdentity();
+        std::optional<std::string> readName();
         void resetConfiguration();
         void pollEvents();
     };

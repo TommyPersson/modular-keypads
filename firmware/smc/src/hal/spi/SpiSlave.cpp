@@ -21,6 +21,7 @@ namespace {
     constexpr uint8_t INT_bm = PIN4_bm;
 
     uint8_t deviceId[smc::hal::identity::DEVICE_ID_LENGTH] = {};
+    uint8_t deviceName[smc::hal::identity::DEVICE_NAME_LENGTH] = {};
 
     struct Response {
         const uint8_t* data;
@@ -40,8 +41,11 @@ namespace {
     // Transaction state, only accessed from the ISRs below
     bool awaitingCommand = true;
     uint8_t command = 0;
-    uint8_t argument = 0;
+    uint8_t arguments[MAX_ARGUMENT_LENGTH] = {};
+    uint8_t argumentIndex = 0;
     uint8_t argumentsRemaining = 0;
+    // Whether the command of the current transaction is queued for the main loop when the transaction ends
+    bool isCommandPending = false;
     Response response = {nullptr, 0};
     uint8_t responseIndex = 0;
     uint8_t responseCrc = 0;
@@ -58,10 +62,23 @@ namespace {
     uint32_t diagnosticsElapsedUs = 0;
 
     uint8_t argumentLengthFor(const uint8_t command) {
-        return command == commands::FLASH_BUTTON_IDENTIFICATION_LIGHT ? 1 : 0;
+        switch (command) {
+        case commands::FLASH_BUTTON_IDENTIFICATION_LIGHT:
+            return 1;
+        case commands::WRITE_DEVICE_NAME:
+            return smc::hal::identity::DEVICE_NAME_LENGTH;
+        default:
+            return 0;
+        }
     }
 
-    Response responseFor(const uint8_t command, const uint8_t argument) {
+    void enqueueCommand(const uint8_t command, const uint8_t* arguments) {
+        Command queued = {.type = command};
+        memcpy(queued.arguments, arguments, argumentLengthFor(command));
+        commandQueue->enqueue(queued);
+    }
+
+    Response responseFor(const uint8_t command, const uint8_t* arguments) {
         switch (command) {
         case commands::READ_DEVICE_ID:
             return {deviceId, sizeof(deviceId)};
@@ -88,9 +105,13 @@ namespace {
                 ackResponse[0] = ackStatus::NOTHING_PENDING;
             }
             return {ackResponse, sizeof(ackResponse)};
+        case commands::READ_DEVICE_NAME:
+            return {deviceName, sizeof(deviceName)};
         case commands::FLASH_IDENTIFICATION_LIGHTS:
         case commands::FLASH_BUTTON_IDENTIFICATION_LIGHT:
-            commandQueue->enqueue({.type = command, .argument = argument});
+        case commands::WRITE_DEVICE_NAME:
+            // Not queued here: copying the command takes longer than the master pauses before reading the response
+            isCommandPending = true;
             return {acceptedResponse, sizeof(acceptedResponse)};
         default:
             return {nullptr, 0};
@@ -113,7 +134,9 @@ namespace {
 
     void beginTransaction() {
         awaitingCommand = true;
+        argumentIndex = 0;
         argumentsRemaining = 0;
+        isCommandPending = false;
         response = {nullptr, 0};
         responseIndex = 0;
 
@@ -123,6 +146,13 @@ namespace {
     void endTransaction() {
         // Release MISO for other slaves on the bus
         PORTC.DIRCLR = MISO_bm;
+
+        // Also makes sure the main loop doesn't act on a command (e.g. by writing the EEPROM) while its
+        // response is still being transferred
+        if (isCommandPending) {
+            isCommandPending = false;
+            enqueueCommand(command, arguments);
+        }
     }
 }
 
@@ -177,6 +207,12 @@ void SpiSlave::update(uint32_t deltaUs, smc::events::EventQueue& queue) {
 void SpiSlave::setDeviceId(const uint8_t (&deviceId)[identity::DEVICE_ID_LENGTH]) {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         memcpy(::deviceId, deviceId, sizeof(::deviceId));
+    }
+}
+
+void SpiSlave::setDeviceName(const uint8_t (&deviceName)[identity::DEVICE_NAME_LENGTH]) {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        memcpy(::deviceName, deviceName, sizeof(::deviceName));
     }
 }
 
@@ -244,13 +280,13 @@ ISR(SPI0_INT_vect) {
         responseCrc = smc::utils::crc8::update(smc::utils::crc8::INIT, received);
         argumentsRemaining = argumentLengthFor(received);
         if (argumentsRemaining == 0) {
-            response = responseFor(command, 0);
+            response = responseFor(command, arguments);
         }
     } else if (argumentsRemaining > 0) {
-        argument = received;
+        arguments[argumentIndex++] = received;
         responseCrc = smc::utils::crc8::update(responseCrc, received);
         if (--argumentsRemaining == 0) {
-            response = responseFor(command, argument);
+            response = responseFor(command, arguments);
         }
     }
 

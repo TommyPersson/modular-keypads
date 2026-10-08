@@ -10,6 +10,9 @@ using namespace tfw::utils;
 using namespace tfw::hal::time;
 
 namespace {
+    // Same as the SMC's own default, which it returns until a name is set
+    constexpr auto DEFAULT_NAME = "Unnamed";
+
     constexpr uint8_t DEVICE_TYPE_SMC1 = 0x01;
     constexpr uint8_t DEVICE_TYPE_SMC2 = 0x02;
 
@@ -117,6 +120,22 @@ void_result SubDevice::flashButtonIdentificationLight(const uint8_t buttonNumber
 }
 
 void_result SubDevice::rename(const std::string_view& deviceName) {
+    // Null padded, and always terminated
+    uint8_t arguments[smc::DEVICE_NAME_LENGTH] = {};
+    const auto length = std::min(deviceName.size(), sizeof(arguments) - 1);
+    memcpy(arguments, deviceName.data(), length);
+
+    uint8_t status;
+    if (
+        !client.transact(commands::WRITE_DEVICE_NAME, arguments, &status, sizeof(status))
+        || status != responses::ACCEPTED
+    ) {
+        return void_result::error("rename.failed");
+    }
+
+    // The SMC stores the name asynchronously, so reading it back here could still return the old one
+    configuration.name = length > 0 ? std::string(deviceName.substr(0, length)) : DEFAULT_NAME;
+
     return void_result::success();
 }
 
@@ -147,11 +166,19 @@ void SubDevice::scan() {
         return;
     }
 
+    // Only read on connect, as the name is longer than the rest of the identity
+    const auto name = readName();
+    if (!name) {
+        // Retried on the next scan, as the device still counts as unconnected
+        return;
+    }
+
     deviceId = result->deviceId;
     deviceType = result->deviceType;
 
     configuration.id = deviceId;
     configuration.type = "smc" + std::to_string(deviceType);
+    configuration.name = *name;
     capabilities = &capabilitiesFor(deviceType);
 
     connectedSubject.notify(
@@ -178,11 +205,21 @@ std::optional<SubDevice::ScanResult> SubDevice::scanIdentity() {
     return result;
 }
 
+std::optional<std::string> SubDevice::readName() {
+    uint8_t name[smc::DEVICE_NAME_LENGTH];
+    if (!client.transact(commands::READ_DEVICE_NAME, name, sizeof(name))) {
+        return std::nullopt;
+    }
+
+    const auto chars = reinterpret_cast<const char*>(name);
+    return std::string(chars, strnlen(chars, sizeof(name)));
+}
+
 void SubDevice::resetConfiguration() {
     configuration.address = address;
     configuration.parentDeviceId = parentDeviceId;
     configuration.id = 0;
-    configuration.name = "dont-care";
+    configuration.name = "";
     configuration.type = "0";
 }
 

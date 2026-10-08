@@ -4,6 +4,7 @@
 
 #include "hal/base/Component.h"
 #include "hal/identity/DeviceId.h"
+#include "hal/identity/DeviceName.h"
 #include "utils/ring_queue.h"
 
 namespace smc::hal::spi {
@@ -14,7 +15,12 @@ namespace smc::hal::spi {
         inline constexpr uint8_t ACK_EVENT = 0x04;
         inline constexpr uint8_t FLASH_IDENTIFICATION_LIGHTS = 0x05;
         inline constexpr uint8_t FLASH_BUTTON_IDENTIFICATION_LIGHT = 0x06;
+        inline constexpr uint8_t READ_DEVICE_NAME = 0x07;
+        inline constexpr uint8_t WRITE_DEVICE_NAME = 0x08;
     }
+
+    // The longest argument of any command
+    inline constexpr uint8_t MAX_ARGUMENT_LENGTH = identity::DEVICE_NAME_LENGTH;
 
     namespace ackStatus {
         inline constexpr uint8_t NOTHING_PENDING = 0x00;
@@ -32,7 +38,7 @@ namespace smc::hal::spi {
      */
     struct Command {
         uint8_t type = 0; // One of commands::*
-        uint8_t argument = 0; // Only for commands that take an argument
+        uint8_t arguments[MAX_ARGUMENT_LENGTH] = {}; // Only for commands that take arguments
     };
 
     using CommandQueue = utils::ring_queue<Command, 4>;
@@ -41,7 +47,7 @@ namespace smc::hal::spi {
      * SPI0 slave on the alternate pins (SCK = PC0, MISO = PC1, MOSI = PC2, SS = PC3), mode 0, MSB first.
      *
      * A transaction (SS low to SS high) is one command byte from the master, followed by the
-     * argument byte for commands that take one (the slave sends FILLER_BYTE meanwhile), followed by
+     * argument bytes for commands that take them (the slave sends FILLER_BYTE meanwhile), followed by
      * the response bytes the master reads, followed by a CRC-8 byte (see utils/crc8.h) calculated over
      * the command and argument bytes as received and the response bytes. Unknown commands respond with only the
      * CRC byte. Commands without a more specific response respond with a generic one (see responses).
@@ -52,10 +58,13 @@ namespace smc::hal::spi {
      *                   The event is not removed, so reading again returns the same event.
      *   ACK_EVENT:      [status, crc]. Removes the event returned by the last READ_EVENTS (REMOVED),
      *                   or does nothing if it was already removed (NOTHING_PENDING), so it can be retried.
-     *   FLASH_IDENTIFICATION_LIGHTS: [ACCEPTED, crc]. Queues the command for the main loop,
-     *                   see dequeueCommand(). Repeating it restarts the flash.
+     *   FLASH_IDENTIFICATION_LIGHTS: [ACCEPTED, crc]. Queues the command for the main loop when the
+     *                   transaction ends, see dequeueCommand(). Repeating it restarts the flash.
      *   FLASH_BUTTON_IDENTIFICATION_LIGHT: argument [button number], [ACCEPTED, crc]. Like
      *                   FLASH_IDENTIFICATION_LIGHTS, but only flashes the LED of the given button.
+     *   READ_DEVICE_NAME: [name0, ..., name15, crc], null padded, see hal/identity/DeviceName.h
+     *   WRITE_DEVICE_NAME: arguments [name0, ..., name15], null padded, [ACCEPTED, crc]. Queues the
+     *                   command for the main loop, which stores the name and makes READ_DEVICE_NAME return it.
      *
      * ~INT (PC4, push-pull) is low while events are queued, and goes high when ACK_EVENT removes the
      * last one. The master can read and acknowledge events until INT goes high (or READ_EVENTS returns NONE).
@@ -78,6 +87,8 @@ namespace smc::hal::spi {
         void setDeviceId(const uint8_t (&deviceId)[identity::DEVICE_ID_LENGTH]);
 
         void setDeviceType(uint8_t deviceType);
+
+        void setDeviceName(const uint8_t (&deviceName)[identity::DEVICE_NAME_LENGTH]);
 
         void enqueueEvent(const events::Event& event);
 

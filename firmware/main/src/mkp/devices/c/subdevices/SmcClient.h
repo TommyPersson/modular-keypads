@@ -15,7 +15,12 @@ namespace mkp::devices::c {
             inline constexpr uint8_t ACK_EVENT = 0x04;
             inline constexpr uint8_t FLASH_IDENTIFICATION_LIGHTS = 0x05;
             inline constexpr uint8_t FLASH_BUTTON_IDENTIFICATION_LIGHT = 0x06;
+            inline constexpr uint8_t READ_DEVICE_NAME = 0x07;
+            inline constexpr uint8_t WRITE_DEVICE_NAME = 0x08;
         }
+
+        // Including the terminating null character, see firmware/smc/src/hal/identity/DeviceName.h
+        inline constexpr uint8_t DEVICE_NAME_LENGTH = 16;
 
         // Generic responses, for commands that have no more specific response
         namespace responses {
