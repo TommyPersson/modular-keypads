@@ -1,6 +1,7 @@
 #include "SpiSlave.h"
 
 #include <Arduino.h>
+#include <string.h>
 #include <util/atomic.h>
 
 #include "utils/crc8.h"
@@ -19,8 +20,7 @@ namespace {
     // Push-pull, low while events are queued
     constexpr uint8_t INT_bm = PIN4_bm;
 
-    // TODO Placeholder until the device has an ID structure
-    constexpr uint8_t DEVICE_ID[] = {0x5A, 0xC3, 0x01, 0x7E};
+    uint8_t deviceId[smc::hal::identity::DEVICE_ID_LENGTH] = {};
 
     struct Response {
         const uint8_t* data;
@@ -54,7 +54,7 @@ namespace {
     Response responseFor(const uint8_t command) {
         switch (command) {
         case commands::READ_DEVICE_ID:
-            return {DEVICE_ID, sizeof(DEVICE_ID)};
+            return {deviceId, sizeof(deviceId)};
         case commands::READ_DEVICE_TYPE:
             return { &deviceType, sizeof(deviceType)};
         case commands::READ_EVENTS: {
@@ -156,6 +156,12 @@ void SpiSlave::update(uint32_t deltaUs, smc::events::EventQueue& queue) {
         collisions,
         (PORTC.IN & SS_bm) ? "high" : "low"
     );
+}
+
+void SpiSlave::setDeviceId(const uint8_t (&deviceId)[identity::DEVICE_ID_LENGTH]) {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        memcpy(::deviceId, deviceId, sizeof(::deviceId));
+    }
 }
 
 void SpiSlave::setDeviceType(uint8_t deviceType) {

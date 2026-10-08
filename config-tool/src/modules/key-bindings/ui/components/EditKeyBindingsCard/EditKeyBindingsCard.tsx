@@ -34,7 +34,7 @@ import { useDeviceFacade } from "@src/modules/device/context"
 import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 import { type RotaryEncoderState, useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
 import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/models"
-import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
+import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { ListDeviceCapabilitiesQuery } from "@src/modules/device/queries/ListDeviceCapabilitiesQuery"
 import { ClearKeyBindingCommand } from "@src/modules/key-bindings/commands"
 import { SetKeyBindingCommand } from "@src/modules/key-bindings/commands/SetKeyBindingCommand"
@@ -61,7 +61,7 @@ const highlightBackgroundColor = "info.light"
 export const EditKeyBindingsCard = () => {
   const deviceFacade = useDeviceFacade()
 
-  const devicesQuery = useQuery(ListConnectedDevicesQuery(deviceFacade))
+  const devicesQuery = useConnectedDevices()
   const devices = devicesQuery.data ?? []
 
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(devices?.[0]?.deviceId ?? null)

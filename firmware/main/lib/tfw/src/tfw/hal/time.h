@@ -2,3 +2,4 @@
 
 #include "./time/Clock.h"
 #include "./time/Time.h"
+#include "./time/Timer.h"

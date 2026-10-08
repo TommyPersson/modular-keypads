@@ -2,6 +2,7 @@
 #include <SPI.h>
 
 #include "mkp/devices/common/Device.h"
+#include "mkp/firmwares/base/ServiceLocator.h"
 #include "tfw/hal/gpio/InputPin.h"
 #include "tfw/hal/gpio/OutputPin.h"
 
@@ -17,9 +18,12 @@ namespace mkp::devices::c {
         const uint64_t subDeviceId;
     };
 
-    class SubDevice : public tfw::utils::observables::Observer<tfw::hal::gpio::InputPinInterruptEvent>  {
+    class SubDevice final
+        : public common::Device,
+          public tfw::utils::observables::Observer<tfw::hal::gpio::InputPinInterruptEvent> {
     public:
         explicit SubDevice(
+            tfw::hal::time::Clock& clock,
             uint8_t number,
             SPIClass& spi,
             tfw::hal::gpio::OutputPin& pinCS,
@@ -27,16 +31,25 @@ namespace mkp::devices::c {
         );
         ~SubDevice() override;
 
-        void setup();
-        void update();
+        void setup() override;
+        void loop() override;
+
+        const common::DeviceConfiguration& getConfiguration() const override;
+        const std::vector<std::shared_ptr<common::DeviceCapability>>& getCapabilities() const override;
+
+        tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) override;
+        tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) override;
+        tfw::utils::void_result rename(const std::string_view& deviceName) override;
 
         void scan();
 
         void observe(const tfw::hal::gpio::InputPinInterruptEvent& event) override;
 
         tfw::utils::observables::Observable<SubDeviceConnectedEvent>& onConnected() { return connectedSubject; }
-        tfw::utils::observables::Observable<SubDeviceDisconnectedEvent>& onDisconnected() { return disconnectedSubject; }
-        tfw::utils::observables::Observable<common::DeviceSwitchEvent>& onSwitchEvent() { return deviceSwitchEventSubject; }
+
+        tfw::utils::observables::Observable<SubDeviceDisconnectedEvent>& onDisconnected() {
+            return disconnectedSubject;
+        }
 
     private:
         static constexpr uint32_t DEFAULT_PAUSE_US = 50;
@@ -48,13 +61,17 @@ namespace mkp::devices::c {
         tfw::hal::gpio::OutputPin& pinCS;
         tfw::hal::gpio::InputPin& pinINT;
         volatile bool eventsAvailable = false;
-        volatile bool scanScheduled = false;
+        volatile bool scanScheduled = true;
+        uint8_t numMissedScans = 0;
+        common::DeviceConfiguration configuration;
+        std::unique_ptr<tfw::hal::time::Timer> scanTimer;
 
-        tfw::utils::observables::Subject<common::DeviceSwitchEvent> deviceSwitchEventSubject;
         tfw::utils::observables::Subject<SubDeviceConnectedEvent> connectedSubject;
         tfw::utils::observables::Subject<SubDeviceDisconnectedEvent> disconnectedSubject;
 
         void pollEvents();
         bool transact(uint8_t command, uint8_t* response, size_t length, uint32_t pauseUs = DEFAULT_PAUSE_US);
+
+    public:
     };
 }

@@ -5,7 +5,10 @@
 #include "tfw/hal/logging/Logger.h"
 
 using namespace mkp::devices::c;
+using namespace mkp::devices::common;
 using namespace tfw::hal::gpio;
+using namespace tfw::utils;
+using namespace tfw::hal::time;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("SubDevice");
@@ -36,6 +39,7 @@ namespace {
 }
 
 SubDevice::SubDevice(
+    Clock& clock,
     const uint8_t number,
     SPIClass& spi,
     OutputPin& pinCS,
@@ -44,6 +48,10 @@ SubDevice::SubDevice(
     spi(spi),
     pinCS(pinCS),
     pinINT(pinINT) {
+
+    scanTimer = clock.createTimer(100'000, [this](const TimerElapsedEvent& event) {
+        scan();
+    });
 }
 
 SubDevice::~SubDevice() = default;
@@ -54,26 +62,56 @@ void SubDevice::setup() {
     pinINT.setup();
     pinINT.setupInterrupt(FALLING);
     pinINT.onInterruptEvent().addObserver(this);
+
+    scan();
 }
 
-void SubDevice::update() {
+void SubDevice::loop() {
     pollEvents();
 
-    //if (scanScheduled) {
-    //        scanScheduled = false;
-    scan();
-    //    }
+    scanTimer->update();
+}
+
+const DeviceConfiguration& SubDevice::getConfiguration() const {
+    return configuration;
+}
+
+std::vector<std::shared_ptr<DeviceCapability>> capabilities = {};
+
+const std::vector<std::shared_ptr<DeviceCapability>>& SubDevice::getCapabilities() const {
+    return capabilities;
+}
+
+void_result SubDevice::flashIdentificationLights(uint32_t durationMs) {
+    return void_result::success();
+}
+
+void_result SubDevice::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
+    return void_result::success();
+}
+
+void_result SubDevice::rename(const std::string_view& deviceName) {
+    return void_result::success();
 }
 
 void SubDevice::scan() {
-    uint32_t scannedDeviceId;
+    uint64_t scannedDeviceId;
     auto valid = transact(READ_DEVICE_ID, reinterpret_cast<uint8_t*>(&scannedDeviceId), sizeof(scannedDeviceId));
     if (!valid) {
-        auto previousDeviceId = deviceId;
-        deviceId = 0;
+        numMissedScans++;
 
-        if (previousDeviceId != 0) {
-            disconnectedSubject.notify({.subDeviceNumber = number, .subDeviceId = previousDeviceId});
+        if (numMissedScans > 5) {
+            numMissedScans = 0;
+            auto previousDeviceId = deviceId;
+            deviceId = 0;
+            configuration.address = 0;
+            configuration.id = deviceId;
+            configuration.name = "dont-care";
+            configuration.type = '0';
+
+            if (previousDeviceId != 0) {
+                disconnectedSubject.notify({.subDeviceNumber = number, .subDeviceId = previousDeviceId});
+            }
         }
 
         return;
@@ -82,14 +120,20 @@ void SubDevice::scan() {
     uint8_t scannedDeviceType;
     auto valid2 = transact(READ_DEVICE_TYPE, &scannedDeviceType, sizeof(scannedDeviceType));
     if (!valid2) {
-        this->deviceType = 0;
+        deviceType = 0;
+        configuration.type = '0';
         return;
     }
 
-    auto wasUpdated = this->deviceId != scannedDeviceId;
+    auto wasUpdated = deviceId != scannedDeviceId;
 
-    this->deviceId = scannedDeviceId;
-    this->deviceType = scannedDeviceType;
+    deviceId = scannedDeviceId;
+    deviceType = scannedDeviceType;
+
+    configuration.address = 0;
+    configuration.id = deviceId;
+    configuration.name = "dont-care";
+    configuration.type = 'd';
 
     if (wasUpdated) {
         connectedSubject.notify(
@@ -115,7 +159,7 @@ void SubDevice::pollEvents() {
                 break;
             }
 
-            if (event[0] == 0x00) {
+            if (event[0] == 0) {
                 break;
             }
 
@@ -123,7 +167,7 @@ void SubDevice::pollEvents() {
             transact(ACK_EVENT, &status, 1);
 
             logger->info("[%i] Event: %02x.%02x", number, event[0], event[1]);
-            if (event[0] == 0x11) {
+            if (event[0] == 11) {
                 logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
                 auto switchNumber = event[1];
                 this->deviceSwitchEventSubject.notify(
@@ -133,7 +177,7 @@ void SubDevice::pollEvents() {
                         .state = tfw::hal::buttons::ButtonState::PRESSED
                     }
                 );
-            } else if (event[0] == 0x12) {
+            } else if (event[0] == 12) {
                 logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
                 auto switchNumber = event[1];
                 this->deviceSwitchEventSubject.notify(
@@ -145,7 +189,7 @@ void SubDevice::pollEvents() {
                 );
             }
 
-            if (event[0] == 0x01) {
+            if (event[0] == 1) {
                 scanScheduled = true;
             }
         }

@@ -26,7 +26,8 @@ using namespace mkp::firmwares::base;
 using namespace mkp::firmwares::master::commands;
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
-    : Firmware(serviceLocator) {
+    : Firmware(serviceLocator),
+      notifierFactory(serviceLocator.notifierFactory) {
     macroStorage = std::make_unique<MacroStorage>(serviceLocator.fileSystem);
     keyBindingStorage = std::make_unique<KeyBindingStorage>(serviceLocator.fileSystem);
     keyBindingExecutor = std::make_unique<KeyBindingExecutor>(
@@ -119,6 +120,16 @@ void MasterFirmware::loop() {
     keyBindingExecutor->loop();
 }
 
+void MasterFirmware::observe(const DeviceConnectedEvent& event) {
+    auto notifier = notifierFactory.create(event.deviceId);
+    notifier->notify({.type = "device.connected", .args = {}});
+}
+
+void MasterFirmware::observe(const DeviceDisconnectedEvent& event) {
+    auto notifier = notifierFactory.create(event.deviceId);
+    notifier->notify({.type = "device.disconnected", .args = {}});
+}
+
 // TODO allow connected devices to use open drain outputs to signal their presence?
 void MasterFirmware::refreshRemoteDevices() {
     allDevices.clear();
@@ -148,6 +159,15 @@ void MasterFirmware::refreshRemoteDevices() {
         device->setup();
         device->onSwitchEvent().addObserver(this);
         device->onRotaryEncoderEvent().addObserver(this);
+    }
+
+    for (const auto& device : localDevice->getSubDevices()) {
+        allDevices.push_back(device);
+    }
+
+    for (const auto& device : allDevices) {
+        device->onSubDeviceConnectedEvent().addObserver(this);
+        device->onSubDeviceDisconnectedEvent().addObserver(this);
     }
 }
 
@@ -179,4 +199,3 @@ void MasterFirmware::observe(const tfw::hal::gpio::InputPinInterruptEvent& event
         }
     }
 }
-

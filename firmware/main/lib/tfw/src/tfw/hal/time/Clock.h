@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+
+#include "Timer.h"
 
 namespace tfw::hal::time {
     /**
@@ -60,5 +63,11 @@ namespace tfw::hal::time {
          * In tests, this may advance virtual time instead of blocking.
          */
         virtual void delayMs(uint32_t ms) = 0;
+
+        /**
+         * Create a Timer driven by this clock that invokes callback every intervalUs microseconds.
+         * The clock must outlive the returned timer.
+         */
+        std::unique_ptr<Timer> createTimer(uint64_t intervalUs, TimerCallback callback) const;
     };
 }

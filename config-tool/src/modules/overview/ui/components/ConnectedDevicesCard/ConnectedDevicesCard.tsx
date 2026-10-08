@@ -15,16 +15,12 @@ import {
   FlashDeviceIdentificationLightsCommand
 } from "@src/modules/device/commands/FlashDeviceIdentificationLightsCommand"
 import { RenameDeviceCommand } from "@src/modules/device/commands/RenameDeviceCommand"
-import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceInformation } from "@src/modules/device/models"
-import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
-import { useQuery } from "@tanstack/react-query"
+import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { type ChangeEvent, useCallback, useEffect, useState } from "react"
 
 export const ConnectedDevicesCard = () => {
-  const { facade: deviceFacade } = useDeviceContext()
-
-  const query = useQuery(ListConnectedDevicesQuery(deviceFacade))
+  const query = useConnectedDevices()
 
   const connectedDevices = query.data ?? []
 

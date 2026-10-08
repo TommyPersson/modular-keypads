@@ -1,6 +1,12 @@
 #include "ListConnectedDevices.h"
 
+#include "tfw/hal/logging/Logger.h"
+
 using namespace mkp::firmwares::master::commands;
+
+namespace {
+    const auto logger = tfw::hal::logging::createLogger("ListConnectedDevices");
+}
 
 ListConnectedDevices::ListConnectedDevices(
     std::vector<mkp::devices::common::Device*>& devices
@@ -17,7 +23,9 @@ tfw::utils::void_result ListConnectedDevices::execute(
 ) {
     for (auto& device : devices) {
         const auto& config = device->getConfiguration();
-        responseWriter.writeLineF("%08llx,%02x,%c,%s,", config.id, config.address, config.type, config.name.c_str());
+        if (config.id != 0) {
+            responseWriter.writeLineF("%08llx,%02x,%c,%s,", config.id, config.address, config.type, config.name.c_str());
+        }
     }
 
     return tfw::utils::void_result::success();

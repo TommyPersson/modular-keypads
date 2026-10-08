@@ -6,6 +6,8 @@
 
 class MasterFirmware final
     : public mkp::firmwares::base::Firmware,
+      tfw::utils::observables::Observer<mkp::devices::common::DeviceConnectedEvent>,
+      tfw::utils::observables::Observer<mkp::devices::common::DeviceDisconnectedEvent>,
       tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
       tfw::utils::observables::Observer<mkp::devices::common::DeviceRotaryEncoderEvent>,
       tfw::utils::observables::Observer<tfw::hal::gpio::InputPinInterruptEvent> {
@@ -16,6 +18,8 @@ public:
     void setup() override;
     void loop() override;
 
+    void observe(const mkp::devices::common::DeviceConnectedEvent& event) override;
+    void observe(const mkp::devices::common::DeviceDisconnectedEvent& event) override;
     void observe(const mkp::devices::common::DeviceSwitchEvent& event) override;
     void observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) override;
     void observe(const tfw::hal::gpio::InputPinInterruptEvent& event) override;
@@ -36,4 +40,6 @@ private:
 
     std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;
     std::unique_ptr<tfw::hal::gpio::InputPin> slaveEventInterruptInputPin;
+
+    const mkp::components::notifications::NotifierFactory& notifierFactory;
 };

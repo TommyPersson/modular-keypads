@@ -20,6 +20,14 @@ namespace mkp::devices::common {
         const tfw::hal::encoders::RotaryEncoderDirection direction;
     };
 
+    struct DeviceConnectedEvent {
+        const uint64_t deviceId;
+    };
+
+    struct DeviceDisconnectedEvent {
+        const uint64_t deviceId;
+    };
+
     class Device {
     public:
         virtual ~Device() = default;
@@ -29,6 +37,7 @@ namespace mkp::devices::common {
 
         virtual const DeviceConfiguration& getConfiguration() const = 0;
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
+        virtual std::span<Device* const> getSubDevices() const { return {}; }
 
         virtual tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) = 0;
         virtual tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) = 0;
@@ -40,9 +49,14 @@ namespace mkp::devices::common {
             return deviceRotaryEncoderEventSubject;
         }
 
+        tfw::utils::observables::Observable<DeviceConnectedEvent>& onSubDeviceConnectedEvent() { return subDeviceConnectedSubject; }
+        tfw::utils::observables::Observable<DeviceDisconnectedEvent>& onSubDeviceDisconnectedEvent() { return subDeviceDisconnectedSubject; }
+
     protected:
         tfw::utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
         tfw::utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
+        tfw::utils::observables::Subject<DeviceConnectedEvent> subDeviceConnectedSubject;
+        tfw::utils::observables::Subject<DeviceDisconnectedEvent> subDeviceDisconnectedSubject;
     };
 
     namespace i2c {
@@ -74,9 +88,6 @@ namespace mkp::devices::common {
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceRegisters> DeviceRegisters{.id = 0x03};
-            inline tfw::hal::i2c::EndpointDescriptor<structs::SubDeviceInformation> SubDevice1Information{.id = 0x11};
-            inline tfw::hal::i2c::EndpointDescriptor<structs::SubDeviceInformation> SubDevice2Information{.id = 0x12};
-            inline tfw::hal::i2c::EndpointDescriptor<structs::SubDeviceInformation> SubDevice3Information{.id = 0x13};
         }
     }
 }

@@ -14,7 +14,7 @@ import { PropertyGroup, PropertyText } from "@src/modules/common/components"
 import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceFacade } from "@src/modules/device/facade"
 import type { DeviceInformation } from "@src/modules/device/models"
-import { ListConnectedDevicesQuery } from "@src/modules/device/queries/ListConnectedDevicesQuery"
+import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { ListDeviceCapabilitiesQuery } from "@src/modules/device/queries/ListDeviceCapabilitiesQuery"
 import { useQuery } from "@tanstack/react-query"
 
@@ -22,7 +22,7 @@ import { useQuery } from "@tanstack/react-query"
 export const ConnectedDevicesCard = () => {
   const { facade: deviceFacade } = useDeviceContext()
 
-  const query = useQuery(ListConnectedDevicesQuery(deviceFacade))
+  const query = useConnectedDevices()
 
   const connectedDevices = query.data ?? []
 

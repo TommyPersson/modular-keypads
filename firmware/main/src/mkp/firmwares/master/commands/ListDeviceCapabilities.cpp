@@ -3,8 +3,13 @@
 #include <tfw/utils/strings.h>
 
 #include "mkp/devices/common/LocalDevice.h"
+#include "tfw/hal/logging/Logger.h"
 
 using namespace mkp::firmwares::master::commands;
+
+namespace {
+    const auto logger = tfw::hal::logging::createLogger("ListDeviceCapabilities");
+}
 
 ListDeviceCapabilities::ListDeviceCapabilities(
     std::vector<mkp::devices::common::Device*>& devices

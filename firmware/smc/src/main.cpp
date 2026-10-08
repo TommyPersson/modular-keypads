@@ -2,6 +2,7 @@
 
 #include "firmwares/Firmware.h"
 #include "firmwares/FirmwareFactory.h"
+#include "hal/identity/DeviceId.h"
 #include "hal/spi/SpiSlave.h"
 
 namespace {
@@ -27,6 +28,10 @@ void setup() {
 
     firmware = firmwareFactory.create();
     firmware->setup();
+
+    uint8_t deviceId[smc::hal::identity::DEVICE_ID_LENGTH];
+    smc::hal::identity::computeDeviceId(deviceId);
+    spiSlave.setDeviceId(deviceId);
 
     spiSlave.setup();
     spiSlave.setDeviceType(firmware->deviceType());

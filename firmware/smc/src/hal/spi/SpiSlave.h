@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "hal/base/Component.h"
+#include "hal/identity/DeviceId.h"
 
 namespace smc::hal::spi {
     namespace commands {
@@ -25,7 +26,7 @@ namespace smc::hal::spi {
      * the command byte as received and the response bytes. Unknown commands respond with only the
      * CRC byte. Reading beyond the CRC returns FILLER_BYTE. MISO is only driven while SS is low.
      *
-     *   READ_DEVICE_ID: [id0, id1, id2, id3, crc]
+     *   READ_DEVICE_ID: [id0, ..., id7, crc], see hal/identity/DeviceId.h
      *   READ_EVENTS:    [type, data, crc] for the oldest event, or [NONE, 0, crc] when there are none.
      *                   The event is not removed, so reading again returns the same event.
      *   ACK_EVENT:      [status, crc]. Removes the event returned by the last READ_EVENTS (REMOVED),
@@ -48,6 +49,8 @@ namespace smc::hal::spi {
 
         void setup() override;
         void update(uint32_t deltaUs, events::EventQueue& queue) override;
+
+        void setDeviceId(const uint8_t (&deviceId)[identity::DEVICE_ID_LENGTH]);
 
         void setDeviceType(uint8_t deviceType);
 

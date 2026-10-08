@@ -45,9 +45,13 @@ void LocalDeviceC::setup() {
     pinMod2Int = InputPin::physical(13, PULLUP);
     pinMod3Int = InputPin::physical(14, PULLUP);
 
-    subDevice1 = std::make_unique<SubDevice>(1, *spi, *pinModCs1, *pinMod1Int);
-    subDevice2 = std::make_unique<SubDevice>(2, *spi, *pinModCs2, *pinMod2Int);
-    subDevice3 = std::make_unique<SubDevice>(3, *spi, *pinModCs3, *pinMod3Int);
+    subDevice1 = std::make_unique<SubDevice>(clock, 1, *spi, *pinModCs1, *pinMod1Int);
+    subDevice2 = std::make_unique<SubDevice>(clock, 2, *spi, *pinModCs2, *pinMod2Int);
+    subDevice3 = std::make_unique<SubDevice>(clock, 3, *spi, *pinModCs3, *pinMod3Int);
+
+    subDevices[0] = subDevice1.get();
+    subDevices[1] = subDevice2.get();
+    subDevices[2] = subDevice3.get();
 
     subDevice1->setup();
     subDevice2->setup();
@@ -75,17 +79,21 @@ void LocalDeviceC::setup() {
 void LocalDeviceC::loop() {
     LocalDevice::loop();
 
-    subDevice1->update();
-    subDevice2->update();
-    subDevice3->update();
+    subDevice1->loop();
+    subDevice2->loop();
+    subDevice3->loop();
 
     registerRefresher->loop();
 }
 
+std::span<Device* const> LocalDeviceC::getSubDevices() const {
+    return subDevices;
+}
+
 void LocalDeviceC::observe(const SubDeviceConnectedEvent& event) {
-    logger->info("[%i] Sub Device Connected: %08llx (type = %02x)", event.subDeviceNumber, event.subDeviceId, event.subDeviceType);
+    subDeviceConnectedSubject.notify({ .deviceId = event.subDeviceId });
 }
 
 void LocalDeviceC::observe(const SubDeviceDisconnectedEvent& event) {
-    logger->info("[%i] Sub Device Disconnected: %08llx", event.subDeviceNumber, event.subDeviceId);
+    subDeviceDisconnectedSubject.notify({ .deviceId = event.subDeviceId });
 }

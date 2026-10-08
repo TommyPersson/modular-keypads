@@ -50,6 +50,8 @@ namespace mkp::devices::c {
             return registers::all;
         }
 
+        std::span<Device* const> getSubDevices() const override;
+
         tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
         uint8_t getEventInterruptPin() const override { return 21; }
 
@@ -60,6 +62,7 @@ namespace mkp::devices::c {
         std::unique_ptr<SubDevice> subDevice1;
         std::unique_ptr<SubDevice> subDevice2;
         std::unique_ptr<SubDevice> subDevice3;
+        std::array<Device*, 3> subDevices{};
 
         std::unique_ptr<common::RegisterRefresher> registerRefresher;
         std::unique_ptr<tfw::hal::gpio::OutputPin> pinModReset;
