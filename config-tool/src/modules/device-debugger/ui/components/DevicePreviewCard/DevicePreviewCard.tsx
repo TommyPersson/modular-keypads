@@ -51,6 +51,8 @@ const PreviewCardContent = (props: {
       return <TypeAPreviewCardContent deviceId={deviceId} />
     case "smc1":
       return <TypeSmc1PreviewCardContent deviceId={deviceId} />
+    case "smc2":
+      return <TypeSmc2PreviewCardContent deviceId={deviceId} />
     default:
       return <NullPreviewCardContent />
   }
@@ -92,22 +94,39 @@ const TypeSmc1PreviewCardContent = (props: {
   )
 }
 
+const TypeSmc2PreviewCardContent = (props: {
+  deviceId: string,
+}) => {
+  const { deviceId } = props
+
+  const pushButtonStates = usePushButtonStates(deviceId)
+
+  // 1u switches, so three of them span the same width as two of the 1.5u switches of the other clusters
+  return (
+    <Paper elevation={5} className={classes.SubDevicePreviewContainer}>
+      <SwitchStateIndicatorCluster firstSwitchNumber={1} rows={2} columns={3} pushButtonStates={pushButtonStates} />
+    </Paper>
+  )
+}
+
 /**
- * A 2x2 cluster of switches, numbered from firstSwitchNumber left to right, top to bottom.
+ * A cluster of switches (2x2 by default), numbered from firstSwitchNumber left to right, top to bottom.
  */
 const SwitchStateIndicatorCluster = (props: {
   firstSwitchNumber: number,
+  rows?: number,
+  columns?: number,
   pushButtonStates: PushButtonStates,
 }) => {
-  const { firstSwitchNumber, pushButtonStates } = props
+  const { firstSwitchNumber, rows = 2, columns = 2, pushButtonStates } = props
 
   return (
     <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
       {
-        [0, 1, 2, 3].map(offset => {
+        Array.from({ length: rows * columns }, (_, offset) => {
           const switchNumber = firstSwitchNumber + offset
           return (
-            <Grid key={switchNumber} size={6}>
+            <Grid key={switchNumber} size={12 / columns}>
               <SwitchStateIndicator switchNumber={switchNumber} isPressed={pushButtonStates[switchNumber] ?? false} />
             </Grid>
           )

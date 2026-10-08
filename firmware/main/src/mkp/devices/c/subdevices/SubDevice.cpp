@@ -37,6 +37,7 @@ namespace {
     constexpr uint8_t RESPONSE_ACCEPTED = 0x01;
 
     constexpr uint8_t DEVICE_TYPE_SMC1 = 0x01;
+    constexpr uint8_t DEVICE_TYPE_SMC2 = 0x02;
 
     // The SMC reports its own button events, so there are no registers, and its LEDs aren't controlled from here
     const std::vector<std::shared_ptr<DeviceCapability>> smc1Capabilities = {
@@ -46,11 +47,21 @@ namespace {
         std::make_shared<PushButtonCapability>(4, NoRegister, 0, -1),
     };
 
+    const std::vector<std::shared_ptr<DeviceCapability>> smc2Capabilities = {
+        std::make_shared<PushButtonCapability>(1, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(2, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(3, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(4, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(5, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(6, NoRegister, 0, -1),
+    };
+
     const std::vector<std::shared_ptr<DeviceCapability>> noCapabilities = {};
 
     const std::vector<std::shared_ptr<DeviceCapability>>& capabilitiesFor(const uint8_t deviceType) {
         switch (deviceType) {
         case DEVICE_TYPE_SMC1: return smc1Capabilities;
+        case DEVICE_TYPE_SMC2: return smc2Capabilities;
         default: return noCapabilities;
         }
     }
