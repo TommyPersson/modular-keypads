@@ -4,56 +4,31 @@
 
 using namespace mkp::devices::c;
 using namespace mkp::devices::common;
+using namespace mkp::devices::c::smc;
 using namespace tfw::hal::gpio;
 using namespace tfw::utils;
 using namespace tfw::hal::time;
 
 namespace {
-    const SPISettings spiSettings(1000000, MSBFIRST, SPI_MODE0);
-
-    // CRC-8/AUTOSAR: poly 0x2F, init 0xFF, no reflection, xorout 0xFF
-    uint8_t crc8(const uint8_t command, const uint8_t* data, const size_t length) {
-        uint8_t crc = 0xFF;
-        auto feed = [&crc](const uint8_t byte) {
-            crc ^= byte;
-            for (int bit = 0; bit < 8; bit++) {
-                crc = crc & 0x80 ? (uint8_t)((crc << 1) ^ 0x2F) : (uint8_t)(crc << 1);
-            }
-        };
-
-        feed(command);
-        for (size_t i = 0; i < length; i++) {
-            feed(data[i]);
-        }
-        return crc ^ 0xFF;
-    }
-
-    constexpr uint8_t READ_DEVICE_ID = 0x01;
-    constexpr uint8_t READ_DEVICE_TYPE = 0x02;
-    constexpr uint8_t READ_EVENTS = 0x03;
-    constexpr uint8_t ACK_EVENT = 0x04;
-    constexpr uint8_t FLASH_IDENTIFICATION_LIGHTS = 0x05;
-
-    constexpr uint8_t RESPONSE_ACCEPTED = 0x01;
-
     constexpr uint8_t DEVICE_TYPE_SMC1 = 0x01;
     constexpr uint8_t DEVICE_TYPE_SMC2 = 0x02;
 
-    // The SMC reports its own button events, so there are no registers, and its LEDs aren't controlled from here
+    // The SMC reports its own button events, so there are no registers. The LED indices are the SMC's own (see
+    // the button definitions in the SMC firmwares), the SMC maps button numbers to them.
     const std::vector<std::shared_ptr<DeviceCapability>> smc1Capabilities = {
-        std::make_shared<PushButtonCapability>(1, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(2, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(3, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(4, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(1, NoRegister, 0, 0),
+        std::make_shared<PushButtonCapability>(2, NoRegister, 0, 1),
+        std::make_shared<PushButtonCapability>(3, NoRegister, 0, 3),
+        std::make_shared<PushButtonCapability>(4, NoRegister, 0, 2),
     };
 
     const std::vector<std::shared_ptr<DeviceCapability>> smc2Capabilities = {
-        std::make_shared<PushButtonCapability>(1, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(2, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(3, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(4, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(5, NoRegister, 0, -1),
-        std::make_shared<PushButtonCapability>(6, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(1, NoRegister, 0, 0),
+        std::make_shared<PushButtonCapability>(2, NoRegister, 0, 1),
+        std::make_shared<PushButtonCapability>(3, NoRegister, 0, 2),
+        std::make_shared<PushButtonCapability>(4, NoRegister, 0, 5),
+        std::make_shared<PushButtonCapability>(5, NoRegister, 0, 4),
+        std::make_shared<PushButtonCapability>(6, NoRegister, 0, 3),
     };
 
     const std::vector<std::shared_ptr<DeviceCapability>> noCapabilities = {};
@@ -78,8 +53,7 @@ SubDevice::SubDevice(
 ) : address(address),
     parentDeviceId(parentDeviceId),
     number(number),
-    spi(spi),
-    pinCS(pinCS),
+    client(spi, pinCS),
     pinINT(pinINT),
     capabilities(&noCapabilities) {
 
@@ -93,8 +67,7 @@ SubDevice::SubDevice(
 SubDevice::~SubDevice() = default;
 
 void SubDevice::setup() {
-    pinCS.init();
-    pinCS.setHigh();
+    client.setup();
     pinINT.setup();
     pinINT.setupInterrupt(FALLING);
     pinINT.onInterruptEvent().addObserver(this);
@@ -119,14 +92,27 @@ const std::vector<std::shared_ptr<DeviceCapability>>& SubDevice::getCapabilities
 void_result SubDevice::flashIdentificationLights(uint32_t durationMs) {
     // The SMC uses a fixed duration
     uint8_t status;
-    if (!transact(FLASH_IDENTIFICATION_LIGHTS, &status, sizeof(status)) || status != RESPONSE_ACCEPTED) {
+    if (
+        !client.transact(commands::FLASH_IDENTIFICATION_LIGHTS, &status, sizeof(status))
+        || status != responses::ACCEPTED
+    ) {
         return void_result::error("flash.identification.lights.failed");
     }
 
     return void_result::success();
 }
 
-void_result SubDevice::flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
+void_result SubDevice::flashButtonIdentificationLight(const uint8_t buttonNumber, uint32_t durationMs) {
+    // The SMC uses a fixed duration
+    const uint8_t arguments[] = {buttonNumber};
+    uint8_t status;
+    if (
+        !client.transact(commands::FLASH_BUTTON_IDENTIFICATION_LIGHT, arguments, &status, sizeof(status))
+        || status != responses::ACCEPTED
+    ) {
+        return void_result::error("flash.button.identification.light.failed");
+    }
+
     return void_result::success();
 }
 
@@ -180,11 +166,12 @@ void SubDevice::scan() {
 std::optional<SubDevice::ScanResult> SubDevice::scanIdentity() {
     ScanResult result{};
 
-    if (!transact(READ_DEVICE_ID, reinterpret_cast<uint8_t*>(&result.deviceId), sizeof(result.deviceId))) {
+    const auto deviceIdBytes = reinterpret_cast<uint8_t*>(&result.deviceId);
+    if (!client.transact(commands::READ_DEVICE_ID, deviceIdBytes, sizeof(result.deviceId))) {
         return std::nullopt;
     }
 
-    if (!transact(READ_DEVICE_TYPE, &result.deviceType, sizeof(result.deviceType))) {
+    if (!client.transact(commands::READ_DEVICE_TYPE, &result.deviceType, sizeof(result.deviceType))) {
         return std::nullopt;
     }
 
@@ -207,7 +194,7 @@ void SubDevice::pollEvents() {
     if (eventsAvailable) {
         uint8_t event[2];
         while (true) {
-            auto valid = transact(READ_EVENTS, event, sizeof(event));
+            auto valid = client.transact(commands::READ_EVENTS, event, sizeof(event));
             if (!valid) {
                 break;
             }
@@ -217,7 +204,7 @@ void SubDevice::pollEvents() {
             }
 
             uint8_t status;
-            transact(ACK_EVENT, &status, 1);
+            client.transact(commands::ACK_EVENT, &status, 1);
 
             if (event[0] == 11) {
                 auto switchNumber = event[1];
@@ -246,49 +233,4 @@ void SubDevice::pollEvents() {
     }
 
     eventsAvailable = !pinINT.read();
-}
-
-bool SubDevice::transact(const uint8_t command, uint8_t* response, const size_t length, const uint32_t pauseUs) {
-    for (uint8_t attempt = 0; attempt < MAX_TRANSACT_ATTEMPTS; attempt++) {
-        if (transactOnce(command, response, length, pauseUs)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool SubDevice::transactOnce(const uint8_t command, uint8_t* response, const size_t length, const uint32_t pauseUs) {
-    uint8_t crc = 0;
-
-    spi.beginTransaction(spiSettings);
-    pinCS.setLow();
-    delayMicroseconds(5);
-
-    spi.transfer(command);
-    delayMicroseconds(pauseUs);
-    for (size_t i = 0; i < length; i++) {
-        response[i] = spi.transfer(0x00);
-        delayMicroseconds(pauseUs);
-    }
-    crc = spi.transfer(0x00);
-
-    pinCS.setHigh();
-    spi.endTransaction();
-
-    // Give the slave time to handle the end of the transaction
-    delayMicroseconds(20);
-
-    const uint8_t expected = crc8(command, response, length);
-
-    /*
-    if (crc != expected && logFailures) {
-        Serial.printf("  command %02X -> ", command);
-        for (size_t i = 0; i < length; i++) {
-            Serial.printf("%02X ", response[i]);
-        }
-        Serial.printf("crc %02X (expected %02X)\n\r", crc, expected);
-    }*/
-
-    return crc == expected;
 }

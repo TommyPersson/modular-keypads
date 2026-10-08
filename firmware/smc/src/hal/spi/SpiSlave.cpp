@@ -39,6 +39,9 @@ namespace {
 
     // Transaction state, only accessed from the ISRs below
     bool awaitingCommand = true;
+    uint8_t command = 0;
+    uint8_t argument = 0;
+    uint8_t argumentsRemaining = 0;
     Response response = {nullptr, 0};
     uint8_t responseIndex = 0;
     uint8_t responseCrc = 0;
@@ -54,7 +57,11 @@ namespace {
     volatile uint16_t writeCollisions = 0;
     uint32_t diagnosticsElapsedUs = 0;
 
-    Response responseFor(const uint8_t command) {
+    uint8_t argumentLengthFor(const uint8_t command) {
+        return command == commands::FLASH_BUTTON_IDENTIFICATION_LIGHT ? 1 : 0;
+    }
+
+    Response responseFor(const uint8_t command, const uint8_t argument) {
         switch (command) {
         case commands::READ_DEVICE_ID:
             return {deviceId, sizeof(deviceId)};
@@ -82,7 +89,8 @@ namespace {
             }
             return {ackResponse, sizeof(ackResponse)};
         case commands::FLASH_IDENTIFICATION_LIGHTS:
-            commandQueue->enqueue({.type = command});
+        case commands::FLASH_BUTTON_IDENTIFICATION_LIGHT:
+            commandQueue->enqueue({.type = command, .argument = argument});
             return {acceptedResponse, sizeof(acceptedResponse)};
         default:
             return {nullptr, 0};
@@ -105,6 +113,7 @@ namespace {
 
     void beginTransaction() {
         awaitingCommand = true;
+        argumentsRemaining = 0;
         response = {nullptr, 0};
         responseIndex = 0;
 
@@ -231,9 +240,23 @@ ISR(SPI0_INT_vect) {
     if (awaitingCommand) {
         awaitingCommand = false;
         commandsReceived++;
+        command = received;
         responseCrc = smc::utils::crc8::update(smc::utils::crc8::INIT, received);
-        response = responseFor(received);
+        argumentsRemaining = argumentLengthFor(received);
+        if (argumentsRemaining == 0) {
+            response = responseFor(command, 0);
+        }
+    } else if (argumentsRemaining > 0) {
+        argument = received;
+        responseCrc = smc::utils::crc8::update(responseCrc, received);
+        if (--argumentsRemaining == 0) {
+            response = responseFor(command, argument);
+        }
     }
 
-    loadNextByte();
+    if (argumentsRemaining > 0) {
+        SPI0.DATA = SpiSlave::FILLER_BYTE;
+    } else {
+        loadNextByte();
+    }
 }

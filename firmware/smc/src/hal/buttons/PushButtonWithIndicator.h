@@ -18,6 +18,9 @@ namespace smc::hal::buttons {
         void setup() override;
         void update(uint32_t deltaUs, events::EventQueue& queue) override;
 
+        uint8_t getNumber() const { return button.number; }
+        uint8_t getLedIndex() const { return ledIndex; }
+
     private:
         static constexpr uint8_t LED_BRIGHTNESS_PRESSED = 50;
         static constexpr uint8_t LED_BRIGHTNESS_LONG_PRESSED = 200;

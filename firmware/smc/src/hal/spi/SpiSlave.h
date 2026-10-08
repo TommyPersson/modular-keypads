@@ -13,6 +13,7 @@ namespace smc::hal::spi {
         inline constexpr uint8_t READ_EVENTS = 0x03;
         inline constexpr uint8_t ACK_EVENT = 0x04;
         inline constexpr uint8_t FLASH_IDENTIFICATION_LIGHTS = 0x05;
+        inline constexpr uint8_t FLASH_BUTTON_IDENTIFICATION_LIGHT = 0x06;
     }
 
     namespace ackStatus {
@@ -31,6 +32,7 @@ namespace smc::hal::spi {
      */
     struct Command {
         uint8_t type = 0; // One of commands::*
+        uint8_t argument = 0; // Only for commands that take an argument
     };
 
     using CommandQueue = utils::ring_queue<Command, 4>;
@@ -39,8 +41,9 @@ namespace smc::hal::spi {
      * SPI0 slave on the alternate pins (SCK = PC0, MISO = PC1, MOSI = PC2, SS = PC3), mode 0, MSB first.
      *
      * A transaction (SS low to SS high) is one command byte from the master, followed by the
-     * response bytes the master reads, followed by a CRC-8 byte (see utils/crc8.h) calculated over
-     * the command byte as received and the response bytes. Unknown commands respond with only the
+     * argument byte for commands that take one (the slave sends FILLER_BYTE meanwhile), followed by
+     * the response bytes the master reads, followed by a CRC-8 byte (see utils/crc8.h) calculated over
+     * the command and argument bytes as received and the response bytes. Unknown commands respond with only the
      * CRC byte. Commands without a more specific response respond with a generic one (see responses).
      * Reading beyond the CRC returns FILLER_BYTE. MISO is only driven while SS is low.
      *
@@ -51,6 +54,8 @@ namespace smc::hal::spi {
      *                   or does nothing if it was already removed (NOTHING_PENDING), so it can be retried.
      *   FLASH_IDENTIFICATION_LIGHTS: [ACCEPTED, crc]. Queues the command for the main loop,
      *                   see dequeueCommand(). Repeating it restarts the flash.
+     *   FLASH_BUTTON_IDENTIFICATION_LIGHT: argument [button number], [ACCEPTED, crc]. Like
+     *                   FLASH_IDENTIFICATION_LIGHTS, but only flashes the LED of the given button.
      *
      * ~INT (PC4, push-pull) is low while events are queued, and goes high when ACK_EVENT removes the
      * last one. The master can read and acknowledge events until INT goes high (or READ_EVENTS returns NONE).

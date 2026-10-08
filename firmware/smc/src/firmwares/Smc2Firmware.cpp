@@ -23,3 +23,13 @@ void Smc2Firmware::doUpdate(const uint32_t deltaUs, smc::events::EventQueue& que
         button.update(deltaUs, queue);
     }
 }
+
+int8_t Smc2Firmware::ledIndexForButton(const uint8_t buttonNumber) {
+    for (const auto& button : buttons) {
+        if (button.getNumber() == buttonNumber) {
+            return button.getLedIndex();
+        }
+    }
+
+    return -1;
+}

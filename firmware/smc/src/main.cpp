@@ -53,6 +53,9 @@ void loop() {
         case smc::hal::spi::commands::FLASH_IDENTIFICATION_LIGHTS:
             firmware->flashIdentificationLights();
             break;
+        case smc::hal::spi::commands::FLASH_BUTTON_IDENTIFICATION_LIGHT:
+            firmware->flashButtonIdentificationLight(command.argument);
+            break;
         default:
             break;
         }

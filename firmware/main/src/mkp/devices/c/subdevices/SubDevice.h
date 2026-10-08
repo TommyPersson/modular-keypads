@@ -2,6 +2,7 @@
 #include <optional>
 #include <SPI.h>
 
+#include "SmcClient.h"
 #include "mkp/devices/common/Device.h"
 #include "mkp/firmwares/base/ServiceLocator.h"
 #include "tfw/hal/gpio/InputPin.h"
@@ -55,16 +56,12 @@ namespace mkp::devices::c {
         }
 
     private:
-        static constexpr uint32_t DEFAULT_PAUSE_US = 50;
-        static constexpr uint8_t MAX_TRANSACT_ATTEMPTS = 3;
-
         uint8_t address;
         uint64_t parentDeviceId;
         uint8_t number;
         uint64_t deviceId = 0;
         uint8_t deviceType = 0;
-        SPIClass& spi;
-        tfw::hal::gpio::OutputPin& pinCS;
+        SmcClient client;
         tfw::hal::gpio::InputPin& pinINT;
         volatile bool eventsAvailable = false;
         volatile bool scanScheduled = true;
@@ -84,13 +81,5 @@ namespace mkp::devices::c {
         std::optional<ScanResult> scanIdentity();
         void resetConfiguration();
         void pollEvents();
-        /**
-         * Retries up to MAX_TRANSACT_ATTEMPTS times when the CRC doesn't match, e.g. when the SMC had interrupts
-         * disabled during the transaction. Only use with commands that are safe to repeat.
-         */
-        bool transact(uint8_t command, uint8_t* response, size_t length, uint32_t pauseUs = DEFAULT_PAUSE_US);
-        bool transactOnce(uint8_t command, uint8_t* response, size_t length, uint32_t pauseUs);
-
-    public:
     };
 }

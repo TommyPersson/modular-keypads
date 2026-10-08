@@ -16,6 +16,7 @@ namespace smc::firmwares {
     protected:
         void doSetup() override;
         void doUpdate(uint32_t deltaUs, events::EventQueue& queue) override;
+        int8_t ledIndexForButton(uint8_t buttonNumber) override;
 
     private:
         hal::buttons::PushButtonWithIndicator buttons[6] = {
