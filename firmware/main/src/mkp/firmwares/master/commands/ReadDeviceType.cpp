@@ -15,11 +15,11 @@ tfw::utils::void_result ReadDeviceType::execute(
     tfw::utils::commands::CommandResponseWriter& responseWriter,
     tfw::utils::allocations::Arena& arena
 ) {
-    auto deviceId = this->deviceConfigurationManager.getDeviceType();
-    if (deviceId == 0) {
+    const auto deviceType = this->deviceConfigurationManager.getDeviceType();
+    if (deviceType.empty()) {
         responseWriter.writeLine("0");
     } else {
-        responseWriter.writeLine({&deviceId, 1});
+        responseWriter.writeLine(deviceType);
     }
 
     return tfw::utils::void_result::success();

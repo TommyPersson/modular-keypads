@@ -29,7 +29,7 @@ namespace mkp::firmwares::base {
 
     protected:
         void addCommandHandler(const std::shared_ptr<tfw::utils::commands::CommandHandler>& commandHandler) const;
-        mkp::devices::common::DeviceFactory* getDeviceFactory(char deviceType) const;
+        mkp::devices::common::DeviceFactory* getDeviceFactory(std::string_view deviceType) const;
 
         void registerMetrics();
 

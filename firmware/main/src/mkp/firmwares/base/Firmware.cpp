@@ -38,7 +38,7 @@ Firmware::Firmware(ServiceLocator& serviceLocator) :
     components::metrics::register_all(serviceLocator.metricRegistry);
 }
 
-mkp::devices::common::DeviceFactory* Firmware::getDeviceFactory(char deviceType) const {
+mkp::devices::common::DeviceFactory* Firmware::getDeviceFactory(const std::string_view deviceType) const {
     for (const auto& factory : deviceFactories) {
         if (factory->matches(deviceType)) {
             return factory.get();

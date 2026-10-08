@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <SPI.h>
 
 #include "mkp/devices/common/Device.h"
@@ -73,6 +74,13 @@ namespace mkp::devices::c {
         tfw::utils::observables::Subject<SubDeviceConnectedEvent> connectedSubject;
         tfw::utils::observables::Subject<SubDeviceDisconnectedEvent> disconnectedSubject;
 
+        struct ScanResult {
+            uint64_t deviceId;
+            uint8_t deviceType;
+        };
+
+        std::optional<ScanResult> scanIdentity();
+        void resetConfiguration();
         void pollEvents();
         bool transact(uint8_t command, uint8_t* response, size_t length, uint32_t pauseUs = DEFAULT_PAUSE_US);
 

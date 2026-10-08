@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 #include "mkp/firmwares/base/ServiceLocator.h"
 #include "LocalDevice.h"
@@ -21,7 +22,7 @@ namespace mkp::devices::common {
             firmwares::base::ServiceLocator& serviceLocator
         ) = 0;
 
-        virtual bool matches(char deviceType) = 0;
+        virtual bool matches(std::string_view deviceType) = 0;
 
     protected:
         DeviceFactory() = default;

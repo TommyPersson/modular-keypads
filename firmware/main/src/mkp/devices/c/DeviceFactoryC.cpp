@@ -8,8 +8,8 @@ using namespace mkp::firmwares::base;
 
 DeviceFactoryC::~DeviceFactoryC() = default;
 
-bool DeviceFactoryC::matches(char deviceType) {
-    return deviceType == 'c' || deviceType == 'C';
+bool DeviceFactoryC::matches(const std::string_view deviceType) {
+    return deviceType == "c" || deviceType == "C";
 }
 
 std::unique_ptr<LocalDevice> DeviceFactoryC::createLocal(

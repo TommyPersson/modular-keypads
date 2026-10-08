@@ -6,7 +6,7 @@ namespace mkp::devices::c {
     class DeviceFactoryC final : public common::DeviceFactory {
     public:
         ~DeviceFactoryC() override;
-        bool matches(char deviceType) override;
+        bool matches(std::string_view deviceType) override;
 
         std::unique_ptr<common::LocalDevice> createLocal(
             common::DeviceConfiguration& config,

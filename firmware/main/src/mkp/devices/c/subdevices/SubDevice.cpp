@@ -57,11 +57,7 @@ SubDevice::SubDevice(
         scan();
     });
 
-    configuration.address = address;
-    configuration.parentDeviceId = parentDeviceId;
-    configuration.id = 0;
-    configuration.name = "dont-care";
-    configuration.type = 'd';
+    resetConfiguration();
 }
 
 SubDevice::~SubDevice() = default;
@@ -105,20 +101,16 @@ void_result SubDevice::rename(const std::string_view& deviceName) {
 }
 
 void SubDevice::scan() {
-    uint64_t scannedDeviceId;
-    auto valid = transact(READ_DEVICE_ID, reinterpret_cast<uint8_t*>(&scannedDeviceId), sizeof(scannedDeviceId));
-    if (!valid) {
+    const auto result = scanIdentity();
+    if (!result) {
         numMissedScans++;
 
         if (numMissedScans > 5) {
             numMissedScans = 0;
             auto previousDeviceId = deviceId;
             deviceId = 0;
-            configuration.address = address;
-            configuration.parentDeviceId = parentDeviceId;
-            configuration.id = deviceId;
-            configuration.name = "dont-care";
-            configuration.type = '0';
+            deviceType = 0;
+            resetConfiguration();
 
             if (previousDeviceId != 0) {
                 disconnectedSubject.notify({.subDeviceNumber = number, .subDeviceId = previousDeviceId});
@@ -128,34 +120,47 @@ void SubDevice::scan() {
         return;
     }
 
-    uint8_t scannedDeviceType;
-    auto valid2 = transact(READ_DEVICE_TYPE, &scannedDeviceType, sizeof(scannedDeviceType));
-    if (!valid2) {
-        deviceType = 0;
-        configuration.type = '0';
+    numMissedScans = 0;
+
+    if (deviceId == result->deviceId) {
         return;
     }
 
-    auto wasUpdated = deviceId != scannedDeviceId;
+    deviceId = result->deviceId;
+    deviceType = result->deviceType;
 
-    deviceId = scannedDeviceId;
-    deviceType = scannedDeviceType;
+    configuration.id = deviceId;
+    configuration.type = "smc" + std::to_string(deviceType);
 
+    connectedSubject.notify(
+        {
+            .subDeviceNumber = number,
+            .subDeviceId = deviceId,
+            .subDeviceType = deviceType
+        }
+    );
+}
+
+std::optional<SubDevice::ScanResult> SubDevice::scanIdentity() {
+    ScanResult result{};
+
+    if (!transact(READ_DEVICE_ID, reinterpret_cast<uint8_t*>(&result.deviceId), sizeof(result.deviceId))) {
+        return std::nullopt;
+    }
+
+    if (!transact(READ_DEVICE_TYPE, &result.deviceType, sizeof(result.deviceType))) {
+        return std::nullopt;
+    }
+
+    return result;
+}
+
+void SubDevice::resetConfiguration() {
     configuration.address = address;
     configuration.parentDeviceId = parentDeviceId;
-    configuration.id = deviceId;
+    configuration.id = 0;
     configuration.name = "dont-care";
-    configuration.type = 'd';
-
-    if (wasUpdated) {
-        connectedSubject.notify(
-            {
-                .subDeviceNumber = number,
-                .subDeviceId = deviceId,
-                .subDeviceType = deviceType
-            }
-        );
-    }
+    configuration.type = "0";
 }
 
 void SubDevice::observe(const InputPinInterruptEvent& event) {

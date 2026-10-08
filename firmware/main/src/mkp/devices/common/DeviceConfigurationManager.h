@@ -9,7 +9,7 @@ namespace mkp::devices::common {
     struct DeviceConfiguration {
         uint64_t id;
         std::string name;
-        char type;
+        std::string type;
         uint8_t address;
         uint64_t parentDeviceId;
     };
@@ -34,7 +34,7 @@ namespace mkp::devices::common {
         std::string getDeviceName() const;
         bool setDeviceName(const std::string_view& deviceName) const;
 
-        char getDeviceType() const;
+        std::string getDeviceType() const;
 
         DeviceConfiguration getDeviceConfiguration() const;
 

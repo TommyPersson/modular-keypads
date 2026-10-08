@@ -81,7 +81,7 @@ void MasterFirmware::setup() {
 
     auto localModuleFactory = getDeviceFactory(localDeviceConfiguration.type);
     if (localModuleFactory == nullptr) {
-        logger->error("No module factory found for type: %c", localDeviceConfiguration.type);
+        logger->error("No module factory found for type: %s", localDeviceConfiguration.type.c_str());
         return;
     }
 
@@ -140,11 +140,11 @@ void MasterFirmware::refreshRemoteDevices() {
     for (const auto& deviceConfiguration : scanResult) {
         logger->info("Found device at %i: %08llx", deviceConfiguration->address, deviceConfiguration->id);
         logger->info("Device name: %s", deviceConfiguration->name.c_str());
-        logger->info("Device type: %c", deviceConfiguration->type);
+        logger->info("Device type: %s", deviceConfiguration->type.c_str());
 
         const auto deviceFactory = getDeviceFactory(deviceConfiguration->type);
         if (deviceFactory == nullptr) {
-            logger->error("No device factory found for type: %c", deviceConfiguration->type);
+            logger->error("No device factory found for type: %s", deviceConfiguration->type.c_str());
             continue;
         }
 

@@ -30,7 +30,7 @@ void SlaveFirmware::setup() {
 
     const auto deviceFactory = getDeviceFactory(configuration.type);
     if (deviceFactory == nullptr) {
-        logger->error("No device factory found for type: %c", configuration.type);
+        logger->error("No device factory found for type: %s", configuration.type.c_str());
         return;
     }
 
@@ -50,7 +50,7 @@ void SlaveFirmware::setup() {
 
     mkp::devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
     deviceInformationStruct.deviceId = deviceId;
-    deviceInformationStruct.deviceType = configuration.type;
+    deviceInformationStruct.deviceType = configuration.type.front();
 
     slavePort.updateEndpoint(
         mkp::devices::common::i2c::endpoints::DeviceInformation,

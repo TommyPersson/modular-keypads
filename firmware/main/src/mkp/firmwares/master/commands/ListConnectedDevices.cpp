@@ -25,10 +25,10 @@ tfw::utils::void_result ListConnectedDevices::execute(
         const auto& config = device->getConfiguration();
         if (config.id != 0) {
             responseWriter.writeLineF(
-                "%08llx,%02x,%c,%s,%08llx",
+                "%08llx,%02x,%s,%s,%08llx",
                 config.id,
                 config.address,
-                config.type,
+                config.type.c_str(),
                 config.name.c_str(),
                 config.parentDeviceId
             );

@@ -86,8 +86,8 @@ bool DeviceConfigurationManager::setDeviceAddress(const uint8_t deviceAddress) c
     return numWritten > 0;
 }
 
-char DeviceConfigurationManager::getDeviceType() const {
-    return this->deviceTypeDetector.detectDeviceType();
+std::string DeviceConfigurationManager::getDeviceType() const {
+    return std::string(1, this->deviceTypeDetector.detectDeviceType());
 }
 
 std::string DeviceConfigurationManager::getDeviceName() const {

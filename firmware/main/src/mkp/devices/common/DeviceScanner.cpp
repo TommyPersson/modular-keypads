@@ -32,7 +32,7 @@ std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
 
         const auto deviceInformation = deviceInformationResult.value;
         const auto id = deviceInformation->deviceId;
-        const char type = deviceInformation->deviceType;
+        const std::string type(1, deviceInformation->deviceType);
 
         const auto deviceNameResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceName);
         if (deviceNameResult.has_error) {
