@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow, TextField, Tooltip
 } from "@mui/material"
+import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight"
 import { CommandButton } from "@src/modules/common/components"
 import {
   FlashDeviceIdentificationLightsCommand
@@ -67,7 +68,16 @@ const DeviceRow = (props: { device: DeviceInformation }) => {
   return (
     <>
       <TableRow>
-        <TableCell>{device.deviceName}</TableCell>
+        <TableCell>
+          <Stack direction={"row"} spacing={1} alignItems={"center"}>
+            {device.parentDeviceId !== null && (
+              <Tooltip title={`Sub-device of ${device.parentDeviceId}`}>
+                <SubdirectoryArrowRightIcon fontSize={"small"} color={"action"} />
+              </Tooltip>
+            )}
+            <span>{device.deviceName}</span>
+          </Stack>
+        </TableCell>
         <TableCell><code>{device.deviceId}</code></TableCell>
         <TableCell><code>{device.deviceType}</code></TableCell>
         <TableCell><code>{device.deviceAddress}</code></TableCell>

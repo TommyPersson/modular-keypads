@@ -45,9 +45,9 @@ void LocalDeviceC::setup() {
     pinMod2Int = InputPin::physical(13, PULLUP);
     pinMod3Int = InputPin::physical(14, PULLUP);
 
-    subDevice1 = std::make_unique<SubDevice>(clock, 1, *spi, *pinModCs1, *pinMod1Int);
-    subDevice2 = std::make_unique<SubDevice>(clock, 2, *spi, *pinModCs2, *pinMod2Int);
-    subDevice3 = std::make_unique<SubDevice>(clock, 3, *spi, *pinModCs3, *pinMod3Int);
+    subDevice1 = std::make_unique<SubDevice>(clock, configuration.address, configuration.id, 1, *spi, *pinModCs1, *pinMod1Int);
+    subDevice2 = std::make_unique<SubDevice>(clock, configuration.address, configuration.id, 2, *spi, *pinModCs2, *pinMod2Int);
+    subDevice3 = std::make_unique<SubDevice>(clock, configuration.address, configuration.id, 3, *spi, *pinModCs3, *pinMod3Int);
 
     subDevices[0] = subDevice1.get();
     subDevices[1] = subDevice2.get();

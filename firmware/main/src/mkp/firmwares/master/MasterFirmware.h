@@ -41,5 +41,5 @@ private:
     std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;
     std::unique_ptr<tfw::hal::gpio::InputPin> slaveEventInterruptInputPin;
 
-    const mkp::components::notifications::NotifierFactory& notifierFactory;
+    std::unique_ptr<mkp::components::notifications::Notifier> notifier;
 };

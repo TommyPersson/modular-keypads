@@ -11,6 +11,7 @@ namespace mkp::components::notifications {
         ~Notifier();
 
         void notify(const Notification& notification) const;
+        void notify(uint64_t deviceId, const Notification& notification) const;
 
     private:
         Print& outputStream;

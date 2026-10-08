@@ -11,6 +11,7 @@ namespace mkp::devices::common {
         std::string name;
         char type;
         uint8_t address;
+        uint64_t parentDeviceId;
     };
 
     class DeviceConfigurationManager {

@@ -9,6 +9,7 @@ export type DeviceInformation = {
   readonly deviceAddress: number
   readonly deviceName: string
   readonly deviceRegisterNames: string[]
+  readonly parentDeviceId: string | null
 }
 
 export type DeviceRegisterValue = {

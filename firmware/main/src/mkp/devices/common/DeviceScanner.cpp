@@ -47,7 +47,8 @@ std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
             .id = id,
             .name = name,
             .type = type,
-            .address = address
+            .address = address,
+            .parentDeviceId = 0
         };
 
         result.emplace_back(std::make_shared<DeviceConfiguration>(configuration));

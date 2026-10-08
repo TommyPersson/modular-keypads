@@ -116,5 +116,6 @@ DeviceConfiguration DeviceConfigurationManager::getDeviceConfiguration() const {
         .name = getDeviceName(),
         .type = getDeviceType(),
         .address = getDeviceAddress(),
+        .parentDeviceId = 0,
     };
 }

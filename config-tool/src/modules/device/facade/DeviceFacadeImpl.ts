@@ -108,6 +108,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
       deviceAddress: await this.getDeviceAddress(),
       deviceName: await this.getDeviceName(),
       deviceRegisterNames: await this.getDeviceRegisterNames(),
+      parentDeviceId: null,
     }
   }
 

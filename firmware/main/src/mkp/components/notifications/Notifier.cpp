@@ -9,6 +9,10 @@ Notifier::Notifier(const uint64_t deviceId, Print& outputStream) :
 Notifier::~Notifier() = default;
 
 void Notifier::notify(const Notification& notification) const {
+    notify(deviceId, notification);
+}
+
+void Notifier::notify(const uint64_t deviceId, const Notification& notification) const {
     outputStream.print("!");
     outputStream.printf("%08llx", deviceId);
     outputStream.print(":");

@@ -24,7 +24,14 @@ tfw::utils::void_result ListConnectedDevices::execute(
     for (auto& device : devices) {
         const auto& config = device->getConfiguration();
         if (config.id != 0) {
-            responseWriter.writeLineF("%08llx,%02x,%c,%s,", config.id, config.address, config.type, config.name.c_str());
+            responseWriter.writeLineF(
+                "%08llx,%02x,%c,%s,%08llx",
+                config.id,
+                config.address,
+                config.type,
+                config.name.c_str(),
+                config.parentDeviceId
+            );
         }
     }
 

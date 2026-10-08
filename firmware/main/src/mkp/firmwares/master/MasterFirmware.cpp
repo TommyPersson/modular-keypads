@@ -26,8 +26,7 @@ using namespace mkp::firmwares::base;
 using namespace mkp::firmwares::master::commands;
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
-    : Firmware(serviceLocator),
-      notifierFactory(serviceLocator.notifierFactory) {
+    : Firmware(serviceLocator) {
     macroStorage = std::make_unique<MacroStorage>(serviceLocator.fileSystem);
     keyBindingStorage = std::make_unique<KeyBindingStorage>(serviceLocator.fileSystem);
     keyBindingExecutor = std::make_unique<KeyBindingExecutor>(
@@ -37,6 +36,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         serviceLocator.usbConnection,
         serviceLocator.metricRegistry
     );
+
+    notifier = serviceLocator.notifierFactory.create();
 
     addCommandHandler(std::make_shared<Ping>());
     addCommandHandler(std::make_shared<ReadDeviceId>(deviceConfigurationManager));
@@ -121,13 +122,11 @@ void MasterFirmware::loop() {
 }
 
 void MasterFirmware::observe(const DeviceConnectedEvent& event) {
-    auto notifier = notifierFactory.create(event.deviceId);
-    notifier->notify({.type = "device.connected", .args = {}});
+    notifier->notify(event.deviceId, {.type = "device.connected", .args = {}});
 }
 
 void MasterFirmware::observe(const DeviceDisconnectedEvent& event) {
-    auto notifier = notifierFactory.create(event.deviceId);
-    notifier->notify({.type = "device.disconnected", .args = {}});
+    notifier->notify(event.deviceId, {.type = "device.disconnected", .args = {}});
 }
 
 // TODO allow connected devices to use open drain outputs to signal their presence?

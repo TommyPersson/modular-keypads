@@ -24,6 +24,8 @@ namespace mkp::devices::c {
     public:
         explicit SubDevice(
             tfw::hal::time::Clock& clock,
+            uint8_t address,
+            uint64_t parentDeviceId,
             uint8_t number,
             SPIClass& spi,
             tfw::hal::gpio::OutputPin& pinCS,
@@ -54,6 +56,8 @@ namespace mkp::devices::c {
     private:
         static constexpr uint32_t DEFAULT_PAUSE_US = 50;
 
+        uint8_t address;
+        uint64_t parentDeviceId;
         uint8_t number;
         uint64_t deviceId = 0;
         uint8_t deviceType = 0;

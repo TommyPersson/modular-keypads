@@ -40,11 +40,15 @@ namespace {
 
 SubDevice::SubDevice(
     Clock& clock,
+    const uint8_t address,
+    const uint64_t parentDeviceId,
     const uint8_t number,
     SPIClass& spi,
     OutputPin& pinCS,
     InputPin& pinINT
-) : number(number),
+) : address(address),
+    parentDeviceId(parentDeviceId),
+    number(number),
     spi(spi),
     pinCS(pinCS),
     pinINT(pinINT) {
@@ -52,6 +56,12 @@ SubDevice::SubDevice(
     scanTimer = clock.createTimer(100'000, [this](const TimerElapsedEvent& event) {
         scan();
     });
+
+    configuration.address = address;
+    configuration.parentDeviceId = parentDeviceId;
+    configuration.id = 0;
+    configuration.name = "dont-care";
+    configuration.type = 'd';
 }
 
 SubDevice::~SubDevice() = default;
@@ -104,7 +114,8 @@ void SubDevice::scan() {
             numMissedScans = 0;
             auto previousDeviceId = deviceId;
             deviceId = 0;
-            configuration.address = 0;
+            configuration.address = address;
+            configuration.parentDeviceId = parentDeviceId;
             configuration.id = deviceId;
             configuration.name = "dont-care";
             configuration.type = '0';
@@ -130,7 +141,8 @@ void SubDevice::scan() {
     deviceId = scannedDeviceId;
     deviceType = scannedDeviceType;
 
-    configuration.address = 0;
+    configuration.address = address;
+    configuration.parentDeviceId = parentDeviceId;
     configuration.id = deviceId;
     configuration.name = "dont-care";
     configuration.type = 'd';
