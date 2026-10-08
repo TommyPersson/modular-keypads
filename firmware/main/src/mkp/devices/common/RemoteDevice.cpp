@@ -8,7 +8,6 @@
 #include "mkp/firmwares/slave/i2c/commands/RenameDeviceRemoteCommandHandler.h"
 
 using namespace mkp::devices::common;
-using namespace mkp::components::notifications;
 using namespace mkp::components::events;
 
 namespace {
@@ -18,20 +17,14 @@ namespace {
 
 RemoteDevice::RemoteDevice(
     const DeviceConfiguration& configuration,
-    const NotifierFactory& notifierFactory,
     const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
     tfw::hal::i2c::Client& i2cClient
 ) : configuration(configuration),
     capabilities(capabilities),
     i2cClient(i2cClient) {
-    notifier = notifierFactory.create(configuration.id);
-    switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(*notifier);
-    deviceSwitchEventSubject.addObserver(switchStateChangeNotifier.get());
 }
 
-RemoteDevice::~RemoteDevice() {
-    deviceSwitchEventSubject.removeObserver(switchStateChangeNotifier.get());
-}
+RemoteDevice::~RemoteDevice() = default;
 
 void RemoteDevice::setup() {
 }

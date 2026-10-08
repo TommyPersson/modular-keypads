@@ -1,28 +1,17 @@
 #include "LocalDevice.h"
 
-#include <tfw/hal/logging.h>
-
-namespace {
-    auto logger = tfw::hal::logging::createLogger("DeviceModule");
-}
-
 using namespace mkp::devices::common;
-using namespace mkp::components::notifications;
 
 LocalDevice::LocalDevice(
     const DeviceConfiguration& configuration,
     const DeviceConfigurationManager& configurationManager,
-    const NotifierFactory& notifierFactory,
     std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager,
     tfw::hal::time::Clock& clock
 ) : configuration(configuration),
     configurationManager(configurationManager),
     clock(clock),
     registerManager(std::make_unique<tfw::utils::registers::RegisterManager>()),
-    indicatorLedManager(std::move(indicatorLedManager)),
-    notifier(notifierFactory.create(configuration.id)) {
-
-    switchStateChangeNotifier = std::make_unique<SwitchStateChangeNotifier>(*notifier);
+    indicatorLedManager(std::move(indicatorLedManager)) {
 }
 
 void LocalDevice::setup() {
@@ -95,7 +84,6 @@ tfw::utils::void_result LocalDevice::rename(const std::string_view& deviceName) 
 }
 
 void LocalDevice::observe(const DeviceSwitchEvent& event) {
-    logger->info("observing?");
     deviceSwitchEventSubject.notify(event);
 }
 
@@ -173,7 +161,6 @@ void LocalDevice::attachSwitch(
     const auto button = this->buttons.emplace_back(std::make_shared<tfw::hal::buttons::Button>(number, bitReader));
 
     button->onStateChanged().addObserver(this);
-    button->onStateChanged().addObserver(switchStateChangeNotifier.get());
 
     if (ledIndex < 0) {
         return;

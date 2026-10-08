@@ -9,6 +9,9 @@ namespace mkp::devices::common {
         std::vector<int> leds;
     };
 
+    // Placeholder for capabilities of devices that don't expose their inputs as local registers
+    inline const tfw::utils::registers::RegisterDescriptor NoRegister{.name = "", .index = 0};
+
     struct DeviceCapability {
         virtual ~DeviceCapability() = default;
     };

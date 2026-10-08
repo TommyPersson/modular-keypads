@@ -19,7 +19,6 @@ std::unique_ptr<LocalDevice> DeviceFactoryC::createLocal(
     return std::make_unique<LocalDeviceC>(
         config,
         serviceLocator.deviceConfigurationManager,
-        serviceLocator.notifierFactory,
         serviceLocator.clock
     );
 }
@@ -30,7 +29,6 @@ std::unique_ptr<RemoteDevice> DeviceFactoryC::createRemote(
 ) {
     return std::make_unique<RemoteDevice>(
         config,
-        serviceLocator.notifierFactory,
         capabilities,
         serviceLocator.i2cClient
     );

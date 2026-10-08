@@ -11,7 +11,6 @@ namespace {
 
 using namespace mkp::devices::c;
 using namespace mkp::devices::common;
-using namespace mkp::components::notifications;
 using namespace mkp::components::leds;
 using namespace tfw::hal::spi;
 using namespace tfw::hal::gpio;
@@ -19,9 +18,8 @@ using namespace tfw::hal::gpio;
 LocalDeviceC::LocalDeviceC(
     const DeviceConfiguration& configuration,
     const DeviceConfigurationManager& configurationManager,
-    const NotifierFactory& notifierFactory,
     tfw::hal::time::Clock& clock
-) : LocalDevice(configuration, configurationManager, notifierFactory, IndicatorLedManager::NoOp(0, clock), clock) {
+) : LocalDevice(configuration, configurationManager, IndicatorLedManager::NoOp(0, clock), clock) {
     registerRefresher = std::make_unique<RegisterRefresherC>(*registerManager, clock);
 }
 

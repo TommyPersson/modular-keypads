@@ -1,15 +1,19 @@
-import { Card, CardContent, CardHeader, Grid, Paper, Typography } from "@mui/material"
+import { Card, CardContent, CardHeader, Grid, Paper, Stack, Typography } from "@mui/material"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
-import { usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
+import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
+import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
 
 import classes from "./DevicePreviewCard.module.css"
 
 
 export const DevicePreviewCard = () => {
   const [deviceInformation] = useDeviceInformation()
+  const connectedDevicesQuery = useConnectedDevices()
 
   const deviceType = deviceInformation?.deviceType ?? null
   const deviceId = deviceInformation?.deviceId ?? ""
+
+  const subDevices = (connectedDevicesQuery.data ?? []).filter(it => it.parentDeviceId === deviceId)
 
   return (
     <Card>
@@ -18,7 +22,19 @@ export const DevicePreviewCard = () => {
         subheader={`Type ${deviceType}`}
       />
       <CardContent>
-        <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
+        <Stack spacing={2}>
+          <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
+          {
+            subDevices.map(it => (
+              <Stack key={it.deviceId} spacing={1}>
+                <Typography variant={"subtitle2"} align={"center"}>
+                  Sub-device <code>{it.deviceId}</code> (type <code>{it.deviceType}</code>)
+                </Typography>
+                <PreviewCardContent deviceId={it.deviceId} deviceType={it.deviceType} />
+              </Stack>
+            ))
+          }
+        </Stack>
       </CardContent>
     </Card>
   )
@@ -33,6 +49,8 @@ const PreviewCardContent = (props: {
   switch (deviceType) {
     case "a":
       return <TypeAPreviewCardContent deviceId={deviceId} />
+    case "smc1":
+      return <TypeSmc1PreviewCardContent deviceId={deviceId} />
     default:
       return <NullPreviewCardContent />
   }
@@ -52,51 +70,50 @@ const TypeAPreviewCardContent = (props: {
   const pushButtonStates = usePushButtonStates(deviceId)
 
   return (
-    <Paper elevation={5} className={classes.TypeAPreviewContainer} >
-      <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={1} isPressed={pushButtonStates[1] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={2} isPressed={pushButtonStates[2] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={3} isPressed={pushButtonStates[3] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={4} isPressed={pushButtonStates[4] ?? false} />
-        </Grid>
-      </Grid>
-      <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={5} isPressed={pushButtonStates[5] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={6} isPressed={pushButtonStates[6] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={7} isPressed={pushButtonStates[7] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={8} isPressed={pushButtonStates[8] ?? false} />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={9} isPressed={pushButtonStates[9] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={10} isPressed={pushButtonStates[10] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={11} isPressed={pushButtonStates[11] ?? false} />
-        </Grid>
-        <Grid size={6}>
-          <SwitchStateIndicator switchNumber={12} isPressed={pushButtonStates[12] ?? false} />
-        </Grid>
-      </Grid>
+    <Paper elevation={5} className={classes.TypeAPreviewContainer}>
+      <SwitchStateIndicatorCluster firstSwitchNumber={1} pushButtonStates={pushButtonStates} />
+      <SwitchStateIndicatorCluster firstSwitchNumber={5} pushButtonStates={pushButtonStates} />
+      <SwitchStateIndicatorCluster firstSwitchNumber={9} pushButtonStates={pushButtonStates} />
     </Paper>
+  )
+}
+
+const TypeSmc1PreviewCardContent = (props: {
+  deviceId: string,
+}) => {
+  const { deviceId } = props
+
+  const pushButtonStates = usePushButtonStates(deviceId)
+
+  return (
+    <Paper elevation={5} className={classes.SubDevicePreviewContainer}>
+      <SwitchStateIndicatorCluster firstSwitchNumber={1} pushButtonStates={pushButtonStates} />
+    </Paper>
+  )
+}
+
+/**
+ * A 2x2 cluster of switches, numbered from firstSwitchNumber left to right, top to bottom.
+ */
+const SwitchStateIndicatorCluster = (props: {
+  firstSwitchNumber: number,
+  pushButtonStates: PushButtonStates,
+}) => {
+  const { firstSwitchNumber, pushButtonStates } = props
+
+  return (
+    <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
+      {
+        [0, 1, 2, 3].map(offset => {
+          const switchNumber = firstSwitchNumber + offset
+          return (
+            <Grid key={switchNumber} size={6}>
+              <SwitchStateIndicator switchNumber={switchNumber} isPressed={pushButtonStates[switchNumber] ?? false} />
+            </Grid>
+          )
+        })
+      }
+    </Grid>
   )
 }
 

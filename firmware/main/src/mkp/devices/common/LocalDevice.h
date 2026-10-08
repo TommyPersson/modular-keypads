@@ -6,8 +6,6 @@
 
 #include "Device.h"
 #include "mkp/components/leds/IndicatorLedManager.h"
-#include "mkp/components/notifications/NotifierFactory.h"
-#include "mkp/components/notifications/SwitchStateChangeNotifier.h"
 
 namespace mkp::devices::common {
     class LocalDevice :
@@ -38,7 +36,6 @@ namespace mkp::devices::common {
         explicit LocalDevice(
             const DeviceConfiguration& configuration,
             const DeviceConfigurationManager& configurationManager,
-            const components::notifications::NotifierFactory& notifierFactory,
             std::unique_ptr<components::leds::IndicatorLedManager>&& indicatorLedManager,
             tfw::hal::time::Clock& clock
         );
@@ -62,8 +59,6 @@ namespace mkp::devices::common {
         tfw::hal::time::Clock& clock;
         std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;
         std::unique_ptr<components::leds::IndicatorLedManager> indicatorLedManager;
-        std::unique_ptr<components::notifications::Notifier> notifier;
-        std::unique_ptr<components::notifications::SwitchStateChangeNotifier> switchStateChangeNotifier;
 
         std::vector<std::shared_ptr<tfw::hal::encoders::RotaryEncoder>> rotaryEncoders;
         std::vector<std::shared_ptr<tfw::hal::buttons::Button>> buttons;

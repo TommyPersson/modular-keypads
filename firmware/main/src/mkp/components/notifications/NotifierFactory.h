@@ -12,7 +12,6 @@ namespace mkp::components::notifications {
         ~NotifierFactory();
 
         std::unique_ptr<Notifier> create() const;
-        std::unique_ptr<Notifier> create(uint64_t deviceId) const;
     private:
         Print& outputStream;
     };

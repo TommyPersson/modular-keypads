@@ -70,6 +70,7 @@ namespace mkp::devices::c {
         volatile bool scanScheduled = true;
         uint8_t numMissedScans = 0;
         common::DeviceConfiguration configuration;
+        const std::vector<std::shared_ptr<common::DeviceCapability>>* capabilities;
         std::unique_ptr<tfw::hal::time::Timer> scanTimer;
 
         tfw::utils::observables::Subject<SubDeviceConnectedEvent> connectedSubject;

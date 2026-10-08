@@ -3,15 +3,12 @@
 #include <tfw/hal/i2c/Client.h>
 
 #include "Device.h"
-#include "mkp/components/notifications/NotifierFactory.h"
-#include "mkp/components/notifications/SwitchStateChangeNotifier.h"
 
 namespace mkp::devices::common {
     class RemoteDevice : public Device {
     public:
         explicit RemoteDevice(
             const DeviceConfiguration& configuration,
-            const components::notifications::NotifierFactory& notifierFactory,
             const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
             tfw::hal::i2c::Client& i2cClient
         );
@@ -31,8 +28,6 @@ namespace mkp::devices::common {
 
     private:
         DeviceConfiguration configuration;
-        std::unique_ptr<components::notifications::Notifier> notifier;
-        std::unique_ptr<components::notifications::SwitchStateChangeNotifier> switchStateChangeNotifier;
 
         const std::vector<std::shared_ptr<DeviceCapability>>& capabilities;
 

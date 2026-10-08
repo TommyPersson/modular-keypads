@@ -2,15 +2,11 @@
 
 using namespace mkp::components::notifications;
 
-Notifier::Notifier(const uint64_t deviceId, Print& outputStream) :
-    outputStream(outputStream), deviceId(deviceId) {
+Notifier::Notifier(Print& outputStream) :
+    outputStream(outputStream) {
 }
 
 Notifier::~Notifier() = default;
-
-void Notifier::notify(const Notification& notification) const {
-    notify(deviceId, notification);
-}
 
 void Notifier::notify(const uint64_t deviceId, const Notification& notification) const {
     outputStream.print("!");

@@ -2,8 +2,6 @@
 
 #include <Arduino.h>
 
-#include "tfw/hal/logging/Logger.h"
-
 using namespace mkp::devices::c;
 using namespace mkp::devices::common;
 using namespace tfw::hal::gpio;
@@ -11,8 +9,6 @@ using namespace tfw::utils;
 using namespace tfw::hal::time;
 
 namespace {
-    auto logger = tfw::hal::logging::createLogger("SubDevice");
-
     const SPISettings spiSettings(1000000, MSBFIRST, SPI_MODE0);
 
     // CRC-8/AUTOSAR: poly 0x2F, init 0xFF, no reflection, xorout 0xFF
@@ -39,6 +35,25 @@ namespace {
     constexpr uint8_t FLASH_IDENTIFICATION_LIGHTS = 0x05;
 
     constexpr uint8_t RESPONSE_ACCEPTED = 0x01;
+
+    constexpr uint8_t DEVICE_TYPE_SMC1 = 0x01;
+
+    // The SMC reports its own button events, so there are no registers, and its LEDs aren't controlled from here
+    const std::vector<std::shared_ptr<DeviceCapability>> smc1Capabilities = {
+        std::make_shared<PushButtonCapability>(1, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(2, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(3, NoRegister, 0, -1),
+        std::make_shared<PushButtonCapability>(4, NoRegister, 0, -1),
+    };
+
+    const std::vector<std::shared_ptr<DeviceCapability>> noCapabilities = {};
+
+    const std::vector<std::shared_ptr<DeviceCapability>>& capabilitiesFor(const uint8_t deviceType) {
+        switch (deviceType) {
+        case DEVICE_TYPE_SMC1: return smc1Capabilities;
+        default: return noCapabilities;
+        }
+    }
 }
 
 SubDevice::SubDevice(
@@ -54,7 +69,8 @@ SubDevice::SubDevice(
     number(number),
     spi(spi),
     pinCS(pinCS),
-    pinINT(pinINT) {
+    pinINT(pinINT),
+    capabilities(&noCapabilities) {
 
     scanTimer = clock.createTimer(100'000, [this](const TimerElapsedEvent& event) {
         scan();
@@ -85,10 +101,8 @@ const DeviceConfiguration& SubDevice::getConfiguration() const {
     return configuration;
 }
 
-std::vector<std::shared_ptr<DeviceCapability>> capabilities = {};
-
 const std::vector<std::shared_ptr<DeviceCapability>>& SubDevice::getCapabilities() const {
-    return capabilities;
+    return *capabilities;
 }
 
 void_result SubDevice::flashIdentificationLights(uint32_t durationMs) {
@@ -119,6 +133,7 @@ void SubDevice::scan() {
             auto previousDeviceId = deviceId;
             deviceId = 0;
             deviceType = 0;
+            capabilities = &noCapabilities;
             resetConfiguration();
 
             if (previousDeviceId != 0) {
@@ -140,6 +155,7 @@ void SubDevice::scan() {
 
     configuration.id = deviceId;
     configuration.type = "smc" + std::to_string(deviceType);
+    capabilities = &capabilitiesFor(deviceType);
 
     connectedSubject.notify(
         {
@@ -192,23 +208,20 @@ void SubDevice::pollEvents() {
             uint8_t status;
             transact(ACK_EVENT, &status, 1);
 
-            logger->info("[%i] Event: %02x.%02x", number, event[0], event[1]);
             if (event[0] == 11) {
-                logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
                 auto switchNumber = event[1];
                 this->deviceSwitchEventSubject.notify(
                     {
-                        .deviceId = 0x1234,
+                        .deviceId = deviceId,
                         .switchNumber = switchNumber,
                         .state = tfw::hal::buttons::ButtonState::PRESSED
                     }
                 );
             } else if (event[0] == 12) {
-                logger->info("[%i] Notifying?: %02x.%02x", number, event[0], event[1]);
                 auto switchNumber = event[1];
                 this->deviceSwitchEventSubject.notify(
                     {
-                        .deviceId = 0x1234,
+                        .deviceId = deviceId,
                         .switchNumber = switchNumber,
                         .state = tfw::hal::buttons::ButtonState::UNPRESSED
                     }

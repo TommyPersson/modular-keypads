@@ -171,6 +171,12 @@ void MasterFirmware::refreshRemoteDevices() {
 }
 
 void MasterFirmware::observe(const DeviceSwitchEvent& event) {
+    if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
+        notifier->notify(event.deviceId, {.type = "switch.pressed", .args = {std::to_string(event.switchNumber)}});
+    } else if (event.state == tfw::hal::buttons::ButtonState::UNPRESSED) {
+        notifier->notify(event.deviceId, {.type = "switch.released", .args = {std::to_string(event.switchNumber)}});
+    }
+
     keyBindingExecutor->observe(event);
 
     // TODO temporary debugging
@@ -188,6 +194,18 @@ void MasterFirmware::observe(const DeviceSwitchEvent& event) {
 }
 
 void MasterFirmware::observe(const DeviceRotaryEncoderEvent& event) {
+    if (event.direction == tfw::hal::encoders::RotaryEncoderDirection::Clockwise) {
+        notifier->notify(
+            event.deviceId,
+            {.type = "encoder.rotated.clockwise", .args = {std::to_string(event.encoderNumber)}}
+        );
+    } else if (event.direction == tfw::hal::encoders::RotaryEncoderDirection::CounterClockwise) {
+        notifier->notify(
+            event.deviceId,
+            {.type = "encoder.rotated.counter-clockwise", .args = {std::to_string(event.encoderNumber)}}
+        );
+    }
+
     keyBindingExecutor->observe(event);
 }
 
