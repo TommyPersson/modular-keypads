@@ -120,7 +120,7 @@ flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) {
 
 tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName) {
     auto params = firmwares::slave::i2c::commands::RenameDeviceParams{};
-    strncpy(&params.name[0], deviceName.data(), sizeof(params.name));
+    strncpy(&params.name[0], deviceName.data(), std::min(deviceName.size(), sizeof(params.name)));
 
     return i2cClient.sendCommand(
         configuration.address,
