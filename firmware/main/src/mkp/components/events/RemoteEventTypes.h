@@ -8,5 +8,6 @@ namespace mkp::components::events {
         ROTARY_ENCODER_CCW = 0x21,
         SUB_DEVICE_CONNECTED = 0x30,
         SUB_DEVICE_DISCONNECTED = 0x31,
+        SUB_DEVICE_RENAMED = 0x32,
     };
 }

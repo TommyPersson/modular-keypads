@@ -45,18 +45,19 @@ void DeviceNameStorage::store(const uint8_t (&name)[DEVICE_NAME_LENGTH]) {
     isStoring = true;
 }
 
-void DeviceNameStorage::update() {
+bool DeviceNameStorage::update() {
     if (!isStoring || NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm) {
-        return;
+        return false;
     }
 
     while (nextIndex < DEVICE_NAME_LENGTH) {
         const uint8_t i = nextIndex++;
         if (EEPROM.read(EEPROM_ADDRESS + i) != pendingName[i]) {
             EEPROM.write(EEPROM_ADDRESS + i, pendingName[i]);
-            return;
+            return false;
         }
     }
 
     isStoring = false;
+    return true;
 }

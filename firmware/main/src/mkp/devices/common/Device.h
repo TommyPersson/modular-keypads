@@ -28,6 +28,10 @@ namespace mkp::devices::common {
         const uint64_t deviceId;
     };
 
+    struct DeviceRenamedEvent {
+        const uint64_t deviceId;
+    };
+
     class Device {
     public:
         virtual ~Device() = default;
@@ -51,12 +55,14 @@ namespace mkp::devices::common {
 
         tfw::utils::observables::Observable<DeviceConnectedEvent>& onSubDeviceConnectedEvent() { return subDeviceConnectedSubject; }
         tfw::utils::observables::Observable<DeviceDisconnectedEvent>& onSubDeviceDisconnectedEvent() { return subDeviceDisconnectedSubject; }
+        tfw::utils::observables::Observable<DeviceRenamedEvent>& onSubDeviceRenamedEvent() { return subDeviceRenamedSubject; }
 
     protected:
         tfw::utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
         tfw::utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
         tfw::utils::observables::Subject<DeviceConnectedEvent> subDeviceConnectedSubject;
         tfw::utils::observables::Subject<DeviceDisconnectedEvent> subDeviceDisconnectedSubject;
+        tfw::utils::observables::Subject<DeviceRenamedEvent> subDeviceRenamedSubject;
     };
 
     namespace i2c {

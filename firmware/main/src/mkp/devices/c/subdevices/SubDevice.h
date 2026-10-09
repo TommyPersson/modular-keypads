@@ -20,6 +20,11 @@ namespace mkp::devices::c {
         const uint64_t subDeviceId;
     };
 
+    struct SubDeviceRenamedEvent {
+        const uint8_t subDeviceNumber;
+        const uint64_t subDeviceId;
+    };
+
     class SubDevice final
         : public common::Device,
           public tfw::utils::observables::Observer<tfw::hal::gpio::InputPinInterruptEvent> {
@@ -55,6 +60,8 @@ namespace mkp::devices::c {
             return disconnectedSubject;
         }
 
+        tfw::utils::observables::Observable<SubDeviceRenamedEvent>& onRenamed() { return renamedSubject; }
+
     private:
         uint8_t address;
         uint64_t parentDeviceId;
@@ -71,6 +78,7 @@ namespace mkp::devices::c {
 
         tfw::utils::observables::Subject<SubDeviceConnectedEvent> connectedSubject;
         tfw::utils::observables::Subject<SubDeviceDisconnectedEvent> disconnectedSubject;
+        tfw::utils::observables::Subject<SubDeviceRenamedEvent> renamedSubject;
 
         struct ScanResult {
             uint64_t deviceId;
@@ -81,5 +89,6 @@ namespace mkp::devices::c {
         std::optional<std::string> readName();
         void resetConfiguration();
         void pollEvents();
+        void refreshName();
     };
 }

@@ -8,6 +8,7 @@ namespace smc::events {
     namespace types {
         inline constexpr uint8_t NONE = 0;
         inline constexpr uint8_t BOOTED = 1;
+        inline constexpr uint8_t DEVICE_NAME_STORED = 2;
         inline constexpr uint8_t PUSH_BUTTON_PRESSED = 11;
         inline constexpr uint8_t PUSH_BUTTON_RELEASED = 12;
         inline constexpr uint8_t PUSH_BUTTON_LONG_PRESSED = 13;

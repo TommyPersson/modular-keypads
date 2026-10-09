@@ -129,6 +129,10 @@ void MasterFirmware::observe(const DeviceDisconnectedEvent& event) {
     notifier->notify(event.deviceId, {.type = "device.disconnected", .args = {}});
 }
 
+void MasterFirmware::observe(const DeviceRenamedEvent& event) {
+    notifier->notify(event.deviceId, {.type = "device.renamed", .args = {}});
+}
+
 // TODO allow connected devices to use open drain outputs to signal their presence?
 void MasterFirmware::refreshRemoteDevices() {
     allDevices.clear();
@@ -172,6 +176,7 @@ void MasterFirmware::refreshRemoteDevices() {
     for (const auto& device : allDevices) {
         device->onSubDeviceConnectedEvent().addObserver(this);
         device->onSubDeviceDisconnectedEvent().addObserver(this);
+        device->onSubDeviceRenamedEvent().addObserver(this);
     }
 }
 

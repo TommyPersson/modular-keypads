@@ -84,7 +84,10 @@ void loop() {
     }
 
     firmware->update(deltaUs, eventQueue);
-    deviceNameStorage.update();
+
+    if (deviceNameStorage.update()) {
+        eventQueue.enqueue({.type = smc::events::types::DEVICE_NAME_STORED});
+    }
 
     while (const auto* event = eventQueue.dequeue()) {
         spiSlave.enqueueEvent(*event);

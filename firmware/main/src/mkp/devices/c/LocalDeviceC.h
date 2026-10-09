@@ -27,7 +27,8 @@ namespace mkp::devices::c {
     class LocalDeviceC final
         : public common::LocalDevice,
           public tfw::utils::observables::Observer<SubDeviceConnectedEvent>,
-          public tfw::utils::observables::Observer<SubDeviceDisconnectedEvent> {
+          public tfw::utils::observables::Observer<SubDeviceDisconnectedEvent>,
+          public tfw::utils::observables::Observer<SubDeviceRenamedEvent> {
     public:
         static constexpr uint8_t NUM_SUB_DEVICES = 3;
 
@@ -60,6 +61,7 @@ namespace mkp::devices::c {
 
         void observe(const SubDeviceConnectedEvent& event) override;
         void observe(const SubDeviceDisconnectedEvent& event) override;
+        void observe(const SubDeviceRenamedEvent& event) override;
 
     private:
         std::unique_ptr<SubDevice> subDevice1;

@@ -103,7 +103,8 @@ void_result SubDevice::rename(const std::string_view& deviceName) {
         return void_result::error("rename.failed");
     }
 
-    // The SMC stores the name asynchronously, so reading it back here could still return the old one
+    // Set right away so the new name is visible immediately. The SMC applies the command on its next loop and
+    // stores it asynchronously, and the stored name is read back when it reports DEVICE_NAME_STORED.
     configuration.name = length > 0 ? std::string(deviceName.substr(0, length)) : DEFAULT_NAME;
 
     return void_result::success();
@@ -197,6 +198,7 @@ void SubDevice::observe(const InputPinInterruptEvent& event) {
 
 void SubDevice::pollEvents() {
     if (eventsAvailable) {
+        bool nameStored = false;
         uint8_t event[2];
         while (true) {
             auto valid = client.transact(commands::READ_EVENTS, event, sizeof(event));
@@ -234,8 +236,31 @@ void SubDevice::pollEvents() {
             if (event[0] == 1) {
                 scanScheduled = true;
             }
+
+            if (event[0] == 2) {
+                nameStored = true;
+            }
+        }
+
+        // Read once the events are drained, as several renames could have completed
+        if (nameStored) {
+            refreshName();
         }
     }
 
     eventsAvailable = !pinINT.read();
+}
+
+void SubDevice::refreshName() {
+    if (deviceId == 0) {
+        return;
+    }
+
+    const auto name = readName();
+    if (!name) {
+        return;
+    }
+
+    configuration.name = *name;
+    renamedSubject.notify({.subDeviceNumber = number, .subDeviceId = deviceId});
 }

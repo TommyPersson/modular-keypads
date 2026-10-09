@@ -14,7 +14,11 @@ export function useConnectedDevices(): UseQueryResult<DeviceInformation[]> {
 
   useEffect(() => {
     const subscription = deviceFacade.notifications$.subscribe((message: NotificationMessage) => {
-      if (message.type === "device.connected" || message.type === "device.disconnected") {
+      if (
+        message.type === "device.connected" ||
+        message.type === "device.disconnected" ||
+        message.type === "device.renamed"
+      ) {
         queryClient.invalidateQueries({ queryKey }).then()
       }
     })

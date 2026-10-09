@@ -58,14 +58,17 @@ void LocalDeviceC::setup() {
     subDevice1->onSwitchEvent().addObserver(this);
     subDevice1->onConnected().addObserver(this);
     subDevice1->onDisconnected().addObserver(this);
+    subDevice1->onRenamed().addObserver(this);
 
     subDevice2->onSwitchEvent().addObserver(this);
     subDevice2->onConnected().addObserver(this);
     subDevice2->onDisconnected().addObserver(this);
+    subDevice2->onRenamed().addObserver(this);
 
     subDevice3->onSwitchEvent().addObserver(this);
     subDevice3->onConnected().addObserver(this);
     subDevice3->onDisconnected().addObserver(this);
+    subDevice3->onRenamed().addObserver(this);
 
     pinModReset = OutputPin::physical(4);
     pinModReset->init();
@@ -105,4 +108,8 @@ void LocalDeviceC::observe(const SubDeviceConnectedEvent& event) {
 
 void LocalDeviceC::observe(const SubDeviceDisconnectedEvent& event) {
     subDeviceDisconnectedSubject.notify({ .deviceId = event.subDeviceId });
+}
+
+void LocalDeviceC::observe(const SubDeviceRenamedEvent& event) {
+    subDeviceRenamedSubject.notify({ .deviceId = event.subDeviceId });
 }

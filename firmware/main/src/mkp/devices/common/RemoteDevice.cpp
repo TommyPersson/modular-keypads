@@ -77,6 +77,9 @@ void RemoteDevice::loop() {
         } else if (remoteEventType == RemoteEventType::SUB_DEVICE_DISCONNECTED) {
             refreshSubDevices();
             this->subDeviceDisconnectedSubject.notify({.deviceId = remoteEvent.deviceId});
+        } else if (remoteEventType == RemoteEventType::SUB_DEVICE_RENAMED) {
+            refreshSubDevices();
+            this->subDeviceRenamedSubject.notify({.deviceId = remoteEvent.deviceId});
         }
     }
 }

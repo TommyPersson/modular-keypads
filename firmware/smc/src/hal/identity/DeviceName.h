@@ -32,8 +32,10 @@ namespace smc::hal::identity {
         /**
          * Writes at most one changed byte per call, and only when the NVM controller is idle: reading the EEPROM
          * while it is writing halts the CPU, interrupts included, which would break concurrent SPI transactions.
+         *
+         * Returns true on the call that finishes storing the scheduled name.
          */
-        void update();
+        bool update();
 
     private:
         uint8_t pendingName[DEVICE_NAME_LENGTH] = {};

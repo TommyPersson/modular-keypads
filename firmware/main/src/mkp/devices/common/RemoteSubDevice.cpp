@@ -78,7 +78,7 @@ tfw::utils::void_result RemoteSubDevice::rename(const std::string_view& deviceNa
         params
     );
 
-    // The slave updates the sub-device's endpoint asynchronously, so it isn't read back here
+    // Set right away so the new name is visible immediately, the stored name is read back on SUB_DEVICE_RENAMED
     if (!result.has_error) {
         configuration.name = std::string(deviceName);
     }

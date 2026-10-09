@@ -77,22 +77,16 @@ void SlaveFirmware::setup() {
         );
     }
 
-    // Catches changes that aren't notified, like sub-devices being renamed
-    subDeviceEndpointsTimer = serviceLocator.clock.createTimer(500'000, [this](const auto& event) {
-        updateSubDeviceEndpoints();
-    });
-
     device->onSwitchEvent().addObserver(this);
     device->onSubDeviceConnectedEvent().addObserver(this);
     device->onSubDeviceDisconnectedEvent().addObserver(this);
+    device->onSubDeviceRenamedEvent().addObserver(this);
 }
 
 void SlaveFirmware::loop() {
     Firmware::loop();
 
     device->loop();
-
-    subDeviceEndpointsTimer->update();
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
@@ -138,6 +132,20 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceDisconnectedEvent&
     slavePort.enqueueEvent(
         tfw::hal::i2c::Event{
             .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_DISCONNECTED),
+            .deviceId = event.deviceId,
+            .args = {}
+        }
+    );
+
+    slavePort.triggerEventInterrupt();
+}
+
+void SlaveFirmware::observe(const mkp::devices::common::DeviceRenamedEvent& event) {
+    updateSubDeviceEndpoints();
+
+    slavePort.enqueueEvent(
+        tfw::hal::i2c::Event{
+            .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_RENAMED),
             .deviceId = event.deviceId,
             .args = {}
         }
