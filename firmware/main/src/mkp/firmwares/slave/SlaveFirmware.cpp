@@ -68,6 +68,20 @@ void SlaveFirmware::setup() {
     slavePort.addCommandHandler(new FlashButtonIdentificationLightRemoteCommandHandler(*device));
     slavePort.addCommandHandler(new RenameDeviceRemoteCommandHandler(*device));
 
+    // Written on the first update, so the endpoints of sub-devices that aren't connected are valid too
+    subDeviceInformation.resize(device->getSubDevices().size());
+    for (size_t i = 0; i < subDeviceInformation.size(); i++) {
+        slavePort.updateEndpoint(
+            mkp::devices::common::i2c::endpoints::SubDeviceInformation(i),
+            &subDeviceInformation[i]
+        );
+    }
+
+    // Catches changes that aren't notified, like sub-devices being renamed
+    subDeviceEndpointsTimer = serviceLocator.clock.createTimer(500'000, [this](const auto& event) {
+        updateSubDeviceEndpoints();
+    });
+
     device->onSwitchEvent().addObserver(this);
     device->onSubDeviceConnectedEvent().addObserver(this);
     device->onSubDeviceDisconnectedEvent().addObserver(this);
@@ -77,11 +91,11 @@ void SlaveFirmware::loop() {
     Firmware::loop();
 
     device->loop();
+
+    subDeviceEndpointsTimer->update();
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
-    logger->info("Device switch event observed?");
-
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
         slavePort.enqueueEvent(
             tfw::hal::i2c::Event{
@@ -104,6 +118,9 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceConnectedEvent& event) {
+    // Updated before the event is sent, as the master reads the endpoints when it receives it
+    updateSubDeviceEndpoints();
+
     slavePort.enqueueEvent(
         tfw::hal::i2c::Event{
             .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_CONNECTED),
@@ -116,6 +133,8 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceConnectedEvent& ev
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceDisconnectedEvent& event) {
+    updateSubDeviceEndpoints();
+
     slavePort.enqueueEvent(
         tfw::hal::i2c::Event{
             .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_DISCONNECTED),
@@ -125,4 +144,26 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceDisconnectedEvent&
     );
 
     slavePort.triggerEventInterrupt();
+}
+
+void SlaveFirmware::updateSubDeviceEndpoints() {
+    const auto subDevices = device->getSubDevices();
+
+    for (uint8_t i = 0; i < subDevices.size(); i++) {
+        const auto& configuration = subDevices[i]->getConfiguration();
+
+        mkp::devices::common::i2c::structs::SubDeviceInformation information;
+        information.deviceId = configuration.id;
+        if (configuration.id != 0) {
+            strncpy(information.deviceType, configuration.type.c_str(), sizeof(information.deviceType));
+            strncpy(information.deviceName, configuration.name.c_str(), sizeof(information.deviceName));
+        }
+
+        if (memcmp(&information, &subDeviceInformation[i], sizeof(information)) == 0) {
+            continue;
+        }
+
+        subDeviceInformation[i] = information;
+        slavePort.updateEndpoint(mkp::devices::common::i2c::endpoints::SubDeviceInformation(i), &information);
+    }
 }

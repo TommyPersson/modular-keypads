@@ -3,6 +3,7 @@
 #include <tfw/hal/i2c/Client.h>
 
 #include "Device.h"
+#include "RemoteSubDevice.h"
 
 namespace mkp::devices::common {
     class RemoteDevice : public Device {
@@ -10,7 +11,8 @@ namespace mkp::devices::common {
         explicit RemoteDevice(
             const DeviceConfiguration& configuration,
             const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
-            tfw::hal::i2c::Client& i2cClient
+            tfw::hal::i2c::Client& i2cClient,
+            uint8_t numSubDevices = 0
         );
         ~RemoteDevice() override;
 
@@ -19,6 +21,7 @@ namespace mkp::devices::common {
 
         const DeviceConfiguration& getConfiguration() const override;
         const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const override;
+        std::span<Device* const> getSubDevices() const override;
 
         tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) override;
         tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) override;
@@ -27,11 +30,16 @@ namespace mkp::devices::common {
         void onRemoteEventsAvailable();
 
     private:
+        void refreshSubDevices();
+
         DeviceConfiguration configuration;
 
         const std::vector<std::shared_ptr<DeviceCapability>>& capabilities;
 
         tfw::hal::i2c::Client& i2cClient;
-        bool remoteEventsAvailable;
+        bool remoteEventsAvailable = true;
+
+        std::vector<std::unique_ptr<RemoteSubDevice>> subDevices;
+        std::vector<Device*> subDevicePointers;
     };
 }

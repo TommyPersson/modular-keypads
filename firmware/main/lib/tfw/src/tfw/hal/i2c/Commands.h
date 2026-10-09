@@ -30,7 +30,7 @@ namespace tfw::hal::i2c::commands {
 
         virtual ~RemoteCommandHandler() = default;
 
-        virtual utils::void_result execute(const TParams* params) = 0;
+        virtual utils::void_result execute(uint64_t targetDeviceId, const TParams* params) = 0;
 
         const CommandMessage<TParams>* parseMessage(const uint8_t* message) {
             auto parsedMessage = reinterpret_cast<const CommandMessage<TParams>*>(message);
@@ -52,7 +52,7 @@ namespace tfw::hal::i2c::commands {
 
         ~LambdaRemoteCommandHandler() override = default;
 
-        utils::void_result execute(const TParams* params) override {
+        utils::void_result execute(uint64_t targetDeviceId, const TParams* params) override {
             return executeFn(*params);
         }
 

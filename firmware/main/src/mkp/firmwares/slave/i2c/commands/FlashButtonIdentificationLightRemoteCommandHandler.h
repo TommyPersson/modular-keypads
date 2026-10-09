@@ -20,7 +20,7 @@ namespace firmwares::slave::i2c::commands {
 
         ~FlashButtonIdentificationLightRemoteCommandHandler() override;
 
-        tfw::utils::void_result execute(const FlashButtonIdentificationLightParams* params) override;
+        tfw::utils::void_result execute(uint64_t targetDeviceId, const FlashButtonIdentificationLightParams* params) override;
 
     private:
         mkp::devices::common::LocalDevice& device;

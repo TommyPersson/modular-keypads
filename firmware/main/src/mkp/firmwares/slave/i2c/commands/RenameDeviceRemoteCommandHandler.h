@@ -19,7 +19,7 @@ namespace firmwares::slave::i2c::commands {
 
         ~RenameDeviceRemoteCommandHandler() override;
 
-        tfw::utils::void_result execute(const RenameDeviceParams* params) override;
+        tfw::utils::void_result execute(uint64_t targetDeviceId, const RenameDeviceParams* params) override;
 
     private:
         mkp::devices::common::LocalDevice& device;

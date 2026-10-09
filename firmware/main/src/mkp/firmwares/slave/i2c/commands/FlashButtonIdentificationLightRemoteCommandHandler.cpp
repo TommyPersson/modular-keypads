@@ -1,5 +1,7 @@
 #include "FlashButtonIdentificationLightRemoteCommandHandler.h"
 
+#include "TargetDevice.h"
+
 using namespace firmwares::slave::i2c::commands;
 
 FlashButtonIdentificationLightRemoteCommandHandler::FlashButtonIdentificationLightRemoteCommandHandler(
@@ -11,8 +13,14 @@ FlashButtonIdentificationLightRemoteCommandHandler::FlashButtonIdentificationLig
 FlashButtonIdentificationLightRemoteCommandHandler::~FlashButtonIdentificationLightRemoteCommandHandler() = default;
 
 tfw::utils::void_result FlashButtonIdentificationLightRemoteCommandHandler::execute(
+    const uint64_t targetDeviceId,
     const FlashButtonIdentificationLightParams* params
 ) {
-    device.flashButtonIdentificationLight(params->buttonNumber, params->durationMs);
+    const auto targetDevice = resolveTargetDevice(device, targetDeviceId);
+    if (targetDevice == nullptr) {
+        return tfw::utils::void_result::error("device.not.found");
+    }
+
+    targetDevice->flashButtonIdentificationLight(params->buttonNumber, params->durationMs);
     return tfw::utils::void_result::success();
 }

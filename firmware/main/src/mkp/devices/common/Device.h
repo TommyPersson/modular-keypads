@@ -71,9 +71,11 @@ namespace mkp::devices::common {
                 char deviceName[tfw::hal::i2c::MAX_PACKET_SIZE]{};
             };
 
+            // Not null terminated when the strings fill their arrays
             struct SubDeviceInformation {
                 uint64_t deviceId = 0;
-                char subDeviceType = 0;
+                char deviceType[6]{};
+                char deviceName[16]{};
             };
 #pragma pack(pop)
         }
@@ -81,6 +83,13 @@ namespace mkp::devices::common {
         namespace endpoints {
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
+
+            // One endpoint per sub-device, indexed as in Device::getSubDevices()
+            inline tfw::hal::i2c::EndpointDescriptor<structs::SubDeviceInformation> SubDeviceInformation(
+                const uint8_t subDeviceIndex
+            ) {
+                return {.id = static_cast<uint8_t>(0x10 + subDeviceIndex)};
+            }
         }
     }
 }

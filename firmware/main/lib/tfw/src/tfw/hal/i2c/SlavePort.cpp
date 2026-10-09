@@ -70,7 +70,7 @@ namespace tfw::hal::i2c {
                 continue;
             }
 
-            command->execute(&message->params); // TODO what to do with returned errors?
+            command->execute(message->targetDeviceId, &message->params); // TODO what to do with returned errors?
         }
 
         receiveArena.reset();

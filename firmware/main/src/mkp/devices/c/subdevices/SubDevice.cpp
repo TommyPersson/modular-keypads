@@ -1,5 +1,7 @@
 #include "SubDevice.h"
 
+#include "mkp/devices/common/SubDeviceCapabilities.h"
+
 #include <Arduino.h>
 
 using namespace mkp::devices::c;
@@ -12,37 +14,6 @@ using namespace tfw::hal::time;
 namespace {
     // Same as the SMC's own default, which it returns until a name is set
     constexpr auto DEFAULT_NAME = "Unnamed";
-
-    constexpr uint8_t DEVICE_TYPE_SMC1 = 0x01;
-    constexpr uint8_t DEVICE_TYPE_SMC2 = 0x02;
-
-    // The SMC reports its own button events, so there are no registers. The LED indices are the SMC's own (see
-    // the button definitions in the SMC firmwares), the SMC maps button numbers to them.
-    const std::vector<std::shared_ptr<DeviceCapability>> smc1Capabilities = {
-        std::make_shared<PushButtonCapability>(1, NoRegister, 0, 0),
-        std::make_shared<PushButtonCapability>(2, NoRegister, 0, 1),
-        std::make_shared<PushButtonCapability>(3, NoRegister, 0, 3),
-        std::make_shared<PushButtonCapability>(4, NoRegister, 0, 2),
-    };
-
-    const std::vector<std::shared_ptr<DeviceCapability>> smc2Capabilities = {
-        std::make_shared<PushButtonCapability>(1, NoRegister, 0, 0),
-        std::make_shared<PushButtonCapability>(2, NoRegister, 0, 1),
-        std::make_shared<PushButtonCapability>(3, NoRegister, 0, 2),
-        std::make_shared<PushButtonCapability>(4, NoRegister, 0, 5),
-        std::make_shared<PushButtonCapability>(5, NoRegister, 0, 4),
-        std::make_shared<PushButtonCapability>(6, NoRegister, 0, 3),
-    };
-
-    const std::vector<std::shared_ptr<DeviceCapability>> noCapabilities = {};
-
-    const std::vector<std::shared_ptr<DeviceCapability>>& capabilitiesFor(const uint8_t deviceType) {
-        switch (deviceType) {
-        case DEVICE_TYPE_SMC1: return smc1Capabilities;
-        case DEVICE_TYPE_SMC2: return smc2Capabilities;
-        default: return noCapabilities;
-        }
-    }
 }
 
 SubDevice::SubDevice(
@@ -57,8 +28,7 @@ SubDevice::SubDevice(
     parentDeviceId(parentDeviceId),
     number(number),
     client(spi, pinCS),
-    pinINT(pinINT),
-    capabilities(&noCapabilities) {
+    pinINT(pinINT) {
 
     scanTimer = clock.createTimer(100'000, [this](const TimerElapsedEvent& event) {
         scan();
@@ -89,7 +59,7 @@ const DeviceConfiguration& SubDevice::getConfiguration() const {
 }
 
 const std::vector<std::shared_ptr<DeviceCapability>>& SubDevice::getCapabilities() const {
-    return *capabilities;
+    return subDeviceCapabilitiesFor(configuration.type);
 }
 
 void_result SubDevice::flashIdentificationLights(uint32_t durationMs) {
@@ -149,7 +119,6 @@ void SubDevice::scan() {
             auto previousDeviceId = deviceId;
             deviceId = 0;
             deviceType = 0;
-            capabilities = &noCapabilities;
             resetConfiguration();
 
             if (previousDeviceId != 0) {
@@ -179,7 +148,6 @@ void SubDevice::scan() {
     configuration.id = deviceId;
     configuration.type = "smc" + std::to_string(deviceType);
     configuration.name = *name;
-    capabilities = &capabilitiesFor(deviceType);
 
     connectedSubject.notify(
         {

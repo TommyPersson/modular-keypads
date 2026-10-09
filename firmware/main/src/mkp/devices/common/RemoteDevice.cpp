@@ -18,15 +18,21 @@ namespace {
 RemoteDevice::RemoteDevice(
     const DeviceConfiguration& configuration,
     const std::vector<std::shared_ptr<DeviceCapability>>& capabilities,
-    tfw::hal::i2c::Client& i2cClient
+    tfw::hal::i2c::Client& i2cClient,
+    const uint8_t numSubDevices
 ) : configuration(configuration),
     capabilities(capabilities),
     i2cClient(i2cClient) {
+    for (uint8_t i = 0; i < numSubDevices; i++) {
+        subDevices.push_back(std::make_unique<RemoteSubDevice>(configuration, i2cClient));
+        subDevicePointers.push_back(subDevices.back().get());
+    }
 }
 
 RemoteDevice::~RemoteDevice() = default;
 
 void RemoteDevice::setup() {
+    refreshSubDevices();
 }
 
 void RemoteDevice::loop() {
@@ -66,8 +72,10 @@ void RemoteDevice::loop() {
                 }
             );
         } else if (remoteEventType == RemoteEventType::SUB_DEVICE_CONNECTED) {
+            refreshSubDevices();
             this->subDeviceConnectedSubject.notify({.deviceId = remoteEvent.deviceId});
         } else if (remoteEventType == RemoteEventType::SUB_DEVICE_DISCONNECTED) {
+            refreshSubDevices();
             this->subDeviceDisconnectedSubject.notify({.deviceId = remoteEvent.deviceId});
         }
     }
@@ -79,6 +87,10 @@ const DeviceConfiguration& RemoteDevice::getConfiguration() const {
 
 const std::vector<std::shared_ptr<DeviceCapability>>& RemoteDevice::getCapabilities() const {
     return capabilities;
+}
+
+std::span<Device* const> RemoteDevice::getSubDevices() const {
+    return subDevicePointers;
 }
 
 tfw::utils::void_result RemoteDevice::flashIdentificationLights(uint32_t durationMs) {
@@ -114,4 +126,16 @@ tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName)
 
 void RemoteDevice::onRemoteEventsAvailable() {
     remoteEventsAvailable = true;
+}
+
+void RemoteDevice::refreshSubDevices() {
+    for (size_t i = 0; i < subDevices.size(); i++) {
+        const auto result = i2cClient.readEndpoint(configuration.address, i2c::endpoints::SubDeviceInformation(i));
+        if (result.has_error) {
+            logger->error("Unable to read sub-device %u of device %08llx", i, configuration.id);
+            continue;
+        }
+
+        subDevices[i]->updateInformation(*result.value);
+    }
 }

@@ -30,6 +30,7 @@ std::unique_ptr<RemoteDevice> DeviceFactoryC::createRemote(
     return std::make_unique<RemoteDevice>(
         config,
         capabilities,
-        serviceLocator.i2cClient
+        serviceLocator.i2cClient,
+        LocalDeviceC::NUM_SUB_DEVICES
     );
 }

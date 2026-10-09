@@ -29,6 +29,8 @@ namespace mkp::devices::c {
           public tfw::utils::observables::Observer<SubDeviceConnectedEvent>,
           public tfw::utils::observables::Observer<SubDeviceDisconnectedEvent> {
     public:
+        static constexpr uint8_t NUM_SUB_DEVICES = 3;
+
         LocalDeviceC(
             const common::DeviceConfiguration& configuration,
             const common::DeviceConfigurationManager& configurationManager,
@@ -63,7 +65,7 @@ namespace mkp::devices::c {
         std::unique_ptr<SubDevice> subDevice1;
         std::unique_ptr<SubDevice> subDevice2;
         std::unique_ptr<SubDevice> subDevice3;
-        std::array<Device*, 3> subDevices{};
+        std::array<Device*, NUM_SUB_DEVICES> subDevices{};
 
         std::unique_ptr<common::RegisterRefresher> registerRefresher;
         std::unique_ptr<tfw::hal::gpio::OutputPin> pinModReset;

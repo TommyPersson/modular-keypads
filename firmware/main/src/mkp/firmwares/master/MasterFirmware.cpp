@@ -158,6 +158,11 @@ void MasterFirmware::refreshRemoteDevices() {
         device->setup();
         device->onSwitchEvent().addObserver(this);
         device->onRotaryEncoderEvent().addObserver(this);
+
+        // Their events are read and reported by the parent remote device
+        for (const auto& subDevice : device->getSubDevices()) {
+            allDevices.push_back(subDevice);
+        }
     }
 
     for (const auto& device : localDevice->getSubDevices()) {

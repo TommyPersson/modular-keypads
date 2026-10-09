@@ -19,6 +19,10 @@ public:
     void observe(const mkp::devices::common::DeviceDisconnectedEvent& event) override;
 
 private:
+    void updateSubDeviceEndpoints();
+
     std::unique_ptr<mkp::devices::common::LocalDevice> device;
+    std::vector<mkp::devices::common::i2c::structs::SubDeviceInformation> subDeviceInformation;
+    std::unique_ptr<tfw::hal::time::Timer> subDeviceEndpointsTimer;
     tfw::hal::i2c::SlavePort& slavePort;
 };
