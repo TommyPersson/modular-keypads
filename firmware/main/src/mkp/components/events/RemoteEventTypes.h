@@ -9,5 +9,6 @@ namespace mkp::components::events {
         SUB_DEVICE_CONNECTED = 0x30,
         SUB_DEVICE_DISCONNECTED = 0x31,
         SUB_DEVICE_RENAMED = 0x32,
+        DEVICE_RENAMED = 0x40,
     };
 }

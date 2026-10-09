@@ -53,6 +53,8 @@ namespace mkp::devices::common {
             return deviceRotaryEncoderEventSubject;
         }
 
+        tfw::utils::observables::Observable<DeviceRenamedEvent>& onRenamedEvent() { return renamedSubject; }
+
         tfw::utils::observables::Observable<DeviceConnectedEvent>& onSubDeviceConnectedEvent() { return subDeviceConnectedSubject; }
         tfw::utils::observables::Observable<DeviceDisconnectedEvent>& onSubDeviceDisconnectedEvent() { return subDeviceDisconnectedSubject; }
         tfw::utils::observables::Observable<DeviceRenamedEvent>& onSubDeviceRenamedEvent() { return subDeviceRenamedSubject; }
@@ -60,6 +62,7 @@ namespace mkp::devices::common {
     protected:
         tfw::utils::observables::Subject<DeviceSwitchEvent> deviceSwitchEventSubject;
         tfw::utils::observables::Subject<DeviceRotaryEncoderEvent> deviceRotaryEncoderEventSubject;
+        tfw::utils::observables::Subject<DeviceRenamedEvent> renamedSubject;
         tfw::utils::observables::Subject<DeviceConnectedEvent> subDeviceConnectedSubject;
         tfw::utils::observables::Subject<DeviceDisconnectedEvent> subDeviceDisconnectedSubject;
         tfw::utils::observables::Subject<DeviceRenamedEvent> subDeviceRenamedSubject;

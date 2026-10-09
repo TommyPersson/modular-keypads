@@ -21,6 +21,7 @@ public:
     void observe(const mkp::devices::common::DeviceRenamedEvent& event) override;
 
 private:
+    void updateDeviceNameEndpoint();
     void updateSubDeviceEndpoints();
 
     std::unique_ptr<mkp::devices::common::LocalDevice> device;

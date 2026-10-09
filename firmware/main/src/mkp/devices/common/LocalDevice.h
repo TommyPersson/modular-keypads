@@ -54,7 +54,7 @@ namespace mkp::devices::common {
             const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bBitReader
         );
 
-        const DeviceConfiguration configuration;
+        DeviceConfiguration configuration;
         const DeviceConfigurationManager& configurationManager;
         tfw::hal::time::Clock& clock;
         std::unique_ptr<tfw::utils::registers::RegisterManager> registerManager;

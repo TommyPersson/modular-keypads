@@ -80,6 +80,9 @@ tfw::utils::void_result LocalDevice::rename(const std::string_view& deviceName) 
         return tfw::utils::void_result::error("unable.to.set.device.name");
     }
 
+    configuration.name = configurationManager.getDeviceName();
+    renamedSubject.notify({.deviceId = configuration.id});
+
     return tfw::utils::void_result::success();
 }
 

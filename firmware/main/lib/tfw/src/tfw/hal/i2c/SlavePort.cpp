@@ -52,9 +52,9 @@ namespace tfw::hal::i2c {
         knownCommandsHandlers.push_back(handler);
     }
 
+    // Not locked, as the receive and request callbacks run on the same task, and the lock only guards the state
+    // shared with other tasks. Handlers can therefore update endpoints and enqueue events.
     void SlavePort::onReceiveCallback(const int len) {
-        std::lock_guard guard(lock);
-
         auto messageBytes = receiveArena.allocate(len);
 
         int i = 0;
@@ -102,6 +102,8 @@ namespace tfw::hal::i2c {
     }
 
     void SlavePort::enqueueEvent(const Event& event) {
+        std::lock_guard guard(lock);
+
         eventQueue.enqueue(event);
     }
 

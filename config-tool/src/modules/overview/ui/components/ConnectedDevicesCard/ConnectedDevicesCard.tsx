@@ -1,5 +1,4 @@
 import {
-  Alert,
   Card,
   CardContent,
   CardHeader, Dialog, DialogActions, DialogContent, DialogTitle,
@@ -135,9 +134,6 @@ const RenameDeviceDialog = (props: {
             value={newDeviceName}
             onChange={handleChange}
           />
-          <Alert severity={"info"}>
-            The devices needs to be restarted for the new names to take effect.
-          </Alert>
         </Stack>
       </DialogContent>
       <DialogActions>

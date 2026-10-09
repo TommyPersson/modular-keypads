@@ -41,7 +41,8 @@ std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
         }
 
 
-        const auto name = std::string(deviceNameResult.value->deviceName, sizeof(deviceNameResult.value->deviceName));
+        const auto& deviceName = deviceNameResult.value->deviceName;
+        const auto name = std::string(deviceName, strnlen(deviceName, sizeof(deviceName)));
 
         DeviceConfiguration configuration{
             .id = id,

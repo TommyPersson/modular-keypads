@@ -46,7 +46,6 @@ void SlaveFirmware::setup() {
     }
 
     const auto deviceId = configuration.id;
-    const auto deviceName = configuration.name;
 
     mkp::devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
     deviceInformationStruct.deviceId = deviceId;
@@ -57,10 +56,7 @@ void SlaveFirmware::setup() {
         &deviceInformationStruct
     );
 
-    slavePort.updateEndpoint(
-        mkp::devices::common::i2c::endpoints::DeviceName,
-        deviceName.c_str()
-    );
+    updateDeviceNameEndpoint();
 
     slavePort.setup(deviceAddress, device->getI2cPins(), device->getEventInterruptPin());
 
@@ -78,6 +74,7 @@ void SlaveFirmware::setup() {
     }
 
     device->onSwitchEvent().addObserver(this);
+    device->onRenamedEvent().addObserver(this);
     device->onSubDeviceConnectedEvent().addObserver(this);
     device->onSubDeviceDisconnectedEvent().addObserver(this);
     device->onSubDeviceRenamedEvent().addObserver(this);
@@ -141,17 +138,35 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceDisconnectedEvent&
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceRenamedEvent& event) {
-    updateSubDeviceEndpoints();
+    // Renames of the device itself are notified from the slave port's receive callback, and of sub-devices from
+    // the loop
+    const auto isDevice = event.deviceId == device->getConfiguration().id;
+    if (isDevice) {
+        updateDeviceNameEndpoint();
+    } else {
+        updateSubDeviceEndpoints();
+    }
 
     slavePort.enqueueEvent(
         tfw::hal::i2c::Event{
-            .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_RENAMED),
+            .type = static_cast<uint8_t>(
+                isDevice
+                    ? mkp::components::events::RemoteEventType::DEVICE_RENAMED
+                    : mkp::components::events::RemoteEventType::SUB_DEVICE_RENAMED
+            ),
             .deviceId = event.deviceId,
             .args = {}
         }
     );
 
     slavePort.triggerEventInterrupt();
+}
+
+void SlaveFirmware::updateDeviceNameEndpoint() {
+    mkp::devices::common::i2c::structs::DeviceName deviceName;
+    strncpy(deviceName.deviceName, device->getConfiguration().name.c_str(), sizeof(deviceName.deviceName));
+
+    slavePort.updateEndpoint(mkp::devices::common::i2c::endpoints::DeviceName, &deviceName);
 }
 
 void SlaveFirmware::updateSubDeviceEndpoints() {

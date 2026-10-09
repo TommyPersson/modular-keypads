@@ -174,6 +174,7 @@ void MasterFirmware::refreshRemoteDevices() {
     }
 
     for (const auto& device : allDevices) {
+        device->onRenamedEvent().addObserver(this);
         device->onSubDeviceConnectedEvent().addObserver(this);
         device->onSubDeviceDisconnectedEvent().addObserver(this);
         device->onSubDeviceRenamedEvent().addObserver(this);

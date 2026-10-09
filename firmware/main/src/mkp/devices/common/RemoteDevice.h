@@ -30,6 +30,7 @@ namespace mkp::devices::common {
         void onRemoteEventsAvailable();
 
     private:
+        void refreshName();
         void refreshSubDevices();
 
         DeviceConfiguration configuration;

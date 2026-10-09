@@ -77,6 +77,9 @@ void RemoteDevice::loop() {
         } else if (remoteEventType == RemoteEventType::SUB_DEVICE_DISCONNECTED) {
             refreshSubDevices();
             this->subDeviceDisconnectedSubject.notify({.deviceId = remoteEvent.deviceId});
+        } else if (remoteEventType == RemoteEventType::DEVICE_RENAMED) {
+            refreshName();
+            this->renamedSubject.notify({.deviceId = configuration.id});
         } else if (remoteEventType == RemoteEventType::SUB_DEVICE_RENAMED) {
             refreshSubDevices();
             this->subDeviceRenamedSubject.notify({.deviceId = remoteEvent.deviceId});
@@ -129,6 +132,17 @@ tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName)
 
 void RemoteDevice::onRemoteEventsAvailable() {
     remoteEventsAvailable = true;
+}
+
+void RemoteDevice::refreshName() {
+    const auto result = i2cClient.readEndpoint(configuration.address, i2c::endpoints::DeviceName);
+    if (result.has_error) {
+        logger->error("Unable to read name of device %08llx", configuration.id);
+        return;
+    }
+
+    const auto& deviceName = result.value->deviceName;
+    configuration.name = std::string(deviceName, strnlen(deviceName, sizeof(deviceName)));
 }
 
 void RemoteDevice::refreshSubDevices() {
