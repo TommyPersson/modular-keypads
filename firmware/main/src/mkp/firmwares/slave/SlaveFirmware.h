@@ -4,7 +4,9 @@
 
 class SlaveFirmware final
     : public mkp::firmwares::base::Firmware,
-      tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent> {
+      public tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
+      public tfw::utils::observables::Observer<mkp::devices::common::DeviceConnectedEvent>,
+      public tfw::utils::observables::Observer<mkp::devices::common::DeviceDisconnectedEvent> {
 public:
     explicit SlaveFirmware(mkp::firmwares::base::ServiceLocator& serviceLocator);
     ~SlaveFirmware() override;
@@ -13,6 +15,8 @@ public:
     void loop() override;
 
     void observe(const mkp::devices::common::DeviceSwitchEvent& event) override;
+    void observe(const mkp::devices::common::DeviceConnectedEvent& event) override;
+    void observe(const mkp::devices::common::DeviceDisconnectedEvent& event) override;
 
 private:
     std::unique_ptr<mkp::devices::common::LocalDevice> device;

@@ -65,6 +65,10 @@ void RemoteDevice::loop() {
                     .state = tfw::hal::buttons::ButtonState::UNPRESSED,
                 }
             );
+        } else if (remoteEventType == RemoteEventType::SUB_DEVICE_CONNECTED) {
+            this->subDeviceConnectedSubject.notify({.deviceId = remoteEvent.deviceId});
+        } else if (remoteEventType == RemoteEventType::SUB_DEVICE_DISCONNECTED) {
+            this->subDeviceDisconnectedSubject.notify({.deviceId = remoteEvent.deviceId});
         }
     }
 }

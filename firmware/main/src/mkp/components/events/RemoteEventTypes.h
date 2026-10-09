@@ -6,5 +6,7 @@ namespace mkp::components::events {
         BUTTON_RELEASED = 0x11,
         ROTARY_ENCODER_CW = 0x20,
         ROTARY_ENCODER_CCW = 0x21,
+        SUB_DEVICE_CONNECTED = 0x30,
+        SUB_DEVICE_DISCONNECTED = 0x31,
     };
 }

@@ -69,19 +69,14 @@ void SlaveFirmware::setup() {
     slavePort.addCommandHandler(new RenameDeviceRemoteCommandHandler(*device));
 
     device->onSwitchEvent().addObserver(this);
+    device->onSubDeviceConnectedEvent().addObserver(this);
+    device->onSubDeviceDisconnectedEvent().addObserver(this);
 }
 
 void SlaveFirmware::loop() {
     Firmware::loop();
 
     device->loop();
-    /*
-        gpio_wakeup_enable((gpio_num_t)11, GPIO_INTR_LOW_LEVEL);
-        gpio_wakeup_enable((gpio_num_t)10, GPIO_INTR_LOW_LEVEL);
-        esp_sleep_enable_gpio_wakeup();
-        esp_sleep_enable_timer_wakeup(1000);
-        esp_light_sleep_start();
-        */
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event) {
@@ -104,6 +99,30 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
             }
         );
     }
+
+    slavePort.triggerEventInterrupt();
+}
+
+void SlaveFirmware::observe(const mkp::devices::common::DeviceConnectedEvent& event) {
+    slavePort.enqueueEvent(
+        tfw::hal::i2c::Event{
+            .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_CONNECTED),
+            .deviceId = event.deviceId,
+            .args = {}
+        }
+    );
+
+    slavePort.triggerEventInterrupt();
+}
+
+void SlaveFirmware::observe(const mkp::devices::common::DeviceDisconnectedEvent& event) {
+    slavePort.enqueueEvent(
+        tfw::hal::i2c::Event{
+            .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::SUB_DEVICE_DISCONNECTED),
+            .deviceId = event.deviceId,
+            .args = {}
+        }
+    );
 
     slavePort.triggerEventInterrupt();
 }
