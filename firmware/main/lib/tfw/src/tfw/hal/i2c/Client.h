@@ -19,6 +19,12 @@ namespace tfw::hal::i2c {
             i2c.begin(pins.SDA, pins.SCL, 400'000);
         }
 
+        /// Checks whether a device ACKs the given address, using a zero-length write
+        bool probe(const uint8_t address) {
+            i2c.beginTransmission(address);
+            return i2c.endTransmission() == 0;
+        }
+
         template <class TParams>
         utils::void_result sendCommand(
             const uint8_t address,

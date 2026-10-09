@@ -58,7 +58,12 @@ void SlaveFirmware::setup() {
 
     updateDeviceNameEndpoint();
 
-    slavePort.setup(deviceAddress, device->getI2cPins(), device->getEventInterruptPin());
+    slavePort.setup(
+        deviceAddress,
+        device->getI2cPins(),
+        device->getEventInterruptPin(),
+        device->getDiscoveryPin()
+    );
 
     slavePort.addCommandHandler(new FlashDeviceIdentificationLightsRemoteCommandHandler(*device));
     slavePort.addCommandHandler(new FlashButtonIdentificationLightRemoteCommandHandler(*device));
@@ -78,6 +83,9 @@ void SlaveFirmware::setup() {
     device->onSubDeviceConnectedEvent().addObserver(this);
     device->onSubDeviceDisconnectedEvent().addObserver(this);
     device->onSubDeviceRenamedEvent().addObserver(this);
+
+    // Last, so that the device is fully set up when the master scans it
+    slavePort.requestDiscovery();
 }
 
 void SlaveFirmware::loop() {

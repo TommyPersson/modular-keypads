@@ -58,6 +58,7 @@ namespace mkp::devices::c {
 
         tfw::hal::i2c::Pins getI2cPins() const override { return i2c::pins; }
         uint8_t getEventInterruptPin() const override { return 21; }
+        uint8_t getDiscoveryPin() const override { return 47; } // EX2
 
         void observe(const SubDeviceConnectedEvent& event) override;
         void observe(const SubDeviceDisconnectedEvent& event) override;

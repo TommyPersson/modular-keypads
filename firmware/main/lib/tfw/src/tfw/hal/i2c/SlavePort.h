@@ -36,7 +36,13 @@ namespace tfw::hal::i2c {
         explicit SlavePort(TwoWireType& twoWire);
         ~SlavePort();
 
-        void setup(uint8_t address, Pins pins, uint8_t eventInterruptPin);
+        void setup(uint8_t address, Pins pins, uint8_t eventInterruptPin, uint8_t discoveryPin);
+
+        /**
+         * Drives the shared, open drain discovery line low until the master acknowledges the device, to tell the
+         * master that there is a device to discover. Call once the device is ready to be scanned.
+         */
+        void requestDiscovery() const;
 
         template <class TStruct>
         void updateEndpoint(
@@ -83,6 +89,7 @@ namespace tfw::hal::i2c {
 
         utils::ring_queue<Event> eventQueue{255};
         std::unique_ptr<gpio::OutputPin> eventInterruptOutputPin;
+        std::unique_ptr<gpio::OutputPin> discoveryOutputPin;
 
         utils::ring_queue<PendingCommand> pendingCommands{16};
 

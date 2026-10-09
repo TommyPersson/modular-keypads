@@ -21,8 +21,14 @@ DeviceScanner::~DeviceScanner() = default;
 std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
     std::vector<std::shared_ptr<DeviceConfiguration>> result;
 
+    logger->debug("Scanning...");
+
     for (uint8_t address = 10; address < 127; address++) {
-        logger->debug("probing %i", address);
+        //logger->debug("probing %i", address);
+
+        if (!client.probe(address)) {
+            continue;
+        }
 
         const auto deviceInformationResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceInformation);
         if (deviceInformationResult.has_error) {
@@ -54,6 +60,8 @@ std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scan() {
 
         result.emplace_back(std::make_shared<DeviceConfiguration>(configuration));
     }
+
+    logger->debug("Scanning complete!");
 
     return result;
 }

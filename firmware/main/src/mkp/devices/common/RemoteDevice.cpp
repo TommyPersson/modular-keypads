@@ -12,6 +12,9 @@ using namespace mkp::components::events;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("RemoteDevice");
+
+    // Tolerates the occasional failed transfer, without being slow to notice lost devices
+    constexpr uint8_t MAX_MISSED_PRESENCE_CHECKS = 3;
 }
 
 
@@ -132,6 +135,25 @@ tfw::utils::void_result RemoteDevice::rename(const std::string_view& deviceName)
 
 void RemoteDevice::onRemoteEventsAvailable() {
     remoteEventsAvailable = true;
+}
+
+bool RemoteDevice::checkPresence() {
+    const auto result = i2cClient.readEndpoint(configuration.address, i2c::endpoints::DeviceInformation);
+
+    // Another device answering at the address counts as missing too
+    if (!result.has_error && result.value->deviceId == configuration.id) {
+        numMissedPresenceChecks = 0;
+        return true;
+    }
+
+    numMissedPresenceChecks++;
+    if (numMissedPresenceChecks < MAX_MISSED_PRESENCE_CHECKS) {
+        return true;
+    }
+
+    logger->info("Device %08llx missed %u presence checks", configuration.id, numMissedPresenceChecks);
+    numMissedPresenceChecks = 0;
+    return false;
 }
 
 void RemoteDevice::refreshName() {

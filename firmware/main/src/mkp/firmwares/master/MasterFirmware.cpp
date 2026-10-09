@@ -1,5 +1,8 @@
 #include "MasterFirmware.h"
 
+#include <ranges>
+#include <unordered_map>
+
 #ifdef SOC_USB_OTG_SUPPORTED
 
 #include <esp_system.h>
@@ -17,6 +20,15 @@
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");
+
+    // How long the discovery line must stay low before scanning, so that connectors have mated and slaves are ready
+    constexpr uint64_t DISCOVERY_SETTLE_MS = 500;
+
+    // How long to wait after a scan before checking the discovery line again, so that acknowledged slaves have
+    // released it
+    constexpr uint64_t DISCOVERY_HOLDOFF_MS = 1000;
+
+    constexpr uint64_t PRESENCE_CHECK_INTERVAL_US = 1'000'000;
 }
 
 using namespace mkp::components::keybindings;
@@ -87,8 +99,7 @@ void MasterFirmware::setup() {
 
     localDevice = localModuleFactory->createLocal(localDeviceConfiguration, serviceLocator);
     localDevice->setup();
-    localDevice->onSwitchEvent().addObserver(this);
-    localDevice->onRotaryEncoderEvent().addObserver(this);
+    observeDevice(*localDevice);
     allDevices.push_back(localDevice.get());
 
     registers = &localDevice->getRegisters();
@@ -96,7 +107,21 @@ void MasterFirmware::setup() {
     auto pins = localDevice->getI2cPins();
     serviceLocator.i2cClient.setup(pins);
 
+    // Only the master pulls the line up, as all boards are the same and any of them can be the master
+    discoveryInputPin = tfw::hal::gpio::InputPin::physical(localDevice->getDiscoveryPin(), INPUT_PULLUP);
+    discoveryInputPin->setup();
+
     refreshRemoteDevices();
+    discoveryHoldoffUntilMs = serviceLocator.clock.millis() + DISCOVERY_HOLDOFF_MS;
+
+    // Lost devices are removed, and notified, by the scan
+    presenceCheckTimer = serviceLocator.clock.createTimer(PRESENCE_CHECK_INTERVAL_US, [this](const auto& event) {
+        for (const auto& device : remoteDevices) {
+            if (!device->checkPresence()) {
+                remoteDeviceScanRequested = true;
+            }
+        }
+    });
 
     slaveEventInterruptInputPin = tfw::hal::gpio::InputPin::physical(localDevice->getEventInterruptPin(), INPUT_PULLUP);
     slaveEventInterruptInputPin->setup();
@@ -106,6 +131,15 @@ void MasterFirmware::setup() {
 
 void MasterFirmware::loop() {
     Firmware::loop();
+
+    checkDiscoveryLine();
+    presenceCheckTimer->update();
+
+    if (remoteDeviceScanRequested) {
+        remoteDeviceScanRequested = false;
+        refreshRemoteDevices();
+        discoveryHoldoffUntilMs = serviceLocator.clock.millis() + DISCOVERY_HOLDOFF_MS;
+    }
 
     slaveEventInterruptInputPin->checkForInterrupt();
 
@@ -133,15 +167,43 @@ void MasterFirmware::observe(const DeviceRenamedEvent& event) {
     notifier->notify(event.deviceId, {.type = "device.renamed", .args = {}});
 }
 
-// TODO allow connected devices to use open drain outputs to signal their presence?
+// Devices that are found again are kept, so that rescanning doesn't reset their state. Devices that appeared or
+// disappeared are notified as connected and disconnected. A device's address and type are assumed never to change.
 void MasterFirmware::refreshRemoteDevices() {
-    allDevices.clear();
-    allDevices.push_back(localDevice.get());
-    remoteDevices.clear();
-
     DeviceScanner scanner(serviceLocator.i2cClient);
     const auto scanResult = scanner.scan();
+
+    // All found devices are acknowledged, including known ones that restarted, and ones of unsupported types, as
+    // the discovery line stays low until every device has released it
     for (const auto& deviceConfiguration : scanResult) {
+        const auto result = serviceLocator.i2cClient.sendCommand(
+            deviceConfiguration->address,
+            0,
+            tfw::hal::i2c::commands::builtin::AcknowledgeDiscovery,
+            {}
+        );
+
+        if (result.has_error) {
+            logger->error("Unable to acknowledge discovery of device at %i", deviceConfiguration->address);
+        }
+    }
+
+    // Devices are taken out as they're found again, so the remaining ones are the lost devices
+    std::unordered_map<uint64_t, std::unique_ptr<RemoteDevice>> previousDevices;
+    for (auto& device : remoteDevices) {
+        const auto deviceId = device->getConfiguration().id;
+        previousDevices.emplace(deviceId, std::move(device));
+    }
+    remoteDevices.clear();
+
+    std::vector<uint64_t> connectedDeviceIds;
+
+    for (const auto& deviceConfiguration : scanResult) {
+        if (auto existing = previousDevices.extract(deviceConfiguration->id)) {
+            remoteDevices.push_back(std::move(existing.mapped()));
+            continue;
+        }
+
         logger->info("Found device at %i: %08llx", deviceConfiguration->address, deviceConfiguration->id);
         logger->info("Device name: %s", deviceConfiguration->name.c_str());
         logger->info("Device type: %s", deviceConfiguration->type.c_str());
@@ -153,17 +215,36 @@ void MasterFirmware::refreshRemoteDevices() {
         }
 
         auto device = deviceFactory->createRemote(*deviceConfiguration, serviceLocator);
+        device->setup();
+        observeDevice(*device);
 
+        connectedDeviceIds.push_back(deviceConfiguration->id);
         remoteDevices.push_back(std::move(device));
     }
 
+    for (const auto& deviceId : previousDevices | std::views::keys) {
+        logger->info("Lost device: %08llx", deviceId);
+    }
+
+    rebuildAllDevices();
+
+    // Notified once the devices are in place, as receivers will query them
+    for (const auto& deviceId : previousDevices | std::views::keys) {
+        notifier->notify(deviceId, {.type = "device.disconnected", .args = {}});
+    }
+
+    for (const auto deviceId : connectedDeviceIds) {
+        notifier->notify(deviceId, {.type = "device.connected", .args = {}});
+    }
+}
+
+void MasterFirmware::rebuildAllDevices() {
+    allDevices.clear();
+    allDevices.push_back(localDevice.get());
+
     for (const auto& device : remoteDevices) {
         allDevices.push_back(device.get());
-        device->setup();
-        device->onSwitchEvent().addObserver(this);
-        device->onRotaryEncoderEvent().addObserver(this);
 
-        // Their events are read and reported by the parent remote device
         for (const auto& subDevice : device->getSubDevices()) {
             allDevices.push_back(subDevice);
         }
@@ -172,13 +253,39 @@ void MasterFirmware::refreshRemoteDevices() {
     for (const auto& device : localDevice->getSubDevices()) {
         allDevices.push_back(device);
     }
+}
 
-    for (const auto& device : allDevices) {
-        device->onRenamedEvent().addObserver(this);
-        device->onSubDeviceConnectedEvent().addObserver(this);
-        device->onSubDeviceDisconnectedEvent().addObserver(this);
-        device->onSubDeviceRenamedEvent().addObserver(this);
+// Called once per device, when it's created. Sub-devices aren't observed, as their events are reported by their
+// parent device.
+void MasterFirmware::observeDevice(Device& device) {
+    device.onSwitchEvent().addObserver(this);
+    device.onRotaryEncoderEvent().addObserver(this);
+    device.onRenamedEvent().addObserver(this);
+    device.onSubDeviceConnectedEvent().addObserver(this);
+    device.onSubDeviceDisconnectedEvent().addObserver(this);
+    device.onSubDeviceRenamedEvent().addObserver(this);
+}
+
+void MasterFirmware::checkDiscoveryLine() {
+    const auto nowMs = serviceLocator.clock.millis();
+
+    if (discoveryInputPin->read() == HIGH || nowMs < discoveryHoldoffUntilMs) {
+        discoveryLowSinceMs.reset();
+        return;
     }
+
+    if (!discoveryLowSinceMs) {
+        discoveryLowSinceMs = nowMs;
+        return;
+    }
+
+    if (nowMs - *discoveryLowSinceMs < DISCOVERY_SETTLE_MS) {
+        return;
+    }
+
+    logger->info("Discovery requested, scanning for devices");
+    discoveryLowSinceMs.reset();
+    remoteDeviceScanRequested = true;
 }
 
 void MasterFirmware::observe(const DeviceSwitchEvent& event) {
@@ -192,7 +299,7 @@ void MasterFirmware::observe(const DeviceSwitchEvent& event) {
 
     // TODO temporary debugging
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED && event.switchNumber == 11) {
-        refreshRemoteDevices();
+        remoteDeviceScanRequested = true;
     }
 
 #ifdef SOC_USB_OTG_SUPPORTED

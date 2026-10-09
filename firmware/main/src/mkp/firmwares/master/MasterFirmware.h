@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "mkp/firmwares/base/Firmware.h"
 #include "mkp/components/keybindings/KeyBindingExecutor.h"
 #include "mkp/components/keybindings/TestModeController.h"
@@ -28,6 +30,9 @@ public:
 
 private:
     void refreshRemoteDevices();
+    void rebuildAllDevices();
+    void observeDevice(mkp::devices::common::Device& device);
+    void checkDiscoveryLine();
 
 private:
     TestModeController testModeController;
@@ -35,6 +40,17 @@ private:
     std::unique_ptr<mkp::devices::common::LocalDevice> localDevice;
     std::vector<std::unique_ptr<mkp::devices::common::RemoteDevice>> remoteDevices;
     std::vector<mkp::devices::common::Device*> allDevices;
+
+    // Scans are run from the loop, as they can replace devices that are notifying, or are being iterated over
+    bool remoteDeviceScanRequested = false;
+
+    // Slaves hold the shared discovery line low until they're scanned and acknowledged
+    std::unique_ptr<tfw::hal::gpio::InputPin> discoveryInputPin;
+    std::optional<uint64_t> discoveryLowSinceMs;
+    uint64_t discoveryHoldoffUntilMs = 0;
+
+    // Remote devices are checked periodically, as unplugged devices go unnoticed otherwise
+    std::unique_ptr<tfw::hal::time::Timer> presenceCheckTimer;
 
     std::unique_ptr<mkp::components::macros::MacroStorage> macroStorage;
     std::unique_ptr<mkp::components::keybindings::KeyBindingStorage> keyBindingStorage;

@@ -29,6 +29,12 @@ namespace mkp::devices::common {
 
         void onRemoteEventsAvailable();
 
+        /**
+         * Checks that the device still answers at its address. Returns false when it has failed several checks in
+         * a row, after which the count starts over.
+         */
+        bool checkPresence();
+
     private:
         void refreshName();
         void refreshSubDevices();
@@ -39,6 +45,7 @@ namespace mkp::devices::common {
 
         tfw::hal::i2c::Client& i2cClient;
         bool remoteEventsAvailable = true;
+        uint8_t numMissedPresenceChecks = 0;
 
         std::vector<std::unique_ptr<RemoteSubDevice>> subDevices;
         std::vector<Device*> subDevicePointers;

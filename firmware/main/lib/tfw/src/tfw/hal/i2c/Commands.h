@@ -43,8 +43,14 @@ namespace tfw::hal::i2c::commands {
         struct SetEndpointParams {
             const uint8_t endpointId;
         };
+
+        struct AcknowledgeDiscoveryParams {
+        };
 #pragma pack(pop)
 
         inline RemoteCommandDescriptor<SetEndpointParams> SetEndpoint = {.id = 0x01};
+
+        // Releases the discovery line, once the master has found the device
+        inline RemoteCommandDescriptor<AcknowledgeDiscoveryParams> AcknowledgeDiscovery = {.id = 0x02};
     }
 }

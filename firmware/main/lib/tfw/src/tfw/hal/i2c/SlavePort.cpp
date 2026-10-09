@@ -28,13 +28,22 @@ namespace tfw::hal::i2c {
 
     SlavePort::~SlavePort() = default;
 
-    void SlavePort::setup(const uint8_t address, Pins pins, const uint8_t eventInterruptPin) {
+    void SlavePort::setup(const uint8_t address, Pins pins, const uint8_t eventInterruptPin, const uint8_t discoveryPin) {
         twoWire.onReceive([this](const int len) { onReceiveCallback(len); });
         twoWire.onRequest([this]() { onRequestCallback(); });
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
 
         eventInterruptOutputPin = gpio::OutputPin::physical(eventInterruptPin, OPEN_DRAIN);
         eventInterruptOutputPin->init();
+
+        // Released until requestDiscovery()
+        discoveryOutputPin = gpio::OutputPin::physical(discoveryPin, OPEN_DRAIN);
+        discoveryOutputPin->init();
+        discoveryOutputPin->setHigh();
+    }
+
+    void SlavePort::requestDiscovery() const {
+        discoveryOutputPin->setLow();
     }
 
     void SlavePort::addCommandHandler(void* handler) {
@@ -61,6 +70,12 @@ namespace tfw::hal::i2c {
             const auto message =
                 reinterpret_cast<const commands::CommandMessage<commands::builtin::SetEndpointParams>*>(command.bytes);
             selectEndpoint(message->params.endpointId);
+            return;
+        }
+
+        // Executed right away, as the master checks the discovery line again shortly after scanning
+        if (command.bytes[0] == commands::builtin::AcknowledgeDiscovery.id) {
+            discoveryOutputPin->setHigh();
             return;
         }
 

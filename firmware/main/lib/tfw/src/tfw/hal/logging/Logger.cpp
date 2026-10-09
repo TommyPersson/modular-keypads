@@ -1,6 +1,7 @@
 #include "Logger.h"
 
 #ifdef ESP32
+#include <esp_log.h>
 #include <esp_log_write.h>
 #endif
 
@@ -40,6 +41,8 @@ namespace tfw::hal::logging {
 
 #ifdef ESP32
         esp_log_set_vprintf(esp_vprintf);
+        esp_log_level_set("i2c.master", ESP_LOG_NONE);
+        esp_log_level_set("ARDUINO", ESP_LOG_NONE);
 #endif
     }
 
