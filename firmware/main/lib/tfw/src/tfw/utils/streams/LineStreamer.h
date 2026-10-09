@@ -23,16 +23,16 @@ namespace tfw::utils::streams {
         void update();
 
     private:
-        std::string_view processReceiveBuffer();
-        void populateReceiveBuffer();
+        void processCharacter(char c);
 
         observables::Subject<LineReceivedEvent> lineSubject;
 
         tfw::hal::streams::InputStream& inputStream;
         const size_t bufferSize;
+
+        // Kept across updates, as lines can arrive over several reads
         char* lineBuffer;
-        char* receiveBuffer;
-        uint8_t receiveBufferIndex;
-        uint8_t receiveBufferLength;
+        size_t lineLength = 0;
+        bool isDiscardingLine = false;
     };
 }

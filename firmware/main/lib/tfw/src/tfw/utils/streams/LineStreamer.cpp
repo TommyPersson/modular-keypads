@@ -1,60 +1,58 @@
 #include "LineStreamer.h"
 
-#include <cstring>
-
 using namespace tfw::utils::streams;
 
 LineStreamer::LineStreamer(tfw::hal::streams::InputStream& inputStream, size_t bufferSize) :
     inputStream(inputStream),
     bufferSize(bufferSize),
-    lineBuffer(new char[bufferSize]),
-    receiveBuffer(new char[bufferSize]),
-    receiveBufferIndex(0),
-    receiveBufferLength(0) {
-
-    memset(this->lineBuffer, 0, this->bufferSize);
-    memset(this->receiveBuffer, 0, this->bufferSize);
+    lineBuffer(new char[bufferSize]) {
 }
 
 LineStreamer::~LineStreamer() {
     delete[] this->lineBuffer;
-    delete[] this->receiveBuffer;
 }
 
 void LineStreamer::update() {
-    if (receiveBufferLength <= 0) {
-        populateReceiveBuffer();
-    }
+    // Limited to what is available now, so that a continuous stream can't keep the update from returning
+    const auto available = this->inputStream.available();
 
-    while (this->receiveBufferLength > 0) {
-        const auto result = processReceiveBuffer();
-        if (!result.empty()) {
-            this->lineSubject.notify({ .text = result });
-            memset(this->lineBuffer, 0, this->bufferSize);
+    for (int i = 0; i < available; i++) {
+        const int byte = this->inputStream.read();
+        if (byte < 0) {
+            break;
         }
+
+        processCharacter(static_cast<char>(byte));
     }
 }
 
-std::string_view LineStreamer::processReceiveBuffer() {
-    for (int i = 0; receiveBufferIndex < receiveBufferLength; receiveBufferIndex++, i++) {
-        char c = this->receiveBuffer[receiveBufferIndex];
-        if (c == '\r') {
-            receiveBufferIndex += 1;
-            continue;
-        }
-
-        if (c == '\n') {
-            receiveBufferIndex += 1;
-            return std::string_view(this->lineBuffer);
-        }
-
-        this->lineBuffer[i] = c;
+void LineStreamer::processCharacter(const char c) {
+    if (c == '\r') {
+        return;
     }
 
-    receiveBufferIndex = 0;
-    receiveBufferLength = 0;
+    if (c == '\n') {
+        if (!this->isDiscardingLine && this->lineLength > 0) {
+            this->lineSubject.notify({.text = std::string_view(this->lineBuffer, this->lineLength)});
+        }
 
-    return "";
+        this->lineLength = 0;
+        this->isDiscardingLine = false;
+        return;
+    }
+
+    if (this->isDiscardingLine) {
+        return;
+    }
+
+    // Lines that don't fit are discarded up to the next newline, rather than emitted truncated
+    if (this->lineLength >= this->bufferSize) {
+        this->lineLength = 0;
+        this->isDiscardingLine = true;
+        return;
+    }
+
+    this->lineBuffer[this->lineLength++] = c;
 }
 
 void LineStreamer::addObserver(observables::Observer<LineReceivedEvent>* observer) {
@@ -63,30 +61,4 @@ void LineStreamer::addObserver(observables::Observer<LineReceivedEvent>* observe
 
 void LineStreamer::removeObserver(observables::Observer<LineReceivedEvent>* observer) {
     this->lineSubject.removeObserver(observer);
-}
-
-void LineStreamer::populateReceiveBuffer() {
-    receiveBufferIndex = 0;
-    receiveBufferLength = 0;
-
-    size_t available = static_cast<size_t>(this->inputStream.available());
-    if (available <= 0) {
-        return;
-    }
-
-    // Read available bytes using the InputStream interface
-    size_t numRead = 0;
-    while (numRead < available && numRead < bufferSize) {
-        int byte = this->inputStream.read();
-        if (byte < 0) {
-            break;  // No more data available
-        }
-        this->receiveBuffer[numRead++] = static_cast<char>(byte);
-    }
-
-    if (numRead <= 0) {
-        return;
-    }
-
-    receiveBufferLength = numRead;
 }
