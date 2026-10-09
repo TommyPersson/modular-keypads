@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 #include <tfw/utils/result.h>
 
 namespace tfw::hal::i2c::commands {
@@ -38,26 +36,6 @@ namespace tfw::hal::i2c::commands {
         }
 
         const uint8_t id;
-    };
-
-    template <class TParams>
-    class LambdaRemoteCommandHandler : public RemoteCommandHandler<TParams> {
-    public:
-        LambdaRemoteCommandHandler(
-            uint8_t id,
-            const std::function<utils::void_result(const TParams& params)>& executeFn
-        ) : RemoteCommandHandler<TParams>(id),
-            executeFn(executeFn) {
-        }
-
-        ~LambdaRemoteCommandHandler() override = default;
-
-        utils::void_result execute(uint64_t targetDeviceId, const TParams* params) override {
-            return executeFn(*params);
-        }
-
-    private:
-        std::function<utils::void_result(const TParams& params)> executeFn;
     };
 
     namespace builtin { // TODO separate the "slave port endpoint handling" from the more generic "command handling"?

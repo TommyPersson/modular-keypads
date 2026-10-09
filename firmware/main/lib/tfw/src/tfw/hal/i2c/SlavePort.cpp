@@ -18,8 +18,7 @@ namespace {
 namespace tfw::hal::i2c {
     SlavePort::SlavePort(TwoWireType& twoWire) :
         selectedEndpoint(&endpoints[0]),
-        twoWire(twoWire),
-        receiveArena(32) {
+        twoWire(twoWire) {
         uint8_t i = 0;
         for (auto& endpoint : endpoints) {
             endpoint.id = i;
@@ -34,16 +33,6 @@ namespace tfw::hal::i2c {
         twoWire.onRequest([this]() { onRequestCallback(); });
         twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
 
-        addCommandHandler(
-            new commands::LambdaRemoteCommandHandler<commands::builtin::SetEndpointParams>(
-                commands::builtin::SetEndpoint.id,
-                [this](const commands::builtin::SetEndpointParams& params) -> utils::void_result {
-                    this->selectEndpoint(params.endpointId);
-                    return utils::void_result::success();
-                }
-            )
-        );
-
         eventInterruptOutputPin = gpio::OutputPin::physical(eventInterruptPin, OPEN_DRAIN);
         eventInterruptOutputPin->init();
     }
@@ -52,29 +41,57 @@ namespace tfw::hal::i2c {
         knownCommandsHandlers.push_back(handler);
     }
 
-    // Not locked, as the receive and request callbacks run on the same task, and the lock only guards the state
-    // shared with other tasks. Handlers can therefore update endpoints and enqueue events.
     void SlavePort::onReceiveCallback(const int len) {
-        auto messageBytes = receiveArena.allocate(len);
-
-        int i = 0;
+        PendingCommand command;
         while (twoWire.available()) {
-            int value = twoWire.read();
-            messageBytes[i++] = value;
+            const auto value = twoWire.read();
+            if (command.length < sizeof(command.bytes)) {
+                command.bytes[command.length++] = value;
+            }
+        }
+        twoWire.flush();
+
+        if (command.length == 0) {
+            return;
         }
 
-        for (auto& commandPtr : knownCommandsHandlers) {
-            const auto command = static_cast<commands::RemoteCommandHandler<commands::AnyParams>*>(commandPtr);
-            const auto message = command->parseMessage(messageBytes);
-            if (message->commandId != command->id) {
-                continue;
+        // Executed right away, as the master reads the endpoint directly after selecting it. The selected endpoint
+        // is only used by this task, as the receive and request callbacks run on the same task.
+        if (command.bytes[0] == commands::builtin::SetEndpoint.id) {
+            const auto message =
+                reinterpret_cast<const commands::CommandMessage<commands::builtin::SetEndpointParams>*>(command.bytes);
+            selectEndpoint(message->params.endpointId);
+            return;
+        }
+
+        std::lock_guard guard(lock);
+        pendingCommands.enqueue(command);
+    }
+
+    void SlavePort::processPendingCommands() {
+        while (true) {
+            PendingCommand pendingCommand;
+            {
+                std::lock_guard guard(lock);
+
+                const auto next = pendingCommands.dequeue();
+                if (next == nullptr) {
+                    return;
+                }
+
+                pendingCommand = *next;
             }
 
-            command->execute(message->targetDeviceId, &message->params); // TODO what to do with returned errors?
-        }
+            for (auto& commandPtr : knownCommandsHandlers) {
+                const auto command = static_cast<commands::RemoteCommandHandler<commands::AnyParams>*>(commandPtr);
+                const auto message = command->parseMessage(pendingCommand.bytes);
+                if (message->commandId != command->id) {
+                    continue;
+                }
 
-        receiveArena.reset();
-        twoWire.flush();
+                command->execute(message->targetDeviceId, &message->params); // TODO what to do with returned errors?
+            }
+        }
     }
 
     void SlavePort::onRequestCallback() {

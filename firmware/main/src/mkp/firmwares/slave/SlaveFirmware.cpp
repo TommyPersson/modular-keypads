@@ -83,6 +83,8 @@ void SlaveFirmware::setup() {
 void SlaveFirmware::loop() {
     Firmware::loop();
 
+    slavePort.processPendingCommands();
+
     device->loop();
 }
 
@@ -138,8 +140,7 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceDisconnectedEvent&
 }
 
 void SlaveFirmware::observe(const mkp::devices::common::DeviceRenamedEvent& event) {
-    // Renames of the device itself are notified from the slave port's receive callback, and of sub-devices from
-    // the loop
+    // Updated before the event is sent, as the master reads the endpoints when it receives it
     const auto isDevice = event.deviceId == device->getConfiguration().id;
     if (isDevice) {
         updateDeviceNameEndpoint();

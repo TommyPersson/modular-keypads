@@ -7,8 +7,6 @@
 #include <Wire.h>
 #endif
 
-#include <tfw/utils/allocations.h>
-
 #include "Endpoint.h"
 #include "Event.h"
 #include "Pins.h"
@@ -26,6 +24,11 @@ namespace tfw::hal::i2c {
         uint8_t id;
         uint8_t data[MAX_PACKET_SIZE];
         uint8_t length;
+    };
+
+    struct PendingCommand {
+        uint8_t length = 0;
+        uint8_t bytes[32]{}; // The size of the underlying Wire buffer
     };
 
     class SlavePort {
@@ -59,6 +62,12 @@ namespace tfw::hal::i2c {
 
         void addCommandHandler(void* handler);
 
+        /**
+         * Executes the commands received since the last call. Commands are queued by the receive callback rather
+         * than executed there, so that handlers run on the caller's task, typically the main loop.
+         */
+        void processPendingCommands();
+
     private:
         void selectEndpoint(uint8_t endpointId);
 
@@ -75,7 +84,7 @@ namespace tfw::hal::i2c {
         utils::ring_queue<Event> eventQueue{255};
         std::unique_ptr<gpio::OutputPin> eventInterruptOutputPin;
 
-        tfw::utils::allocations::Arena receiveArena;
+        utils::ring_queue<PendingCommand> pendingCommands{16};
 
         std::vector<void*> knownCommandsHandlers;
 
