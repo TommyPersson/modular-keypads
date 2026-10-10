@@ -1,6 +1,8 @@
 import type { DeviceFacade } from "@src/modules/device/facade"
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
 import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage } from "@src/modules/device/models"
+import { type KeyBinding, KeyBindingTriggerType, PushButtonEvent } from "@src/modules/key-bindings/models"
+import type { MacroDefinition } from "@src/modules/macros/models"
 import { DateTime } from "luxon"
 import { BehaviorSubject, defer, from, merge, NEVER, Observable, Subject } from "rxjs"
 
@@ -20,6 +22,8 @@ export type MockDeviceOptions = {
   // The device the tool is connected to, defaults to the first one
   connectedDeviceId?: string
   notifications?: MockNotification[]
+  keyBindings?: KeyBinding[]
+  macros?: MacroDefinition[]
   // Responses to commands by command type, in addition to the built-in ones
   commandHandlers?: Record<string, MockCommandHandler>
 }
@@ -101,6 +105,10 @@ export class MockDeviceFacade implements DeviceFacade {
         return undefined as TResult
       case "flash.identification.lights":
         return undefined as TResult
+      case "list.key.bindings":
+        return (this.options.keyBindings ?? []) as TResult
+      case "list.stored.macros":
+        return (this.options.macros ?? []) as TResult
     }
 
     throw new Error(`The command '${command.type}' isn't mocked`)
@@ -160,4 +168,11 @@ export const mockNotifications = {
     ({ deviceId, type: "encoder.rotated.clockwise", args: [number.toString()], repeatMs: 200 }),
   rotatingCounterClockwise: (deviceId: string, number: number): MockNotification =>
     ({ deviceId, type: "encoder.rotated.counter-clockwise", args: [number.toString()], repeatMs: 200 }),
+}
+
+export const mockKeyBindings = {
+  pressed: (deviceId: string, number: number, macroId: number): KeyBinding =>
+    ({ macroId, trigger: { type: KeyBindingTriggerType.PushButton, deviceId, number, event: PushButtonEvent.Pressed } }),
+  longPressed: (deviceId: string, number: number, macroId: number): KeyBinding =>
+    ({ macroId, trigger: { type: KeyBindingTriggerType.PushButton, deviceId, number, event: PushButtonEvent.LongPressed } }),
 }

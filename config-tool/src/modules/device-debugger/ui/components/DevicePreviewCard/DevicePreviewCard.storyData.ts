@@ -1,4 +1,5 @@
 import { mockDevice, type MockDeviceOptions, withMockDevice } from "@src/storybook"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import type { Meta } from "@storybook/react-vite"
 import { TopLevelDevicePreviewCard } from "./DevicePreviewCard"
 
@@ -14,7 +15,23 @@ export const smc1 = subDeviceOfTypeC("5c0000000000001", "smc1", 1, "Top Keys")
 export const smc2 = subDeviceOfTypeC("5c0000000000002", "smc2", 2, "Middle Keys")
 export const smc3 = subDeviceOfTypeC("5c0000000000003", "smc3", 3, "Knob")
 
-export const mockDeviceParameter = (options: MockDeviceOptions) => ({ mockDevice: options })
+// Of all types, with names both short and too long to fit on the switches
+export const macros: MacroDefinition[] = [
+  { id: 1, directory: null, name: "Hello", type: MacroDefinitionType.Text, text: "Hello" },
+  { id: 2, directory: "Signatures", name: "Kind regards", type: MacroDefinitionType.Text, text: "Kind regards" },
+  { id: 3, directory: "Media", name: "Volume Up", type: MacroDefinitionType.ConsumerControl, usageId: 0xe9 },
+  { id: 4, directory: "Media", name: "Mute", type: MacroDefinitionType.ConsumerControl, usageId: 0xe2 },
+  {
+    id: 5,
+    directory: null,
+    name: "Copy",
+    type: MacroDefinitionType.Shortcut,
+    shortcut: { modifiers: [0xe0], hidCode: 0x06 },
+  },
+  { id: 6, directory: null, name: "Sleep", type: MacroDefinitionType.SystemControl, code: 0x82 },
+]
+
+export const mockDeviceParameter =(options: MockDeviceOptions) => ({ mockDevice: options })
 
 export const devicePreviewCardMeta = {
   component: TopLevelDevicePreviewCard,

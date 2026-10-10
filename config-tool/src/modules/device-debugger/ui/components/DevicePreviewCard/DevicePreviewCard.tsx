@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Divider, Grid, Paper, Stack, Typography } from "@mui/material"
+import { Box, Card, CardContent, Divider, Grid, Paper, Stack, Tooltip, Typography } from "@mui/material"
 import type { ReactNode } from "react"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
@@ -10,6 +10,13 @@ import {
   usePushButtonStates
 } from "@src/modules/device/hooks/usePushButtonStates"
 import { useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
+import {
+  type PushButtonBinding,
+  type PushButtonBindings,
+  usePushButtonBindings
+} from "@src/modules/key-bindings/hooks"
+import type { MacroDefinition } from "@src/modules/macros/models"
+import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { DeviceInfoIcon, IdentifyDeviceButton, RenameDeviceButton } from "./DeviceActions"
 
 import classes from "./DevicePreviewCard.module.css"
@@ -238,13 +245,18 @@ const TypeAPreviewCardContent = (props: {
   const { deviceId } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
+  const pushButtonBindings = usePushButtonBindings(deviceId)
 
   return (
     // A single panel, with its clusters in the same slots as the sub-devices of type C devices
     <Paper elevation={5} className={`${classes.SlotLayout} ${classes.TypeAPreviewContainer}`}>
       {[1, 5, 9].map(firstSwitchNumber => (
         <div key={firstSwitchNumber} className={classes.TypeASlot}>
-          <SwitchStateIndicatorCluster firstSwitchNumber={firstSwitchNumber} pushButtonStates={pushButtonStates} />
+          <SwitchStateIndicatorCluster
+            firstSwitchNumber={firstSwitchNumber}
+            pushButtonStates={pushButtonStates}
+            pushButtonBindings={pushButtonBindings}
+          />
         </div>
       ))}
     </Paper>
@@ -259,10 +271,15 @@ const TypeSmc1PreviewCardContent = (props: {
   const { deviceId, caption, corner } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
+  const pushButtonBindings = usePushButtonBindings(deviceId)
 
   return (
     <SubDevicePreviewContainer caption={caption} corner={corner}>
-      <SwitchStateIndicatorCluster firstSwitchNumber={1} pushButtonStates={pushButtonStates} />
+      <SwitchStateIndicatorCluster
+        firstSwitchNumber={1}
+        pushButtonStates={pushButtonStates}
+        pushButtonBindings={pushButtonBindings}
+      />
     </SubDevicePreviewContainer>
   )
 }
@@ -275,11 +292,18 @@ const TypeSmc2PreviewCardContent = (props: {
   const { deviceId, caption, corner } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
+  const pushButtonBindings = usePushButtonBindings(deviceId)
 
   // 1u switches, so three of them span the same width as two of the 1.5u switches of the other clusters
   return (
     <SubDevicePreviewContainer caption={caption} corner={corner}>
-      <SwitchStateIndicatorCluster firstSwitchNumber={1} rows={2} columns={3} pushButtonStates={pushButtonStates} />
+      <SwitchStateIndicatorCluster
+        firstSwitchNumber={1}
+        rows={2}
+        columns={3}
+        pushButtonStates={pushButtonStates}
+        pushButtonBindings={pushButtonBindings}
+      />
     </SubDevicePreviewContainer>
   )
 }
@@ -374,8 +398,9 @@ const SwitchStateIndicatorCluster = (props: {
   rows?: number,
   columns?: number,
   pushButtonStates: PushButtonStates,
+  pushButtonBindings: PushButtonBindings,
 }) => {
-  const { firstSwitchNumber, rows = 2, columns = 2, pushButtonStates } = props
+  const { firstSwitchNumber, rows = 2, columns = 2, pushButtonStates, pushButtonBindings } = props
 
   return (
     <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
@@ -384,7 +409,11 @@ const SwitchStateIndicatorCluster = (props: {
           const switchNumber = firstSwitchNumber + offset
           return (
             <Grid key={switchNumber} size={12 / columns}>
-              <SwitchStateIndicator switchNumber={switchNumber} state={pushButtonStates[switchNumber]} />
+              <SwitchStateIndicator
+                switchNumber={switchNumber}
+                state={pushButtonStates[switchNumber]}
+                binding={pushButtonBindings[switchNumber]}
+              />
             </Grid>
           )
         })
@@ -393,18 +422,65 @@ const SwitchStateIndicatorCluster = (props: {
   )
 }
 
+/**
+ * The switch number is centered on unbound switches. On bound switches it's moved to the top-left corner, making room
+ * for the bound macros with their types: the press macro centered, and the long press macro, faded, along the bottom.
+ * The names are cut off when they don't fit, so the full names are shown in a tooltip.
+ */
 const SwitchStateIndicator = (props: {
   switchNumber: number,
   state: PushButtonState | undefined,
+  binding: PushButtonBinding | undefined,
 }) => {
-  const { switchNumber, state } = props
+  const { switchNumber, state, binding } = props
+  const pressedMacro = binding?.pressed ?? null
+  const longPressedMacro = binding?.longPressed ?? null
 
-  return (
+  const indicator = (
     <div
       className={classes.SwitchStateIndicator}
       data-pressed={isPushButtonPressed(state)}
       data-long-pressed={state === PushButtonState.LongPressed}
-      children={<span>{switchNumber}</span>}
-    />
+      data-bound={binding !== undefined}
+    >
+      <span className={classes.SwitchStateIndicatorNumber}>{switchNumber}</span>
+      {pressedMacro && <SwitchMacro macro={pressedMacro} />}
+      {longPressedMacro && <SwitchMacro macro={longPressedMacro} isLongPress />}
+    </div>
   )
+
+  if (binding === undefined) {
+    return indicator
+  }
+
+  return (
+    <Tooltip
+      title={
+        <>
+          {pressedMacro && <div>Press: <strong>{macroPath(pressedMacro)}</strong></div>}
+          {longPressedMacro && <div>Long press: <strong>{macroPath(longPressedMacro)}</strong></div>}
+        </>
+      }
+    >
+      {indicator}
+    </Tooltip>
+  )
+}
+
+const SwitchMacro = (props: {
+  macro: MacroDefinition,
+  isLongPress?: boolean,
+}) => {
+  const { macro, isLongPress = false } = props
+
+  return (
+    <span className={classes.SwitchMacro} data-long-press={isLongPress}>
+      <MacroTypeVisualization type={macro.type} />
+      <span className={classes.SwitchMacroName}>{macro.name}</span>
+    </span>
+  )
+}
+
+function macroPath(macro: MacroDefinition) {
+  return macro.directory ? `${macro.directory}/${macro.name}` : macro.name
 }

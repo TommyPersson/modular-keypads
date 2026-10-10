@@ -39,11 +39,63 @@
     text-align: center;
     font-weight: bold;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
+    padding: 0 4px;
 
     background: #f6f6f6;
 
+}
+
+/* Within the space above the press macro, which is centered below it */
+.SwitchStateIndicator[data-bound="true"] .SwitchStateIndicatorNumber {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 10px;
+    line-height: 12px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.SwitchMacro {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    /* Within the switch, so that the name is cut off */
+    max-width: 100%;
+    min-width: 0;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 500;
+}
+
+/* Along the bottom, also when there's no press macro, so that the press macro stays centered */
+.SwitchMacro[data-long-press="true"] {
+    position: absolute;
+    bottom: 6px;
+    /* Within the horizontal padding of the switch, centered between the sides */
+    left: 4px;
+    right: 4px;
+    justify-content: center;
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Two classes, so that the size overrides the size set by the icons themselves */
+.SwitchMacro :global(.MuiSvgIcon-root) {
+    flex-shrink: 0;
+    font-size: 14px;
+    /* So that the tooltip of the switch, with the full names, is shown rather than the tooltip of the type icon */
+    pointer-events: none;
+}
+
+.SwitchMacroName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .SwitchStateIndicator[data-pressed="true"] {
     background: lightblue;
