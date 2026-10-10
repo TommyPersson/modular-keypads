@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, Grid, Paper, Stack, Typography } from "@
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
+import { useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
 
 import classes from "./DevicePreviewCard.module.css"
 
@@ -53,6 +54,8 @@ const PreviewCardContent = (props: {
       return <TypeSmc1PreviewCardContent deviceId={deviceId} />
     case "smc2":
       return <TypeSmc2PreviewCardContent deviceId={deviceId} />
+    case "smc3":
+      return <TypeSmc3PreviewCardContent deviceId={deviceId} />
     default:
       return <NullPreviewCardContent />
   }
@@ -107,6 +110,83 @@ const TypeSmc2PreviewCardContent = (props: {
       <SwitchStateIndicatorCluster firstSwitchNumber={1} rows={2} columns={3} pushButtonStates={pushButtonStates} />
     </Paper>
   )
+}
+
+const TypeSmc3PreviewCardContent = (props: {
+  deviceId: string,
+}) => {
+  const { deviceId } = props
+
+  const pushButtonStates = usePushButtonStates(deviceId)
+  const rotaryEncoderStates = useRotaryEncoderStates(deviceId, 300)
+
+  return (
+    <Paper elevation={5} className={classes.SubDevicePreviewContainer}>
+      <RotaryEncoderStateIndicator
+        encoderNumber={1}
+        isPressed={pushButtonStates[1] ?? false}
+        isRotatingClockwise={rotaryEncoderStates[1]?.clockwise ?? false}
+        isRotatingCounterClockwise={rotaryEncoderStates[1]?.counterClockwise ?? false}
+      />
+    </Paper>
+  )
+}
+
+/**
+ * A rotary encoder with a push button, drawn as the button in the center wrapped by two half rings, which light
+ * up when the encoder is rotated in their direction: counter-clockwise on the left, clockwise on the right.
+ *
+ * The data attributes are lowercase, as Chrome doesn't restyle SVG elements when mixed-case attributes change.
+ */
+const RotaryEncoderStateIndicator = (props: {
+  encoderNumber: number,
+  isPressed: boolean,
+  isRotatingClockwise: boolean,
+  isRotatingCounterClockwise: boolean,
+}) => {
+  const { encoderNumber, isPressed, isRotatingClockwise, isRotatingCounterClockwise } = props
+
+  return (
+    <svg viewBox={"0 0 120 120"} className={classes.RotaryEncoderStateIndicator}>
+      <path
+        d={halfRingPath(60, 60, 36, 56, "left")}
+        className={classes.RotaryEncoderStateIndicatorRing}
+        data-active={isRotatingCounterClockwise}
+      />
+      <path
+        d={halfRingPath(60, 60, 36, 56, "right")}
+        className={classes.RotaryEncoderStateIndicatorRing}
+        data-active={isRotatingClockwise}
+      />
+      <circle
+        cx={60}
+        cy={60}
+        r={30}
+        className={classes.RotaryEncoderStateIndicatorButton}
+        data-pressed={isPressed}
+      />
+      <text x={60} y={60} className={classes.RotaryEncoderStateIndicatorLabel}>{encoderNumber}</text>
+    </svg>
+  )
+}
+
+/**
+ * SVG path of the left or right half of a ring. The halves are separated by a vertical gap at the top and bottom.
+ */
+function halfRingPath(cx: number, cy: number, innerRadius: number, outerRadius: number, side: "left" | "right") {
+  const halfGap = 3
+  const x = cx + (side === "right" ? halfGap : -halfGap)
+  const sweep = side === "right" ? 1 : 0
+  const outerY = Math.sqrt(outerRadius * outerRadius - halfGap * halfGap)
+  const innerY = Math.sqrt(innerRadius * innerRadius - halfGap * halfGap)
+
+  return [
+    `M ${x} ${cy - outerY}`,
+    `A ${outerRadius} ${outerRadius} 0 0 ${sweep} ${x} ${cy + outerY}`,
+    `L ${x} ${cy + innerY}`,
+    `A ${innerRadius} ${innerRadius} 0 0 ${1 - sweep} ${x} ${cy - innerY}`,
+    "Z",
+  ].join(" ")
 }
 
 /**
