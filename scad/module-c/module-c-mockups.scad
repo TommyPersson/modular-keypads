@@ -358,15 +358,20 @@ module module_shell_top() {
                 translate(pcb_inset_xy) {
                     for (m = sub_module_centers) {
                         translate(m) {
-                            linear_extrude(base_shell_height) {
+                            linear_extrude(base_shell_height + 0.1) {
                                 extra_size = [0.4, 0.4];
                                 rounded_rectangle(sub_module_shell_size + extra_size, corner_radius = 2, center = true);
                             }
 
-                            translate([-module_size.x / 2, 0, 14])
+                            translate([0, 0, base_shell_height]) {
+                                fillet_groove(sub_module_shell_size);
+                                fillet_groove([module_size.x + 10, 22]);
+                            }
+
+                            translate([-module_size.x / 2 - 0.1, 0, 14])
                                 rotate(90, [0, 1, 0])
-                                    linear_extrude(module_size.x) {
-                                        circle(d = 17);
+                                    linear_extrude(module_size.x + 0.2) {
+                                        rounded_rectangle([22, 22], corner_radius = 2, center = true);
                                     }
                         }
                     }
@@ -381,7 +386,7 @@ module module_shell_top() {
             }
         }
 
-        #translate([module_size.x / 2, module_size.y]) {
+        translate([module_size.x / 2, module_size.y]) {
             linear_extrude(pcb_thickness) {
                 square([48 + wall_tolerance, outer_wall_thickness_base * 2], center = true);
             }
@@ -852,6 +857,19 @@ module sub_module_screw_hole_cutouts() {
         for (p = sub_module_screw_holes) {
             translate(p) {
                 circle(d = screw_hole_diameter);
+            }
+        }
+    }
+}
+
+module fillet_groove(size) {
+    fillet_points = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+    hull() {
+        for (p = fillet_points) {
+            translate([p.x * size.x / 2, p.y * size.y / 2, 0]) {
+                translate([p.x * -1, p.y * -1, -1]) {
+                    cylinder(h = 2, r1 = 0, r2 = 2, center = true);
+                }
             }
         }
     }
