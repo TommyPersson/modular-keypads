@@ -1,7 +1,12 @@
 import type { DeviceFacade } from "@src/modules/device/facade"
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
 import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage } from "@src/modules/device/models"
-import { type KeyBinding, KeyBindingTriggerType, PushButtonEvent } from "@src/modules/key-bindings/models"
+import {
+  type KeyBinding,
+  KeyBindingTriggerType,
+  PushButtonEvent,
+  RotaryEncoderDirection
+} from "@src/modules/key-bindings/models"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { DateTime } from "luxon"
 import { BehaviorSubject, defer, from, merge, NEVER, Observable, Subject } from "rxjs"
@@ -175,4 +180,17 @@ export const mockKeyBindings = {
     ({ macroId, trigger: { type: KeyBindingTriggerType.PushButton, deviceId, number, event: PushButtonEvent.Pressed } }),
   longPressed: (deviceId: string, number: number, macroId: number): KeyBinding =>
     ({ macroId, trigger: { type: KeyBindingTriggerType.PushButton, deviceId, number, event: PushButtonEvent.LongPressed } }),
+  clockwise: (deviceId: string, number: number, macroId: number): KeyBinding => ({
+    macroId,
+    trigger: { type: KeyBindingTriggerType.RotaryEncoder, deviceId, number, direction: RotaryEncoderDirection.Clockwise },
+  }),
+  counterClockwise: (deviceId: string, number: number, macroId: number): KeyBinding => ({
+    macroId,
+    trigger: {
+      type: KeyBindingTriggerType.RotaryEncoder,
+      deviceId,
+      number,
+      direction: RotaryEncoderDirection.CounterClockwise,
+    },
+  }),
 }

@@ -59,43 +59,14 @@
     color: rgba(0, 0, 0, 0.6);
 }
 
-.SwitchMacro {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    /* Within the switch, so that the name is cut off */
-    max-width: 100%;
-    min-width: 0;
-    font-size: 11px;
-    line-height: 16px;
-    font-weight: 500;
-}
-
 /* Along the bottom, also when there's no press macro, so that the press macro stays centered */
-.SwitchMacro[data-long-press="true"] {
+.SwitchStateIndicator .BoundMacro[data-long-press="true"] {
     position: absolute;
     bottom: 6px;
     /* Within the horizontal padding of the switch, centered between the sides */
     left: 4px;
     right: 4px;
     justify-content: center;
-    font-weight: normal;
-    color: rgba(0, 0, 0, 0.6);
-}
-
-/* Two classes, so that the size overrides the size set by the icons themselves */
-.SwitchMacro :global(.MuiSvgIcon-root) {
-    flex-shrink: 0;
-    font-size: 14px;
-    /* So that the tooltip of the switch, with the full names, is shown rather than the tooltip of the type icon */
-    pointer-events: none;
-}
-
-.SwitchMacroName {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 .SwitchStateIndicator[data-pressed="true"] {
     background: lightblue;
@@ -105,6 +76,39 @@
 .SwitchStateIndicator[data-long-pressed="true"] {
     background: #64b5f6;
 }
+
+.BoundMacro {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    /* Within the switch or box, so that the name is cut off */
+    max-width: 100%;
+    min-width: 0;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 500;
+}
+
+.BoundMacro[data-long-press="true"] {
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Two classes, so that the size overrides the size set by the icons themselves */
+.BoundMacro :global(.MuiSvgIcon-root) {
+    flex-shrink: 0;
+    font-size: 14px;
+    /* So that the tooltip of the switch, with the full names, is shown rather than the tooltip of the type icon */
+    pointer-events: none;
+}
+
+.BoundMacroName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .RotaryEncoderStateIndicator {
     display: block;
     width: 128px;
@@ -134,6 +138,47 @@
     text-anchor: middle;
     dominant-baseline: central;
     pointer-events: none;
+}
+
+/*
+  Boxes with the bound macros, placed in the space beside the encoder, which spans 90-210px across the 300px wide
+  container. The rotations are beside their half rings, a third down, and the button is in the bottom-right corner,
+  above the caption.
+*/
+.RotaryEncoderBindings {
+    position: absolute;
+    width: 74px;
+    padding: 2px 4px;
+    border: 1px solid gray;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f6f6f6;
+}
+
+.RotaryEncoderBindings[data-position="counter-clockwise"] {
+    left: 8px;
+    top: 45px;
+}
+
+.RotaryEncoderBindings[data-position="clockwise"] {
+    right: 8px;
+    top: 45px;
+}
+
+.RotaryEncoderBindings[data-position="button"] {
+    right: 8px;
+    bottom: 20px;
+}
+
+.RotaryEncoderBindings[data-active="true"] {
+    background: lightblue;
+}
+
+/* After the active styles, which it overrides */
+.RotaryEncoderBindings[data-long-active="true"] {
+    background: #64b5f6;
 }
 
 .DisconnectedSubDevicePreview {

@@ -1,5 +1,5 @@
 import { Box, Card, CardContent, Divider, Grid, Paper, Stack, Tooltip, Typography } from "@mui/material"
-import type { ReactNode } from "react"
+import type { ReactElement, ReactNode } from "react"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
@@ -13,7 +13,8 @@ import { useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncod
 import {
   type PushButtonBinding,
   type PushButtonBindings,
-  usePushButtonBindings
+  usePushButtonBindings,
+  useRotaryEncoderBindings
 } from "@src/modules/key-bindings/hooks"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { MacroTypeVisualization } from "@src/modules/macros/ui"
@@ -316,17 +317,65 @@ const TypeSmc3PreviewCardContent = (props: {
   const { deviceId, caption, corner } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
+  const pushButtonBindings = usePushButtonBindings(deviceId)
   const rotaryEncoderStates = useRotaryEncoderStates(deviceId, 300)
+  const rotaryEncoderBindings = useRotaryEncoderBindings(deviceId)
 
+  const isPressed = isPushButtonPressed(pushButtonStates[1])
+  const isLongPressed = pushButtonStates[1] === PushButtonState.LongPressed
+  const isRotatingClockwise = rotaryEncoderStates[1]?.clockwise ?? false
+  const isRotatingCounterClockwise = rotaryEncoderStates[1]?.counterClockwise ?? false
+
+  const pressedMacro = pushButtonBindings[1]?.pressed ?? null
+  const longPressedMacro = pushButtonBindings[1]?.longPressed ?? null
+  const clockwiseMacro = rotaryEncoderBindings[1]?.clockwise ?? null
+  const counterClockwiseMacro = rotaryEncoderBindings[1]?.counterClockwise ?? null
+
+  // The bound macros are placed around the encoder, in the container rather than in the content
   return (
     <SubDevicePreviewContainer caption={caption} corner={corner}>
       <RotaryEncoderStateIndicator
         encoderNumber={1}
-        isPressed={isPushButtonPressed(pushButtonStates[1])}
-        isLongPressed={pushButtonStates[1] === PushButtonState.LongPressed}
-        isRotatingClockwise={rotaryEncoderStates[1]?.clockwise ?? false}
-        isRotatingCounterClockwise={rotaryEncoderStates[1]?.counterClockwise ?? false}
+        isPressed={isPressed}
+        isLongPressed={isLongPressed}
+        isRotatingClockwise={isRotatingClockwise}
+        isRotatingCounterClockwise={isRotatingCounterClockwise}
       />
+      {counterClockwiseMacro && (
+        <BoundMacrosTooltip macros={[["Counterclockwise", counterClockwiseMacro]]}>
+          <div
+            className={classes.RotaryEncoderBindings}
+            data-position={"counter-clockwise"}
+            data-active={isRotatingCounterClockwise}
+          >
+            <BoundMacro macro={counterClockwiseMacro} />
+          </div>
+        </BoundMacrosTooltip>
+      )}
+      {clockwiseMacro && (
+        <BoundMacrosTooltip macros={[["Clockwise", clockwiseMacro]]}>
+          <div
+            className={classes.RotaryEncoderBindings}
+            data-position={"clockwise"}
+            data-active={isRotatingClockwise}
+          >
+            <BoundMacro macro={clockwiseMacro} />
+          </div>
+        </BoundMacrosTooltip>
+      )}
+      {(pressedMacro || longPressedMacro) && (
+        <BoundMacrosTooltip macros={[["Press", pressedMacro], ["Long press", longPressedMacro]]}>
+          <div
+            className={classes.RotaryEncoderBindings}
+            data-position={"button"}
+            data-active={isPressed}
+            data-long-active={isLongPressed}
+          >
+            {pressedMacro && <BoundMacro macro={pressedMacro} />}
+            {longPressedMacro && <BoundMacro macro={longPressedMacro} isLongPress />}
+          </div>
+        </BoundMacrosTooltip>
+      )}
     </SubDevicePreviewContainer>
   )
 }
@@ -444,8 +493,8 @@ const SwitchStateIndicator = (props: {
       data-bound={binding !== undefined}
     >
       <span className={classes.SwitchStateIndicatorNumber}>{switchNumber}</span>
-      {pressedMacro && <SwitchMacro macro={pressedMacro} />}
-      {longPressedMacro && <SwitchMacro macro={longPressedMacro} isLongPress />}
+      {pressedMacro && <BoundMacro macro={pressedMacro} />}
+      {longPressedMacro && <BoundMacro macro={longPressedMacro} isLongPress />}
     </div>
   )
 
@@ -454,30 +503,47 @@ const SwitchStateIndicator = (props: {
   }
 
   return (
-    <Tooltip
-      title={
-        <>
-          {pressedMacro && <div>Press: <strong>{macroPath(pressedMacro)}</strong></div>}
-          {longPressedMacro && <div>Long press: <strong>{macroPath(longPressedMacro)}</strong></div>}
-        </>
-      }
-    >
+    <BoundMacrosTooltip macros={[["Press", pressedMacro], ["Long press", longPressedMacro]]}>
       {indicator}
-    </Tooltip>
+    </BoundMacrosTooltip>
   )
 }
 
-const SwitchMacro = (props: {
+/**
+ * The name of a bound macro, with its type, cut off when it doesn't fit. Long press macros are faded.
+ */
+const BoundMacro = (props: {
   macro: MacroDefinition,
   isLongPress?: boolean,
 }) => {
   const { macro, isLongPress = false } = props
 
   return (
-    <span className={classes.SwitchMacro} data-long-press={isLongPress}>
+    <span className={classes.BoundMacro} data-long-press={isLongPress}>
       <MacroTypeVisualization type={macro.type} />
-      <span className={classes.SwitchMacroName}>{macro.name}</span>
+      <span className={classes.BoundMacroName}>{macro.name}</span>
     </span>
+  )
+}
+
+/**
+ * Shows the full names of the bound macros, which may be cut off in the preview, labelled by what triggers them.
+ * The triggers without a bound macro are left out.
+ */
+const BoundMacrosTooltip = (props: {
+  macros: [label: string, macro: MacroDefinition | null][],
+  children: ReactElement,
+}) => {
+  const { macros, children } = props
+
+  return (
+    <Tooltip
+      title={macros.map(([label, macro]) => (
+        macro && <div key={label}>{label}: <strong>{macroPath(macro)}</strong></div>
+      ))}
+    >
+      {children}
+    </Tooltip>
   )
 }
 

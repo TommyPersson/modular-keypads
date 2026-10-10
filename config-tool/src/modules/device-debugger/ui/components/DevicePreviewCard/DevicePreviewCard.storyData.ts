@@ -20,6 +20,7 @@ export const macros: MacroDefinition[] = [
   { id: 1, directory: null, name: "Hello", type: MacroDefinitionType.Text, text: "Hello" },
   { id: 2, directory: "Signatures", name: "Kind regards", type: MacroDefinitionType.Text, text: "Kind regards" },
   { id: 3, directory: "Media", name: "Volume Up", type: MacroDefinitionType.ConsumerControl, usageId: 0xe9 },
+  { id: 7, directory: "Media", name: "Volume Down", type: MacroDefinitionType.ConsumerControl, usageId: 0xea },
   { id: 4, directory: "Media", name: "Mute", type: MacroDefinitionType.ConsumerControl, usageId: 0xe2 },
   {
     id: 5,
