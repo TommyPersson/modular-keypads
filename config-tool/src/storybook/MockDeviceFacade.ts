@@ -26,7 +26,8 @@ export type MockDeviceOptions = {
 
 /**
  * A device facade for Storybook, that is always connected and answers commands from the given options. Renaming a
- * device changes the listed devices, and identifying one does nothing.
+ * device changes the listed devices, and identifying one does nothing. Devices can be connected and disconnected, to
+ * see how the components react.
  *
  * Notifications without a repeat interval are replayed to every subscriber, so that components that mount late,
  * e.g. after a query has loaded, still get the same state as the others.
@@ -103,6 +104,18 @@ export class MockDeviceFacade implements DeviceFacade {
     }
 
     throw new Error(`The command '${command.type}' isn't mocked`)
+  }
+
+  // Notifies as the device does, which makes the device list refresh
+  connectDevice(device: DeviceInformation) {
+    this.devices = [...this.devices.filter(it => it.deviceId !== device.deviceId), device]
+    this.notify({ deviceId: device.deviceId, type: "device.connected", args: [] })
+  }
+
+  // Including its sub-devices, which are connected through it
+  disconnectDevice(deviceId: string) {
+    this.devices = this.devices.filter(it => it.deviceId !== deviceId && it.parentDeviceId !== deviceId)
+    this.notify({ deviceId, type: "device.disconnected", args: [] })
   }
 
   private renameDevice(deviceId: string, deviceName: string) {

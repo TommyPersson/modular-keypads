@@ -1,4 +1,5 @@
-import { Box } from "@mui/material"
+import { Box, Button, Stack } from "@mui/material"
+import type { DeviceInformation } from "@src/modules/device/models"
 import {
   mockDeviceParameter,
   smc1,
@@ -7,9 +8,9 @@ import {
   typeA,
   typeC
 } from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
-import { mockDevice, mockNotifications, withMockDevice } from "@src/storybook"
+import { mockDevice, mockNotifications, useMockDeviceFacade, withMockDevice } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import type { ReactNode } from "react"
+import { type ReactNode, useState } from "react"
 import { DevicePreviewList } from "./DevicePreviewList"
 
 // Outlined, to show the bounds of the parent container that the list fills
@@ -80,6 +81,53 @@ export const LongNames: Story = {
       longNamedSubDevice("5c0000000000013", "smc3", 3, "Volume Knob With A Name Far Too Long To Fit In The Caption Of The Preview"),
     ],
   }),
+}
+
+// Each top-level device with its sub-devices
+const connectableDevices: DeviceInformation[][] = [
+  [typeA],
+  [typeC, smc1, smc2, smc3],
+  [extraTypeA(1)],
+]
+
+const ConnectionToggles = () => {
+  const facade = useMockDeviceFacade()
+
+  const [connectedIds, setConnectedIds] = useState<string[]>([typeA.deviceId, typeC.deviceId])
+
+  const toggle = (devices: DeviceInformation[]) => {
+    const [device] = devices
+    if (connectedIds.includes(device.deviceId)) {
+      facade.disconnectDevice(device.deviceId)
+      setConnectedIds(ids => ids.filter(it => it !== device.deviceId))
+    } else {
+      devices.forEach(it => facade.connectDevice(it))
+      setConnectedIds(ids => [...ids, device.deviceId])
+    }
+  }
+
+  return (
+    <Stack direction={"row"} spacing={1}>
+      {connectableDevices.map(devices => (
+        <Button key={devices[0].deviceId} variant={"outlined"} onClick={() => toggle(devices)}>
+          {connectedIds.includes(devices[0].deviceId) ? "Disconnect" : "Connect"} {devices[0].deviceName}
+        </Button>
+      ))}
+    </Stack>
+  )
+}
+
+// Connecting and disconnecting devices shifts the other cards to make room or close the gap
+export const ConnectingAndDisconnecting: Story = {
+  render: () => (
+    <Stack spacing={2} sx={{ height: "100%", p: 2, boxSizing: "border-box" }}>
+      <ConnectionToggles />
+      <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+        <DevicePreviewList />
+      </Box>
+    </Stack>
+  ),
+  parameters: mockDeviceParameter({ devices: [typeA, typeC, smc1, smc2, smc3] }),
 }
 
 export const WithoutDevices: Story = {

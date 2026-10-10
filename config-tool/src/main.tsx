@@ -7,11 +7,17 @@ import "@fontsource/roboto/500.css"
 import "@fontsource/roboto/700.css"
 
 import { App } from "./App.tsx"
+import { isStrictModeEnabled } from "./utils/strictMode"
 
 import "./index.css"
 
+const strictMode = isStrictModeEnabled()
+if (!strictMode && import.meta.env.DEV) {
+  console.info("Strict mode is off, turn it on again with ?strictMode=on")
+}
+
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+  strictMode
+    ? <StrictMode><App /></StrictMode>
+    : <App />,
 )
