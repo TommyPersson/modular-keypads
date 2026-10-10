@@ -7,12 +7,12 @@ import { TopLevelDevicePreviewCard } from "./DevicePreviewCard"
 export const typeA = mockDevice({ deviceId: "a1000000000000a1", deviceType: "a", deviceName: "Left Pad" })
 export const typeC = mockDevice({ deviceId: "c1000000000000c1", deviceType: "c", deviceName: "Right Pad" })
 
-export const subDeviceOfTypeC = (deviceId: string, deviceType: string, subDeviceSlot: number) =>
-  mockDevice({ deviceId, deviceType, parentDeviceId: typeC.deviceId, subDeviceSlot })
+export const subDeviceOfTypeC = (deviceId: string, deviceType: string, subDeviceSlot: number, deviceName: string) =>
+  mockDevice({ deviceId, deviceType, deviceName, parentDeviceId: typeC.deviceId, subDeviceSlot })
 
-export const smc1 = subDeviceOfTypeC("5c0000000000001", "smc1", 1)
-export const smc2 = subDeviceOfTypeC("5c0000000000002", "smc2", 2)
-export const smc3 = subDeviceOfTypeC("5c0000000000003", "smc3", 3)
+export const smc1 = subDeviceOfTypeC("5c0000000000001", "smc1", 1, "Top Keys")
+export const smc2 = subDeviceOfTypeC("5c0000000000002", "smc2", 2, "Middle Keys")
+export const smc3 = subDeviceOfTypeC("5c0000000000003", "smc3", 3, "Knob")
 
 export const mockDeviceParameter = (options: MockDeviceOptions) => ({ mockDevice: options })
 

@@ -6,9 +6,7 @@ const meta = {
   ...devicePreviewCardMeta,
   title: "Device/Device Preview Card/Type A",
   args: {
-    title: typeA.deviceName,
-    deviceId: typeA.deviceId,
-    deviceType: typeA.deviceType,
+    device: typeA,
   },
 } satisfies Meta<typeof devicePreviewCardMeta.component>
 

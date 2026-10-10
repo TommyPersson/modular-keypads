@@ -1,20 +1,30 @@
-.TypeAPreviewContainer {
+/* Three slots, the first and last at the edges and the middle one centered. Fills the card content. */
+.SlotLayout {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    justify-content: space-between;
+}
+
+.TypeAPreviewContainer {
     border-radius: 8px;
     width: 300px;
+    /* Horizontal only, vertical auto margins would take the space that is meant to be between the slots */
+    margin: 0 auto;
+}
+
+/* The same size as the sub-device previews, so that the clusters are placed the same way */
+.TypeASlot,
+.SubDevicePreviewContainer {
+    height: 168px;
     padding: 20px;
-    padding-top: 100px;
-    margin: auto;
 }
 
 .SubDevicePreviewContainer {
     position: relative;
     border-radius: 8px;
     width: 300px;
-    padding: 20px;
-    margin: auto;
+    margin: 0 auto;
 }
 
 .SwitchStateIndicatorCluster {
@@ -88,13 +98,34 @@
 .SubDevicePreviewCaption {
     /* Within the 20px bottom padding of the container */
     position: absolute;
+    /* Both sides, so that the caption is kept within the preview */
+    left: 8px;
     right: 8px;
     bottom: 2px;
     font-size: 10px;
     line-height: 14px;
     color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
 }
 
-.SubDevicePreviewCaption code {
-    font-size: inherit;
+/* Cut off when it doesn't fit */
+.SubDevicePreviewCaptionName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Within the 20px top padding of the container */
+.SubDevicePreviewCorner {
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    /* As the caption, so that the inline wrappers of the buttons are no higher than the buttons */
+    font-size: 10px;
+    line-height: 14px;
 }

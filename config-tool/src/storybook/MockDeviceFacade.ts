@@ -25,7 +25,8 @@ export type MockDeviceOptions = {
 }
 
 /**
- * A device facade for Storybook, that is always connected and answers commands from the given options.
+ * A device facade for Storybook, that is always connected and answers commands from the given options. Renaming a
+ * device changes the listed devices, and identifying one does nothing.
  *
  * Notifications without a repeat interval are replayed to every subscriber, so that components that mount late,
  * e.g. after a query has loaded, still get the same state as the others.
@@ -33,6 +34,7 @@ export type MockDeviceOptions = {
 export class MockDeviceFacade implements DeviceFacade {
   private readonly liveNotifications = new Subject<NotificationMessage>()
   private timers: ReturnType<typeof setInterval>[] = []
+  private devices: DeviceInformation[]
 
   readonly messages$: Observable<DeviceMessage> = NEVER
   readonly logs$: Observable<LogMessage[]> = NEVER
@@ -43,6 +45,7 @@ export class MockDeviceFacade implements DeviceFacade {
   readonly isConnected = true
 
   constructor(private readonly options: MockDeviceOptions) {
+    this.devices = options.devices
     const replayed = (options.notifications ?? []).filter(it => it.repeatMs === undefined)
     this.notifications$ = merge(
       defer(() => from(replayed.map(toNotificationMessage))),
@@ -74,7 +77,8 @@ export class MockDeviceFacade implements DeviceFacade {
   }
 
   async getDeviceInformation(): Promise<DeviceInformation> {
-    const { devices, connectedDeviceId } = this.options
+    const { connectedDeviceId } = this.options
+    const devices = this.devices
     const device = connectedDeviceId ? devices.find(it => it.deviceId === connectedDeviceId) : devices[0]
     if (!device) {
       throw new Error("The mock device has no connected device")
@@ -88,11 +92,23 @@ export class MockDeviceFacade implements DeviceFacade {
       return handler(command) as TResult
     }
 
-    if (command.type === "list.connected.devices") {
-      return this.options.devices as TResult
+    switch (command.type) {
+      case "list.connected.devices":
+        return this.devices as TResult
+      case "set.device.name":
+        this.renameDevice(command.arguments[0], command.arguments[1])
+        return undefined as TResult
+      case "flash.identification.lights":
+        return undefined as TResult
     }
 
     throw new Error(`The command '${command.type}' isn't mocked`)
+  }
+
+  private renameDevice(deviceId: string, deviceName: string) {
+    this.devices = this.devices.map(it => it.deviceId === deviceId ? { ...it, deviceName } : it)
+    // As sent by the device, which makes the device list refresh
+    this.notify({ deviceId, type: "device.renamed", args: [] })
   }
 
   clearLogs(): void {

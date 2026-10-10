@@ -17,9 +17,7 @@ const meta = {
   ...devicePreviewCardMeta,
   title: "Device/Device Preview Card/Type C",
   args: {
-    title: typeC.deviceName,
-    deviceId: typeC.deviceId,
-    deviceType: typeC.deviceType,
+    device: typeC,
   },
 } satisfies Meta<typeof devicePreviewCardMeta.component>
 
@@ -68,8 +66,8 @@ export const WithAction: Story = {
   args: {
     action: (
       <>
-        <IconButton><ChevronLeftIcon /></IconButton>
-        <IconButton><ChevronRightIcon /></IconButton>
+        <IconButton size={"small"}><ChevronLeftIcon /></IconButton>
+        <IconButton size={"small"}><ChevronRightIcon /></IconButton>
       </>
     ),
   },

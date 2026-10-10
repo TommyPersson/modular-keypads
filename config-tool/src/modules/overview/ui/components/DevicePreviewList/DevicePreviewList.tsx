@@ -30,14 +30,12 @@ export const DevicePreviewList = () => {
           orderedDevices.map((it, index) => (
             <TopLevelDevicePreviewCard
               key={it.deviceId}
-              title={it.deviceName}
-              deviceId={it.deviceId}
-              deviceType={it.deviceType}
+              device={it}
               action={
                 <>
                   <Tooltip title={"Move left"}>
                     <span>
-                      <IconButton disabled={index === 0} onClick={() => moveDevice(it.deviceId, -1)}>
+                      <IconButton size={"small"} disabled={index === 0} onClick={() => moveDevice(it.deviceId, -1)}>
                         <ChevronLeftIcon />
                       </IconButton>
                     </span>
@@ -45,6 +43,7 @@ export const DevicePreviewList = () => {
                   <Tooltip title={"Move right"}>
                     <span>
                       <IconButton
+                        size={"small"}
                         disabled={index === orderedDevices.length - 1}
                         onClick={() => moveDevice(it.deviceId, 1)}
                       >

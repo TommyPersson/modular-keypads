@@ -60,6 +60,28 @@ export const Overflowing: Story = {
   parameters: mockDeviceParameter({ devices: [typeA, typeC, smc1, smc2, smc3, extraTypeA(1), extraTypeA(2)] }),
 }
 
+const longNamedTypeC = mockDevice({
+  deviceId: "c2000000000000c2",
+  deviceType: "c",
+  deviceName: "Right Hand Pad With A Name Far Too Long For The Card",
+})
+
+const longNamedSubDevice = (deviceId: string, deviceType: string, subDeviceSlot: number, deviceName: string) =>
+  mockDevice({ deviceId, deviceType, deviceName, parentDeviceId: longNamedTypeC.deviceId, subDeviceSlot })
+
+// Names of increasing length, from fitting to being cut off, for the devices and the sub-devices
+export const LongNames: Story = {
+  parameters: mockDeviceParameter({
+    devices: [
+      mockDevice({ deviceId: "a2000000000000a2", deviceType: "a", deviceName: "Left Hand Pad" }),
+      longNamedTypeC,
+      longNamedSubDevice("5c0000000000011", "smc1", 1, "Keys"),
+      longNamedSubDevice("5c0000000000012", "smc2", 2, "Middle Row Of Six Keys"),
+      longNamedSubDevice("5c0000000000013", "smc3", 3, "Volume Knob With A Name Far Too Long To Fit In The Caption Of The Preview"),
+    ],
+  }),
+}
+
 export const WithoutDevices: Story = {
   parameters: mockDeviceParameter({ devices: [] }),
 }

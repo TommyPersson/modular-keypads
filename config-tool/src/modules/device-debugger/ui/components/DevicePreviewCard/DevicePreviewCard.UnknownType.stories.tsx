@@ -15,9 +15,7 @@ const meta = {
   ...devicePreviewCardMeta,
   title: "Device/Device Preview Card/Unknown Type",
   args: {
-    title: unknownDevice.deviceName,
-    deviceId: unknownDevice.deviceId,
-    deviceType: unknownDevice.deviceType,
+    device: unknownDevice,
   },
 } satisfies Meta<typeof devicePreviewCardMeta.component>
 
@@ -32,11 +30,9 @@ export const UnknownDeviceType: Story = {
 // A sub-device of an unknown type, in slot 2 of a type C device
 export const UnknownSubDeviceType: Story = {
   args: {
-    title: typeC.deviceName,
-    deviceId: typeC.deviceId,
-    deviceType: typeC.deviceType,
+    device: typeC,
   },
   parameters: mockDeviceParameter({
-    devices: [typeC, smc1, subDeviceOfTypeC("5c0000000000004", "smc9", 2), smc3],
+    devices: [typeC, smc1, subDeviceOfTypeC("5c0000000000004", "smc9", 2, "Prototype"), smc3],
   }),
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Grid, Paper, Stack, Typography } from "@mui/material"
+import { Box, Card, CardContent, Divider, Grid, Paper, Stack, Typography } from "@mui/material"
 import type { ReactNode } from "react"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
@@ -10,47 +10,78 @@ import {
   usePushButtonStates
 } from "@src/modules/device/hooks/usePushButtonStates"
 import { useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
+import { DeviceInfoIcon, IdentifyDeviceButton, RenameDeviceButton } from "./DeviceActions"
 
 import classes from "./DevicePreviewCard.module.css"
 
 // Type C devices have a fixed number of sub-device slots, and never report more sub-devices than that
 const TYPE_C_SUB_DEVICE_SLOTS = 3
 
+// All top-level devices have the same physical dimensions, so their cards all have the same size
+const TOP_LEVEL_CARD_WIDTH = 340
+const TOP_LEVEL_CARD_HEIGHT = 670
+
 /**
- * Previews the device the tool is connected to, with its sub-devices.
+ * Previews the device the tool is connected to, with its sub-devices. Shows nothing until the device is known.
  */
 export const DevicePreviewCard = () => {
   const [deviceInformation] = useDeviceInformation()
+  const connectedDevicesQuery = useConnectedDevices()
 
-  return (
-    <TopLevelDevicePreviewCard
-      title={"Device Preview"}
-      deviceId={deviceInformation?.deviceId ?? ""}
-      deviceType={deviceInformation?.deviceType ?? null}
-    />
-  )
+  if (deviceInformation === null) {
+    return null
+  }
+
+  // The listed device is refreshed when the device changes, e.g. when it's renamed, unlike the device information
+  const device = connectedDevicesQuery.data?.find(it => it.deviceId === deviceInformation.deviceId)
+    ?? deviceInformation
+
+  return <TopLevelDevicePreviewCard device={device} />
 }
 
 /**
- * Previews a device that isn't a sub-device, with its sub-devices. The action is shown in the header.
+ * Previews a device that isn't a sub-device, with its sub-devices, and the actions for them.
+ *
+ * The device's actions are shown above its name, which gets the full width of the card, followed by the given action,
+ * e.g. for placing the card, and the info icon in the top-right corner. The actions of the sub-devices follow their
+ * captions.
  */
 export const TopLevelDevicePreviewCard = (props: {
-  title: ReactNode,
+  device: DeviceInformation,
   action?: ReactNode,
-  deviceId: string,
-  deviceType: string | null,
 }) => {
-  const { title, action, deviceId, deviceType } = props
+  const { device, action } = props
+  const { deviceId, deviceType } = device
 
   return (
-    // Not shrunk, as the previews have a fixed width
-    <Card sx={{ flexShrink: 0 }}>
-      <CardHeader
-        title={title}
-        subheader={`Type ${deviceType}`}
-        action={action}
-      />
-      <CardContent>
+    // Not shrunk, as the previews have a fixed size. The content fills the height below the header.
+    <Card
+      sx={{
+        flexShrink: 0,
+        width: TOP_LEVEL_CARD_WIDTH,
+        height: TOP_LEVEL_CARD_HEIGHT,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* The name is centered between the actions and the content, with 12px on both sides */}
+      <Box sx={{ px: 2, pt: 1, pb: 0.5 }}>
+        <Stack direction={"row"} justifyContent={"flex-end"} alignItems={"center"}>
+          <IdentifyDeviceButton device={device} size={"small"} />
+          <RenameDeviceButton device={device} size={"small"} />
+          {action && (
+            <>
+              <Divider orientation={"vertical"} flexItem sx={{ mx: 0.5 }} />
+              {action}
+            </>
+          )}
+          <Box sx={{ display: "flex", ml: 1 }}>
+            <DeviceInfoIcon device={device} size={"small"} />
+          </Box>
+        </Stack>
+        <DeviceTitle device={device} />
+      </Box>
+      <CardContent sx={{ flexGrow: 1, minHeight: 0, display: "flex", flexDirection: "column", pt: 1 }}>
         <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
       </CardContent>
     </Card>
@@ -58,11 +89,32 @@ export const TopLevelDevicePreviewCard = (props: {
 }
 
 /**
+ * The name, centered, and cut off when it doesn't fit.
+ */
+const DeviceTitle = (props: {
+  device: DeviceInformation
+}) => {
+  const { device } = props
+
+  return (
+    <Typography
+      variant={"h5"}
+      sx={{ mt: 1.5, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+    >
+      {device.deviceName}
+    </Typography>
+  )
+}
+
+/**
  * The preview of a top-level device, which includes its sub-devices.
+ *
+ * The switch clusters, or sub-devices holding them, are placed in three equally high slots spread over the height of
+ * the card, as they are placed the same way on all devices.
  */
 const PreviewCardContent = (props: {
   deviceId: string
-  deviceType: string | null
+  deviceType: string
 }) => {
   const { deviceId, deviceType } = props
 
@@ -95,7 +147,7 @@ const TypeCPreviewCardContent = (props: {
   ))
 
   return (
-    <Stack spacing={2}>
+    <div className={classes.SlotLayout}>
       {
         subDeviceSlots.map((it, index) => (
           it !== null
@@ -103,31 +155,39 @@ const TypeCPreviewCardContent = (props: {
             : <DisconnectedSubDevicePreview key={`disconnected-${index}`} slot={index + 1} />
         ))
       }
-    </Stack>
+    </div>
   )
 }
 
 /**
- * The caption, shown in the bottom-right corner, identifies the sub-device.
+ * The caption, centered along the bottom, is the name of the sub-device. Its actions and the info icon, with the details
+ * including the type, are shown in the top-right corner, like on the top-level cards.
  */
 const SubDevicePreview = (props: {
   subDevice: DeviceInformation,
 }) => {
   const { subDevice } = props
-  const { deviceId, deviceType } = subDevice
+  const { deviceId, deviceType, deviceName } = subDevice
 
-  const caption = <>Sub-device <code>{deviceId}</code> (type <code>{deviceType}</code>)</>
+  const caption = <span className={classes.SubDevicePreviewCaptionName}>{deviceName}</span>
+  const corner = (
+    <>
+      <IdentifyDeviceButton device={subDevice} size={"compact"} />
+      <RenameDeviceButton device={subDevice} size={"compact"} />
+      <DeviceInfoIcon device={subDevice} size={"compact"} />
+    </>
+  )
 
   switch (deviceType) {
     case "smc1":
-      return <TypeSmc1PreviewCardContent deviceId={deviceId} caption={caption} />
+      return <TypeSmc1PreviewCardContent deviceId={deviceId} caption={caption} corner={corner} />
     case "smc2":
-      return <TypeSmc2PreviewCardContent deviceId={deviceId} caption={caption} />
+      return <TypeSmc2PreviewCardContent deviceId={deviceId} caption={caption} corner={corner} />
     case "smc3":
-      return <TypeSmc3PreviewCardContent deviceId={deviceId} caption={caption} />
+      return <TypeSmc3PreviewCardContent deviceId={deviceId} caption={caption} corner={corner} />
     default:
       return (
-        <SubDevicePreviewContainer caption={caption}>
+        <SubDevicePreviewContainer caption={caption} corner={corner}>
           <UnknownTypePreviewText />
         </SubDevicePreviewContainer>
       )
@@ -152,19 +212,22 @@ const DisconnectedSubDevicePreview = (props: {
 }
 
 /**
- * The caption is placed in the bottom padding, so it doesn't change the size of the preview.
+ * The caption and the corner content are placed in the bottom and top padding, so they don't change the size of
+ * the preview.
  */
 const SubDevicePreviewContainer = (props: {
   caption: ReactNode,
+  corner?: ReactNode,
   elevation?: number,
   children: ReactNode,
 }) => {
-  const { caption, elevation = 5, children } = props
+  const { caption, corner, elevation = 5, children } = props
 
   return (
     <Paper elevation={elevation} className={classes.SubDevicePreviewContainer}>
       {children}
       <span className={classes.SubDevicePreviewCaption}>{caption}</span>
+      {corner !== undefined && <span className={classes.SubDevicePreviewCorner}>{corner}</span>}
     </Paper>
   )
 }
@@ -177,10 +240,13 @@ const TypeAPreviewCardContent = (props: {
   const pushButtonStates = usePushButtonStates(deviceId)
 
   return (
-    <Paper elevation={5} className={classes.TypeAPreviewContainer}>
-      <SwitchStateIndicatorCluster firstSwitchNumber={1} pushButtonStates={pushButtonStates} />
-      <SwitchStateIndicatorCluster firstSwitchNumber={5} pushButtonStates={pushButtonStates} />
-      <SwitchStateIndicatorCluster firstSwitchNumber={9} pushButtonStates={pushButtonStates} />
+    // A single panel, with its clusters in the same slots as the sub-devices of type C devices
+    <Paper elevation={5} className={`${classes.SlotLayout} ${classes.TypeAPreviewContainer}`}>
+      {[1, 5, 9].map(firstSwitchNumber => (
+        <div key={firstSwitchNumber} className={classes.TypeASlot}>
+          <SwitchStateIndicatorCluster firstSwitchNumber={firstSwitchNumber} pushButtonStates={pushButtonStates} />
+        </div>
+      ))}
     </Paper>
   )
 }
@@ -188,13 +254,14 @@ const TypeAPreviewCardContent = (props: {
 const TypeSmc1PreviewCardContent = (props: {
   deviceId: string,
   caption: ReactNode,
+  corner: ReactNode,
 }) => {
-  const { deviceId, caption } = props
+  const { deviceId, caption, corner } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
 
   return (
-    <SubDevicePreviewContainer caption={caption}>
+    <SubDevicePreviewContainer caption={caption} corner={corner}>
       <SwitchStateIndicatorCluster firstSwitchNumber={1} pushButtonStates={pushButtonStates} />
     </SubDevicePreviewContainer>
   )
@@ -203,14 +270,15 @@ const TypeSmc1PreviewCardContent = (props: {
 const TypeSmc2PreviewCardContent = (props: {
   deviceId: string,
   caption: ReactNode,
+  corner: ReactNode,
 }) => {
-  const { deviceId, caption } = props
+  const { deviceId, caption, corner } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
 
   // 1u switches, so three of them span the same width as two of the 1.5u switches of the other clusters
   return (
-    <SubDevicePreviewContainer caption={caption}>
+    <SubDevicePreviewContainer caption={caption} corner={corner}>
       <SwitchStateIndicatorCluster firstSwitchNumber={1} rows={2} columns={3} pushButtonStates={pushButtonStates} />
     </SubDevicePreviewContainer>
   )
@@ -219,14 +287,15 @@ const TypeSmc2PreviewCardContent = (props: {
 const TypeSmc3PreviewCardContent = (props: {
   deviceId: string,
   caption: ReactNode,
+  corner: ReactNode,
 }) => {
-  const { deviceId, caption } = props
+  const { deviceId, caption, corner } = props
 
   const pushButtonStates = usePushButtonStates(deviceId)
   const rotaryEncoderStates = useRotaryEncoderStates(deviceId, 300)
 
   return (
-    <SubDevicePreviewContainer caption={caption}>
+    <SubDevicePreviewContainer caption={caption} corner={corner}>
       <RotaryEncoderStateIndicator
         encoderNumber={1}
         isPressed={isPushButtonPressed(pushButtonStates[1])}
