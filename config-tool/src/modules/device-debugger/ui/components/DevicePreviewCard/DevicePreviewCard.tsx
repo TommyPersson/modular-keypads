@@ -12,12 +12,33 @@ const SUB_DEVICE_SLOTS_BY_DEVICE_TYPE: { [deviceType: string]: number } = {
   c: 3,
 }
 
+/**
+ * Previews the device the tool is connected to, with its sub-devices.
+ */
 export const DevicePreviewCard = () => {
   const [deviceInformation] = useDeviceInformation()
-  const connectedDevicesQuery = useConnectedDevices()
 
-  const deviceType = deviceInformation?.deviceType ?? null
-  const deviceId = deviceInformation?.deviceId ?? ""
+  return (
+    <TopLevelDevicePreviewCard
+      title={"Device Preview"}
+      deviceId={deviceInformation?.deviceId ?? ""}
+      deviceType={deviceInformation?.deviceType ?? null}
+    />
+  )
+}
+
+/**
+ * Previews a device that isn't a sub-device, with its sub-devices. The action is shown in the header.
+ */
+export const TopLevelDevicePreviewCard = (props: {
+  title: ReactNode,
+  action?: ReactNode,
+  deviceId: string,
+  deviceType: string | null,
+}) => {
+  const { title, action, deviceId, deviceType } = props
+
+  const connectedDevicesQuery = useConnectedDevices()
 
   const subDevices = (connectedDevicesQuery.data ?? []).filter(it => it.parentDeviceId === deviceId)
 
@@ -30,10 +51,12 @@ export const DevicePreviewCard = () => {
   const otherSubDevices = subDevices.filter(it => !subDeviceSlots.includes(it))
 
   return (
-    <Card>
+    // Not shrunk, as the previews have a fixed width
+    <Card sx={{ flexShrink: 0 }}>
       <CardHeader
-        title={"Device Preview"}
+        title={title}
         subheader={`Type ${deviceType}`}
+        action={action}
       />
       <CardContent>
         <Stack spacing={2}>
