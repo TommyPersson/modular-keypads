@@ -2,6 +2,7 @@
 
 #include "Smc1Firmware.h"
 #include "Smc2Firmware.h"
+#include "Smc3Firmware.h"
 #include "UnknownFirmware.h"
 
 using namespace smc::firmwares;
@@ -18,6 +19,9 @@ Firmware* FirmwareFactory::create() {
     }
     if (smcType == 2) {
         return new Smc2Firmware();
+    }
+    if (smcType == 3) {
+        return new Smc3Firmware();
     }
 
     return new UnknownFirmware(smcType);

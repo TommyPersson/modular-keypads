@@ -192,7 +192,7 @@ void SpiSlave::update(uint32_t deltaUs, smc::events::EventQueue& queue) {
         commands = commandsReceived;
         collisions = writeCollisions;
     }
-
+/*
     Serial.printf(
         "SS low: %u, SS high: %u, SPI interrupts: %u, commands: %u, write collisions: %u, SS now: %s\r\n",
         falling,
@@ -202,6 +202,7 @@ void SpiSlave::update(uint32_t deltaUs, smc::events::EventQueue& queue) {
         collisions,
         (PORTC.IN & SS_bm) ? "high" : "low"
     );
+    */
 }
 
 void SpiSlave::setDeviceId(const uint8_t (&deviceId)[identity::DEVICE_ID_LENGTH]) {

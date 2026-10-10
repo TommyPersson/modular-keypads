@@ -12,6 +12,8 @@ namespace smc::events {
         inline constexpr uint8_t PUSH_BUTTON_PRESSED = 11;
         inline constexpr uint8_t PUSH_BUTTON_RELEASED = 12;
         inline constexpr uint8_t PUSH_BUTTON_LONG_PRESSED = 13;
+        inline constexpr uint8_t ROTARY_ENCODER_ROTATED_CLOCKWISE = 21;
+        inline constexpr uint8_t ROTARY_ENCODER_ROTATED_COUNTER_CLOCKWISE = 22;
     }
 
     struct Event {
