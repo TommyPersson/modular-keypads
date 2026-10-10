@@ -13,9 +13,8 @@ import { useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncod
 
 import classes from "./DevicePreviewCard.module.css"
 
-const SUB_DEVICE_SLOTS_BY_DEVICE_TYPE: { [deviceType: string]: number } = {
-  c: 3,
-}
+// Type C devices have a fixed number of sub-device slots, and never report more sub-devices than that
+const TYPE_C_SUB_DEVICE_SLOTS = 3
 
 /**
  * Previews the device the tool is connected to, with its sub-devices.
@@ -43,18 +42,6 @@ export const TopLevelDevicePreviewCard = (props: {
 }) => {
   const { title, action, deviceId, deviceType } = props
 
-  const connectedDevicesQuery = useConnectedDevices()
-
-  const subDevices = (connectedDevicesQuery.data ?? []).filter(it => it.parentDeviceId === deviceId)
-
-  // Disconnected sub-devices aren't listed, so their slots are shown as placeholders, keeping the layout steady
-  const numSubDeviceSlots = SUB_DEVICE_SLOTS_BY_DEVICE_TYPE[deviceType ?? ""] ?? 0
-  const subDeviceSlots = Array.from({ length: numSubDeviceSlots }, (_, index) => (
-    subDevices.find(it => it.subDeviceSlot === index + 1) ?? null
-  ))
-  // Sub-devices outside the known slots are still shown, after them
-  const otherSubDevices = subDevices.filter(it => !subDeviceSlots.includes(it))
-
   return (
     // Not shrunk, as the previews have a fixed width
     <Card sx={{ flexShrink: 0 }}>
@@ -64,37 +51,74 @@ export const TopLevelDevicePreviewCard = (props: {
         action={action}
       />
       <CardContent>
-        <Stack spacing={2}>
-          <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
-          {
-            subDeviceSlots.map((it, index) => (
-              it !== null
-                ? <SubDevicePreview key={it.deviceId} subDevice={it} />
-                : <DisconnectedSubDevicePreview key={`disconnected-${index}`} slot={index + 1} />
-            ))
-          }
-          {
-            otherSubDevices.map(it => <SubDevicePreview key={it.deviceId} subDevice={it} />)
-          }
-        </Stack>
+        <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
       </CardContent>
     </Card>
   )
 }
 
 /**
- * The caption is shown in the bottom-right corner of sub-device previews, it isn't used for other devices.
+ * The preview of a top-level device, which includes its sub-devices.
  */
 const PreviewCardContent = (props: {
   deviceId: string
   deviceType: string | null
-  caption?: ReactNode
 }) => {
-  const { deviceId, deviceType, caption } = props
+  const { deviceId, deviceType } = props
 
   switch (deviceType) {
     case "a":
       return <TypeAPreviewCardContent deviceId={deviceId} />
+    case "c":
+      return <TypeCPreviewCardContent deviceId={deviceId} />
+    default:
+      return <UnknownTypePreviewText />
+  }
+}
+
+const UnknownTypePreviewText = () => (
+  <Typography><em>Unknown device type, no preview available.</em></Typography>
+)
+
+const TypeCPreviewCardContent = (props: {
+  deviceId: string,
+}) => {
+  const { deviceId } = props
+
+  const connectedDevicesQuery = useConnectedDevices()
+
+  const subDevices = (connectedDevicesQuery.data ?? []).filter(it => it.parentDeviceId === deviceId)
+
+  // Disconnected sub-devices aren't listed, so their slots are shown as placeholders, keeping the layout steady
+  const subDeviceSlots = Array.from({ length: TYPE_C_SUB_DEVICE_SLOTS }, (_, index) => (
+    subDevices.find(it => it.subDeviceSlot === index + 1) ?? null
+  ))
+
+  return (
+    <Stack spacing={2}>
+      {
+        subDeviceSlots.map((it, index) => (
+          it !== null
+            ? <SubDevicePreview key={it.deviceId} subDevice={it} />
+            : <DisconnectedSubDevicePreview key={`disconnected-${index}`} slot={index + 1} />
+        ))
+      }
+    </Stack>
+  )
+}
+
+/**
+ * The caption, shown in the bottom-right corner, identifies the sub-device.
+ */
+const SubDevicePreview = (props: {
+  subDevice: DeviceInformation,
+}) => {
+  const { subDevice } = props
+  const { deviceId, deviceType } = subDevice
+
+  const caption = <>Sub-device <code>{deviceId}</code> (type <code>{deviceType}</code>)</>
+
+  switch (deviceType) {
     case "smc1":
       return <TypeSmc1PreviewCardContent deviceId={deviceId} caption={caption} />
     case "smc2":
@@ -102,40 +126,12 @@ const PreviewCardContent = (props: {
     case "smc3":
       return <TypeSmc3PreviewCardContent deviceId={deviceId} caption={caption} />
     default:
-      return <NullPreviewCardContent caption={caption} />
+      return (
+        <SubDevicePreviewContainer caption={caption}>
+          <UnknownTypePreviewText />
+        </SubDevicePreviewContainer>
+      )
   }
-}
-
-const NullPreviewCardContent = (props: {
-  caption?: ReactNode,
-}) => {
-  const { caption } = props
-
-  const text = <Typography><em>Unknown device type, no preview available.</em></Typography>
-
-  if (caption === undefined) {
-    return text
-  }
-
-  return (
-    <SubDevicePreviewContainer caption={caption}>
-      {text}
-    </SubDevicePreviewContainer>
-  )
-}
-
-const SubDevicePreview = (props: {
-  subDevice: DeviceInformation,
-}) => {
-  const { subDevice } = props
-
-  return (
-    <PreviewCardContent
-      deviceId={subDevice.deviceId}
-      deviceType={subDevice.deviceType}
-      caption={<>Sub-device <code>{subDevice.deviceId}</code> (type <code>{subDevice.deviceType}</code>)</>}
-    />
-  )
 }
 
 /**
@@ -159,7 +155,7 @@ const DisconnectedSubDevicePreview = (props: {
  * The caption is placed in the bottom padding, so it doesn't change the size of the preview.
  */
 const SubDevicePreviewContainer = (props: {
-  caption?: ReactNode,
+  caption: ReactNode,
   elevation?: number,
   children: ReactNode,
 }) => {
@@ -168,7 +164,7 @@ const SubDevicePreviewContainer = (props: {
   return (
     <Paper elevation={elevation} className={classes.SubDevicePreviewContainer}>
       {children}
-      {caption !== undefined && <span className={classes.SubDevicePreviewCaption}>{caption}</span>}
+      <span className={classes.SubDevicePreviewCaption}>{caption}</span>
     </Paper>
   )
 }
@@ -191,7 +187,7 @@ const TypeAPreviewCardContent = (props: {
 
 const TypeSmc1PreviewCardContent = (props: {
   deviceId: string,
-  caption?: ReactNode,
+  caption: ReactNode,
 }) => {
   const { deviceId, caption } = props
 
@@ -206,7 +202,7 @@ const TypeSmc1PreviewCardContent = (props: {
 
 const TypeSmc2PreviewCardContent = (props: {
   deviceId: string,
-  caption?: ReactNode,
+  caption: ReactNode,
 }) => {
   const { deviceId, caption } = props
 
@@ -222,7 +218,7 @@ const TypeSmc2PreviewCardContent = (props: {
 
 const TypeSmc3PreviewCardContent = (props: {
   deviceId: string,
-  caption?: ReactNode,
+  caption: ReactNode,
 }) => {
   const { deviceId, caption } = props
 

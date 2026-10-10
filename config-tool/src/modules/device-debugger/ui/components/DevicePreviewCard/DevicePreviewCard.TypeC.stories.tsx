@@ -10,7 +10,6 @@ import {
   smc1,
   smc2,
   smc3,
-  subDeviceOfTypeC,
   typeC
 } from "./DevicePreviewCard.storyData"
 
@@ -62,13 +61,6 @@ export const WithEmptySlots: Story = {
 
 export const WithoutSubDevices: Story = {
   parameters: mockDeviceParameter({ devices: [typeC] }),
-}
-
-// Sub-devices without a known slot are listed after the slots
-export const WithSubDeviceWithoutSlot: Story = {
-  parameters: mockDeviceParameter({
-    devices: [typeC, smc1, smc2, smc3, subDeviceOfTypeC("5c0000000000005", "smc1", null)],
-  }),
 }
 
 // As on the overview page, where the action moves the card
