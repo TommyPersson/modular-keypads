@@ -1,4 +1,4 @@
-import { Paper } from "@mui/material"
+import { Paper, Toolbar } from "@mui/material"
 import { AllAppModules } from "@src/AllAppModules"
 import {
   KeyboardEventsToolPaneContent
@@ -16,9 +16,12 @@ export const ToolPane = () => {
   }
 
   return (
-    <Paper style={{ height: "100%", width: 700 }}>
-      {content}
-    </Paper>
+    <>
+      <Toolbar />
+      <Paper style={{ height: "100%", width: 700, overflowY: "auto" }}>
+        {content}
+      </Paper>
+    </>
   )
 }
 
@@ -30,7 +33,7 @@ function renderContent(toolId: string | null) {
   }
 
   switch (toolId) {
-    case 'keyboard-events':
+    case "keyboard-events":
       return <KeyboardEventsToolPaneContent />
     default:
       return null

@@ -40,7 +40,6 @@ export const RootScreen = () => {
         </Grid>
         <Grid size={"auto"} style={{ height: "100vh" }}>
           <Stack flexGrow={1} overflow={"auto"} style={{ height: "100vh" }}>
-            <Toolbar />
             <ToolPane />
           </Stack>
         </Grid>

@@ -4,7 +4,7 @@ import { DevicePreviewList } from "@src/modules/overview/ui/components"
 
 export const OverviewPage = () => {
   return (
-    <Page fillHeight>
+    <Page fillHeight noPadding>
       <DevicePreviewList />
     </Page>
   )
