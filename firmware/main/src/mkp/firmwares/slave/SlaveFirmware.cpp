@@ -79,6 +79,7 @@ void SlaveFirmware::setup() {
     }
 
     device->onSwitchEvent().addObserver(this);
+    device->onRotaryEncoderEvent().addObserver(this);
     device->onRenamedEvent().addObserver(this);
     device->onSubDeviceConnectedEvent().addObserver(this);
     device->onSubDeviceDisconnectedEvent().addObserver(this);
@@ -111,6 +112,28 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
                 .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::BUTTON_RELEASED),
                 .deviceId = event.deviceId,
                 .args = {event.switchNumber}
+            }
+        );
+    }
+
+    slavePort.triggerEventInterrupt();
+}
+
+void SlaveFirmware::observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) {
+    if (event.direction == tfw::hal::encoders::RotaryEncoderDirection::Clockwise) {
+        slavePort.enqueueEvent(
+            tfw::hal::i2c::Event{
+                .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::ROTARY_ENCODER_CW),
+                .deviceId = event.deviceId,
+                .args = {event.encoderNumber}
+            }
+        );
+    } else if (event.direction == tfw::hal::encoders::RotaryEncoderDirection::CounterClockwise) {
+        slavePort.enqueueEvent(
+            tfw::hal::i2c::Event{
+                .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::ROTARY_ENCODER_CCW),
+                .deviceId = event.deviceId,
+                .args = {event.encoderNumber}
             }
         );
     }

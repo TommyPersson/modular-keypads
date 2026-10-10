@@ -231,6 +231,17 @@ void SubDevice::pollEvents() {
                         .state = tfw::hal::buttons::ButtonState::UNPRESSED
                     }
                 );
+            } else if (event[0] == 21 || event[0] == 22) {
+                auto encoderNumber = event[1];
+                this->deviceRotaryEncoderEventSubject.notify(
+                    {
+                        .deviceId = deviceId,
+                        .encoderNumber = encoderNumber,
+                        .direction = event[0] == 21
+                                         ? tfw::hal::encoders::RotaryEncoderDirection::Clockwise
+                                         : tfw::hal::encoders::RotaryEncoderDirection::CounterClockwise
+                    }
+                );
             }
 
             if (event[0] == 1) {

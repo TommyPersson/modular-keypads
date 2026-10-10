@@ -5,6 +5,7 @@
 class SlaveFirmware final
     : public mkp::firmwares::base::Firmware,
       public tfw::utils::observables::Observer<mkp::devices::common::DeviceSwitchEvent>,
+      public tfw::utils::observables::Observer<mkp::devices::common::DeviceRotaryEncoderEvent>,
       public tfw::utils::observables::Observer<mkp::devices::common::DeviceConnectedEvent>,
       public tfw::utils::observables::Observer<mkp::devices::common::DeviceDisconnectedEvent>,
       public tfw::utils::observables::Observer<mkp::devices::common::DeviceRenamedEvent> {
@@ -16,6 +17,7 @@ public:
     void loop() override;
 
     void observe(const mkp::devices::common::DeviceSwitchEvent& event) override;
+    void observe(const mkp::devices::common::DeviceRotaryEncoderEvent& event) override;
     void observe(const mkp::devices::common::DeviceConnectedEvent& event) override;
     void observe(const mkp::devices::common::DeviceDisconnectedEvent& event) override;
     void observe(const mkp::devices::common::DeviceRenamedEvent& event) override;

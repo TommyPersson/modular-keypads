@@ -74,6 +74,22 @@ void RemoteDevice::loop() {
                     .state = tfw::hal::buttons::ButtonState::UNPRESSED,
                 }
             );
+        } else if (remoteEventType == RemoteEventType::ROTARY_ENCODER_CW) {
+            this->deviceRotaryEncoderEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .encoderNumber = remoteEvent.args[0],
+                    .direction = tfw::hal::encoders::RotaryEncoderDirection::Clockwise,
+                }
+            );
+        } else if (remoteEventType == RemoteEventType::ROTARY_ENCODER_CCW) {
+            this->deviceRotaryEncoderEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .encoderNumber = remoteEvent.args[0],
+                    .direction = tfw::hal::encoders::RotaryEncoderDirection::CounterClockwise,
+                }
+            );
         } else if (remoteEventType == RemoteEventType::SUB_DEVICE_CONNECTED) {
             refreshSubDevices();
             this->subDeviceConnectedSubject.notify({.deviceId = remoteEvent.deviceId});

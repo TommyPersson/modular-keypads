@@ -124,7 +124,7 @@ void MasterFirmware::setup() {
 
     slaveEventInterruptInputPin = tfw::hal::gpio::InputPin::physical(localDevice->getEventInterruptPin(), INPUT_PULLUP);
     slaveEventInterruptInputPin->setup();
-    slaveEventInterruptInputPin->setupInterrupt(RISING);
+    slaveEventInterruptInputPin->setupInterrupt(FALLING);
     slaveEventInterruptInputPin->onInterruptEvent().addObserver(this);
 
     refreshRemoteDevices();

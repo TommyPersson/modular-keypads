@@ -20,8 +20,8 @@ namespace smc::firmwares {
         int8_t ledIndexForButton(uint8_t buttonNumber) override;
 
     private:
-        static constexpr uint8_t CLOCKWISE_LED_INDEX = 0; // LED1, right of the encoder
-        static constexpr uint8_t COUNTER_CLOCKWISE_LED_INDEX = 1; // LED2, left of the encoder
+        static constexpr uint8_t CLOCKWISE_LED_INDEX = 1;
+        static constexpr uint8_t COUNTER_CLOCKWISE_LED_INDEX = 0;
         static constexpr uint32_t ROTATION_LED_ON_US = 100000;
         static constexpr uint8_t LED_BRIGHTNESS = 50;
         static constexpr uint8_t LED_BRIGHTNESS_LONG_PRESSED = 200;

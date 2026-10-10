@@ -42,30 +42,30 @@ void RotaryEncoder::update(uint32_t deltaUs, events::EventQueue& queue) {
     switch (newState) {
     case 0b00:
         if (previousState == 0b01) {
-            pendingEventType = CW;
-        } else if (previousState == 0b10) {
             pendingEventType = CCW;
+        } else if (previousState == 0b10) {
+            pendingEventType = CW;
         }
         break;
     case 0b01:
         if (previousState == 0b11) {
-            pendingEventType = CW;
-        } else if (previousState == 0b00) {
             pendingEventType = CCW;
+        } else if (previousState == 0b00) {
+            pendingEventType = CW;
         }
         break;
     case 0b10:
         if (previousState == 0b00) {
-            pendingEventType = CW;
-        } else if (previousState == 0b11) {
             pendingEventType = CCW;
+        } else if (previousState == 0b11) {
+            pendingEventType = CW;
         }
         break;
     case 0b11:
         if (previousState == 0b10) {
-            pendingEventType = CW;
-        } else if (previousState == 0b01) {
             pendingEventType = CCW;
+        } else if (previousState == 0b01) {
+            pendingEventType = CW;
         }
         break;
     default:
