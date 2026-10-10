@@ -1,6 +1,7 @@
 import {
   type KeyBindingTrigger,
   KeyBindingTriggerType,
+  PushButtonEvent,
   RotaryEncoderDirection
 } from "@src/modules/key-bindings/models"
 import { DeviceCommand } from "./DeviceCommand"
@@ -15,10 +16,12 @@ export class ClearKeyBindingDeviceCommand extends DeviceCommand<void> {
   override get arguments(): string[] {
     let args: string[]  = []
     if (this.trigger.type === KeyBindingTriggerType.PushButton) {
+      const eventNumber = this.trigger.event === PushButtonEvent.Pressed ? 0x01 : 0x03
       args = [
         "0x01",
         this.trigger.deviceId,
-        `0x${this.trigger.number.toString(16).padStart(2, "0")}`
+        `0x${this.trigger.number.toString(16).padStart(2, "0")}`,
+        `0x${eventNumber.toString(16).padStart(2, "0")}`
       ]
     } else if (this.trigger.type === KeyBindingTriggerType.RotaryEncoder) {
       const directionNumber = this.trigger.direction === RotaryEncoderDirection.Clockwise ? 1 : 2

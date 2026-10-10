@@ -161,7 +161,7 @@ void LocalDevice::attachSwitch(
     const std::shared_ptr<tfw::hal::bitreaders::BitReader>& bitReader,
     int8_t ledIndex
 ) {
-    const auto button = this->buttons.emplace_back(std::make_shared<tfw::hal::buttons::Button>(number, bitReader));
+    const auto button = this->buttons.emplace_back(std::make_shared<tfw::hal::buttons::Button>(number, bitReader, clock));
 
     button->onStateChanged().addObserver(this);
 

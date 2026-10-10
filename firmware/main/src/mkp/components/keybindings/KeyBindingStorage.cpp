@@ -32,11 +32,24 @@ namespace {
 
         if (type == PUSH_BUTTON) {
             auto number = tfw::utils::strings::atol(parts[2], 16);
-            auto macroId = tfw::utils::strings::atou16(parts[3], 16);
+
+            // Bindings stored before the state was added have no state, and are for presses
+            if (parts.size() == 4) {
+                auto macroId = tfw::utils::strings::atou16(parts[3], 16);
+
+                return std::allocate_shared<KeyBinding>(
+                    keyBindingAllocator,
+                    std::allocate_shared<PushButtonTrigger>(pushButtonTriggerAllocator, deviceId, number),
+                    macroId
+                );
+            }
+
+            auto state = static_cast<tfw::hal::buttons::ButtonState>(tfw::utils::strings::atol(parts[3], 16));
+            auto macroId = tfw::utils::strings::atou16(parts[4], 16);
 
             return std::allocate_shared<KeyBinding>(
                 keyBindingAllocator,
-                std::allocate_shared<PushButtonTrigger>(pushButtonTriggerAllocator, deviceId, number),
+                std::allocate_shared<PushButtonTrigger>(pushButtonTriggerAllocator, deviceId, number, state),
                 macroId
             );
         }
@@ -61,11 +74,12 @@ namespace {
             const auto& trigger = dynamic_cast<PushButtonTrigger&>(*keyBinding.trigger);
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x:%08llx:0x%02x:0x%04x",
-                trigger.type,
+                "0x%02x:%08llx:0x%02x:0x%02x:0x%04x",
+                static_cast<unsigned int>(trigger.type),
                 trigger.deviceId,
-                trigger.number,
-                keyBinding.macroId
+                static_cast<unsigned int>(trigger.number),
+                static_cast<unsigned int>(trigger.state),
+                static_cast<unsigned int>(keyBinding.macroId)
             );
         }
 

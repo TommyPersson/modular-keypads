@@ -23,7 +23,9 @@ tfw::utils::void_result ClearKeyBinding::execute(
     if (type == PUSH_BUTTON) {
         const auto number = tfw::utils::strings::atol(args[2], 16);
 
-        const PushButtonTrigger trigger(deviceId, number);
+        const auto state = static_cast<tfw::hal::buttons::ButtonState>(tfw::utils::strings::atol(args[3], 16));
+
+        const PushButtonTrigger trigger(deviceId, number, state);
 
         keyBindingStorage.remove(trigger);
     } else if (type == ROTARY_ENCODER) {

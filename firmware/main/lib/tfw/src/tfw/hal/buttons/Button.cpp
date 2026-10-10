@@ -8,10 +8,15 @@ using namespace tfw::utils::observables;
 
 Button::Button(
     const std::uint8_t number,
-    const std::shared_ptr<BitReader>& bitReader
+    const std::shared_ptr<BitReader>& bitReader,
+    const time::Clock& clock,
+    const uint64_t longPressUs
 ) : number(number),
     bitReader(bitReader) {
     buttonStateChangedSubject = std::make_unique<Subject<ButtonStateChangedEvent>>();
+    longPressCountDown = clock.createCountDown(longPressUs, [this] {
+        changeState(ButtonState::LONG_PRESSED);
+    });
 }
 
 Button::~Button() = default;
@@ -24,18 +29,35 @@ void Button::begin() {
 void Button::update() {
     const auto nextState = readState();
 
-    previousState = currentState;
-    currentState = nextState;
+    // A long pressed button reads as pressed
+    const auto isUnchanged = nextState == currentState
+        || (nextState == ButtonState::PRESSED && currentState == ButtonState::LONG_PRESSED);
 
-    if (currentState != previousState) {
-        buttonStateChangedSubject->notify(
-            {
-                .buttonNumber = number,
-                .fromState = previousState,
-                .toState = currentState,
-            }
-        );
+    if (isUnchanged) {
+        longPressCountDown->update();
+        return;
     }
+
+    if (nextState == ButtonState::PRESSED) {
+        longPressCountDown->start();
+    } else {
+        longPressCountDown->stop();
+    }
+
+    changeState(nextState);
+}
+
+void Button::changeState(const ButtonState state) {
+    previousState = currentState;
+    currentState = state;
+
+    buttonStateChangedSubject->notify(
+        {
+            .buttonNumber = number,
+            .fromState = previousState,
+            .toState = currentState,
+        }
+    );
 }
 
 Observable<ButtonStateChangedEvent>& Button::onStateChanged() const {

@@ -272,6 +272,8 @@ void MasterFirmware::observe(const DeviceSwitchEvent& event) {
         notifier->notify(event.deviceId, {.type = "switch.pressed", .args = {std::to_string(event.switchNumber)}});
     } else if (event.state == tfw::hal::buttons::ButtonState::UNPRESSED) {
         notifier->notify(event.deviceId, {.type = "switch.released", .args = {std::to_string(event.switchNumber)}});
+    } else if (event.state == tfw::hal::buttons::ButtonState::LONG_PRESSED) {
+        notifier->notify(event.deviceId, {.type = "switch.long-pressed", .args = {std::to_string(event.switchNumber)}});
     }
 
     keyBindingExecutor->observe(event);

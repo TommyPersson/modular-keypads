@@ -23,10 +23,11 @@ tfw::utils::void_result SetKeyBinding::execute(
 
     if (type == PUSH_BUTTON) {
         const auto number = tfw::utils::strings::atol(args[2], 16);
-        const auto macroId = static_cast<uint16_t>(tfw::utils::strings::atol(args[3], 16));
+        const auto state = static_cast<tfw::hal::buttons::ButtonState>(tfw::utils::strings::atol(args[3], 16));
+        const auto macroId = static_cast<uint16_t>(tfw::utils::strings::atol(args[4], 16));
 
         const auto keyBinding = KeyBinding{
-            .trigger = std::make_shared<PushButtonTrigger>(deviceId, number),
+            .trigger = std::make_shared<PushButtonTrigger>(deviceId, number, state),
             .macroId = macroId,
         };
 

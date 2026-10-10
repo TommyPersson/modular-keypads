@@ -75,6 +75,14 @@ void RemoteDevice::loop() {
                     .state = tfw::hal::buttons::ButtonState::UNPRESSED,
                 }
             );
+        } else if (remoteEventType == RemoteEventType::BUTTON_LONG_PRESSED) {
+            this->deviceSwitchEventSubject.notify(
+                {
+                    .deviceId = remoteEvent.deviceId,
+                    .switchNumber = remoteEvent.args[0],
+                    .state = tfw::hal::buttons::ButtonState::LONG_PRESSED,
+                }
+            );
         } else if (remoteEventType == RemoteEventType::ROTARY_ENCODER_CW) {
             this->deviceRotaryEncoderEventSubject.notify(
                 {

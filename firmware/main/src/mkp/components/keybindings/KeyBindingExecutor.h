@@ -1,5 +1,8 @@
 #pragma once
 
+#include <set>
+#include <utility>
+
 #include <tfw/hal/metrics.h>
 #include <tfw/hal/usb.h>
 
@@ -48,7 +51,11 @@ namespace mkp::components::keybindings {
         void refreshCompiledMacros();
         void refreshKeyBindings();
 
-        std::shared_ptr<KeyBinding> findKeyBinding(const devices::common::DeviceSwitchEvent& event);
+        std::shared_ptr<KeyBinding> findKeyBinding(
+            uint64_t deviceId,
+            uint8_t switchNumber,
+            tfw::hal::buttons::ButtonState state
+        );
         std::shared_ptr<KeyBinding> findKeyBinding(const devices::common::DeviceRotaryEncoderEvent& event);
 
         void executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding);
@@ -63,5 +70,9 @@ namespace mkp::components::keybindings {
 
         std::vector<std::shared_ptr<KeyBinding>> keyBindings;
         std::vector<std::shared_ptr<CompiledMacro>> macros;
+
+        // Presses of buttons with a long press binding, as device id and switch number. Their press binding is
+        // executed on release, unless the press turned into a long press.
+        std::set<std::pair<uint64_t, uint8_t>> pendingPresses;
     };
 }

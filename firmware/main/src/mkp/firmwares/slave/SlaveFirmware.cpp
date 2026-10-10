@@ -114,6 +114,14 @@ void SlaveFirmware::observe(const mkp::devices::common::DeviceSwitchEvent& event
                 .args = {event.switchNumber}
             }
         );
+    } else if (event.state == tfw::hal::buttons::ButtonState::LONG_PRESSED) {
+        slavePort.enqueueEvent(
+            tfw::hal::i2c::Event{
+                .type = static_cast<uint8_t>(mkp::components::events::RemoteEventType::BUTTON_LONG_PRESSED),
+                .deviceId = event.deviceId,
+                .args = {event.switchNumber}
+            }
+        );
     }
 
     slavePort.triggerEventInterrupt();

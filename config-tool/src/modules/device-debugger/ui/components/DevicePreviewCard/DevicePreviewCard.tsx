@@ -3,7 +3,12 @@ import type { ReactNode } from "react"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
-import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
+import {
+  isPushButtonPressed,
+  PushButtonState,
+  type PushButtonStates,
+  usePushButtonStates
+} from "@src/modules/device/hooks/usePushButtonStates"
 import { useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
 
 import classes from "./DevicePreviewCard.module.css"
@@ -228,7 +233,8 @@ const TypeSmc3PreviewCardContent = (props: {
     <SubDevicePreviewContainer caption={caption}>
       <RotaryEncoderStateIndicator
         encoderNumber={1}
-        isPressed={pushButtonStates[1] ?? false}
+        isPressed={isPushButtonPressed(pushButtonStates[1])}
+        isLongPressed={pushButtonStates[1] === PushButtonState.LongPressed}
         isRotatingClockwise={rotaryEncoderStates[1]?.clockwise ?? false}
         isRotatingCounterClockwise={rotaryEncoderStates[1]?.counterClockwise ?? false}
       />
@@ -245,10 +251,11 @@ const TypeSmc3PreviewCardContent = (props: {
 const RotaryEncoderStateIndicator = (props: {
   encoderNumber: number,
   isPressed: boolean,
+  isLongPressed: boolean,
   isRotatingClockwise: boolean,
   isRotatingCounterClockwise: boolean,
 }) => {
-  const { encoderNumber, isPressed, isRotatingClockwise, isRotatingCounterClockwise } = props
+  const { encoderNumber, isPressed, isLongPressed, isRotatingClockwise, isRotatingCounterClockwise } = props
 
   return (
     <svg viewBox={"0 0 120 120"} className={classes.RotaryEncoderStateIndicator}>
@@ -268,6 +275,7 @@ const RotaryEncoderStateIndicator = (props: {
         r={30}
         className={classes.RotaryEncoderStateIndicatorButton}
         data-pressed={isPressed}
+        data-long-pressed={isLongPressed}
       />
       <text x={60} y={60} className={classes.RotaryEncoderStateIndicatorLabel}>{encoderNumber}</text>
     </svg>
@@ -311,7 +319,7 @@ const SwitchStateIndicatorCluster = (props: {
           const switchNumber = firstSwitchNumber + offset
           return (
             <Grid key={switchNumber} size={12 / columns}>
-              <SwitchStateIndicator switchNumber={switchNumber} isPressed={pushButtonStates[switchNumber] ?? false} />
+              <SwitchStateIndicator switchNumber={switchNumber} state={pushButtonStates[switchNumber]} />
             </Grid>
           )
         })
@@ -322,14 +330,15 @@ const SwitchStateIndicatorCluster = (props: {
 
 const SwitchStateIndicator = (props: {
   switchNumber: number,
-  isPressed: boolean
+  state: PushButtonState | undefined,
 }) => {
-  const { switchNumber, isPressed } = props
+  const { switchNumber, state } = props
 
   return (
     <div
       className={classes.SwitchStateIndicator}
-      data-isPressed={isPressed}
+      data-isPressed={isPushButtonPressed(state)}
+      data-long-pressed={state === PushButtonState.LongPressed}
       children={<span>{switchNumber}</span>}
     />
   )

@@ -9,6 +9,7 @@
 
 using namespace tfw::hal::fs;
 using namespace mkp::components::keybindings;
+using tfw::hal::buttons::ButtonState;
 
 class KeyBindingStorageTest : public ::testing::Test {
 protected:
@@ -29,6 +30,11 @@ protected:
     // Helper functions for creating test key bindings
     KeyBinding createPushButtonBinding(uint64_t deviceId, int number, uint16_t macroId) {
         auto trigger = std::make_shared<PushButtonTrigger>(deviceId, number);
+        return KeyBinding{trigger, macroId};
+    }
+
+    KeyBinding createLongPressBinding(uint64_t deviceId, int number, uint16_t macroId) {
+        auto trigger = std::make_shared<PushButtonTrigger>(deviceId, number, ButtonState::LONG_PRESSED);
         return KeyBinding{trigger, macroId};
     }
 
@@ -168,6 +174,93 @@ TEST_F(KeyBindingStorageTest, ForEachMultipleBindings) {
     EXPECT_EQ(macroIds[0], 10);
     EXPECT_EQ(macroIds[1], 20);
     EXPECT_EQ(macroIds[2], 30);
+}
+
+// ============================================================================
+// Long Press Tests
+// ============================================================================
+
+TEST_F(KeyBindingStorageTest, LongPressBindingRoundTrip) {
+    keyBindingStorage.write(createLongPressBinding(0x0001, 5, 100));
+
+    int count = 0;
+    keyBindingStorage.forEach([&](const KeyBinding& b) {
+        count++;
+        EXPECT_EQ(b.trigger->type, PUSH_BUTTON);
+        EXPECT_EQ(dynamic_cast<const PushButtonTrigger&>(*b.trigger).number, 5);
+        EXPECT_EQ(dynamic_cast<const PushButtonTrigger&>(*b.trigger).state, ButtonState::LONG_PRESSED);
+        EXPECT_EQ(b.trigger->deviceId, 0x0001);
+        EXPECT_EQ(b.macroId, 100);
+    });
+    EXPECT_EQ(count, 1);
+}
+
+TEST_F(KeyBindingStorageTest, PressAndLongPressBindingsAreIndependent) {
+    keyBindingStorage.write(createPushButtonBinding(0x0001, 5, 100));
+    keyBindingStorage.write(createLongPressBinding(0x0001, 5, 200));
+
+    EXPECT_EQ(keyBindingStorage.count(), 2);
+
+    // Overwriting one leaves the other in place
+    keyBindingStorage.write(createLongPressBinding(0x0001, 5, 300));
+
+    std::vector<std::pair<ButtonState, uint16_t>> bindings;
+    keyBindingStorage.forEach([&](const KeyBinding& b) {
+        bindings.emplace_back(dynamic_cast<const PushButtonTrigger&>(*b.trigger).state, b.macroId);
+    });
+
+    ASSERT_EQ(bindings.size(), 2);
+    EXPECT_EQ(bindings[0], std::make_pair(ButtonState::PRESSED, static_cast<uint16_t>(100)));
+    EXPECT_EQ(bindings[1], std::make_pair(ButtonState::LONG_PRESSED, static_cast<uint16_t>(300)));
+}
+
+TEST_F(KeyBindingStorageTest, RemoveLongPressBindingKeepsPressBinding) {
+    keyBindingStorage.write(createPushButtonBinding(0x0001, 5, 100));
+    keyBindingStorage.write(createLongPressBinding(0x0001, 5, 200));
+
+    keyBindingStorage.remove(PushButtonTrigger(0x0001, 5, ButtonState::LONG_PRESSED));
+
+    int count = 0;
+    keyBindingStorage.forEach([&](const KeyBinding& b) {
+        count++;
+        EXPECT_EQ(dynamic_cast<const PushButtonTrigger&>(*b.trigger).state, ButtonState::PRESSED);
+        EXPECT_EQ(b.macroId, 100);
+    });
+    EXPECT_EQ(count, 1);
+}
+
+TEST_F(KeyBindingStorageTest, StoresPushButtonStateLikeRotaryEncoderDirection) {
+    keyBindingStorage.write(createLongPressBinding(0x0001, 5, 0x64));
+
+    std::vector<std::string> lines;
+    iterateLines(mockFs, testFilePath, [&](const std::string_view& line) {
+        lines.emplace_back(line);
+    });
+
+    ASSERT_EQ(lines.size(), 1);
+    EXPECT_EQ(lines[0], "0x01:00000001:0x05:0x03:0x0064");
+}
+
+TEST_F(KeyBindingStorageTest, ReadsPushButtonBindingsWithoutStateAsPresses) {
+    // As stored before push button bindings had a state
+    const auto file = mockFs.open(testFilePath, FileMode::Write, true);
+    file->println("0x01:00000001:0x05:0x0064");
+    file->close();
+
+    int count = 0;
+    keyBindingStorage.forEach([&](const KeyBinding& b) {
+        count++;
+        const auto& trigger = dynamic_cast<const PushButtonTrigger&>(*b.trigger);
+        EXPECT_EQ(trigger.deviceId, 0x0001);
+        EXPECT_EQ(trigger.number, 5);
+        EXPECT_EQ(trigger.state, ButtonState::PRESSED);
+        EXPECT_EQ(b.macroId, 0x64);
+    });
+    EXPECT_EQ(count, 1);
+
+    // Removing it also matches a press trigger
+    keyBindingStorage.remove(PushButtonTrigger(0x0001, 5));
+    EXPECT_EQ(keyBindingStorage.count(), 0);
 }
 
 // ============================================================================

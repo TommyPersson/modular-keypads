@@ -17,7 +17,7 @@ SwitchIndicatorLed::~SwitchIndicatorLed() {
 
 void SwitchIndicatorLed::observe(const ButtonStateChangedEvent& event) {
     // TODO "override behavior"?
-    if (event.toState == tfw::hal::buttons::ButtonState::PRESSED) {
+    if (event.toState == ButtonState::PRESSED || event.toState == ButtonState::LONG_PRESSED) {
         indicatorLed.setColor(255, 255, 255, 0);
     } else {
         indicatorLed.setColor(0, 0, 0, 0);

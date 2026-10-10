@@ -20,11 +20,12 @@ tfw::utils::void_result ListKeyBindings::execute(
             const auto trigger = dynamic_cast<PushButtonTrigger&>(*keyBinding.trigger);
 
             responseWriter.writeLineF(
-                "0x%02x:%08llx:0x%02x:0x%04x",
-                trigger.type,
+                "0x%02x:%08llx:0x%02x:0x%02x:0x%04x",
+                static_cast<unsigned int>(trigger.type),
                 trigger.deviceId,
-                trigger.number,
-                keyBinding.macroId
+                static_cast<unsigned int>(trigger.number),
+                static_cast<unsigned int>(trigger.state),
+                static_cast<unsigned int>(keyBinding.macroId)
             );
         } else if (keyBinding.trigger->type == ROTARY_ENCODER) {
             const auto trigger = dynamic_cast<RotaryEncoderTrigger&>(*keyBinding.trigger);

@@ -31,7 +31,12 @@ import {
   FlashDeviceIdentificationLightsCommand
 } from "@src/modules/device/commands/FlashDeviceIdentificationLightsCommand"
 import { useDeviceFacade } from "@src/modules/device/context"
-import { type PushButtonStates, usePushButtonStates } from "@src/modules/device/hooks/usePushButtonStates"
+import {
+  isPushButtonPressed,
+  PushButtonState,
+  type PushButtonStates,
+  usePushButtonStates
+} from "@src/modules/device/hooks/usePushButtonStates"
 import { type RotaryEncoderState, useRotaryEncoderStates } from "@src/modules/device/hooks/useRotaryEncoderStates"
 import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/models"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
@@ -43,6 +48,7 @@ import {
   type KeyBinding,
   KeyBindingTriggerType,
   type PushButtonKeyBindingTrigger,
+  PushButtonEvent,
   RotaryEncoderDirection,
   type RotaryEncoderKeyBindingTrigger
 } from "@src/modules/key-bindings/models"
@@ -191,7 +197,7 @@ const PushButtonsSection = (props: {
                 key={it.number}
                 deviceId={deviceId}
                 pushButton={it}
-                isPressed={pushButtonStates[it.number] ?? false}
+                state={pushButtonStates[it.number]}
                 allMacros={allMacros}
                 macrosByDirectory={macrosByDirectory}
                 macros={macros}
@@ -208,32 +214,48 @@ const PushButtonsSection = (props: {
 const PushButtonBindingRow = (props: {
   deviceId: string
   pushButton: PushButtonCapability
-  isPressed: boolean
+  state: PushButtonState | undefined
   allMacros: MacroDefinition[]
   macrosByDirectory: [string, MacroDefinition[]][]
   macros: UseStoredMacrosResult
   keyBindings: KeyBinding[]
 }) => {
-  const { deviceId, pushButton, isPressed, allMacros, macros, keyBindings } = props
+  const { deviceId, pushButton, state, allMacros, macros, keyBindings } = props
 
+  const isPressed = isPushButtonPressed(state)
   const backgroundColor = isPressed ? highlightBackgroundColor : undefined
   const color = isPressed ? highlightTextColor : undefined
 
-  const trigger: PushButtonKeyBindingTrigger = useMemo(() => ({
-    type: KeyBindingTriggerType.PushButton,
-    deviceId: deviceId,
-    number: pushButton.number,
-  }), [deviceId, pushButton])
+  const isLongPressed = state === PushButtonState.LongPressed
+  const longPressBackgroundColor = isLongPressed ? highlightBackgroundColor : undefined
+  const longPressColor = isLongPressed ? highlightTextColor : undefined
 
-  const keyBinding = keyBindings.find(it => it.trigger.type === "PushButton" && it.trigger.number === pushButton.number && it.trigger.deviceId === deviceId)
-  const boundMacro = allMacros.find(it => it.id === keyBinding?.macroId) ?? null
+  const findBoundMacro = (state: PushButtonEvent) => {
+    const keyBinding = keyBindings.find(it =>
+      it.trigger.type === KeyBindingTriggerType.PushButton
+      && it.trigger.number === pushButton.number
+      && it.trigger.deviceId === deviceId
+      && it.trigger.event === state
+    )
+    return allMacros.find(it => it.id === keyBinding?.macroId) ?? null
+  }
+
+  const boundMacro = findBoundMacro(PushButtonEvent.Pressed)
+  const boundMacroLongPress = findBoundMacro(PushButtonEvent.LongPressed)
 
   const setKeyBindingCommand = useCommand(SetKeyBindingCommand)
   const clearKeyBindingCommand = useCommand(ClearKeyBindingCommand)
 
   const disabled = setKeyBindingCommand.isPending || clearKeyBindingCommand.isPending
 
-  const handleMacroSelection = useCallback(async (macro: MacroDefinition | null) => {
+  const handleMacroSelection = useCallback(async (macro: MacroDefinition | null, event: PushButtonEvent) => {
+    const trigger: PushButtonKeyBindingTrigger = {
+      type: KeyBindingTriggerType.PushButton,
+      deviceId: deviceId,
+      number: pushButton.number,
+      event: event,
+    }
+
     if (!macro) {
       await clearKeyBindingCommand.executeAsync({ trigger })
     } else {
@@ -244,30 +266,53 @@ const PushButtonBindingRow = (props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId, pushButton])
 
+  const handleMacroSelectionPress = useCallback(async (macro: MacroDefinition | null) => {
+    await handleMacroSelection(macro, PushButtonEvent.Pressed)
+  }, [handleMacroSelection])
+
+  const handleMacroSelectionLongPress = useCallback(async (macro: MacroDefinition | null) => {
+    await handleMacroSelection(macro, PushButtonEvent.LongPressed)
+  }, [handleMacroSelection])
+
   return (
-    <TableRow hover sx={{ backgroundColor, color }}>
-      <TableCell sx={{ color }}>
-        <strong>{pushButton.number}</strong>
-      </TableCell>
-      <TableCell sx={{ color }}>
-        <MacroAutocomplete
-          macros={macros.allMacros}
-          label={"Press Action"}
-          selected={boundMacro}
-          disabled={disabled}
-          onSelect={handleMacroSelection}
-        />
-      </TableCell>
-      <TableCell>
-        <CommandButton
-          command={FlashButtonIdentificationLightCommand}
-          args={{ deviceId, buttonNumber: pushButton.number }}
-          disabled={!pushButton.hasLed}
-          tooltip={!pushButton.hasLed ? "This button does not have an LED indicator" : undefined}
-          iconOnly
-        />
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow hover sx={{ backgroundColor, color }}>
+        <TableCell sx={{ color }}>
+          <strong>{pushButton.number}</strong>
+        </TableCell>
+        <TableCell sx={{ color }}>
+          <MacroAutocomplete
+            macros={macros.allMacros}
+            label={"Press Action"}
+            selected={boundMacro}
+            disabled={disabled}
+            onSelect={handleMacroSelectionPress}
+          />
+        </TableCell>
+        <TableCell>
+          <CommandButton
+            command={FlashButtonIdentificationLightCommand}
+            args={{ deviceId, buttonNumber: pushButton.number }}
+            disabled={!pushButton.hasLed}
+            tooltip={!pushButton.hasLed ? "This button does not have an LED indicator" : undefined}
+            iconOnly
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow hover sx={{ backgroundColor: longPressBackgroundColor, color: longPressColor }}>
+        <TableCell></TableCell>
+        <TableCell sx={{ color: longPressColor }}>
+          <MacroAutocomplete
+            macros={macros.allMacros}
+            label={"Long Press Action"}
+            selected={boundMacroLongPress}
+            disabled={disabled}
+            onSelect={handleMacroSelectionLongPress}
+          />
+        </TableCell>
+        <TableCell></TableCell>
+      </TableRow>
+    </>
   )
 }
 

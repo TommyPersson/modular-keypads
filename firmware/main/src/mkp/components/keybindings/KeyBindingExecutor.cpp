@@ -8,6 +8,7 @@
 using namespace mkp::components::macros;
 using namespace mkp::components::keybindings;
 using namespace mkp::devices::common;
+using tfw::hal::buttons::ButtonState;
 
 // TODO lots of allocation stuff to optimize
 
@@ -151,22 +152,46 @@ void KeyBindingExecutor::observe(const KeyBindingCleared& event) {
 }
 
 void KeyBindingExecutor::observe(const DeviceSwitchEvent& event) {
-    executeMacroFor(findKeyBinding(event));
+    const auto button = std::make_pair(event.deviceId, event.switchNumber);
+    const auto pressKeyBinding = findKeyBinding(event.deviceId, event.switchNumber, ButtonState::PRESSED);
+    const auto longPressKeyBinding = findKeyBinding(event.deviceId, event.switchNumber, ButtonState::LONG_PRESSED);
+
+    switch (event.state) {
+    case ButtonState::PRESSED:
+        if (longPressKeyBinding == nullptr) {
+            executeMacroFor(pressKeyBinding);
+        } else {
+            // Not known yet whether it's a press or a long press
+            pendingPresses.insert(button);
+        }
+        break;
+    case ButtonState::LONG_PRESSED:
+        pendingPresses.erase(button);
+        executeMacroFor(longPressKeyBinding);
+        break;
+    case ButtonState::UNPRESSED:
+        if (pendingPresses.erase(button) > 0) {
+            executeMacroFor(pressKeyBinding);
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 void KeyBindingExecutor::observe(const DeviceRotaryEncoderEvent& event) {
     executeMacroFor(findKeyBinding(event));
 }
 
-std::shared_ptr<KeyBinding> KeyBindingExecutor::findKeyBinding(const DeviceSwitchEvent& event) {
-    if (event.state != tfw::hal::buttons::ButtonState::PRESSED) {
-        return nullptr;
-    }
-
+std::shared_ptr<KeyBinding> KeyBindingExecutor::findKeyBinding(
+    const uint64_t deviceId,
+    const uint8_t switchNumber,
+    const ButtonState state
+) {
     for (const auto& keyBinding : keyBindings) {
         if (keyBinding->trigger->type == PUSH_BUTTON) {
             const auto& trigger = dynamic_cast<PushButtonTrigger&>(*keyBinding->trigger);
-            if (trigger.deviceId == event.deviceId && trigger.number == event.switchNumber) {
+            if (trigger.deviceId == deviceId && trigger.number == switchNumber && trigger.state == state) {
                 return std::make_shared<KeyBinding>(*keyBinding);
             }
         }

@@ -1,4 +1,9 @@
-import { type KeyBinding, KeyBindingTriggerType, RotaryEncoderDirection } from "@src/modules/key-bindings/models"
+import {
+  type KeyBinding,
+  KeyBindingTriggerType,
+  PushButtonEvent,
+  RotaryEncoderDirection
+} from "@src/modules/key-bindings/models"
 import { DeviceCommand } from "./DeviceCommand"
 
 export class ListKeyBindingsDeviceCommand extends DeviceCommand<KeyBinding[]> {
@@ -12,14 +17,16 @@ export class ListKeyBindingsDeviceCommand extends DeviceCommand<KeyBinding[]> {
 
       if (type == 0x01) { // PushButton
         const number = parseInt(parts[2], 16)
-        const macroId = parseInt(parts[3], 16)
+        const state = parseInt(parts[3], 16)
+        const macroId = parseInt(parts[4], 16)
 
         return {
           macroId,
           trigger: {
             type: KeyBindingTriggerType.PushButton,
             deviceId,
-            number
+            number,
+            event: state === 0x03 ? PushButtonEvent.LongPressed : PushButtonEvent.Pressed
           }
         }
       } else if (type == 0x02) { // RotaryEncoder

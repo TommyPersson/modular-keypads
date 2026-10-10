@@ -3,6 +3,12 @@ export enum KeyBindingTriggerType {
   RotaryEncoder = "RotaryEncoder",
 }
 
+// The button state that triggers the binding, so a button can have a binding for each
+export enum PushButtonEvent {
+  Pressed = "Pressed",
+  LongPressed = "LongPressed",
+}
+
 export enum RotaryEncoderDirection {
   Clockwise = "Clockwise",
   CounterClockwise = "CounterClockwise",
@@ -16,6 +22,7 @@ export type KeyBindingTriggerBase = {
 export type PushButtonKeyBindingTrigger = KeyBindingTriggerBase & {
   type: KeyBindingTriggerType.PushButton,
   number: number
+  event: PushButtonEvent
 }
 
 export type RotaryEncoderKeyBindingTrigger = KeyBindingTriggerBase & {

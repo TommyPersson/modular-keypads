@@ -232,6 +232,15 @@ void SubDevice::pollEvents() {
                         .state = tfw::hal::buttons::ButtonState::UNPRESSED
                     }
                 );
+            } else if (event[0] == 13) {
+                auto switchNumber = event[1];
+                this->deviceSwitchEventSubject.notify(
+                    {
+                        .deviceId = deviceId,
+                        .switchNumber = switchNumber,
+                        .state = tfw::hal::buttons::ButtonState::LONG_PRESSED
+                    }
+                );
             } else if (event[0] == 21 || event[0] == 22) {
                 auto encoderNumber = event[1];
                 this->deviceRotaryEncoderEventSubject.notify(
