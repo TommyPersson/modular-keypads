@@ -9,7 +9,7 @@ import { DeviceCommand } from "./DeviceCommand"
 export class ClearKeyBindingDeviceCommand extends DeviceCommand<void> {
   override type: string = "clear.key.binding"
 
-  constructor(private readonly trigger: KeyBindingTrigger) {
+  constructor(readonly trigger: KeyBindingTrigger) {
     super()
   }
 

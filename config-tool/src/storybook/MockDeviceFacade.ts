@@ -1,5 +1,9 @@
 import type { DeviceFacade } from "@src/modules/device/facade"
+import type {
+  ClearKeyBindingDeviceCommand
+} from "@src/modules/device/facade/device-commands/ClearKeyBindingDeviceCommand"
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
+import type { SetKeyBindingDeviceCommand } from "@src/modules/device/facade/device-commands/SetKeyBindingDeviceCommand"
 import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage } from "@src/modules/device/models"
 import {
   type KeyBinding,
@@ -7,7 +11,9 @@ import {
   PushButtonEvent,
   RotaryEncoderDirection
 } from "@src/modules/key-bindings/models"
+import { ListKeyBindingsQueryKey } from "@src/modules/key-bindings/queries"
 import type { MacroDefinition } from "@src/modules/macros/models"
+import { dequal } from "dequal"
 import { DateTime } from "luxon"
 import { BehaviorSubject, defer, from, merge, NEVER, Observable, Subject } from "rxjs"
 
@@ -35,8 +41,8 @@ export type MockDeviceOptions = {
 
 /**
  * A device facade for Storybook, that is always connected and answers commands from the given options. Renaming a
- * device changes the listed devices, and identifying one does nothing. Devices can be connected and disconnected, to
- * see how the components react.
+ * device changes the listed devices, setting and clearing key bindings changes the listed key bindings, and
+ * identifying a device does nothing. Devices can be connected and disconnected, to see how the components react.
  *
  * Notifications without a repeat interval are replayed to every subscriber, so that components that mount late,
  * e.g. after a query has loaded, still get the same state as the others.
@@ -45,6 +51,10 @@ export class MockDeviceFacade implements DeviceFacade {
   private readonly liveNotifications = new Subject<NotificationMessage>()
   private timers: ReturnType<typeof setInterval>[] = []
   private devices: DeviceInformation[]
+  private keyBindings: KeyBinding[]
+
+  // Called when a command changes the data of the queries with the given key, so that they're refreshed
+  onQueryDataChanged: (queryKey: readonly unknown[]) => void = () => {}
 
   readonly messages$: Observable<DeviceMessage> = NEVER
   readonly logs$: Observable<LogMessage[]> = NEVER
@@ -56,6 +66,7 @@ export class MockDeviceFacade implements DeviceFacade {
 
   constructor(private readonly options: MockDeviceOptions) {
     this.devices = options.devices
+    this.keyBindings = options.keyBindings ?? []
     const replayed = (options.notifications ?? []).filter(it => it.repeatMs === undefined)
     this.notifications$ = merge(
       defer(() => from(replayed.map(toNotificationMessage))),
@@ -111,12 +122,28 @@ export class MockDeviceFacade implements DeviceFacade {
       case "flash.identification.lights":
         return undefined as TResult
       case "list.key.bindings":
-        return (this.options.keyBindings ?? []) as TResult
+        return this.keyBindings as TResult
+      case "set.key.binding": {
+        const { trigger, macroId } = command as unknown as SetKeyBindingDeviceCommand
+        this.changeKeyBindings([...this.keyBindings.filter(it => !dequal(it.trigger, trigger)), { trigger, macroId }])
+        return undefined as TResult
+      }
+      case "clear.key.binding": {
+        const { trigger } = command as unknown as ClearKeyBindingDeviceCommand
+        this.changeKeyBindings(this.keyBindings.filter(it => !dequal(it.trigger, trigger)))
+        return undefined as TResult
+      }
       case "list.stored.macros":
         return (this.options.macros ?? []) as TResult
     }
 
     throw new Error(`The command '${command.type}' isn't mocked`)
+  }
+
+  // The commands refresh the queries of the app, not the queries of the story, which are refreshed here instead
+  private changeKeyBindings(keyBindings: KeyBinding[]) {
+    this.keyBindings = keyBindings
+    this.onQueryDataChanged(ListKeyBindingsQueryKey)
   }
 
   // Notifies as the device does, which makes the device list refresh

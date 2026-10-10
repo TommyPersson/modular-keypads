@@ -1,2 +1,5 @@
 export * from "./EditKeyBindingsCard"
+export * from "./EditPushButtonBindingsDialog"
+export * from "./EditRotaryEncoderBindingsDialog"
 export * from "./KeyboardEventsToolPaneContent"
+export * from "./MacroAutocomplete"

@@ -10,8 +10,8 @@ export class SetKeyBindingDeviceCommand extends DeviceCommand<void> {
   override type: string = "set.key.binding"
 
   constructor(
-    private readonly trigger: KeyBindingTrigger,
-    private readonly macroId: number
+    readonly trigger: KeyBindingTrigger,
+    readonly macroId: number
   ) {
     super()
   }

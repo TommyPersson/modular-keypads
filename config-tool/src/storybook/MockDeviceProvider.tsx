@@ -6,7 +6,8 @@ import { MockDeviceFacade, type MockDeviceOptions } from "./MockDeviceFacade"
 /**
  * Provides a mock device, and a query client of its own so that cached device data doesn't leak between stories.
  *
- * The mock device also replaces the global device facade, which the commands use, while the provider is mounted.
+ * The mock device also replaces the global device facade, which the commands use, while the provider is mounted. As
+ * the commands refresh the queries of the app's query client, the mock device refreshes the queries of this one.
  */
 export const MockDeviceProvider = (props: {
   options: MockDeviceOptions
@@ -22,13 +23,15 @@ export const MockDeviceProvider = (props: {
   useEffect(() => {
     const previousFacade = globalDeviceFacade.value
     globalDeviceFacade.value = facade
+    facade.onQueryDataChanged = queryKey => queryClient.invalidateQueries({ queryKey })
     facade.start()
 
     return () => {
       facade.stop()
+      facade.onQueryDataChanged = () => {}
       globalDeviceFacade.value = previousFacade
     }
-  }, [facade])
+  }, [facade, queryClient])
 
   return (
     <QueryClientProvider client={queryClient}>

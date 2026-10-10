@@ -1,3 +1,5 @@
 export * from "./useKeyBindingsQuery"
+export * from "./usePushButtonBindingEditor"
 export * from "./usePushButtonBindings"
+export * from "./useRotaryEncoderBindingEditor"
 export * from "./useRotaryEncoderBindings"

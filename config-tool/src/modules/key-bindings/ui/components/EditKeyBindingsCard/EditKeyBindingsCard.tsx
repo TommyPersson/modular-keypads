@@ -1,8 +1,4 @@
-import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined"
 import {
-  Autocomplete,
-  type AutocompleteInputChangeReason,
-  type AutocompleteValue,
   Box,
   Card,
   CardContent,
@@ -20,7 +16,6 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  TextField,
   Typography
 } from "@mui/material"
 import { CommandButton } from "@src/modules/common/components"
@@ -41,23 +36,19 @@ import { type RotaryEncoderState, useRotaryEncoderStates } from "@src/modules/de
 import type { DeviceInformation, PushButtonCapability, RotaryEncoderCapability } from "@src/modules/device/models"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { ListDeviceCapabilitiesQuery } from "@src/modules/device/queries/ListDeviceCapabilitiesQuery"
-import { ClearKeyBindingCommand } from "@src/modules/key-bindings/commands"
-import { SetKeyBindingCommand } from "@src/modules/key-bindings/commands/SetKeyBindingCommand"
+import { usePushButtonBindingEditor, useRotaryEncoderBindingEditor } from "@src/modules/key-bindings/hooks"
 import { useKeyBindingsQuery } from "@src/modules/key-bindings/hooks/useKeyBindingsQuery"
 import {
   type KeyBinding,
   KeyBindingTriggerType,
-  type PushButtonKeyBindingTrigger,
   PushButtonEvent,
-  RotaryEncoderDirection,
-  type RotaryEncoderKeyBindingTrigger
+  RotaryEncoderDirection
 } from "@src/modules/key-bindings/models"
+import { MacroAutocomplete } from "@src/modules/key-bindings/ui/components/MacroAutocomplete"
 import { useStoredMacros, type UseStoredMacrosResult } from "@src/modules/macros/hooks"
 import type { MacroDefinition } from "@src/modules/macros/models"
-import { MacroTypeVisualization } from "@src/modules/macros/ui"
-import { useCommand } from "@src/utils/commands"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import classes from "./EditKeyBindingsCard.module.css"
 
@@ -243,36 +234,15 @@ const PushButtonBindingRow = (props: {
   const boundMacro = findBoundMacro(PushButtonEvent.Pressed)
   const boundMacroLongPress = findBoundMacro(PushButtonEvent.LongPressed)
 
-  const setKeyBindingCommand = useCommand(SetKeyBindingCommand)
-  const clearKeyBindingCommand = useCommand(ClearKeyBindingCommand)
-
-  const disabled = setKeyBindingCommand.isPending || clearKeyBindingCommand.isPending
-
-  const handleMacroSelection = useCallback(async (macro: MacroDefinition | null, event: PushButtonEvent) => {
-    const trigger: PushButtonKeyBindingTrigger = {
-      type: KeyBindingTriggerType.PushButton,
-      deviceId: deviceId,
-      number: pushButton.number,
-      event: event,
-    }
-
-    if (!macro) {
-      await clearKeyBindingCommand.executeAsync({ trigger })
-    } else {
-      const macroId = macro.id
-
-      await setKeyBindingCommand.executeAsync({ trigger, macroId })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceId, pushButton])
+  const { setBinding, isPending: disabled } = usePushButtonBindingEditor(deviceId, pushButton.number)
 
   const handleMacroSelectionPress = useCallback(async (macro: MacroDefinition | null) => {
-    await handleMacroSelection(macro, PushButtonEvent.Pressed)
-  }, [handleMacroSelection])
+    await setBinding(PushButtonEvent.Pressed, macro)
+  }, [setBinding])
 
   const handleMacroSelectionLongPress = useCallback(async (macro: MacroDefinition | null) => {
-    await handleMacroSelection(macro, PushButtonEvent.LongPressed)
-  }, [handleMacroSelection])
+    await setBinding(PushButtonEvent.LongPressed, macro)
+  }, [setBinding])
 
   return (
     <>
@@ -401,36 +371,15 @@ const RotaryEncoderBindingsRow = (props: {
   const boundMacroCW = macros.find(it => it.id === keyBindingCW?.macroId) ?? null
   const boundMacroCCW = macros.find(it => it.id === keyBindingCCW?.macroId) ?? null
 
-  const setKeyBindingCommand = useCommand(SetKeyBindingCommand)
-  const clearKeyBindingCommand = useCommand(ClearKeyBindingCommand)
-
-  const disabled = setKeyBindingCommand.isPending || clearKeyBindingCommand.isPending
-
-  const handleMacroSelection = useCallback(async (macro: MacroDefinition | null, direction: RotaryEncoderDirection) => {
-    const trigger: RotaryEncoderKeyBindingTrigger = {
-      type: KeyBindingTriggerType.RotaryEncoder,
-      deviceId: deviceId,
-      number: rotaryEncoder.number,
-      direction: direction,
-    }
-
-    if (!macro) {
-      await clearKeyBindingCommand.executeAsync({ trigger })
-    } else {
-      const macroId = macro.id
-
-      await setKeyBindingCommand.executeAsync({ trigger, macroId })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceId, rotaryEncoder])
+  const { setBinding, isPending: disabled } = useRotaryEncoderBindingEditor(deviceId, rotaryEncoder.number)
 
   const handleMacroSelectionCW = useCallback(async (macro: MacroDefinition | null) => {
-    await handleMacroSelection(macro, RotaryEncoderDirection.Clockwise)
-  }, [handleMacroSelection])
+    await setBinding(RotaryEncoderDirection.Clockwise, macro)
+  }, [setBinding])
 
   const handleMacroSelectionCCW = useCallback(async (macro: MacroDefinition | null) => {
-    await handleMacroSelection(macro, RotaryEncoderDirection.CounterClockwise)
-  }, [handleMacroSelection])
+    await setBinding(RotaryEncoderDirection.CounterClockwise, macro)
+  }, [setBinding])
 
   return (
     <>
@@ -462,91 +411,5 @@ const RotaryEncoderBindingsRow = (props: {
         </TableCell>
       </TableRow>
     </>
-  )
-}
-
-const MacroOptionVisualization = (props: {
-  macro: MacroDefinition
-}) => {
-  const { macro } = props
-
-  return (
-    <Stack direction={"row"} gap={2} alignItems={"baseline"}>
-      <Stack direction={"row"} gap={1} alignItems={"center"}>
-        <MacroTypeVisualization type={macro.type} />
-        <strong>{macro.name}</strong>
-      </Stack>
-    </Stack>
-  )
-}
-
-const MacroValueVisualization = (props: {
-  macro: MacroDefinition | null
-}) => {
-  const { macro } = props
-
-  if (!macro) {
-    return
-  }
-
-  return (
-    <Stack direction={"row"} gap={2} alignItems={"center"} flex={1} style={{ maxWidth: 400 }}>
-      <Stack direction={"row"} gap={0.5} alignItems={"center"} flex={1} style={{ minWidth: 0, paddingLeft: 4 }}>
-        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {macro.directory ?? "<root>"}
-        </span>
-        <ChevronRightOutlinedIcon />
-        <MacroTypeVisualization type={macro.type} />
-        <strong style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{macro.name}</strong>
-      </Stack>
-    </Stack>
-  )
-}
-
-const MacroAutocomplete = (props: {
-  macros: MacroDefinition[]
-  label: string
-  selected: MacroDefinition | null
-  disabled?: boolean
-  onSelect?: (macro: MacroDefinition | null) => void
-}) => {
-  const { macros, label, selected, disabled, onSelect } = props
-
-  const options = useMemo(() => {
-    return macros.toSorted((a, b) => (a.directory + a.name).localeCompare(b.directory + b.name))
-  }, [macros])
-
-  const handleChange = useCallback((_: any, value: AutocompleteValue<MacroDefinition, unknown, unknown, unknown>) => {
-    onSelect?.(value)
-  }, [onSelect])
-
-  const handleInputChange = useCallback((_: any, __: any, reason: AutocompleteInputChangeReason) => {
-    if (reason === "clear") {
-      onSelect?.(null)
-    }
-  }, [onSelect])
-
-  return (
-    <Autocomplete
-      size={"small"}
-      renderInput={(params) => (
-        <TextField variant={"filled"} {...params} label={label} />
-      )}
-      renderOption={(props, option) => (
-        <Box component={"li"} {...props} key={props.key}>
-          <MacroOptionVisualization macro={option} />
-        </Box>
-      )}
-      renderValue={(option) => (
-        <MacroValueVisualization macro={option} />
-      )}
-      groupBy={it => it.directory ?? "<root>"}
-      options={options}
-      getOptionLabel={option => option.name + option.id}
-      value={selected}
-      onChange={handleChange}
-      onInputChange={handleInputChange}
-      disabled={disabled}
-    />
   )
 }
