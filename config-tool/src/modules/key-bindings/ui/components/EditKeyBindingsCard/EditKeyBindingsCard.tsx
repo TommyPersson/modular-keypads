@@ -1,4 +1,4 @@
-import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
+import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined"
 import {
   Autocomplete,
   type AutocompleteInputChangeReason,
@@ -276,18 +276,31 @@ const PushButtonBindingRow = (props: {
 
   return (
     <>
-      <TableRow hover sx={{ backgroundColor, color }}>
-        <TableCell sx={{ color }}>
+      <TableRow hover sx={{}}>
+        <TableCell>
           <strong>{pushButton.number}</strong>
         </TableCell>
         <TableCell sx={{ color }}>
-          <MacroAutocomplete
-            macros={macros.allMacros}
-            label={"Press Action"}
-            selected={boundMacro}
-            disabled={disabled}
-            onSelect={handleMacroSelectionPress}
-          />
+          <Stack direction={"row"} spacing={2}>
+            <Box sx={{ backgroundColor, color }} flex={1}>
+              <MacroAutocomplete
+                macros={macros.allMacros}
+                label={"Press Action"}
+                selected={boundMacro}
+                disabled={disabled}
+                onSelect={handleMacroSelectionPress}
+              />
+            </Box>
+            <Box sx={{ backgroundColor: longPressBackgroundColor, color: longPressColor }} flex={1}>
+              <MacroAutocomplete
+                macros={macros.allMacros}
+                label={"Long Press Action"}
+                selected={boundMacroLongPress}
+                disabled={disabled}
+                onSelect={handleMacroSelectionLongPress}
+              />
+            </Box>
+          </Stack>
         </TableCell>
         <TableCell>
           <CommandButton
@@ -298,19 +311,6 @@ const PushButtonBindingRow = (props: {
             iconOnly
           />
         </TableCell>
-      </TableRow>
-      <TableRow hover sx={{ backgroundColor: longPressBackgroundColor, color: longPressColor }}>
-        <TableCell></TableCell>
-        <TableCell sx={{ color: longPressColor }}>
-          <MacroAutocomplete
-            macros={macros.allMacros}
-            label={"Long Press Action"}
-            selected={boundMacroLongPress}
-            disabled={disabled}
-            onSelect={handleMacroSelectionLongPress}
-          />
-        </TableCell>
-        <TableCell></TableCell>
       </TableRow>
     </>
   )
@@ -434,30 +434,31 @@ const RotaryEncoderBindingsRow = (props: {
 
   return (
     <>
-      <TableRow hover sx={{ color: cwColor, backgroundColor: cwBackgroundColor }}>
+      <TableRow hover>
         <TableCell>
           <strong>{rotaryEncoder.number}</strong>
         </TableCell>
         <TableCell>
-          <MacroAutocomplete
-            macros={macros}
-            label={"Clockwise Action"}
-            selected={boundMacroCW}
-            disabled={disabled}
-            onSelect={handleMacroSelectionCW}
-          />
-        </TableCell>
-      </TableRow>
-      <TableRow hover sx={{ color: ccwColor, backgroundColor: ccwBackgroundColor }}>
-        <TableCell></TableCell>
-        <TableCell>
-          <MacroAutocomplete
-            macros={macros}
-            label={"Counterclockwise Action"}
-            selected={boundMacroCCW}
-            disabled={disabled}
-            onSelect={handleMacroSelectionCCW}
-          />
+          <Stack direction={"row"} spacing={2}>
+            <Box sx={{ color: ccwColor, backgroundColor: ccwBackgroundColor }} flex={1}>
+              <MacroAutocomplete
+                macros={macros}
+                label={"Counterclockwise Action"}
+                selected={boundMacroCCW}
+                disabled={disabled}
+                onSelect={handleMacroSelectionCCW}
+              />
+            </Box>
+            <Box sx={{  color: cwColor, backgroundColor: cwBackgroundColor }} flex={1}>
+              <MacroAutocomplete
+                macros={macros}
+                label={"Clockwise Action"}
+                selected={boundMacroCW}
+                disabled={disabled}
+                onSelect={handleMacroSelectionCW}
+              />
+            </Box>
+          </Stack>
         </TableCell>
       </TableRow>
     </>
