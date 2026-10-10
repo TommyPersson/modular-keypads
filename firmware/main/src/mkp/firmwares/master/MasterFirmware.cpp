@@ -21,12 +21,8 @@
 namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");
 
-    // How long the discovery line must stay low before scanning, so that connectors have mated and slaves are ready
-    constexpr uint64_t DISCOVERY_SETTLE_MS = 500;
-
-    // How long to wait after a scan before checking the discovery line again, so that acknowledged slaves have
-    // released it
-    constexpr uint64_t DISCOVERY_HOLDOFF_MS = 1000;
+    // How long to wait after the discovery line is pulled low before scanning, so that slaves are ready
+    constexpr uint64_t DISCOVERY_SCAN_DELAY_US = 500'000;
 
     constexpr uint64_t PRESENCE_CHECK_INTERVAL_US = 1'000'000;
 }
@@ -110,9 +106,12 @@ void MasterFirmware::setup() {
     // Only the master pulls the line up, as all boards are the same and any of them can be the master
     discoveryInputPin = tfw::hal::gpio::InputPin::physical(localDevice->getDiscoveryPin(), INPUT_PULLUP);
     discoveryInputPin->setup();
-
-    refreshRemoteDevices();
-    discoveryHoldoffUntilMs = serviceLocator.clock.millis() + DISCOVERY_HOLDOFF_MS;
+    discoveryInputPin->setupInterrupt(FALLING);
+    discoveryInputPin->onInterruptEvent().addObserver(this);
+    discoveryScanCountDown = serviceLocator.clock.createCountDown(DISCOVERY_SCAN_DELAY_US, [this] {
+        logger->info("Discovery requested, scanning for devices");
+        remoteDeviceScanRequested = true;
+    });
 
     // Lost devices are removed, and notified, by the scan
     presenceCheckTimer = serviceLocator.clock.createTimer(PRESENCE_CHECK_INTERVAL_US, [this](const auto& event) {
@@ -127,18 +126,20 @@ void MasterFirmware::setup() {
     slaveEventInterruptInputPin->setup();
     slaveEventInterruptInputPin->setupInterrupt(RISING);
     slaveEventInterruptInputPin->onInterruptEvent().addObserver(this);
+
+    refreshRemoteDevices();
 }
 
 void MasterFirmware::loop() {
     Firmware::loop();
 
-    checkDiscoveryLine();
+    discoveryInputPin->checkForInterrupt();
+    discoveryScanCountDown->update();
     presenceCheckTimer->update();
 
     if (remoteDeviceScanRequested) {
         remoteDeviceScanRequested = false;
         refreshRemoteDevices();
-        discoveryHoldoffUntilMs = serviceLocator.clock.millis() + DISCOVERY_HOLDOFF_MS;
     }
 
     slaveEventInterruptInputPin->checkForInterrupt();
@@ -266,28 +267,6 @@ void MasterFirmware::observeDevice(Device& device) {
     device.onSubDeviceRenamedEvent().addObserver(this);
 }
 
-void MasterFirmware::checkDiscoveryLine() {
-    const auto nowMs = serviceLocator.clock.millis();
-
-    if (discoveryInputPin->read() == HIGH || nowMs < discoveryHoldoffUntilMs) {
-        discoveryLowSinceMs.reset();
-        return;
-    }
-
-    if (!discoveryLowSinceMs) {
-        discoveryLowSinceMs = nowMs;
-        return;
-    }
-
-    if (nowMs - *discoveryLowSinceMs < DISCOVERY_SETTLE_MS) {
-        return;
-    }
-
-    logger->info("Discovery requested, scanning for devices");
-    discoveryLowSinceMs.reset();
-    remoteDeviceScanRequested = true;
-}
-
 void MasterFirmware::observe(const DeviceSwitchEvent& event) {
     if (event.state == tfw::hal::buttons::ButtonState::PRESSED) {
         notifier->notify(event.deviceId, {.type = "switch.pressed", .args = {std::to_string(event.switchNumber)}});
@@ -332,5 +311,7 @@ void MasterFirmware::observe(const tfw::hal::gpio::InputPinInterruptEvent& event
         for (const auto& device : remoteDevices) {
             device->onRemoteEventsAvailable();
         }
+    } else if (event.pin == discoveryInputPin.get()) {
+        discoveryScanCountDown->start();
     }
 }

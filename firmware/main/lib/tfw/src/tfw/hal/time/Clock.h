@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 
+#include "CountDown.h"
 #include "Timer.h"
 
 namespace tfw::hal::time {
@@ -69,5 +70,11 @@ namespace tfw::hal::time {
          * The clock must outlive the returned timer.
          */
         std::unique_ptr<Timer> createTimer(uint64_t intervalUs, TimerCallback callback) const;
+
+        /**
+         * Create a stopped CountDown driven by this clock that invokes callback once, durationUs microseconds
+         * after it is started. The clock must outlive the returned countdown.
+         */
+        std::unique_ptr<CountDown> createCountDown(uint64_t durationUs, CountDownCallback callback) const;
     };
 }
