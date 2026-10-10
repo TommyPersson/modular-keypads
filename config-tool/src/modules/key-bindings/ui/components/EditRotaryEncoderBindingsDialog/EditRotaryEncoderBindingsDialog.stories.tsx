@@ -1,4 +1,9 @@
-import { macros, smc3, typeC } from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
+import {
+  capabilities,
+  macros,
+  smc3,
+  typeC
+} from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
 import { mockKeyBindings, withMockDevice } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
@@ -19,6 +24,7 @@ const meta = {
     mockDevice: {
       devices: [typeC, smc3],
       macros,
+      capabilities,
     },
   },
 } satisfies Meta<typeof EditRotaryEncoderBindingsDialog>

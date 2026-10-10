@@ -1,3 +1,4 @@
+export * from "./BindingsDialogTitle"
 export * from "./EditKeyBindingsCard"
 export * from "./EditPushButtonBindingsDialog"
 export * from "./EditRotaryEncoderBindingsDialog"

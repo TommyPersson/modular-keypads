@@ -1,4 +1,9 @@
-import { macros, smc1, typeC } from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
+import {
+  capabilities,
+  macros,
+  smc1,
+  typeC
+} from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
 import { mockKeyBindings, withMockDevice } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"
@@ -18,6 +23,7 @@ const meta = {
     mockDevice: {
       devices: [typeC, smc1],
       macros,
+      capabilities,
       keyBindings: [
         mockKeyBindings.pressed(smc1.deviceId, 1, 1),
         mockKeyBindings.longPressed(smc1.deviceId, 1, 2),

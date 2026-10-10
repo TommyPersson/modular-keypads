@@ -4,7 +4,13 @@ import type {
 } from "@src/modules/device/facade/device-commands/ClearKeyBindingDeviceCommand"
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
 import type { SetKeyBindingDeviceCommand } from "@src/modules/device/facade/device-commands/SetKeyBindingDeviceCommand"
-import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage } from "@src/modules/device/models"
+import type {
+  DeviceCapability,
+  DeviceInformation,
+  DeviceMessage,
+  LogMessage,
+  NotificationMessage
+} from "@src/modules/device/models"
 import {
   type KeyBinding,
   KeyBindingTriggerType,
@@ -35,6 +41,8 @@ export type MockDeviceOptions = {
   notifications?: MockNotification[]
   keyBindings?: KeyBinding[]
   macros?: MacroDefinition[]
+  // By device ID
+  capabilities?: Record<string, DeviceCapability[]>
   // Responses to commands by command type, in addition to the built-in ones
   commandHandlers?: Record<string, MockCommandHandler>
 }
@@ -42,7 +50,7 @@ export type MockDeviceOptions = {
 /**
  * A device facade for Storybook, that is always connected and answers commands from the given options. Renaming a
  * device changes the listed devices, setting and clearing key bindings changes the listed key bindings, and
- * identifying a device does nothing. Devices can be connected and disconnected, to see how the components react.
+ * identifying a device or a button does nothing. Devices can be connected and disconnected, to see how the components react.
  *
  * Notifications without a repeat interval are replayed to every subscriber, so that components that mount late,
  * e.g. after a query has loaded, still get the same state as the others.
@@ -120,7 +128,10 @@ export class MockDeviceFacade implements DeviceFacade {
         this.renameDevice(command.arguments[0], command.arguments[1])
         return undefined as TResult
       case "flash.identification.lights":
+      case "flash.button.identification.light":
         return undefined as TResult
+      case "list.device.capabilities":
+        return (this.options.capabilities?.[command.arguments[0]] ?? []) as TResult
       case "list.key.bindings":
         return this.keyBindings as TResult
       case "set.key.binding": {

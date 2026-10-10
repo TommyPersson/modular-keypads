@@ -1,7 +1,7 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from "@mui/material"
-import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
+import { Button, Dialog, DialogActions, DialogContent, Stack } from "@mui/material"
 import { usePushButtonBindingEditor, usePushButtonBindings } from "@src/modules/key-bindings/hooks"
 import { PushButtonEvent } from "@src/modules/key-bindings/models"
+import { BindingsDialogTitle } from "@src/modules/key-bindings/ui/components/BindingsDialogTitle"
 import { MacroAutocomplete } from "@src/modules/key-bindings/ui/components/MacroAutocomplete"
 import { useStoredMacros } from "@src/modules/macros/hooks"
 import type { MacroDefinition } from "@src/modules/macros/models"
@@ -19,9 +19,6 @@ export const EditPushButtonBindingsDialog = (props: {
 }) => {
   const { isOpen, deviceId, buttonNumber, onClose } = props
 
-  const connectedDevicesQuery = useConnectedDevices()
-  const device = connectedDevicesQuery.data?.find(it => it.deviceId === deviceId)
-
   const { allMacros } = useStoredMacros()
   const binding = usePushButtonBindings(deviceId)[buttonNumber]
   const { setBinding, isPending } = usePushButtonBindingEditor(deviceId, buttonNumber)
@@ -36,15 +33,7 @@ export const EditPushButtonBindingsDialog = (props: {
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth={"sm"}>
-      <DialogTitle>
-        Switch {buttonNumber}
-        {/* A span, as the title is a heading, which can't contain paragraphs */}
-        {device && (
-          <Typography variant={"body2"} component={"span"} display={"block"} color={"text.secondary"}>
-            {device.deviceName}
-          </Typography>
-        )}
-      </DialogTitle>
+      <BindingsDialogTitle title={`Switch ${buttonNumber}`} deviceId={deviceId} buttonNumber={buttonNumber} />
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <MacroAutocomplete

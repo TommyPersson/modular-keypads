@@ -1,5 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from "@mui/material"
-import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
+import { Button, Dialog, DialogActions, DialogContent, Stack, Typography } from "@mui/material"
 import {
   usePushButtonBindingEditor,
   usePushButtonBindings,
@@ -7,6 +6,7 @@ import {
   useRotaryEncoderBindings
 } from "@src/modules/key-bindings/hooks"
 import { PushButtonEvent, RotaryEncoderDirection } from "@src/modules/key-bindings/models"
+import { BindingsDialogTitle } from "@src/modules/key-bindings/ui/components/BindingsDialogTitle"
 import { MacroAutocomplete } from "@src/modules/key-bindings/ui/components/MacroAutocomplete"
 import { useStoredMacros } from "@src/modules/macros/hooks"
 import type { MacroDefinition } from "@src/modules/macros/models"
@@ -26,9 +26,6 @@ export const EditRotaryEncoderBindingsDialog = (props: {
   onClose: () => void
 }) => {
   const { isOpen, deviceId, encoderNumber, buttonNumber, onClose } = props
-
-  const connectedDevicesQuery = useConnectedDevices()
-  const device = connectedDevicesQuery.data?.find(it => it.deviceId === deviceId)
 
   const { allMacros } = useStoredMacros()
 
@@ -60,15 +57,7 @@ export const EditRotaryEncoderBindingsDialog = (props: {
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth={"sm"}>
-      <DialogTitle>
-        Encoder {encoderNumber}
-        {/* A span, as the title is a heading, which can't contain paragraphs */}
-        {device && (
-          <Typography variant={"body2"} component={"span"} display={"block"} color={"text.secondary"}>
-            {device.deviceName}
-          </Typography>
-        )}
-      </DialogTitle>
+      <BindingsDialogTitle title={`Encoder ${encoderNumber}`} deviceId={deviceId} buttonNumber={buttonNumber} />
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Typography variant={"subtitle2"}>Rotation</Typography>

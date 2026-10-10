@@ -5,6 +5,7 @@ import { mockKeyBindings, type MockDeviceOptions, mockNotifications } from "@src
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { DevicePreviewCard } from "./DevicePreviewCard"
 import {
+  capabilities,
   devicePreviewCardMeta,
   macros,
   mockDeviceParameter,
@@ -58,6 +59,7 @@ export const WithLongPressedEncoder: Story = {
 const withKeyBindings: MockDeviceOptions = {
   devices: [typeC, smc1, smc2, smc3],
   macros,
+  capabilities,
   keyBindings: [
     mockKeyBindings.pressed(smc1.deviceId, 1, 1),
     mockKeyBindings.longPressed(smc1.deviceId, 1, 2),

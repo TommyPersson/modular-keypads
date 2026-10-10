@@ -1,4 +1,5 @@
 import { mockDevice, type MockDeviceOptions, withMockDevice } from "@src/storybook"
+import type { DeviceCapability } from "@src/modules/device/models"
 import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import type { Meta } from "@storybook/react-vite"
 import { TopLevelDevicePreviewCard } from "./DevicePreviewCard"
@@ -31,6 +32,16 @@ export const macros: MacroDefinition[] = [
   },
   { id: 6, directory: null, name: "Sleep", type: MacroDefinitionType.SystemControl, code: 0x82 },
 ]
+
+const pushButtons = (count: number, hasLed: boolean): DeviceCapability[] =>
+  Array.from({ length: count }, (_, index) => ({ type: "PushButton", index, number: index + 1, hasLed }))
+
+// The switches have identification lights, but the button of the rotary encoder doesn't
+export const capabilities: Record<string, DeviceCapability[]> = {
+  [smc1.deviceId]: pushButtons(4, true),
+  [smc2.deviceId]: pushButtons(6, true),
+  [smc3.deviceId]: [...pushButtons(1, false), { type: "RotaryEncoder", index: 1, number: 1 }],
+}
 
 export const mockDeviceParameter =(options: MockDeviceOptions) => ({ mockDevice: options })
 
