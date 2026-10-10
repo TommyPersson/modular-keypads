@@ -69,7 +69,7 @@ export const ImportConfigurationDialog = (props: {
             <Alert severity={"warning"}>The import was cancelled, the device has only been partially updated.</Alert>
           )}
           {failures.length > 0 && (
-            <Alert severity={"error"}>
+            <Alert severity={"error"} sx={{ "& .MuiAlert-message": { flexGrow: 1 } }}>
               <AlertTitle>Failed items</AlertTitle>
               <List dense disablePadding style={{ maxHeight: 240, overflow: "auto" }}>
                 {failures.map((failure, index) => (
