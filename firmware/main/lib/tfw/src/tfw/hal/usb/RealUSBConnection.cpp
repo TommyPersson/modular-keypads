@@ -57,14 +57,19 @@ void tfw::hal::usb::RealConnection::setup() {
 
 void tfw::hal::usb::RealConnection::update() {
     const auto now = time::micros();
-    if (now - lastKeyboardWriteTime > 1'000) { // Without a delay then repeated characters can be missed.
+    if (now - lastKeyboardWriteTime >= typingDelayUs) { // Without a delay then repeated characters can be missed.
         const auto nextChar = characterOutputQueue.dequeue();
         if (nextChar != nullptr) {
             keyboard.write(*nextChar);
-        }
 
-        lastKeyboardWriteTime = now;
+            // Only updated on writes, so that the first character of a text isn't delayed
+            lastKeyboardWriteTime = now;
+        }
     }
+}
+
+void tfw::hal::usb::RealConnection::setTypingDelayMs(const uint32_t delayMs) {
+    typingDelayUs = static_cast<uint64_t>(delayMs) * 1'000;
 }
 
 bool tfw::hal::usb::RealConnection::isConnected() {

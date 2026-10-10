@@ -12,3 +12,6 @@ bool tfw::hal::usb::NoOpConnection::isConnected() {
 
 void tfw::hal::usb::NoOpConnection::sendAction(Action& action) {
 }
+
+void tfw::hal::usb::NoOpConnection::setTypingDelayMs(uint32_t delayMs) {
+}

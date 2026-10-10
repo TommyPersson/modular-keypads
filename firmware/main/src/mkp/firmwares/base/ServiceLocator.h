@@ -6,6 +6,7 @@
 #include <tfw/hal/i2c.h>
 #include <tfw/hal/time.h>
 #include <tfw/hal/fs.h>
+#include <tfw/hal/settings.h>
 
 #include "FirmwareModeDetector.h"
 #include "mkp/components/notifications/NotifierFactory.h"
@@ -23,5 +24,6 @@ namespace mkp::firmwares::base {
         FirmwareModeDetector& deviceModeDetector;
         tfw::hal::time::Clock& clock;
         tfw::hal::fs::FileSystem& fileSystem;
+        tfw::hal::settings::DeviceSettings& deviceSettings;
     };
 }

@@ -10,6 +10,7 @@
 #include "ListKeyBindings.h"
 #include "ListRegisters.h"
 #include "ListRegisterValues.h"
+#include "ListSettings.h"
 #include "ListStoredMacros.h"
 #include "Ping.h"
 #include "ReadDeviceAddress.h"
@@ -24,4 +25,5 @@
 #include "SetDeviceAddress.h"
 #include "SetDeviceName.h"
 #include "SetKeyBinding.h"
+#include "SetSetting.h"
 #include "SetTestMode.h"

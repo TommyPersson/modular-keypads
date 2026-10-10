@@ -4,6 +4,7 @@
 #include <utility>
 
 #include <tfw/hal/metrics.h>
+#include <tfw/hal/settings.h>
 #include <tfw/hal/usb.h>
 
 #include "mkp/components/macros/MacroStorage.h"
@@ -31,6 +32,7 @@ namespace mkp::components::keybindings {
             KeyBindingStorage& keyBindingStorage,
             TestModeController& testModeController,
             tfw::hal::usb::Connection& usbConnection,
+            tfw::hal::settings::DeviceSettings& deviceSettings,
             tfw::hal::metrics::MetricRegistry& metricRegistry
         );
         ~KeyBindingExecutor() override;
@@ -67,6 +69,7 @@ namespace mkp::components::keybindings {
         KeyBindingStorage& keyBindingStorage;
         TestModeController& testModeController;
         tfw::hal::usb::Connection& usbConnection;
+        tfw::hal::settings::DeviceSettings& deviceSettings;
 
         std::vector<std::shared_ptr<KeyBinding>> keyBindings;
         std::vector<std::shared_ptr<CompiledMacro>> macros;

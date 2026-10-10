@@ -42,6 +42,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         *keyBindingStorage,
         testModeController,
         serviceLocator.usbConnection,
+        serviceLocator.deviceSettings,
         serviceLocator.metricRegistry
     );
 
@@ -72,6 +73,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<FlashDeviceIdentificationLights>(allDevices));
     addCommandHandler(std::make_shared<FlashButtonIdentificationLight>(allDevices));
     addCommandHandler(std::make_shared<SetDeviceName>(allDevices));
+    addCommandHandler(std::make_shared<ListSettings>(serviceLocator.deviceSettings));
+    addCommandHandler(std::make_shared<SetSetting>(serviceLocator.deviceSettings));
 
     loopTimerMetric = serviceLocator.metricRegistry.timer("firmware.master.device_loop_time_us");
 }

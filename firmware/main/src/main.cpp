@@ -7,6 +7,7 @@
 #include <tfw/hal/logging.h>
 #include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
+#include <tfw/hal/settings.h>
 #include <tfw/hal/streams/OutputStream.h>
 #include <tfw/hal/time/PlatformClock.h>
 
@@ -33,6 +34,8 @@ namespace {
     std::unique_ptr<tfw::hal::streams::OutputStream> loggingOutput;
     std::unique_ptr<tfw::hal::time::PlatformClock> clock;
     std::unique_ptr<tfw::hal::fs::FileSystem> fileSystem;
+    std::unique_ptr<tfw::hal::settings::PreferencesDeviceSettings> preferencesDeviceSettings;
+    std::unique_ptr<tfw::hal::settings::CachedDeviceSettings> deviceSettings;
 
     std::unique_ptr<mkp::firmwares::base::ServiceLocator> serviceLocator;
 
@@ -60,6 +63,8 @@ namespace {
         usbConnection = tfw::hal::usb::Connection::create();
         metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>(*clock);
         fileSystem = std::make_unique<tfw::hal::fs::ArduinoFileSystem>();
+        preferencesDeviceSettings = std::make_unique<tfw::hal::settings::PreferencesDeviceSettings>("settings");
+        deviceSettings = std::make_unique<tfw::hal::settings::CachedDeviceSettings>(*preferencesDeviceSettings);
 
         serviceLocator = std::make_unique<mkp::firmwares::base::ServiceLocator>(
             mkp::firmwares::base::ServiceLocator{
@@ -72,7 +77,8 @@ namespace {
                 .metricRegistry = *metricRegistry,
                 .deviceModeDetector = *deviceModeDetector,
                 .clock = *clock,
-                .fileSystem = *fileSystem
+                .fileSystem = *fileSystem,
+                .deviceSettings = *deviceSettings
             }
         );
     }
@@ -97,6 +103,7 @@ void setup() {
     setupServiceLocator();
 
     fileSystem->begin();
+    deviceSettings->begin();
     deviceModeDetector->setup();
 
     firmware = mkp::firmwares::base::Firmware::create(*serviceLocator);

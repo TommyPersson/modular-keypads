@@ -5,6 +5,8 @@
 
 #include <tfw/hal/logging.h>
 
+#include "mkp/components/settings/Settings.h"
+
 using namespace mkp::components::macros;
 using namespace mkp::components::keybindings;
 using namespace mkp::devices::common;
@@ -92,11 +94,13 @@ KeyBindingExecutor::KeyBindingExecutor(
     KeyBindingStorage& keyBindingStorage,
     TestModeController& testModeController,
     tfw::hal::usb::Connection& usbConnection,
+    tfw::hal::settings::DeviceSettings& deviceSettings,
     tfw::hal::metrics::MetricRegistry& metricRegistry
 ) : macroStorage(macroStorage),
     keyBindingStorage(keyBindingStorage),
     testModeController(testModeController),
-    usbConnection(usbConnection) {
+    usbConnection(usbConnection),
+    deviceSettings(deviceSettings) {
 
     macroStorage.onMacroSaved().addObserver(this);
     macroStorage.onMacroRemoved().addObserver(this);
@@ -222,6 +226,9 @@ void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyB
     if (keyBinding == nullptr) {
         return;
     }
+
+    // Read on every execution, so that changes apply right away. Settings are cached, so this is cheap.
+    usbConnection.setTypingDelayMs(settings::TypingDelayMs.get(deviceSettings));
 
     for (const auto& macro : macros) {
         if (macro->macroId == keyBinding->macroId) {

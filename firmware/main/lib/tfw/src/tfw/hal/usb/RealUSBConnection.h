@@ -10,8 +10,10 @@ namespace tfw::hal::usb {
         void update() override;
         bool isConnected() override;
         void sendAction(Action& action) override;
+        void setTypingDelayMs(uint32_t delayMs) override;
     private:
         utils::ring_queue<char> characterOutputQueue{1000}; // enforce size limit in storage and UI also
         uint64_t lastKeyboardWriteTime = 0;
+        uint64_t typingDelayUs = 1'000;
     };
 }
