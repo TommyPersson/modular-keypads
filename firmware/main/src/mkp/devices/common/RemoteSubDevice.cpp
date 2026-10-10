@@ -10,6 +10,7 @@ using namespace mkp::devices::common;
 
 RemoteSubDevice::RemoteSubDevice(
     const DeviceConfiguration& parentConfiguration,
+    const uint8_t slot,
     tfw::hal::i2c::Client& i2cClient
 ) : configuration{
         .id = 0,
@@ -17,6 +18,7 @@ RemoteSubDevice::RemoteSubDevice(
         .type = "0",
         .address = parentConfiguration.address,
         .parentDeviceId = parentConfiguration.id,
+        .subDeviceSlot = slot,
     },
     i2cClient(i2cClient) {
 }

@@ -187,6 +187,7 @@ std::optional<std::string> SubDevice::readName() {
 void SubDevice::resetConfiguration() {
     configuration.address = address;
     configuration.parentDeviceId = parentDeviceId;
+    configuration.subDeviceSlot = number;
     configuration.id = 0;
     configuration.name = "";
     configuration.type = "0";

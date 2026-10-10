@@ -11,6 +11,7 @@ namespace mkp::devices::common {
     public:
         RemoteSubDevice(
             const DeviceConfiguration& parentConfiguration,
+            uint8_t slot,
             tfw::hal::i2c::Client& i2cClient
         );
         ~RemoteSubDevice() override;

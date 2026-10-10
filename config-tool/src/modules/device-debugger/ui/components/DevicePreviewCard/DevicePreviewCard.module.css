@@ -10,6 +10,7 @@
 }
 
 .SubDevicePreviewContainer {
+    position: relative;
     border-radius: 8px;
     width: 300px;
     padding: 20px;
@@ -62,4 +63,29 @@
     text-anchor: middle;
     dominant-baseline: central;
     pointer-events: none;
+}
+
+.DisconnectedSubDevicePreview {
+    /* Same as the 2x2 switch clusters and the rotary encoder */
+    height: 128px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    /* An outline, unlike a border, doesn't add to the height */
+    outline: 1px dashed gray;
+}
+
+.SubDevicePreviewCaption {
+    /* Within the 20px bottom padding of the container */
+    position: absolute;
+    right: 8px;
+    bottom: 2px;
+    font-size: 10px;
+    line-height: 14px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.SubDevicePreviewCaption code {
+    font-size: inherit;
 }

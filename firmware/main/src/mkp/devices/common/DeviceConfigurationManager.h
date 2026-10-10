@@ -12,6 +12,8 @@ namespace mkp::devices::common {
         std::string type;
         uint8_t address;
         uint64_t parentDeviceId;
+        // Position of a sub-device on its parent, starting at 1, or 0 for devices that aren't sub-devices
+        uint8_t subDeviceSlot = 0;
     };
 
     class DeviceConfigurationManager {

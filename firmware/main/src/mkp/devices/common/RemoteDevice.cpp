@@ -27,7 +27,8 @@ RemoteDevice::RemoteDevice(
     capabilities(capabilities),
     i2cClient(i2cClient) {
     for (uint8_t i = 0; i < numSubDevices; i++) {
-        subDevices.push_back(std::make_unique<RemoteSubDevice>(configuration, i2cClient));
+        // Slots start at 1, like the numbers of local sub-devices
+        subDevices.push_back(std::make_unique<RemoteSubDevice>(configuration, i + 1, i2cClient));
         subDevicePointers.push_back(subDevices.back().get());
     }
 }

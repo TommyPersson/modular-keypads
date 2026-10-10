@@ -10,6 +10,8 @@ export type DeviceInformation = {
   readonly deviceName: string
   readonly deviceRegisterNames: string[]
   readonly parentDeviceId: string | null
+  // Position on the parent device, starting at 1, or null for devices that aren't sub-devices
+  readonly subDeviceSlot: number | null
 }
 
 export type DeviceRegisterValue = {
