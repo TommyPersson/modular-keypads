@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertTitle,
+  Box,
   Button,
   Drawer,
   List,
@@ -11,6 +12,7 @@ import {
   Toolbar
 } from "@mui/material"
 import { AllAppModules } from "@src/AllAppModules"
+import { ConfigurationTransferButtons } from "@src/modules/config-transfer/ui"
 import type { NavItemDefinition } from "@src/modules/root/ui/components/MainNavBar/NavItemDefinition"
 import { NavLink, useMatch } from "react-router"
 
@@ -45,6 +47,11 @@ export const MainNavBar = (props: {
           .flatMap(it => it.navItems)
           .map(it => <NavItem key={it.link} {...it} />)}
       </List>
+      {isConnected && (
+        <Box marginTop={"auto"} padding={2}>
+          <ConfigurationTransferButtons />
+        </Box>
+      )}
     </Drawer>
   )
 }
