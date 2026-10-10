@@ -35,7 +35,7 @@
     background: #f6f6f6;
 
 }
-.SwitchStateIndicator[data-isPressed="true"]  {
+.SwitchStateIndicator[data-pressed="true"] {
     background: lightblue;
 }
 

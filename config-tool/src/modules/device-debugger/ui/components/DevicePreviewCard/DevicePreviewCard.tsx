@@ -333,7 +333,7 @@ const SwitchStateIndicator = (props: {
   return (
     <div
       className={classes.SwitchStateIndicator}
-      data-isPressed={isPushButtonPressed(state)}
+      data-pressed={isPushButtonPressed(state)}
       data-long-pressed={state === PushButtonState.LongPressed}
       children={<span>{switchNumber}</span>}
     />
