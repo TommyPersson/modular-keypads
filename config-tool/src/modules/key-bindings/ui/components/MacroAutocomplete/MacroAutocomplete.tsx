@@ -1,5 +1,6 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 import {
   Autocomplete,
   type AutocompleteInputChangeReason,
@@ -13,7 +14,7 @@ import {
 import { createMacroFilter } from "@src/modules/macros/macroFilter"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { EditMacroDialog, MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
-import { useCallback, useMemo, useState } from "react"
+import { Children, cloneElement, type ReactElement, type ReactNode, useCallback, useMemo, useState } from "react"
 
 // The name takes a fixed part of the width, so that the definitions line up between the options
 const MacroOptionVisualization = (props: {
@@ -58,7 +59,8 @@ const MacroValueVisualization = (props: {
 }
 
 /**
- * Selects one of the macros, or a new one, which is created in the macro dialog and selected once it's saved.
+ * Selects one of the macros, or a new one, which is created in the macro dialog and selected once it's saved. The
+ * selected macro can be edited in the same dialog, from a button next to the clear button.
  */
 export const MacroAutocomplete = (props: {
   macros: MacroDefinition[]
@@ -91,15 +93,53 @@ export const MacroAutocomplete = (props: {
     }
   }, [onSelect])
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  // The macro being edited, or null when creating one. Kept while the dialog closes, so that it doesn't change then.
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dialogMacro, setDialogMacro] = useState<MacroDefinition | null>(null)
+
+  const openDialog = useCallback((macro: MacroDefinition | null) => {
+    setDialogMacro(macro)
+    setIsDialogOpen(true)
+  }, [])
+
+  const handleSaved = useCallback((macro: MacroDefinition) => {
+    // An edited macro keeps its ID, so it's still the one selected
+    if (dialogMacro === null) {
+      onSelect?.(macro)
+    }
+  }, [dialogMacro, onSelect])
+
+  const editButton = selected && (
+    <Tooltip title={"Edit macro"} key={"edit"}>
+      <IconButton
+        className={EDIT_BUTTON_CLASS}
+        size={"small"}
+        sx={{ p: "4px" }}
+        disabled={disabled}
+        onClick={() => openDialog(selected)}
+      >
+        <EditOutlinedIcon fontSize={"small"} />
+      </IconButton>
+    </Tooltip>
+  )
 
   return (
     <Stack direction={"row"} alignItems={"center"} gap={1}>
       <Autocomplete
-        sx={{ flex: 1 }}
+        sx={editButtonOnHover}
         size={"small"}
         renderInput={(params) => (
-          <TextField variant={"filled"} {...params} label={label} />
+          <TextField
+            variant={"filled"}
+            {...params}
+            label={label}
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                endAdornment: withLeadingChild(params.InputProps.endAdornment, editButton),
+              },
+            }}
+          />
         )}
         renderOption={(props, option) => (
           <Box component={"li"} {...props} key={props.key}>
@@ -120,16 +160,39 @@ export const MacroAutocomplete = (props: {
       />
       <Tooltip title={"Create a new macro for this action"}>
         <span>
-          <IconButton onClick={() => setIsCreateDialogOpen(true)} disabled={disabled}>
+          <IconButton onClick={() => openDialog(null)} disabled={disabled}>
             <AddOutlinedIcon />
           </IconButton>
         </span>
       </Tooltip>
       <EditMacroDialog
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSaved={macro => onSelect?.(macro)}
+        macro={dialogMacro}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSaved={handleSaved}
       />
     </Stack>
   )
+}
+
+const EDIT_BUTTON_CLASS = "macro-edit-button"
+
+// Shown like the clear button, while hovered or focused, and with room for it at the end of the input
+const editButtonOnHover = {
+  flex: 1,
+  [`& .${EDIT_BUTTON_CLASS}`]: { visibility: "hidden" },
+  [`&:hover .${EDIT_BUTTON_CLASS}, &.Mui-focused .${EDIT_BUTTON_CLASS}, &:focus-within .${EDIT_BUTTON_CLASS}`]: {
+    visibility: "visible",
+  },
+  "&.MuiAutocomplete-hasClearIcon .MuiAutocomplete-inputRoot.MuiAutocomplete-inputRoot": { paddingRight: "93px" },
+}
+
+// Adds the child before the children of the autocomplete's end adornment, which holds its clear and popup buttons
+function withLeadingChild(endAdornment: ReactNode, child: ReactNode) {
+  if (!child) {
+    return endAdornment
+  }
+
+  const element = endAdornment as ReactElement<{ children?: ReactNode }>
+  return cloneElement(element, undefined, child, ...Children.toArray(element.props.children))
 }
