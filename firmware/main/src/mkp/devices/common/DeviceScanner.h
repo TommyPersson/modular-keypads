@@ -19,6 +19,9 @@ namespace mkp::devices::common {
          */
         std::vector<std::shared_ptr<DeviceConfiguration>> scan();
 
+        /// Probes all permanent and temporary addresses, for diagnostics
+        std::vector<uint8_t> findRespondingAddresses();
+
     private:
         struct AssignmentRound {
             int numAssigned = 0;

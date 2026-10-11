@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 
@@ -11,6 +12,7 @@
 #include "Event.h"
 #include "Pins.h"
 #include "tfw/hal/gpio/OutputPin.h"
+#include "tfw/hal/time/Clock.h"
 #include "tfw/utils/result.h"
 #include "tfw/utils/ring_queue.h"
 
@@ -33,7 +35,7 @@ namespace tfw::hal::i2c {
 
     class SlavePort {
     public:
-        explicit SlavePort(TwoWireType& twoWire);
+        SlavePort(TwoWireType& twoWire, time::Clock& clock);
         ~SlavePort();
 
         /**
@@ -46,7 +48,7 @@ namespace tfw::hal::i2c {
          * Drives the shared, open drain discovery line low until the master acknowledges the device, to tell the
          * master that there is a device to discover. Call once the device is ready to be scanned.
          */
-        void requestDiscovery() const;
+        void requestDiscovery();
 
         template <class TStruct>
         void updateEndpoint(
@@ -73,12 +75,20 @@ namespace tfw::hal::i2c {
         void addCommandHandler(void* handler);
 
         /**
-         * Executes the commands received since the last call. Commands are queued by the receive callback rather
-         * than executed there, so that handlers run on the caller's task, typically the main loop.
+         * Executes the commands received since the last call, and restarts discovery when the master doesn't
+         * acknowledge the device in time. Call from the main loop.
+         */
+        void loop();
+
+    private:
+        /**
+         * Commands are queued by the receive callback rather than executed there, so that handlers run on the
+         * main loop.
          */
         void processPendingCommands();
 
-    private:
+        void onDiscoveryTimeout();
+
         void selectEndpoint(uint8_t endpointId);
 
         /**
@@ -107,6 +117,10 @@ namespace tfw::hal::i2c {
         std::unique_ptr<gpio::OutputPin> discoveryOutputPin;
 
         utils::ring_queue<PendingCommand> pendingCommands{16};
+
+        // Set from the receive callback, which runs on the Wire task
+        std::atomic<bool> discoveryAcknowledged{false};
+        std::unique_ptr<time::CountDown> discoveryTimeout;
 
         std::vector<void*> knownCommandsHandlers;
 

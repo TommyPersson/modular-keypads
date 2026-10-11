@@ -15,12 +15,17 @@
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("SlavePort");
+
+    // The master rescans every second while the discovery line is low, so a device that isn't acknowledged within a
+    // few of those is unreachable, for example with its I2C peripheral stuck after power-up
+    constexpr uint64_t DISCOVERY_TIMEOUT_US = 3'000'000;
 }
 
 namespace tfw::hal::i2c {
-    SlavePort::SlavePort(TwoWireType& twoWire) :
+    SlavePort::SlavePort(TwoWireType& twoWire, time::Clock& clock) :
         selectedEndpoint(&endpoints[0]),
-        twoWire(twoWire) {
+        twoWire(twoWire),
+        discoveryTimeout(clock.createCountDown(DISCOVERY_TIMEOUT_US, [this] { onDiscoveryTimeout(); })) {
         uint8_t i = 0;
         for (auto& endpoint : endpoints) {
             endpoint.id = i;
@@ -50,8 +55,27 @@ namespace tfw::hal::i2c {
         discoveryOutputPin->setHigh();
     }
 
-    void SlavePort::requestDiscovery() const {
+    void SlavePort::requestDiscovery() {
+        discoveryAcknowledged = false;
         discoveryOutputPin->setLow();
+        discoveryTimeout->start();
+    }
+
+    void SlavePort::loop() {
+        processPendingCommands();
+
+        if (discoveryAcknowledged) {
+            discoveryTimeout->stop();
+        }
+        discoveryTimeout->update();
+    }
+
+    // Starts over at a new temporary address, which also restarts the I2C peripheral, while keeping the discovery
+    // line low
+    void SlavePort::onDiscoveryTimeout() {
+        logger->warn("Not acknowledged by the master in time, restarting discovery");
+        listenAt(randomTemporaryAddress());
+        discoveryTimeout->start();
     }
 
     void SlavePort::addCommandHandler(void* handler) {
@@ -84,6 +108,7 @@ namespace tfw::hal::i2c {
         // Executed right away, as the master checks the discovery line again shortly after scanning
         if (command.bytes[0] == commands::builtin::AcknowledgeDiscovery.id) {
             discoveryOutputPin->setHigh();
+            discoveryAcknowledged = true;
             return;
         }
 

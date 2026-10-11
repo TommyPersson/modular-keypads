@@ -110,6 +110,11 @@ void MasterFirmware::setup() {
     discoveryInputPin->setup();
     discoveryInputPin->setupInterrupt(FALLING);
     discoveryInputPin->onInterruptEvent().addObserver(this);
+
+    // 0 while a device holds the line low, which tells whether a discovery went unnoticed
+    serviceLocator.metricRegistry.add(tfw::hal::metrics::lambda_gauge("firmware.master.discovery_line", [this] {
+        return this->discoveryInputPin->read();
+    }));
     discoveryScanCountDown = serviceLocator.clock.createCountDown(DISCOVERY_SCAN_DELAY_US, [this] {
         logger->info("Discovery requested, scanning for devices");
         remoteDeviceScanRequested = true;
@@ -121,6 +126,20 @@ void MasterFirmware::setup() {
             if (!device->checkPresence()) {
                 remoteDeviceScanRequested = true;
             }
+        }
+
+        // The falling edge is missed when a device pulls the line low before the interrupt is set up, as when all
+        // devices are powered at once, so a line that is still low is scanned for too
+        if (discoveryInputPin->read() == LOW && !discoveryScanCountDown->isRunning()) {
+            std::string addresses;
+            for (const auto address : deviceScanner->findRespondingAddresses()) {
+                char buffer[6];
+                snprintf(buffer, sizeof(buffer), " 0x%02x", address);
+                addresses += buffer;
+            }
+
+            logger->info("Discovery line is held low, scanning for devices. Responding addresses:%s", addresses.c_str());
+            remoteDeviceScanRequested = true;
         }
     });
 

@@ -87,7 +87,7 @@ void SlaveFirmware::setup() {
 void SlaveFirmware::loop() {
     Firmware::loop();
 
-    slavePort.processPendingCommands();
+    slavePort.loop();
 
     device->loop();
 }

@@ -58,6 +58,20 @@ void DeviceScanner::assignAddresses() {
     logger->warn("Devices still collide after %i rounds, leaving them for the next scan", MAX_ADDRESS_ASSIGNMENT_ROUNDS);
 }
 
+std::vector<uint8_t> DeviceScanner::findRespondingAddresses() {
+    std::vector<uint8_t> result;
+
+    for (uint8_t address = tfw::hal::i2c::addresses::PERMANENT_FIRST;
+         address <= tfw::hal::i2c::addresses::TEMPORARY_LAST;
+         address++) {
+        if (client.probe(address)) {
+            result.push_back(address);
+        }
+    }
+
+    return result;
+}
+
 DeviceScanner::AssignmentRound DeviceScanner::assignAddressesOnce() {
     namespace addresses = tfw::hal::i2c::addresses;
     namespace builtin = tfw::hal::i2c::commands::builtin;
@@ -71,7 +85,7 @@ DeviceScanner::AssignmentRound DeviceScanner::assignAddressesOnce() {
 
         const auto identityResult = client.readEndpoint(address, tfw::hal::i2c::endpoints::builtin::Identity);
         if (identityResult.has_error) {
-            logger->debug("unable to read identity (%i): %s", address, identityResult.error_code);
+            logger->info("Unable to read identity at 0x%02x: %s", address, identityResult.error_code);
             continue;
         }
 
@@ -123,7 +137,7 @@ std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scanPermanentAd
 
         const auto deviceInformationResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceInformation);
         if (deviceInformationResult.has_error) {
-            logger->debug("unable to get device name (%i): %s", address, deviceInformationResult.error_code);
+            logger->info("Unable to read device information at 0x%02x: %s", address, deviceInformationResult.error_code);
             continue;
         }
 
@@ -133,7 +147,7 @@ std::vector<std::shared_ptr<DeviceConfiguration>> DeviceScanner::scanPermanentAd
 
         const auto deviceNameResult = client.readEndpoint(address, devices::common::i2c::endpoints::DeviceName);
         if (deviceNameResult.has_error) {
-            logger->debug("unable to get device name (%i): %s", address, deviceNameResult.error_code);
+            logger->info("Unable to read device name at 0x%02x: %s", address, deviceNameResult.error_code);
             continue;
         }
 
