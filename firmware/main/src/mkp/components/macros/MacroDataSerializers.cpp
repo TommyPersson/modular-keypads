@@ -281,6 +281,76 @@ namespace mkp::components::macros {
         }
     };
 
+    // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
+    // and delay of each step separated by semicolons: "12;0;15;250". Neither colons nor commas can be used, as they
+    // separate the parts of stored lines and the arguments of commands.
+    class SequenceDataSerializer final
+        : public MacroDataStorageSerializer<SequenceMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == SEQUENCE;
+        };
+
+        std::string_view serialize(const SequenceMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            std::string steps;
+            for (const auto& step : data.steps) {
+                if (!steps.empty()) {
+                    steps += ';';
+                }
+                steps += std::to_string(step.macroId);
+                steps += ';';
+                steps += std::to_string(step.delayMs);
+            }
+
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%.*s",
+                static_cast<int>(steps.length()),
+                steps.data()
+            );
+        }
+
+        std::shared_ptr<SequenceMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (!hasParts(parts, 1)) {
+                return nullptr;
+            }
+
+            std::vector<uint32_t> numbers;
+            std::string_view remaining = parts[0];
+            while (!remaining.empty()) {
+                const auto separator = remaining.find(';');
+                const auto number = remaining.substr(0, separator);
+                if (number.empty()) {
+                    return nullptr;
+                }
+                numbers.push_back(tfw::utils::strings::atou32(number));
+                remaining = separator == std::string_view::npos ? "" : remaining.substr(separator + 1);
+            }
+
+            // Sequences without steps, or with a step missing its delay, can't be run as intended
+            if (numbers.empty() || numbers.size() % 2 != 0 || numbers.size() / 2 > MaxSequenceSteps) {
+                return nullptr;
+            }
+
+            std::vector<SequenceStep> steps;
+            steps.reserve(numbers.size() / 2);
+            for (size_t i = 0; i < numbers.size(); i += 2) {
+                steps.push_back(SequenceStep{
+                    .macroId = static_cast<uint16_t>(numbers[i]),
+                    .delayMs = std::min(numbers[i + 1], MaxSequenceStepDelayMs),
+                });
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<SequenceMacroData> allocator(arena);
+
+            return std::allocate_shared<SequenceMacroData>(allocator, macroId, std::move(steps));
+        }
+    };
+
     std::vector<void*> macroDataSerializers{
         new ShortcutMacroDataSerializer{},
         new ConsumerControlMacroDataSerializer{},
@@ -289,5 +359,6 @@ namespace mkp::components::macros {
         new MouseScrollDataSerializer{},
         new MouseButtonDataSerializer{},
         new MouseMovementDataSerializer{},
+        new SequenceDataSerializer{},
     };
 }

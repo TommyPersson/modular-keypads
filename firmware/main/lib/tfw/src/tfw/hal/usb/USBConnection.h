@@ -16,6 +16,9 @@ namespace tfw::hal::usb {
 
         virtual void sendAction(Action& action) = 0;
 
+        // Whether earlier actions are still being sent, such as the characters of a type action being typed
+        virtual bool isBusy() = 0;
+
         // Time to wait between characters typed by type actions
         virtual void setTypingDelayMs(uint32_t delayMs) = 0;
 

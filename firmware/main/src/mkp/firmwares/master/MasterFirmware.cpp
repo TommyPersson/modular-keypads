@@ -44,7 +44,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         testModeController,
         serviceLocator.usbConnection,
         serviceLocator.deviceSettings,
-        serviceLocator.metricRegistry
+        serviceLocator.metricRegistry,
+        serviceLocator.clock
     );
 
     notifier = serviceLocator.notifierFactory.create();

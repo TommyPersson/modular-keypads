@@ -4,6 +4,7 @@ import { ConsumerControlMacroTypeDefinition } from "./ConsumerControlMacroTypeDe
 import { MouseButtonMacroTypeDefinition } from "./MouseButtonMacroTypeDefinition"
 import { MouseMovementMacroTypeDefinition } from "./MouseMovementMacroTypeDefinition"
 import { MouseScrollMacroTypeDefinition } from "./MouseScrollMacroTypeDefinition"
+import { SequenceMacroTypeDefinition } from "./SequenceMacroTypeDefinition"
 import { ShortcutMacroTypeDefinition } from "./ShortcutMacroTypeDefinition"
 import { SystemControlTypeDefinition } from "./SystemControlTypeDefinition"
 
@@ -16,6 +17,7 @@ const allMacroTypeDefinitions: MacroTypeDefinition<MacroDefinition>[] = [
   MouseScrollMacroTypeDefinition as any,
   MouseButtonMacroTypeDefinition as any,
   MouseMovementMacroTypeDefinition as any,
+  SequenceMacroTypeDefinition as any,
 ]
 
 export type MacroTypeDefinitions = {

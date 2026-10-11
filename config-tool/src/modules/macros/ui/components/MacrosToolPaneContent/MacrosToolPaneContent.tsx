@@ -25,7 +25,7 @@ import { useExpanderState } from "@src/modules/common/hooks/expanderState"
 import { DeleteMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacros } from "@src/modules/macros/hooks"
 import { createMacroFilter } from "@src/modules/macros/macroFilter"
-import { type MacroDefinition } from "@src/modules/macros/models"
+import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import { MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
 import { EditMacroDialog } from "./EditMacroDialog"
 import { useCallback, useMemo, useState } from "react"
@@ -52,8 +52,8 @@ export const MacrosToolPaneContent = () => {
 
   const [filter, setFilter] = useState("")
   const filteredMacros = useMemo(
-    () => filterMacros(storedMacros.macrosByDirectoryList, filter),
-    [storedMacros.macrosByDirectoryList, filter],
+    () => filterMacros(storedMacros.macrosByDirectoryList, storedMacros.allMacros, filter),
+    [storedMacros.macrosByDirectoryList, storedMacros.allMacros, filter],
   )
 
   return (
@@ -110,8 +110,12 @@ export const MacrosToolPaneContent = () => {
 }
 
 // Keeps the macros that match the filter, along with their directories
-function filterMacros(macrosByDirectory: [string, MacroDefinition[]][], filter: string): [string, MacroDefinition[]][] {
-  const matches = createMacroFilter(filter)
+function filterMacros(
+  macrosByDirectory: [string, MacroDefinition[]][],
+  allMacros: MacroDefinition[],
+  filter: string,
+): [string, MacroDefinition[]][] {
+  const matches = createMacroFilter(filter, allMacros)
   if (matches === null) {
     return macrosByDirectory
   }
@@ -250,9 +254,7 @@ const rowActionsOnHover = {
   "&:hover .row-actions, &:focus-within .row-actions": { opacity: 1 },
 }
 
+// Sequences can wrap onto several lines, so the rest of their row is aligned to the top
 function isSequenceMacro(macro: MacroDefinition) {
-  switch (macro.type) { // TODO move to MacroTypeDefinition when needed
-    default:
-      return false
-  }
+  return macro.type === MacroDefinitionType.Sequence
 }

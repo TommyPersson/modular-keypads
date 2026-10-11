@@ -31,6 +31,7 @@ export type MacroTypeDefinition<TMacroDefinition extends MacroDefinition> = {
 
   macroTableCellComponent: React.ElementType<{ macro: TMacroDefinition }>
 
-  // The texts shown by the table cell component, which the macros can be filtered on
-  searchTexts(macro: TMacroDefinition): string[]
+  // The texts shown by the table cell component, which the macros can be filtered on. The other macros are given for
+  // the texts of macros that show them, such as the names of the steps of a sequence.
+  searchTexts(macro: TMacroDefinition, macros: MacroDefinition[]): string[]
 }

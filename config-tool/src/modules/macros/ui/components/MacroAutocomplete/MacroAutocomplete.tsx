@@ -13,7 +13,9 @@ import {
 } from "@mui/material"
 import { createMacroFilter } from "@src/modules/macros/macroFilter"
 import type { MacroDefinition } from "@src/modules/macros/models"
-import { EditMacroDialog, MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
+import { MacroDefinitionVisualization } from "../MacroDefinitionVisualization"
+import { MacroTypeVisualization } from "../MacroTypeVisualization"
+import { EditMacroDialog } from "../MacrosToolPaneContent/EditMacroDialog"
 import { Children, cloneElement, type ReactElement, type ReactNode, useCallback, useMemo, useState } from "react"
 
 // The name takes a fixed part of the width, so that the definitions line up between the options
@@ -60,16 +62,18 @@ const MacroValueVisualization = (props: {
 
 /**
  * Selects one of the macros, or a new one, which is created in the macro dialog and selected once it's saved. The
- * selected macro can be edited in the same dialog, from a button next to the clear button.
+ * selected macro can be edited in the same dialog, from a button next to the clear button. Both can be left out, such
+ * as within the macro dialog itself.
  */
 export const MacroAutocomplete = (props: {
   macros: MacroDefinition[]
   label: string
   selected: MacroDefinition | null
   disabled?: boolean
+  allowCreateAndEdit?: boolean
   onSelect?: (macro: MacroDefinition | null) => void
 }) => {
-  const { macros, label, selected, disabled, onSelect } = props
+  const { macros, label, selected, disabled, allowCreateAndEdit = true, onSelect } = props
 
   const options = useMemo(() => {
     return macros.toSorted((a, b) => (a.directory + a.name).localeCompare(b.directory + b.name))
@@ -77,9 +81,9 @@ export const MacroAutocomplete = (props: {
 
   // The same filter as in the macros tool pane, so that macros can also be found by e.g. their keys
   const filterOptions = useCallback((options: MacroDefinition[], state: { inputValue: string }) => {
-    const matches = createMacroFilter(state.inputValue)
+    const matches = createMacroFilter(state.inputValue, macros)
     return matches === null ? options : options.filter(matches)
-  }, [])
+  }, [macros])
 
   const handleChange = useCallback((_: any, value: AutocompleteValue<MacroDefinition, unknown, unknown, unknown>) => {
     if (value !== null) {
@@ -109,7 +113,7 @@ export const MacroAutocomplete = (props: {
     }
   }, [dialogMacro, onSelect])
 
-  const editButton = selected && (
+  const editButton = allowCreateAndEdit && selected && (
     <Tooltip title={"Edit macro"} key={"edit"}>
       <IconButton
         className={EDIT_BUTTON_CLASS}
@@ -158,19 +162,23 @@ export const MacroAutocomplete = (props: {
         onInputChange={handleInputChange}
         disabled={disabled}
       />
-      <Tooltip title={"Create a new macro for this action"}>
-        <span>
-          <IconButton onClick={() => openDialog(null)} disabled={disabled}>
-            <AddOutlinedIcon />
-          </IconButton>
-        </span>
-      </Tooltip>
-      <EditMacroDialog
-        macro={dialogMacro}
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onSaved={handleSaved}
-      />
+      {allowCreateAndEdit && (
+        <Tooltip title={"Create a new macro for this action"}>
+          <span>
+            <IconButton onClick={() => openDialog(null)} disabled={disabled}>
+              <AddOutlinedIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+      )}
+      {allowCreateAndEdit && (
+        <EditMacroDialog
+          macro={dialogMacro}
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onSaved={handleSaved}
+        />
+      )}
     </Stack>
   )
 }

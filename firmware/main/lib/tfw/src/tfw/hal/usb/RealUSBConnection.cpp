@@ -62,6 +62,10 @@ void tfw::hal::usb::RealConnection::setModifierHoldMs(const uint32_t holdMs) {
     actionSender.setModifierHoldMs(holdMs);
 }
 
+bool tfw::hal::usb::RealConnection::isBusy() {
+    return actionSender.isBusy();
+}
+
 bool tfw::hal::usb::RealConnection::isConnected() {
     return ::isConnected;
 }

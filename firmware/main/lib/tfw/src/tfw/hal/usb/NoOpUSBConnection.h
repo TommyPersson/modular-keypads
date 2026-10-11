@@ -9,6 +9,7 @@ namespace tfw::hal::usb {
         void update() override;
         bool isConnected() override;
         void sendAction(Action& action) override;
+        bool isBusy() override;
         void setTypingDelayMs(uint32_t delayMs) override;
         void setModifierHoldMs(uint32_t holdMs) override;
     };

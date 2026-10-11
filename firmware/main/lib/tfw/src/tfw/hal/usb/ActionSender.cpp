@@ -44,6 +44,10 @@ void ActionSender::update() {
     }
 }
 
+bool ActionSender::isBusy() const {
+    return characterOutputQueue.size() > 0;
+}
+
 void ActionSender::setTypingDelayMs(const uint32_t delayMs) {
     typingDelayUs = static_cast<uint64_t>(delayMs) * 1'000;
 }

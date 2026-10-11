@@ -2,7 +2,7 @@ import { consumerControlCodes } from "@src/modules/macros/data/consumerControlCo
 import { keyboadKeyCodes } from "@src/modules/macros/data"
 import { mouseButtons } from "@src/modules/macros/data/mouseButtons"
 import { systemControlCodes } from "@src/modules/macros/data/systemControlCodes"
-import type { ShortcutMacroDefinition } from "@src/modules/macros/models"
+import type { MacroDefinition, SequenceStep, ShortcutMacroDefinition } from "@src/modules/macros/models"
 
 // The texts of the macro definition chips, shared with the macro filter so that it finds what the chips show
 
@@ -78,6 +78,16 @@ export function mouseScrollLabel(wheel: number, pan: number): string | null {
   }
 
   return `Scroll ${directions.join(", ")}`
+}
+
+// The name of the macro of a sequence step, or a note when there's none, such as after it was deleted
+export function sequenceStepLabel(step: SequenceStep, macros: MacroDefinition[]): string {
+  const macro = macros.find(it => it.id === step.macroId)
+  return macro?.name ?? "Missing macro"
+}
+
+export function sequenceDelayLabel(delayMs: number): string | null {
+  return delayMs > 0 ? `Wait ${delayMs} ms` : null
 }
 
 // Leaves out the labels that aren't shown

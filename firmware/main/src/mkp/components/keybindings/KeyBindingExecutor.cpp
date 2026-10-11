@@ -82,6 +82,15 @@ namespace {
                 .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, 0, data.x, data.y, 0, 0)},
             });
         }
+
+        if (macro.data->type == SEQUENCE) {
+            const auto& data = dynamic_cast<SequenceMacroData&>(*macro.data);
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = {},
+                .steps = data.steps,
+            });
+        }
         return nullptr;
     }
 }
@@ -92,12 +101,18 @@ KeyBindingExecutor::KeyBindingExecutor(
     TestModeController& testModeController,
     tfw::hal::usb::Connection& usbConnection,
     tfw::hal::settings::DeviceSettings& deviceSettings,
-    tfw::hal::metrics::MetricRegistry& metricRegistry
+    tfw::hal::metrics::MetricRegistry& metricRegistry,
+    const tfw::hal::time::Clock& clock
 ) : macroStorage(macroStorage),
     keyBindingStorage(keyBindingStorage),
     testModeController(testModeController),
     usbConnection(usbConnection),
-    deviceSettings(deviceSettings) {
+    deviceSettings(deviceSettings),
+    sequenceRunner(
+        clock,
+        [this] { return this->usbConnection.isBusy(); },
+        [this](const uint16_t macroId) { executeSequenceStep(macroId); }
+    ) {
 
     macroStorage.onMacroSaved().addObserver(this);
     macroStorage.onMacroRemoved().addObserver(this);
@@ -132,6 +147,13 @@ void KeyBindingExecutor::loop() {
     if (keyBindingsNeedRefresh) {
         refreshKeyBindings();
         keyBindingsNeedRefresh = false;
+    }
+
+    // Sequences stop when test mode is enabled, as their keys would no longer send anything either
+    if (testModeController.isEnabled()) {
+        sequenceRunner.stopAll();
+    } else {
+        sequenceRunner.update();
     }
 }
 
@@ -228,13 +250,40 @@ void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyB
     usbConnection.setTypingDelayMs(settings::TypingDelayMs.get(deviceSettings));
     usbConnection.setModifierHoldMs(settings::ModifierHoldMs.get(deviceSettings));
 
-    for (const auto& macro : macros) {
-        if (macro->macroId == keyBinding->macroId) {
-            for (const auto& action : macro->actions) {
-                usbConnection.sendAction(*action);
-            }
+    const auto macro = findCompiledMacro(keyBinding->macroId);
+    if (macro == nullptr) {
+        return;
+    }
+
+    if (!macro->steps.empty()) {
+        sequenceRunner.start(macro->macroId, macro->steps);
+    } else {
+        for (const auto& action : macro->actions) {
+            usbConnection.sendAction(*action);
         }
     }
+}
+
+void KeyBindingExecutor::executeSequenceStep(const uint16_t macroId) {
+    // Macros removed since the sequence was saved are skipped, and so are sequences, which can't be nested
+    const auto macro = findCompiledMacro(macroId);
+    if (macro == nullptr || !macro->steps.empty()) {
+        return;
+    }
+
+    for (const auto& action : macro->actions) {
+        usbConnection.sendAction(*action);
+    }
+}
+
+std::shared_ptr<CompiledMacro> KeyBindingExecutor::findCompiledMacro(const uint16_t macroId) {
+    for (const auto& macro : macros) {
+        if (macro->macroId == macroId) {
+            return macro;
+        }
+    }
+
+    return nullptr;
 }
 
 void KeyBindingExecutor::refreshCompiledMacros() {

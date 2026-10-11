@@ -8,12 +8,14 @@ export enum MacroDefinitionType {
   MouseScroll = "MouseScroll",
   MouseButton = "MouseButton",
   MouseMovement = "MouseMovement",
+  Sequence = "Sequence",
 }
 
 // Groups the macro types in the UI
 export enum MacroTypeCategory {
   Keyboard = "Keyboard",
   Mouse = "Mouse",
+  Combined = "Combined",
 }
 
 export type MacroDefinitionBase = {
@@ -75,6 +77,22 @@ export type MouseMovementMacroDefinition = MacroDefinitionBase & {
   y: number
 }
 
+export type SequenceStep = {
+  macroId: number
+  // Time to wait before running the macro, counted from when the previous step is done typing
+  delayMs: number
+}
+
+// Runs other macros in order. Sequences can't be steps of other sequences.
+export type SequenceMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.Sequence
+  steps: SequenceStep[]
+}
+
+// The same limits as on the device
+export const MaxSequenceSteps = 32
+export const MaxSequenceStepDelayMs = 60_000
+
 export enum MouseButton {
   Left = 0x01,
   Right = 0x02,
@@ -91,3 +109,4 @@ export type MacroDefinition =
   | MouseScrollMacroDefinition
   | MouseButtonMacroDefinition
   | MouseMovementMacroDefinition
+  | SequenceMacroDefinition

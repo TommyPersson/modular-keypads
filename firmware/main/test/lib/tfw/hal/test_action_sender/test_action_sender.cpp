@@ -258,3 +258,22 @@ TEST_F(ActionSenderTest, TypingWaitsWhileModifiersAreHeld) {
 
     EXPECT_EQ(hostComputer.takeEvents(), (Events{"release key 0xe0", "type 'b'"}));
 }
+
+TEST_F(ActionSenderTest, IsBusyUntilAllCharactersAreTyped) {
+    EXPECT_FALSE(sender.isBusy());
+
+    send(Action::type("ab"));
+    EXPECT_TRUE(sender.isBusy());
+
+    sender.update();
+    EXPECT_TRUE(sender.isBusy());
+
+    runForMs(10);
+    EXPECT_FALSE(sender.isBusy());
+}
+
+TEST_F(ActionSenderTest, IsNotBusyWithModifiersHeld) {
+    send(Action::shortcut(ALT, KEY_TAB, true, 0));
+
+    EXPECT_FALSE(sender.isBusy());
+}

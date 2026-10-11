@@ -77,6 +77,17 @@ export const macros: MacroDefinition[] = [
     x: 10,
     y: 0,
   },
+  {
+    id: 13,
+    directory: "Signatures",
+    name: "Greet and sign",
+    type: MacroDefinitionType.Sequence,
+    steps: [
+      { macroId: 1, delayMs: 0 },
+      { macroId: 2, delayMs: 500 },
+      { macroId: 5, delayMs: 0 },
+    ],
+  },
 ]
 
 const pushButtons = (count: number, hasLed: boolean): DeviceCapability[] =>

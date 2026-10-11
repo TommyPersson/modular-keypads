@@ -5,18 +5,22 @@
 
 #include <tfw/hal/metrics.h>
 #include <tfw/hal/settings.h>
+#include <tfw/hal/time/Clock.h>
 #include <tfw/hal/usb.h>
 
 #include "mkp/components/macros/MacroStorage.h"
 #include "mkp/devices/common/Device.h"
 
 #include "KeyBindingStorage.h"
+#include "SequenceRunner.h"
 #include "TestModeController.h"
 
 namespace mkp::components::keybindings {
     struct CompiledMacro {
         uint16_t macroId;
         std::vector<std::shared_ptr<tfw::hal::usb::Action>> actions;
+        // The steps of a sequence, which runs other macros rather than actions of its own
+        std::vector<macros::SequenceStep> steps;
     };
 
     class KeyBindingExecutor
@@ -33,7 +37,8 @@ namespace mkp::components::keybindings {
             TestModeController& testModeController,
             tfw::hal::usb::Connection& usbConnection,
             tfw::hal::settings::DeviceSettings& deviceSettings,
-            tfw::hal::metrics::MetricRegistry& metricRegistry
+            tfw::hal::metrics::MetricRegistry& metricRegistry,
+            const tfw::hal::time::Clock& clock
         );
         ~KeyBindingExecutor() override;
 
@@ -61,6 +66,8 @@ namespace mkp::components::keybindings {
         std::shared_ptr<KeyBinding> findKeyBinding(const devices::common::DeviceRotaryEncoderEvent& event);
 
         void executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding);
+        void executeSequenceStep(uint16_t macroId);
+        std::shared_ptr<CompiledMacro> findCompiledMacro(uint16_t macroId);
 
         bool macrosNeedRefresh = true;
         bool keyBindingsNeedRefresh = true;
@@ -73,6 +80,8 @@ namespace mkp::components::keybindings {
 
         std::vector<std::shared_ptr<KeyBinding>> keyBindings;
         std::vector<std::shared_ptr<CompiledMacro>> macros;
+
+        SequenceRunner sequenceRunner;
 
         // Presses of buttons with a long press binding, as device id and switch number. Their press binding is
         // executed on release, unless the press turned into a long press.

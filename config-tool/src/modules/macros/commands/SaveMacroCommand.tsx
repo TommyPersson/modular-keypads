@@ -28,6 +28,10 @@ export const SaveMacroCommand: Command<{ macro: MacroDefinition }, MacroDefiniti
       return macro.shortcut.hidCode > 0
     }
 
+    if (macro.type === MacroDefinitionType.Sequence) {
+      return macro.steps.length > 0 && macro.steps.every(step => step.macroId > 0)
+    }
+
     return true
   },
 }

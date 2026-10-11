@@ -1,7 +1,9 @@
 #pragma once
 
-#include <string>
+#include <cstdint>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace mkp::components::macros {
     enum MacroType : uint8_t {
@@ -12,6 +14,7 @@ namespace mkp::components::macros {
         MOUSE_SCROLL = 0x05,
         MOUSE_BUTTON = 0x06,
         MOUSE_MOVEMENT = 0x07,
+        SEQUENCE = 0x08,
     };
 
     struct MacroData {
@@ -125,7 +128,27 @@ namespace mkp::components::macros {
         const int8_t y; // Positive moves down
     };
 
-    // TODO sequence data
+    struct SequenceStep {
+        uint16_t macroId;
+        // Time to wait before running the macro, counted from when the previous step is done typing
+        uint32_t delayMs;
+    };
+
+    // Limits that keep a stored sequence within a command line and a stored line, and its steps reasonable
+    constexpr size_t MaxSequenceSteps = 32;
+    constexpr uint32_t MaxSequenceStepDelayMs = 60'000;
+
+    // Runs other macros in order. Sequences can't be steps of other sequences, which keeps them from running forever.
+    struct SequenceMacroData final : MacroData {
+        SequenceMacroData(const uint16_t id, std::vector<SequenceStep> steps)
+            : MacroData(id, MacroType::SEQUENCE),
+              steps(std::move(steps)) {
+        }
+
+        ~SequenceMacroData() override = default;
+
+        const std::vector<SequenceStep> steps;
+    };
 
     struct Macro {
         const std::string_view name;

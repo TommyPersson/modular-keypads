@@ -91,6 +91,24 @@ protected:
         auto data = std::make_shared<MouseMovementMacroData>(id, modifiers, x, y);
         return Macro{name, data};
     }
+
+    Macro createSequenceMacro(
+        uint16_t id,
+        const std::string_view& name,
+        std::vector<SequenceStep> steps) {
+        auto data = std::make_shared<SequenceMacroData>(id, std::move(steps));
+        return Macro{name, data};
+    }
+
+    std::vector<SequenceStep> readSequenceSteps(uint16_t id) {
+        std::vector<SequenceStep> steps;
+        macroStorage.forEach([&](const Macro& m) {
+            if (m.data->id == id && m.data->type == MacroType::SEQUENCE) {
+                steps = dynamic_cast<const SequenceMacroData&>(*m.data).steps;
+            }
+        });
+        return steps;
+    }
 };
 
 // ============================================================================
@@ -759,4 +777,75 @@ TEST_F(MacroStorageTest, IdAssignmentUsesHighestId) {
     macroStorage.write(macro3);
 
     EXPECT_EQ(macro3.data->id, 6);
+}
+
+// ============================================================================
+// Sequence Tests
+// ============================================================================
+
+TEST_F(MacroStorageTest, WriteSequenceMacro) {
+    auto macro = createSequenceMacro(1, "Login", {{3, 0}, {4, 250}});
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Login:0x08:3;0;4;250"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, RoundTripSequenceMacro) {
+    auto macro = createSequenceMacro(1, "Login", {{3, 0}, {4, 250}, {3, 1000}});
+    macroStorage.write(macro);
+
+    const auto steps = readSequenceSteps(1);
+
+    ASSERT_EQ(steps.size(), 3);
+    EXPECT_EQ(steps[0].macroId, 3);
+    EXPECT_EQ(steps[0].delayMs, 0);
+    EXPECT_EQ(steps[1].macroId, 4);
+    EXPECT_EQ(steps[1].delayMs, 250);
+    EXPECT_EQ(steps[2].macroId, 3);
+    EXPECT_EQ(steps[2].delayMs, 1000);
+}
+
+TEST_F(MacroStorageTest, RoundTripSequenceMacroWithMostSteps) {
+    std::vector<SequenceStep> steps;
+    for (uint16_t i = 0; i < MaxSequenceSteps; i++) {
+        steps.push_back({static_cast<uint16_t>(60000 + i), MaxSequenceStepDelayMs});
+    }
+    auto macro = createSequenceMacro(1, "Long", steps);
+    macroStorage.write(macro);
+
+    const auto readSteps = readSequenceSteps(1);
+
+    ASSERT_EQ(readSteps.size(), MaxSequenceSteps);
+    EXPECT_EQ(readSteps.back().macroId, 60000 + MaxSequenceSteps - 1);
+    EXPECT_EQ(readSteps.back().delayMs, MaxSequenceStepDelayMs);
+}
+
+TEST_F(MacroStorageTest, SequenceMacroDelayIsLimited) {
+    mockFs.setFileContent(testFilePath, "1:Slow:0x08:3;999999\n");
+
+    const auto steps = readSequenceSteps(1);
+
+    ASSERT_EQ(steps.size(), 1);
+    EXPECT_EQ(steps[0].delayMs, MaxSequenceStepDelayMs);
+}
+
+TEST_F(MacroStorageTest, InvalidSequenceMacrosAreIgnored) {
+    std::string tooManySteps = "6:Too Many:0x08:";
+    for (size_t i = 0; i <= MaxSequenceSteps; i++) {
+        tooManySteps += i == 0 ? "1;0" : ";1;0";
+    }
+
+    mockFs.setFileContent(
+        testFilePath,
+        "1:No Steps:0x08:\n"
+        "2:Missing Delay:0x08:3;0;4\n"
+        "3:Empty Number:0x08:3;;4;0\n"
+        "4:Extra Part:0x08:3;0:4;0\n"
+        "5:Missing Part:0x08\n" +
+        tooManySteps + "\n"
+    );
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
 }

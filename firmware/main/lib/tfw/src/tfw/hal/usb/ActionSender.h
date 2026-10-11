@@ -22,6 +22,9 @@ namespace tfw::hal::usb {
         // Types queued characters and releases modifiers whose hold time has passed. Called continuously.
         void update();
 
+        // Whether characters of type actions are still waiting to be typed
+        bool isBusy() const;
+
         // Time to wait between characters typed by type actions
         void setTypingDelayMs(uint32_t delayMs);
 

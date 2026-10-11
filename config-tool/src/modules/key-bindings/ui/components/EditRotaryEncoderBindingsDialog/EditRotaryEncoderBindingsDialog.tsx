@@ -7,7 +7,7 @@ import {
 } from "@src/modules/key-bindings/hooks"
 import { PushButtonEvent, RotaryEncoderDirection } from "@src/modules/key-bindings/models"
 import { BindingsDialogTitle } from "@src/modules/key-bindings/ui/components/BindingsDialogTitle"
-import { MacroAutocomplete } from "@src/modules/key-bindings/ui/components/MacroAutocomplete"
+import { MacroAutocomplete } from "@src/modules/macros/ui"
 import { useStoredMacros } from "@src/modules/macros/hooks"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { useCallback } from "react"
