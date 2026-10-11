@@ -3,6 +3,7 @@ import { Alert, Tooltip } from "@mui/material"
 import {
   type ConsumerControlMacroDefinition,
   MacroDefinitionType,
+  MacroTypeCategory,
   type MacroTypeDefinition
 } from "@src/modules/macros/models"
 import { ConsumerControlMacroCellContent } from "./components/ConsumerControlMacroCellContent"
@@ -13,6 +14,8 @@ export const ConsumerControlMacroTypeDefinition: MacroTypeDefinition<ConsumerCon
   type: MacroDefinitionType.ConsumerControl,
 
   numericCode: 0x02,
+
+  category: MacroTypeCategory.Keyboard,
 
   displayName: "Consumer Control",
 

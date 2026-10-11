@@ -3,6 +3,7 @@ import { Alert, Tooltip } from "@mui/material"
 import {
   createModifierFlags,
   MacroDefinitionType,
+  MacroTypeCategory,
   type MacroTypeDefinition,
   parseModifierFlags,
   type ShortcutMacroDefinition
@@ -15,6 +16,8 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
   type: MacroDefinitionType.Shortcut,
 
   numericCode: 0x01,
+
+  category: MacroTypeCategory.Keyboard,
 
   displayName: "Shortcut",
 

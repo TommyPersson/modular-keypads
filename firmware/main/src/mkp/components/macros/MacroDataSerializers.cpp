@@ -1,5 +1,7 @@
 #include "MacroDataSerializers.h"
 
+#include <algorithm>
+
 namespace mkp::components::macros {
     class ConsumerControlMacroDataSerializer final
         : public MacroDataStorageSerializer<ConsumerControlMacroData> {
@@ -133,10 +135,123 @@ namespace mkp::components::macros {
         }
     };
 
+    static int8_t clampToInt8(const int value) {
+        return static_cast<int8_t>(std::clamp(value, -127, 127));
+    }
+
+    class MouseScrollDataSerializer final
+        : public MacroDataStorageSerializer<MouseScrollMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == MOUSE_SCROLL;
+        };
+
+        std::string_view serialize(const MouseScrollMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%d:%d",
+                data.wheel,
+                data.pan
+            );
+        }
+
+        std::shared_ptr<MouseScrollMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (parts.size() < 2) {
+                return nullptr;
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<MouseScrollMacroData> allocator(arena);
+
+            return std::allocate_shared<MouseScrollMacroData>(
+                allocator,
+                macroId,
+                clampToInt8(tfw::utils::strings::atol(parts[0])),
+                clampToInt8(tfw::utils::strings::atol(parts[1]))
+            );
+        }
+    };
+
+    class MouseButtonDataSerializer final
+        : public MacroDataStorageSerializer<MouseButtonMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == MOUSE_BUTTON;
+        };
+
+        std::string_view serialize(const MouseButtonMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "0x%02x",
+                data.buttons
+            );
+        }
+
+        std::shared_ptr<MouseButtonMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (parts.empty()) {
+                return nullptr;
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<MouseButtonMacroData> allocator(arena);
+
+            return std::allocate_shared<MouseButtonMacroData>(
+                allocator,
+                macroId,
+                tfw::utils::strings::atou8(parts[0], 16)
+            );
+        }
+    };
+
+    class MouseMovementDataSerializer final
+        : public MacroDataStorageSerializer<MouseMovementMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == MOUSE_MOVEMENT;
+        };
+
+        std::string_view serialize(const MouseMovementMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%d:%d",
+                data.x,
+                data.y
+            );
+        }
+
+        std::shared_ptr<MouseMovementMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (parts.size() < 2) {
+                return nullptr;
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<MouseMovementMacroData> allocator(arena);
+
+            return std::allocate_shared<MouseMovementMacroData>(
+                allocator,
+                macroId,
+                clampToInt8(tfw::utils::strings::atol(parts[0])),
+                clampToInt8(tfw::utils::strings::atol(parts[1]))
+            );
+        }
+    };
+
     std::vector<void*> macroDataSerializers{
         new ShortcutMacroDataSerializer{},
         new ConsumerControlMacroDataSerializer{},
         new SystemControlDataSerializer{},
         new TextDataSerializer{},
+        new MouseScrollDataSerializer{},
+        new MouseButtonDataSerializer{},
+        new MouseMovementDataSerializer{},
     };
 }

@@ -31,6 +31,16 @@ export const macros: MacroDefinition[] = [
     shortcut: { modifiers: [0xe0], hidCode: 0x06 },
   },
   { id: 6, directory: null, name: "Sleep", type: MacroDefinitionType.SystemControl, code: 0x82 },
+  {
+    id: 8,
+    directory: "Mouse",
+    name: "Scroll Up",
+    type: MacroDefinitionType.MouseScroll,
+    wheel: 1,
+    pan: 0,
+  },
+  { id: 9, directory: "Mouse", name: "Middle Click", type: MacroDefinitionType.MouseButton, buttons: 0x04 },
+  { id: 10, directory: "Mouse", name: "Nudge Right", type: MacroDefinitionType.MouseMovement, x: 10, y: 0 },
 ]
 
 const pushButtons = (count: number, hasLed: boolean): DeviceCapability[] =>

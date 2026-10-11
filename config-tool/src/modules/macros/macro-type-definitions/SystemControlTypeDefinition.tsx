@@ -2,6 +2,7 @@ import ComputerOutlinedIcon from "@mui/icons-material/ComputerOutlined"
 import { Tooltip } from "@mui/material"
 import {
   MacroDefinitionType,
+  MacroTypeCategory,
   type MacroTypeDefinition,
   type SystemControlMacroDefinition
 } from "@src/modules/macros/models"
@@ -13,6 +14,8 @@ export const SystemControlTypeDefinition: MacroTypeDefinition<SystemControlMacro
   type: MacroDefinitionType.SystemControl,
 
   numericCode: 0x03,
+
+  category: MacroTypeCategory.Keyboard,
 
   displayName: "System Control",
 

@@ -9,14 +9,15 @@ import {
   Grid, InputAdornment,
   RadioGroup,
   Stack,
-  TextField
+  TextField,
+  Typography
 } from "@mui/material"
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import { CommandButton, RadioCard } from "@src/modules/common/components"
 import { SaveMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { type MacroDefinition, MacroDefinitionType, MacroTypeCategory } from "@src/modules/macros/models"
 import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
@@ -226,20 +227,27 @@ const MacroTypeSelector = memo((props: {
       value={value}
       onChange={handleTypeChange}
     >
-      <Grid container spacing={2}>
-        {macroTypeDefinitions.all.map(it => (
-          <Grid size={3} key={it.numericCode}>
-            <RadioCard
-              label={it.displayName}
-              icon={<MacroTypeVisualization type={it.type} />}
-              value={it.type}
-              onClick={onChange}
-              description={it.description}
-              fillHeight
-            />
-          </Grid>
+      <Stack gap={3}>
+        {Object.values(MacroTypeCategory).map(category => (
+          <Stack gap={1} key={category}>
+            <Typography variant={"subtitle2"}>{category}</Typography>
+            <Grid container spacing={2}>
+              {macroTypeDefinitions.all.filter(it => it.category === category).map(it => (
+                <Grid size={3} key={it.numericCode}>
+                  <RadioCard
+                    label={it.displayName}
+                    icon={<MacroTypeVisualization type={it.type} />}
+                    value={it.type}
+                    onClick={onChange}
+                    description={it.description}
+                    fillHeight
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Stack>
         ))}
-      </Grid>
+      </Stack>
     </RadioGroup>
   )
 })

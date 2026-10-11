@@ -85,6 +85,30 @@ namespace {
                 .actions = std::vector{tfw::hal::usb::Action::type(decodedText)},
             });
         }
+
+        if (macro.data->type == MOUSE_SCROLL) {
+            const auto& data = dynamic_cast<MouseScrollMacroData&>(*macro.data);
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = std::vector{tfw::hal::usb::Action::mouse(0, 0, 0, data.wheel, data.pan)},
+            });
+        }
+
+        if (macro.data->type == MOUSE_BUTTON) {
+            const auto& data = dynamic_cast<MouseButtonMacroData&>(*macro.data);
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = std::vector{tfw::hal::usb::Action::mouse(data.buttons, 0, 0, 0, 0)},
+            });
+        }
+
+        if (macro.data->type == MOUSE_MOVEMENT) {
+            const auto& data = dynamic_cast<MouseMovementMacroData&>(*macro.data);
+            return std::make_shared<CompiledMacro>(CompiledMacro{
+                .macroId = macro.data->id,
+                .actions = std::vector{tfw::hal::usb::Action::mouse(0, data.x, data.y, 0, 0)},
+            });
+        }
         return nullptr;
     }
 }

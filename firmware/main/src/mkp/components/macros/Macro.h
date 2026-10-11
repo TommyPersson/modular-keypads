@@ -9,6 +9,9 @@ namespace mkp::components::macros {
         CONSUMER_CONTROL = 0x02,
         SYSTEM_CONTROL = 0x03,
         TEXT = 0x04,
+        MOUSE_SCROLL = 0x05,
+        MOUSE_BUTTON = 0x06,
+        MOUSE_MOVEMENT = 0x07,
     };
 
     struct MacroData {
@@ -66,6 +69,43 @@ namespace mkp::components::macros {
         ~TextMacroData() override = default;
 
         const std::string_view text;
+    };
+
+    struct MouseScrollMacroData final : MacroData {
+        MouseScrollMacroData(const uint16_t id, const int8_t wheel, const int8_t pan)
+            : MacroData(id, MacroType::MOUSE_SCROLL),
+              wheel(wheel),
+              pan(pan) {
+        }
+
+        ~MouseScrollMacroData() override = default;
+
+        const int8_t wheel; // Positive scrolls up
+        const int8_t pan; // Positive scrolls right
+    };
+
+    struct MouseButtonMacroData final : MacroData {
+        MouseButtonMacroData(const uint16_t id, const uint8_t buttons)
+            : MacroData(id, MacroType::MOUSE_BUTTON),
+              buttons(buttons) {
+        }
+
+        ~MouseButtonMacroData() override = default;
+
+        const uint8_t buttons; // Bit flags: left, right, middle, back, forward
+    };
+
+    struct MouseMovementMacroData final : MacroData {
+        MouseMovementMacroData(const uint16_t id, const int8_t x, const int8_t y)
+            : MacroData(id, MacroType::MOUSE_MOVEMENT),
+              x(x),
+              y(y) {
+        }
+
+        ~MouseMovementMacroData() override = default;
+
+        const int8_t x; // Positive moves right
+        const int8_t y; // Positive moves down
     };
 
     // TODO sequence data

@@ -4,13 +4,15 @@ import { TextMacroCellContent } from "@src/modules/macros/macro-type-definitions
 import {
   TextMacroDefinitionEditor
 } from "@src/modules/macros/macro-type-definitions/components/TextMacroDefinitionEditor"
-import { MacroDefinitionType, type MacroTypeDefinition, type TextMacroDefinition } from "@src/modules/macros/models"
+import { MacroDefinitionType, MacroTypeCategory, type MacroTypeDefinition, type TextMacroDefinition } from "@src/modules/macros/models"
 
 
 export const TextMacroTypeDefinition: MacroTypeDefinition<TextMacroDefinition> = {
   type: MacroDefinitionType.Text,
 
   numericCode: 0x04,
+
+  category: MacroTypeCategory.Keyboard,
 
   displayName: "Text",
 

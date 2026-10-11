@@ -1,10 +1,12 @@
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { type MacroDefinition, MacroDefinitionType, MacroTypeCategory } from "@src/modules/macros/models"
 import * as React from "react"
 
 export type MacroTypeDefinition<TMacroDefinition extends MacroDefinition> = {
   type: MacroDefinitionType
 
   numericCode: number
+
+  category: MacroTypeCategory
 
   displayName: string
 

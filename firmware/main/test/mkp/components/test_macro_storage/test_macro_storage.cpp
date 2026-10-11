@@ -60,6 +60,21 @@ protected:
         auto data = std::make_shared<TextMacroData>(id, text);
         return Macro{name, data};
     }
+
+    Macro createMouseScrollMacro(uint16_t id, const std::string_view& name, int8_t wheel = 0, int8_t pan = 0) {
+        auto data = std::make_shared<MouseScrollMacroData>(id, wheel, pan);
+        return Macro{name, data};
+    }
+
+    Macro createMouseButtonMacro(uint16_t id, const std::string_view& name, uint8_t buttons = 0x01) {
+        auto data = std::make_shared<MouseButtonMacroData>(id, buttons);
+        return Macro{name, data};
+    }
+
+    Macro createMouseMovementMacro(uint16_t id, const std::string_view& name, int8_t x = 0, int8_t y = 0) {
+        auto data = std::make_shared<MouseMovementMacroData>(id, x, y);
+        return Macro{name, data};
+    }
 };
 
 // ============================================================================
@@ -152,6 +167,82 @@ TEST_F(MacroStorageTest, WriteTextMacro) {
     std::string content = mockFs.getFileContent(testFilePath);
     EXPECT_NE(content.find("Password"), std::string::npos);
     EXPECT_NE(content.find("MySecretPassword123"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, WriteMouseScrollMacro) {
+    auto macro = createMouseScrollMacro(1, "Scroll Down", -3, 0);
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Scroll Down:0x05:-3:0"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, WriteMouseButtonMacro) {
+    auto macro = createMouseButtonMacro(1, "Middle Click", 0x04);
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Middle Click:0x06:0x04"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, WriteMouseMovementMacro) {
+    auto macro = createMouseMovementMacro(1, "Nudge", 10, -20);
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Nudge:0x07:10:-20"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, RoundTripMouseMacros) {
+    auto scroll = createMouseScrollMacro(1, "Scroll", 5, -2);
+    auto button = createMouseButtonMacro(2, "Button", 0x03);
+    auto movement = createMouseMovementMacro(3, "Movement", -10, 20);
+    macroStorage.write(scroll);
+    macroStorage.write(button);
+    macroStorage.write(movement);
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        if (m.data->type == MacroType::MOUSE_SCROLL) {
+            const auto& data = dynamic_cast<const MouseScrollMacroData&>(*m.data);
+            EXPECT_EQ(data.wheel, 5);
+            EXPECT_EQ(data.pan, -2);
+        } else if (m.data->type == MacroType::MOUSE_BUTTON) {
+            const auto& data = dynamic_cast<const MouseButtonMacroData&>(*m.data);
+            EXPECT_EQ(data.buttons, 0x03);
+        } else if (m.data->type == MacroType::MOUSE_MOVEMENT) {
+            const auto& data = dynamic_cast<const MouseMovementMacroData&>(*m.data);
+            EXPECT_EQ(data.x, -10);
+            EXPECT_EQ(data.y, 20);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 3);
+}
+
+TEST_F(MacroStorageTest, MouseMacrosClampOutOfRangeValues) {
+    mockFs.setFileContent(testFilePath, "1:Scroll:0x05:500:-500\n2:Movement:0x07:-300:300\n");
+
+    macroStorage.forEach([&](const Macro& m) {
+        if (m.data->type == MacroType::MOUSE_SCROLL) {
+            const auto& data = dynamic_cast<const MouseScrollMacroData&>(*m.data);
+            EXPECT_EQ(data.wheel, 127);
+            EXPECT_EQ(data.pan, -127);
+        } else {
+            const auto& data = dynamic_cast<const MouseMovementMacroData&>(*m.data);
+            EXPECT_EQ(data.x, -127);
+            EXPECT_EQ(data.y, 127);
+        }
+    });
+}
+
+TEST_F(MacroStorageTest, MouseMacrosWithMissingPartsAreSkipped) {
+    mockFs.setFileContent(testFilePath, "1:Scroll:0x05:1\n2:Button:0x06\n3:Movement:0x07:1\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
 }
 
 // ============================================================================
@@ -507,13 +598,19 @@ TEST_F(MacroStorageTest, MixedMacroTypes) {
     auto consumer = createConsumerControlMacro(2, "Consumer");
     auto system = createSystemControlMacro(3, "System");
     auto text = createTextMacro(4, "Text", "content");
+    auto scroll = createMouseScrollMacro(5, "Scroll", 1, 0);
+    auto button = createMouseButtonMacro(6, "Button", 0x01);
+    auto movement = createMouseMovementMacro(7, "Movement", 1, 1);
 
     macroStorage.write(shortcut);
     macroStorage.write(consumer);
     macroStorage.write(system);
     macroStorage.write(text);
+    macroStorage.write(scroll);
+    macroStorage.write(button);
+    macroStorage.write(movement);
 
-    EXPECT_EQ(macroStorage.getNumStored(), 4);
+    EXPECT_EQ(macroStorage.getNumStored(), 7);
 
     std::vector<MacroType> types;
     macroStorage.forEach([&](const Macro& m) {
@@ -524,6 +621,9 @@ TEST_F(MacroStorageTest, MixedMacroTypes) {
     EXPECT_EQ(types[1], MacroType::CONSUMER_CONTROL);
     EXPECT_EQ(types[2], MacroType::SYSTEM_CONTROL);
     EXPECT_EQ(types[3], MacroType::TEXT);
+    EXPECT_EQ(types[4], MacroType::MOUSE_SCROLL);
+    EXPECT_EQ(types[5], MacroType::MOUSE_BUTTON);
+    EXPECT_EQ(types[6], MacroType::MOUSE_MOVEMENT);
 }
 
 TEST_F(MacroStorageTest, IdAssignmentSkipsGaps) {

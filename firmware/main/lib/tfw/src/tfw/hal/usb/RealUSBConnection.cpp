@@ -7,6 +7,7 @@
 #include <USB.h>
 #include <USBHIDConsumerControl.h>
 #include <USBHIDKeyboard.h>
+#include <USBHIDMouse.h>
 #include <USBHIDSystemControl.h>
 
 #include <tfw/hal/logging.h>
@@ -18,6 +19,7 @@ namespace {
     USBHIDKeyboard keyboard;
     USBHIDConsumerControl consumerControl;
     USBHIDSystemControl systemControl;
+    USBHIDMouse mouse;
 
     bool isConnected = false;
 
@@ -49,6 +51,7 @@ void tfw::hal::usb::RealConnection::setup() {
     keyboard.begin();
     consumerControl.begin();
     systemControl.begin();
+    mouse.begin();
 
     time::delayMs(500);
 
@@ -102,6 +105,17 @@ void tfw::hal::usb::RealConnection::sendAction(Action& action) {
     if (typeAction != nullptr) {
         for (auto& character : typeAction->text) {
             characterOutputQueue.enqueue(character);
+        }
+    }
+
+    const auto mouseAction = dynamic_cast<MouseAction*>(&action);
+    if (mouseAction != nullptr) {
+        if (mouseAction->buttons != 0) {
+            mouse.click(mouseAction->buttons);
+        }
+
+        if (mouseAction->x != 0 || mouseAction->y != 0 || mouseAction->wheel != 0 || mouseAction->pan != 0) {
+            mouse.move(mouseAction->x, mouseAction->y, mouseAction->wheel, mouseAction->pan);
         }
     }
 }

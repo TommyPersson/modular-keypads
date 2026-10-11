@@ -15,6 +15,7 @@ namespace tfw::hal::usb {
         static std::shared_ptr<Action> consumerControl(uint16_t usageId);
         static std::shared_ptr<Action> systemControl(uint8_t code);
         static std::shared_ptr<Action> type(const std::string_view& text);
+        static std::shared_ptr<Action> mouse(uint8_t buttons, int8_t x, int8_t y, int8_t wheel, int8_t pan);
     };
 
     struct ConsumerControlAction final : Action {
@@ -55,5 +56,20 @@ namespace tfw::hal::usb {
         }
 
         const std::string text;
+    };
+
+    // Relative mouse report. Buttons are clicked (pressed and released) before moving/scrolling.
+    struct MouseAction final : Action {
+        MouseAction(const uint8_t buttons, const int8_t x, const int8_t y, const int8_t wheel, const int8_t pan)
+            : buttons(buttons), x(x), y(y), wheel(wheel), pan(pan) {
+        }
+
+        ~MouseAction() override = default;
+
+        const uint8_t buttons;
+        const int8_t x;
+        const int8_t y;
+        const int8_t wheel;
+        const int8_t pan;
     };
 }

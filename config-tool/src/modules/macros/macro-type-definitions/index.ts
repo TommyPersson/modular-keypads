@@ -1,6 +1,9 @@
 import { TextMacroTypeDefinition } from "@src/modules/macros/macro-type-definitions/TextMacroTypeDefinition"
 import type { MacroDefinition, MacroTypeDefinition } from "@src/modules/macros/models"
 import { ConsumerControlMacroTypeDefinition } from "./ConsumerControlMacroTypeDefinition"
+import { MouseButtonMacroTypeDefinition } from "./MouseButtonMacroTypeDefinition"
+import { MouseMovementMacroTypeDefinition } from "./MouseMovementMacroTypeDefinition"
+import { MouseScrollMacroTypeDefinition } from "./MouseScrollMacroTypeDefinition"
 import { ShortcutMacroTypeDefinition } from "./ShortcutMacroTypeDefinition"
 import { SystemControlTypeDefinition } from "./SystemControlTypeDefinition"
 
@@ -10,6 +13,9 @@ const allMacroTypeDefinitions: MacroTypeDefinition<MacroDefinition>[] = [
   ConsumerControlMacroTypeDefinition as any,
   SystemControlTypeDefinition as any,
   TextMacroTypeDefinition as any,
+  MouseScrollMacroTypeDefinition as any,
+  MouseButtonMacroTypeDefinition as any,
+  MouseMovementMacroTypeDefinition as any,
 ]
 
 export type MacroTypeDefinitions = {
