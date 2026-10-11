@@ -18,7 +18,7 @@ import {
 import { GetDeviceLogsQuery } from "@src/modules/device-debugger/queries"
 import { useDeviceFacade } from "@src/modules/device/context"
 import type { LogMessage } from "@src/modules/device/models"
-import { takeFirst } from "@src/utils/arrays"
+import { takeLast } from "@src/utils/arrays"
 import { useQuery } from "@tanstack/react-query"
 import { type ComponentProps, forwardRef, memo, useCallback, useMemo, useState } from "react"
 import { TransitionGroup } from "react-transition-group"
@@ -72,9 +72,8 @@ export const DeviceLogsToolPaneContent = () => {
         <TransitionGroup style={{ display: "flex", flexDirection: "column", gap: 8, width: 600, minHeight: 400 }}>
           {state.filteredLogMessages.map(logMessage => {
             return (
-              <Collapse>
+              <Collapse key={logMessage.key}>
                 <LogMessageAlert
-                  key={logMessage.key}
                   logMessage={logMessage}
                   onClose={state.handleLogMessageClosed}
                 />
@@ -108,7 +107,7 @@ function useDeviceLogsToolPaneState() {
   const [logLevels, setLogLevels] = useState<string[]>(initialLevels)
 
   const filteredLogMessages = useMemo(() => {
-    return takeFirst(logMessages.filter(it => logLevels.includes(it.level)), 50)
+    return [...takeLast(logMessages.filter(it => logLevels.includes(it.level)), 50)].reverse()
   }, [logMessages, logLevels])
 
   const handleLogLevelsChange = useCallback((_: any, values: string[]) => {

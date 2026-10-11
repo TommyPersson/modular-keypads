@@ -11,11 +11,14 @@ export interface DeviceFacade {
   executeCommand<TResult>(command: DeviceCommand<TResult>): Promise<TResult>
 
   messages$: Observable<DeviceMessage>
+  traffic$: Observable<DeviceMessage[]>
   logs$: Observable<LogMessage[]>
   notifications$: Observable<NotificationMessage>
 
+  traffic: ReadonlyArray<DeviceMessage>
   logs: ReadonlyArray<LogMessage>
 
+  clearTraffic(): void
   clearLogs(): void
   deleteLogMessage(key: number): void
 

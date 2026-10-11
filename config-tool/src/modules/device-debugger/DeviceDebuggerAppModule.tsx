@@ -1,11 +1,13 @@
 import BugReportOutlinedIcon from "@mui/icons-material/BugReportOutlined"
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined"
+import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined"
 import type { AppModule } from "@src/modules/common/AppModule"
 import {
   DeviceDebuggerPage,
   DeviceLogsToolPaneContent,
   DeviceLogsToolPaneIcon,
-  DeviceMetricsToolPaneContent
+  DeviceMetricsToolPaneContent,
+  DeviceTrafficToolPaneContent
 } from "@src/modules/device-debugger/ui"
 
 export const DeviceDebuggerAppModule: AppModule = {
@@ -36,6 +38,12 @@ export const DeviceDebuggerAppModule: AppModule = {
       title: "Device Metrics",
       component: <DeviceMetricsToolPaneContent />,
       icon: <AssessmentOutlinedIcon />
+    },
+    {
+      id: "device-traffic",
+      title: "Device Serial Traffic",
+      component: <DeviceTrafficToolPaneContent />,
+      icon: <SwapVertOutlinedIcon />
     }
   ]
 }

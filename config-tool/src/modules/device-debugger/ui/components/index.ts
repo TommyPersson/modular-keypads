@@ -1,6 +1,6 @@
 export * from "./DeviceInformationCard"
 export * from "./DeviceRegistersCard"
-export * from "./DeviceTrafficLogsCard"
+export * from "./DeviceTrafficToolPaneContent"
 export * from "./PingCommandCard"
 export * from "./DevicePreviewCard"
 export * from "./DeviceLogsToolPaneContent"

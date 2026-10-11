@@ -65,8 +65,10 @@ export class MockDeviceFacade implements DeviceFacade {
   onQueryDataChanged: (queryKey: readonly unknown[]) => void = () => {}
 
   readonly messages$: Observable<DeviceMessage> = NEVER
+  readonly traffic$: Observable<DeviceMessage[]> = NEVER
   readonly logs$: Observable<LogMessage[]> = NEVER
   readonly notifications$: Observable<NotificationMessage>
+  readonly traffic: ReadonlyArray<DeviceMessage> = []
   readonly logs: ReadonlyArray<LogMessage> = []
 
   readonly isConnected$ = new BehaviorSubject(true)
@@ -173,6 +175,9 @@ export class MockDeviceFacade implements DeviceFacade {
     this.devices = this.devices.map(it => it.deviceId === deviceId ? { ...it, deviceName } : it)
     // As sent by the device, which makes the device list refresh
     this.notify({ deviceId, type: "device.renamed", args: [] })
+  }
+
+  clearTraffic(): void {
   }
 
   clearLogs(): void {

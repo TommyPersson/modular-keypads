@@ -1,5 +1,5 @@
 import type { DeviceCommand } from "@src/modules/device/facade/device-commands/DeviceCommand"
-import { takeFirst } from "@src/utils/arrays"
+import { takeLast } from "@src/utils/arrays"
 import { readLines } from "@src/utils/streams"
 import { DateTime } from "luxon"
 import { BehaviorSubject, Observable, Subject } from "rxjs"
@@ -7,10 +7,13 @@ import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage 
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type { DeviceFacade } from "./DeviceFacade"
 
+const MaxTrafficMessages = 1000
+
 export class DeviceFacadeImpl implements DeviceFacade {
 
   private messagesSubject = new Subject<DeviceMessage>()
   private logsSubject = new Subject<LogMessage[]>()
+  private trafficSubject = new BehaviorSubject<DeviceMessage[]>([])
   private notificationsSubject = new Subject<NotificationMessage>()
 
   private _logs: LogMessage[] = []
@@ -29,6 +32,9 @@ export class DeviceFacadeImpl implements DeviceFacade {
   private nextLogMessageKey = 0
 
   constructor() {
+    this.messagesSubject.subscribe(message => {
+      this.trafficSubject.next([...takeLast(this.trafficSubject.value, MaxTrafficMessages - 1), message])
+    })
   }
 
   async connect(): Promise<void> {
@@ -79,7 +85,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
                   message: message ? message : component
                 }
 
-                this._logs = [...takeFirst(this._logs, 999), logMessage]
+                this._logs = [...takeLast(this._logs, 999), logMessage]
                 this.logsSubject.next(this._logs)
               }
             }
@@ -177,6 +183,18 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
   get messages$(): Observable<DeviceMessage> {
     return this.messagesSubject
+  }
+
+  get traffic$(): Observable<DeviceMessage[]> {
+    return this.trafficSubject
+  }
+
+  get traffic(): ReadonlyArray<DeviceMessage> {
+    return this.trafficSubject.value
+  }
+
+  clearTraffic(): void {
+    this.trafficSubject.next([])
   }
 
   get logs$(): Observable<LogMessage[]> {
