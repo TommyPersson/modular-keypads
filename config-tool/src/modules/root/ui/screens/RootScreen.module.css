@@ -4,3 +4,15 @@
     background: #eeeeee;
 }
 
+.ToolPaneOverlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    pointer-events: none;
+}
+
+.ToolPaneOverlay :global(.MuiPaper-root) {
+    pointer-events: auto;
+}
+

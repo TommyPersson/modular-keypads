@@ -2,10 +2,9 @@ import { Divider, Paper, Stack } from "@mui/material"
 import { ConfigurationTransferButtons } from "@src/modules/config-transfer/ui"
 import { useDeviceContext } from "@src/modules/device/context"
 import { DeviceConnectionControl, TestModeSwitch } from "@src/modules/device/ui"
+import { MAIN_CONTROL_BAR_HEIGHT, MAIN_CONTROL_BAR_MARGIN } from "@src/modules/root/ui/overlayLayout"
 
 // Fixed, so that the space the bar takes can be kept clear below the tool panes
-export const MAIN_CONTROL_BAR_HEIGHT = 48
-export const MAIN_CONTROL_BAR_MARGIN = 16
 
 /**
  * Floats at the bottom center of the window, above everything else.

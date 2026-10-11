@@ -4,10 +4,7 @@ import {
   KeyboardEventsToolPaneContent
 } from "@src/modules/key-bindings/ui/components/KeyboardEventsToolPaneContent/KeyboardEventsToolPaneContent"
 import { useToolPaneContext } from "@src/modules/root/ui"
-import {
-  MAIN_CONTROL_BAR_HEIGHT,
-  MAIN_CONTROL_BAR_MARGIN
-} from "@src/modules/root/ui/components/MainControlBar"
+import { overlayInsets, TOOL_PANE_MARGIN, TOOL_PANE_WIDTH } from "@src/modules/root/ui/overlayLayout"
 import { useState } from "react"
 
 export const ToolPane = () => {
@@ -27,8 +24,13 @@ export const ToolPane = () => {
     <Collapse in={isOpen} orientation={"horizontal"} unmountOnExit style={{ height: "100%" }}>
       <Stack style={{ height: "100vh" }}>
         {/* Ends above the main control bar, so that they don't overlap in narrow windows */}
-        <Box flex={1} minHeight={0} padding={2} paddingBottom={`${MAIN_CONTROL_BAR_HEIGHT + 2 * MAIN_CONTROL_BAR_MARGIN}px`}>
-          <Paper elevation={6} sx={{ height: "100%", width: 700, overflowY: "auto", borderRadius: 2 }}>
+        <Box
+          flex={1}
+          minHeight={0}
+          padding={`${TOOL_PANE_MARGIN}px`}
+          paddingBottom={`${overlayInsets(true).bottom}px`}
+        >
+          <Paper elevation={6} sx={{ height: "100%", width: TOOL_PANE_WIDTH, overflowY: "auto", borderRadius: 2 }}>
             {content}
           </Paper>
         </Box>

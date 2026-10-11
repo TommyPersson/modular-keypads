@@ -1,4 +1,4 @@
-import { Box, CssBaseline, Fade, Grid, Stack } from "@mui/material"
+import { Box, CssBaseline, Fade, Stack } from "@mui/material"
 import { useDeviceContext } from "@src/modules/device/context"
 import { MainControlBar } from "@src/modules/root/ui/components/MainControlBar"
 import { ToolPane, useToolPaneContext } from "@src/modules/root/ui/components/ToolPane"
@@ -35,27 +35,22 @@ export const RootScreen = () => {
     <Box className={classes.RootScreen}>
       <CssBaseline />
 
-      <Grid container>
-        <Grid size={"grow"}>
-          <Stack style={{ height: "100vh", overflow: "hidden" }}>
-            <Stack flexGrow={1} overflow={"auto"}>
-              <Outlet />
-            </Stack>
-          </Stack>
-        </Grid>
-        <Grid size={"auto"} style={{ height: "100vh" }}>
-          <Stack flexGrow={1} overflow={"auto"} style={{ height: "100vh" }}>
-            <ToolPane />
-          </Stack>
-        </Grid>
-        <Grid size={"auto"}>
-          <Fade in={isConnected} unmountOnExit>
-            <div>
-              <ToolPaneNavBar />
-            </div>
-          </Fade>
-        </Grid>
-      </Grid>
+      <Stack style={{ height: "100vh", overflow: "auto" }}>
+        <Outlet />
+      </Stack>
+
+      {/*
+        On top of the page rather than next to it, so that the page keeps the whole window. Only the panes themselves
+        take the pointer, so that the page can still be used around them.
+      */}
+      <Stack direction={"row"} className={classes.ToolPaneOverlay}>
+        <ToolPane />
+        <Fade in={isConnected} unmountOnExit>
+          <div>
+            <ToolPaneNavBar />
+          </div>
+        </Fade>
+      </Stack>
 
       <MainControlBar />
     </Box>

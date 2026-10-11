@@ -3,6 +3,8 @@ import { AllAppModules } from "@src/AllAppModules"
 import { useToolPaneContext } from "@src/modules/root/ui/components/ToolPane/ToolPaneContext"
 import { Fragment } from "react"
 
+import { TOOL_PANE_NAV_BAR_ITEM_WIDTH, TOOL_PANE_NAV_BAR_MARGIN } from "@src/modules/root/ui/overlayLayout"
+
 import classes from "./ToolPaneNavBar.module.css"
 
 export const ToolPaneNavBar = () => {
@@ -12,7 +14,7 @@ export const ToolPaneNavBar = () => {
   const toolPanes = AllAppModules.flatMap(it => it.toolPanes)
 
   return (
-    <Box sx={{ py: 2, pr: 2 }}>
+    <Box sx={{ py: `${TOOL_PANE_NAV_BAR_MARGIN}px`, pr: `${TOOL_PANE_NAV_BAR_MARGIN}px` }}>
       <Paper elevation={6} sx={{ borderRadius: 2, overflow: "hidden" }}>
         <List disablePadding>
           {toolPanes.map((it, index) => (
@@ -48,7 +50,7 @@ const ToolPaneNavItem = (props: {
         <ListItemButton
           selected={selected}
           onClick={onSelect}
-          sx={{ flexDirection: "column", width: 72, px: 0.5, py: 1 }}
+          sx={{ flexDirection: "column", width: TOOL_PANE_NAV_BAR_ITEM_WIDTH, px: 0.5, py: 1 }}
         >
           <ListItemIcon sx={{
             justifyContent: "center",
