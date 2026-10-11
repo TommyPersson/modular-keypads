@@ -1,6 +1,6 @@
 import { Chip } from "@mui/material"
-import { keyboadKeyCodes } from "@src/modules/macros/data"
 import type { Shortcut } from "@src/modules/macros/models"
+import { keyCodeLabel } from "./macroLabels"
 import { ModifiersVisualization } from "./ModifiersVisualization"
 
 export const ShortcutVisualization = (props: {
@@ -8,18 +8,11 @@ export const ShortcutVisualization = (props: {
 }) => {
   const { shortcut } = props
 
-  const hidKeyCode = keyboadKeyCodes.byHidCode[shortcut.hidCode]
-
-  const keyCodeLabel = (
-    <>
-      <strong>{hidKeyCode.hidDescription}</strong>&nbsp;
-      (0x{hidKeyCode.hidCode.toString(16).padStart(2, "0")})
-    </>
-  )
+  const { description, code } = keyCodeLabel(shortcut.hidCode)
 
   return (
     <ModifiersVisualization modifiers={shortcut.modifiers}>
-      <Chip label={keyCodeLabel} size={"small"} color={"primary"} />
+      <Chip label={<><strong>{description}</strong>&nbsp;({code})</>} size={"small"} color={"primary"} />
     </ModifiersVisualization>
   )
 }

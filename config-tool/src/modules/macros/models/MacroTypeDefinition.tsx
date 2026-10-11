@@ -30,4 +30,7 @@ export type MacroTypeDefinition<TMacroDefinition extends MacroDefinition> = {
   typeVisualizationComponent: React.ElementType<unknown>
 
   macroTableCellComponent: React.ElementType<{ macro: TMacroDefinition }>
+
+  // The texts shown by the table cell component, which the macros can be filtered on
+  searchTexts(macro: TMacroDefinition): string[]
 }

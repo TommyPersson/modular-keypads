@@ -10,6 +10,7 @@ import {
   parseModifierFlags
 } from "@src/modules/macros/models"
 import { MouseButtonMacroCellContent } from "./components/MouseButtonMacroCellContent"
+import { modifiersLabel, mouseButtonLabel, texts } from "./components/macroLabels"
 import { MouseButtonMacroDefinitionEditor } from "./components/MouseButtonMacroDefinitionEditor"
 
 
@@ -66,6 +67,10 @@ export const MouseButtonMacroTypeDefinition: MacroTypeDefinition<MouseButtonMacr
   editorComponent: MouseButtonMacroDefinitionEditor,
 
   macroTableCellComponent: MouseButtonMacroCellContent,
+
+  searchTexts(macro: MouseButtonMacroDefinition): string[] {
+    return texts(modifiersLabel(macro.modifiers), mouseButtonLabel(macro.buttons))
+  },
 
   typeVisualizationComponent: () => (
     <Tooltip title={"Mouse Button"}>

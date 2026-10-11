@@ -7,6 +7,7 @@ import {
   type SystemControlMacroDefinition
 } from "@src/modules/macros/models"
 import { SystemControlMacroCellContent } from "./components/SystemControlMacroCellContent"
+import { systemControlLabel, texts } from "./components/macroLabels"
 import { SystemControlMacroDefinitionEditor } from "./components/SystemControlMacroDefinitionEditor"
 
 
@@ -62,6 +63,10 @@ export const SystemControlTypeDefinition: MacroTypeDefinition<SystemControlMacro
   editorComponent: SystemControlMacroDefinitionEditor,
 
   macroTableCellComponent: SystemControlMacroCellContent,
+
+  searchTexts(macro: SystemControlMacroDefinition): string[] {
+    return texts(systemControlLabel(macro.code))
+  },
 
   typeVisualizationComponent: () => (
     <Tooltip title={"System Control"}>

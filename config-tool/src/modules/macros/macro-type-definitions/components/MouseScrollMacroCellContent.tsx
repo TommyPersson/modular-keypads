@@ -1,5 +1,6 @@
 import { Chip } from "@mui/material"
 import type { MouseScrollMacroDefinition } from "@src/modules/macros/models"
+import { mouseScrollLabel } from "./macroLabels"
 import { ModifiersVisualization } from "./ModifiersVisualization"
 
 export const MouseScrollMacroCellContent = (props: {
@@ -7,21 +8,15 @@ export const MouseScrollMacroCellContent = (props: {
 }) => {
   const { macro } = props
 
-  const directions: string[] = []
-  if (macro.wheel !== 0) {
-    directions.push(`${macro.wheel > 0 ? "up" : "down"} ${Math.abs(macro.wheel)}`)
-  }
-  if (macro.pan !== 0) {
-    directions.push(`${macro.pan > 0 ? "right" : "left"} ${Math.abs(macro.pan)}`)
-  }
-  if (directions.length === 0) {
+  const label = mouseScrollLabel(macro.wheel, macro.pan)
+  if (!label) {
     return null
   }
 
   return (
     <ModifiersVisualization modifiers={macro.modifiers}>
       <Chip
-        label={<strong>{`Scroll ${directions.join(", ")}`}</strong>}
+        label={<strong>{label}</strong>}
         size={"small"}
         color={"primary"}
       />

@@ -9,6 +9,7 @@ import {
   type ShortcutMacroDefinition
 } from "@src/modules/macros/models"
 import { ShortcutMacroCellContent } from "./components/ShortcutMacroCellContent"
+import { keyCodeLabel, modifiersLabel, shortcutHoldLabel, texts } from "./components/macroLabels"
 import { ShortcutMacroDefinitionEditor } from "./components/ShortcutMacroDefinitionEditor"
 
 
@@ -83,6 +84,14 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
   editorComponent: ShortcutMacroDefinitionEditor,
 
   macroTableCellComponent: ShortcutMacroCellContent,
+
+  searchTexts(macro: ShortcutMacroDefinition): string[] {
+    return texts(
+      modifiersLabel(macro.shortcut.modifiers),
+      ...Object.values(keyCodeLabel(macro.shortcut.hidCode)),
+      shortcutHoldLabel(macro),
+    )
+  },
 
   typeVisualizationComponent: () => (
     <Tooltip title={"Shortcut"}>

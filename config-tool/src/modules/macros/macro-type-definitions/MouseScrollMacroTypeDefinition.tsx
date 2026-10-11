@@ -9,6 +9,7 @@ import {
   parseModifierFlags
 } from "@src/modules/macros/models"
 import { MouseScrollMacroCellContent } from "./components/MouseScrollMacroCellContent"
+import { modifiersLabel, mouseScrollLabel, texts } from "./components/macroLabels"
 import { MouseScrollMacroDefinitionEditor } from "./components/MouseScrollMacroDefinitionEditor"
 
 
@@ -67,6 +68,10 @@ export const MouseScrollMacroTypeDefinition: MacroTypeDefinition<MouseScrollMacr
   editorComponent: MouseScrollMacroDefinitionEditor,
 
   macroTableCellComponent: MouseScrollMacroCellContent,
+
+  searchTexts(macro: MouseScrollMacroDefinition): string[] {
+    return texts(modifiersLabel(macro.modifiers), mouseScrollLabel(macro.wheel, macro.pan))
+  },
 
   typeVisualizationComponent: () => (
     <Tooltip title={"Mouse Scroll"}>

@@ -1,7 +1,7 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import { Chip, Stack } from "@mui/material"
-import { keyboadKeyCodes } from "@src/modules/macros/data"
 import type { ReactNode } from "react"
+import { modifiersLabel } from "./macroLabels"
 
 // Shows the modifiers, if any, followed by a plus sign and what they modify
 export const ModifiersVisualization = (props: {
@@ -10,16 +10,13 @@ export const ModifiersVisualization = (props: {
 }) => {
   const { modifiers, children } = props
 
-  const modifiersLabel = modifiers
-    .map(hidCode => keyboadKeyCodes.byHidCode[hidCode])
-    .map(it => it.hidDescription)
-    .join(" + ")
+  const label = modifiersLabel(modifiers)
 
   return (
     <Stack direction={"row"} alignItems={"center"}>
-      {modifiers.length > 0 && (
+      {label && (
         <>
-          <Chip label={modifiersLabel} size={"small"} color={"secondary"} />
+          <Chip label={label} size={"small"} color={"secondary"} />
           <AddOutlinedIcon fontSize={"small"} />
         </>
       )}

@@ -60,6 +60,10 @@ export const TextMacroTypeDefinition: MacroTypeDefinition<TextMacroDefinition> =
 
   macroTableCellComponent: TextMacroCellContent,
 
+  searchTexts(macro: TextMacroDefinition): string[] {
+    return [macro.text]
+  },
+
   typeVisualizationComponent: () => (
     <Tooltip title={"Text"}>
       <TextFieldsOutlinedIcon fontSize={"small"} />

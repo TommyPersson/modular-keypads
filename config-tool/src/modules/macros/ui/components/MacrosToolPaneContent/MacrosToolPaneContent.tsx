@@ -82,7 +82,7 @@ export const MacrosToolPaneContent = () => {
         <TextField
           size={"small"}
           fullWidth
-          placeholder={"Filter by name or directory"}
+          placeholder={"Filter by name, directory or definition"}
           value={filter}
           onChange={e => setFilter(e.target.value)}
           slotProps={{
@@ -109,18 +109,22 @@ export const MacrosToolPaneContent = () => {
   )
 }
 
-// Keeps the macros that match the filter by name or directory, along with their directories
+// Keeps the macros that match all words of the filter, along with their directories. The words can be found in the
+// name, the directory or the definition as shown in the table, e.g. a modifier or a key code.
 function filterMacros(macrosByDirectory: [string, MacroDefinition[]][], filter: string): [string, MacroDefinition[]][] {
-  const query = filter.trim().toLocaleLowerCase()
-  if (query.length === 0) {
+  const words = filter.trim().toLocaleLowerCase().split(/\s+/).filter(it => it.length > 0)
+  if (words.length === 0) {
     return macrosByDirectory
   }
 
-  const matches = (text: string | null) => !!text && text.toLocaleLowerCase().includes(query)
+  const matches = (macro: MacroDefinition) => {
+    const searchTexts = macroTypeDefinitions.byType[macro.type]?.searchTexts(macro) ?? []
+    const text = [macro.name, macro.directory ?? "", ...searchTexts].join("\n").toLocaleLowerCase()
+    return words.every(word => text.includes(word))
+  }
 
   return macrosByDirectory
-    .map(([directory, macros]): [string, MacroDefinition[]] =>
-      [directory, macros.filter(it => matches(it.name) || matches(it.directory))])
+    .map(([directory, macros]): [string, MacroDefinition[]] => [directory, macros.filter(matches)])
     .filter(([, macros]) => macros.length > 0)
 }
 

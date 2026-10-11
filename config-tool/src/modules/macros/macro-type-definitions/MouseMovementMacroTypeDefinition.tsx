@@ -9,6 +9,7 @@ import {
   parseModifierFlags
 } from "@src/modules/macros/models"
 import { MouseMovementMacroCellContent } from "./components/MouseMovementMacroCellContent"
+import { modifiersLabel, mouseMovementLabel, texts } from "./components/macroLabels"
 import { MouseMovementMacroDefinitionEditor } from "./components/MouseMovementMacroDefinitionEditor"
 
 
@@ -67,6 +68,10 @@ export const MouseMovementMacroTypeDefinition: MacroTypeDefinition<MouseMovement
   editorComponent: MouseMovementMacroDefinitionEditor,
 
   macroTableCellComponent: MouseMovementMacroCellContent,
+
+  searchTexts(macro: MouseMovementMacroDefinition): string[] {
+    return texts(modifiersLabel(macro.modifiers), mouseMovementLabel(macro.x, macro.y))
+  },
 
   typeVisualizationComponent: () => (
     <Tooltip title={"Mouse Movement"}>

@@ -7,6 +7,7 @@ import {
   type MacroTypeDefinition
 } from "@src/modules/macros/models"
 import { ConsumerControlMacroCellContent } from "./components/ConsumerControlMacroCellContent"
+import { consumerControlLabel, texts } from "./components/macroLabels"
 import { ConsumerControlMacroDefinitionEditor } from "./components/ConsumerControlMacroDefinitionEditor"
 
 
@@ -69,6 +70,10 @@ export const ConsumerControlMacroTypeDefinition: MacroTypeDefinition<ConsumerCon
   editorComponent: ConsumerControlMacroDefinitionEditor,
 
   macroTableCellComponent: ConsumerControlMacroCellContent,
+
+  searchTexts(macro: ConsumerControlMacroDefinition): string[] {
+    return texts(...Object.values(consumerControlLabel(macro.usageId) ?? {}))
+  },
 
   typeVisualizationComponent: () => (
     <Tooltip title={"Consumer Control"}>
