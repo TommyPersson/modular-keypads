@@ -1,5 +1,0 @@
-.DeviceSelect {
-    :global(.MuiSelect-select) {
-        display: flex;
-    }
-}
