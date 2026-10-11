@@ -1,9 +1,7 @@
-import BugReportOutlinedIcon from "@mui/icons-material/BugReportOutlined"
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined"
 import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined"
 import type { AppModule } from "@src/modules/common/AppModule"
 import {
-  DeviceDebuggerPage,
   DeviceLogsToolPaneContent,
   DeviceLogsToolPaneIcon,
   DeviceMetricsToolPaneContent,
@@ -13,19 +11,8 @@ import {
 export const DeviceDebuggerAppModule: AppModule = {
   id: "device-debugger",
   order: 999,
-  navItems: [
-    {
-      title: "Device Debugger",
-      link: "/device-debugger",
-      icon: <BugReportOutlinedIcon />
-    }
-  ],
-  routes: [
-    {
-      path: "device-debugger",
-      Component: DeviceDebuggerPage,
-    }
-  ],
+  navItems: [],
+  routes: [],
   toolPanes: [
     {
       id: "device-logs",

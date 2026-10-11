@@ -1,7 +1,7 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import { Box, Collapse, Fade, IconButton, Stack, Tooltip, Zoom } from "@mui/material"
-import { TopLevelDevicePreviewCard } from "@src/modules/device-debugger/ui/components/DevicePreviewCard"
+import { TopLevelDevicePreviewCard } from "../DevicePreviewCard"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { useDeviceOrder } from "@src/modules/overview/hooks/useDeviceOrder"
 import { useReorderAnimation } from "@src/modules/overview/hooks/useReorderAnimation"

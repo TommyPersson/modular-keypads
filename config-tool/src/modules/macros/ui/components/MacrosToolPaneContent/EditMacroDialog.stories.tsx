@@ -1,4 +1,4 @@
-import { macros, typeC } from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
+import { macros, typeC } from "@src/modules/overview/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
 import { withMockDevice } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { fn } from "storybook/test"

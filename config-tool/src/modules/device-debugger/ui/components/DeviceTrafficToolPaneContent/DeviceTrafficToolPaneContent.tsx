@@ -1,7 +1,9 @@
 import DeleteSweepOutlinedIcon from "@mui/icons-material/DeleteSweepOutlined"
 import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined"
 import { Button, CardContent, CardHeader, Stack } from "@mui/material"
-import { useDeviceFacade } from "@src/modules/device/context"
+import { CommandButton } from "@src/modules/common/components"
+import { PingDeviceCommand } from "@src/modules/device-debugger/commands"
+import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceMessage } from "@src/modules/device/models"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -18,11 +20,18 @@ export const DeviceTrafficToolPaneContent = () => {
           </Stack>
         }
         action={(
-          <Button
-            startIcon={<DeleteSweepOutlinedIcon />}
-            onClick={state.handleClearClick}
-            children={"Clear"}
-          />
+          <Stack direction={"row"} gap={2}>
+            <CommandButton
+              command={PingDeviceCommand}
+              args={{}}
+              disabled={!state.isConnected}
+            />
+            <Button
+              startIcon={<DeleteSweepOutlinedIcon />}
+              onClick={state.handleClearClick}
+              children={"Clear"}
+            />
+          </Stack>
         )}
       />
       <CardContent>
@@ -44,7 +53,7 @@ export const DeviceTrafficToolPaneContent = () => {
 }
 
 function useDeviceTrafficToolPaneState() {
-  const deviceFacade = useDeviceFacade()
+  const { facade: deviceFacade, isConnected } = useDeviceContext()
 
   const scrollViewRef = useRef<HTMLPreElement | null>(null)
   const [traffic, setTraffic] = useState<ReadonlyArray<DeviceMessage>>(deviceFacade.traffic)
@@ -67,6 +76,7 @@ function useDeviceTrafficToolPaneState() {
 
   return {
     traffic,
+    isConnected,
     scrollViewRef,
     handleClearClick,
   }

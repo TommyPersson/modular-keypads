@@ -1,1 +1,1 @@
-export * from "./EditSettingsCard"
+export * from "./SettingsToolPaneContent"

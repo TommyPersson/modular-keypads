@@ -7,7 +7,7 @@ import {
   smc3,
   typeA,
   typeC
-} from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
+} from "@src/modules/overview/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
 import { mockDevice, mockNotifications, useMockDeviceFacade, withMockDevice } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { type ReactNode, useState } from "react"

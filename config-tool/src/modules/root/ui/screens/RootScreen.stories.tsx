@@ -6,7 +6,7 @@ import {
   smc3,
   typeA,
   typeC
-} from "@src/modules/device-debugger/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
+} from "@src/modules/overview/ui/components/DevicePreviewCard/DevicePreviewCard.storyData"
 import { OverviewPage } from "@src/modules/overview/ui/pages"
 import { ToolPaneContextProvider } from "@src/modules/root/ui/components/ToolPane/ToolPaneContextProvider"
 import { mockDevice, withMockDevice } from "@src/storybook"

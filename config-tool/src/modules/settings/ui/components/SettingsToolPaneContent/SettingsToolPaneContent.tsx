@@ -1,12 +1,13 @@
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined"
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 import {
   Button,
-  Card,
   CardActions,
   CardContent,
   CardHeader,
   IconButton,
   InputAdornment,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -25,7 +26,7 @@ import { useCallback, useMemo, useState } from "react"
 // Edited values by setting key, kept as entered so that invalid input can be shown
 type EditedValues = Record<string, string>
 
-export const EditSettingsCard = () => {
+export const SettingsToolPaneContent = () => {
   const settingsQuery = useSettingsQuery()
   const settings = useMemo(() => settingsQuery.data ?? [], [settingsQuery.data])
 
@@ -42,8 +43,16 @@ export const EditSettingsCard = () => {
   const changes = useMemo(() => getChanges(settings, editedValues), [settings, editedValues])
 
   return (
-    <Card>
-      <CardHeader title={"Settings"} subheader={"Settings that apply to the whole keypad"} />
+    <Stack>
+      <CardHeader
+        title={
+          <Stack spacing={1} direction={"row"} alignItems={"center"}>
+            <SettingsOutlinedIcon />
+            <span>Settings</span>
+          </Stack>
+        }
+        subheader={"Settings that apply to the whole keypad"}
+      />
       <ErrorAlert title={"Unable to load settings"} error={settingsQuery.error} />
       <CardContent style={{ paddingLeft: 0, paddingRight: 0 }}>
         <Table size={"small"}>
@@ -82,7 +91,7 @@ export const EditSettingsCard = () => {
           variant={"contained"}
         />
       </CardActions>
-    </Card>
+    </Stack>
   )
 }
 
