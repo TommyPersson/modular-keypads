@@ -7,7 +7,6 @@ namespace {
 
     auto prefsNamespace = "device";
     auto prefsKeyDeviceId = "device.id";
-    auto prefsKeyDeviceAddress = "device.address";
     auto prefsKeyDeviceName = "device.name";
 
     uint64_t generateNewId() {
@@ -44,19 +43,6 @@ void DeviceConfigurationManager::begin() const {
         logger->info("read existing device ID = '%08llx'", existingId);
     }
 
-    const uint8_t existingAddress = preferences.getUChar(prefsKeyDeviceAddress);
-    if (existingAddress == 0) {
-        const uint8_t newAddress = 1;
-        const auto numWritten = this->preferences.putUChar(prefsKeyDeviceAddress, newAddress);
-        logger->info(
-            "generated new device address = '%0x02x' (numWritten = %i)",
-            newAddress,
-            numWritten
-        );
-    } else {
-        logger->info("read existing device address = '0x%02x'", existingAddress);
-    }
-
     this->preferences.end();
 }
 
@@ -70,20 +56,6 @@ uint64_t DeviceConfigurationManager::getDeviceId() const {
 
 std::string DeviceConfigurationManager::getDeviceVersion() const {
     return "0.0.1";
-}
-
-uint8_t DeviceConfigurationManager::getDeviceAddress() const {
-    this->preferences.begin(prefsNamespace, true);
-    const auto address = this->preferences.getUChar(prefsKeyDeviceAddress);
-    this->preferences.end();
-    return address;
-}
-
-bool DeviceConfigurationManager::setDeviceAddress(const uint8_t deviceAddress) const {
-    this->preferences.begin(prefsNamespace, false);
-    const auto numWritten = this->preferences.putUChar(prefsKeyDeviceAddress, deviceAddress);
-    this->preferences.end();
-    return numWritten > 0;
 }
 
 std::string DeviceConfigurationManager::getDeviceType() const {
@@ -115,7 +87,8 @@ DeviceConfiguration DeviceConfigurationManager::getDeviceConfiguration() const {
         .id = getDeviceId(),
         .name = getDeviceName(),
         .type = getDeviceType(),
-        .address = getDeviceAddress(),
+        // The local device either is the master, which has no address, or gets one assigned by the master
+        .address = 0,
         .parentDeviceId = 0,
     };
 }

@@ -3,9 +3,11 @@
 #ifdef ARDUINO
 
 #include <cstring>
+#include <esp_random.h>
 #include <Wire.h>
 
 #include <tfw/hal/logging.h>
+#include "AddressAllocator.h"
 #include "Commands.h"
 #include "Pins.h"
 
@@ -28,10 +30,16 @@ namespace tfw::hal::i2c {
 
     SlavePort::~SlavePort() = default;
 
-    void SlavePort::setup(const uint8_t address, Pins pins, const uint8_t eventInterruptPin, const uint8_t discoveryPin) {
+    void SlavePort::setup(const uint64_t deviceId, Pins pins, const uint8_t eventInterruptPin, const uint8_t discoveryPin) {
+        this->deviceId = deviceId;
+        this->pins = pins;
+
+        const auto identity = Identity::of(deviceId);
+        updateEndpoint(endpoints::builtin::Identity, &identity);
+
         twoWire.onReceive([this](const int len) { onReceiveCallback(len); });
         twoWire.onRequest([this]() { onRequestCallback(); });
-        twoWire.begin(address, pins.SDA, pins.SCL, 100'000);
+        listenAt(randomTemporaryAddress());
 
         eventInterruptOutputPin = gpio::OutputPin::physical(eventInterruptPin, OPEN_DRAIN);
         eventInterruptOutputPin->init();
@@ -97,6 +105,10 @@ namespace tfw::hal::i2c {
                 pendingCommand = *next;
             }
 
+            if (processAddressCommand(pendingCommand)) {
+                continue;
+            }
+
             for (auto& commandPtr : knownCommandsHandlers) {
                 const auto command = static_cast<commands::RemoteCommandHandler<commands::AnyParams>*>(commandPtr);
                 const auto message = command->parseMessage(pendingCommand.bytes);
@@ -107,6 +119,51 @@ namespace tfw::hal::i2c {
                 command->execute(message->targetDeviceId, &message->params); // TODO what to do with returned errors?
             }
         }
+    }
+
+    bool SlavePort::processAddressCommand(const PendingCommand& command) {
+        const auto commandId = command.bytes[0];
+
+        if (commandId == commands::builtin::AssignAddress.id) {
+            const auto message =
+                reinterpret_cast<const commands::CommandMessage<commands::builtin::AssignAddressParams>*>(command.bytes);
+
+            // Other devices at the same temporary address receive the command too
+            if (message->targetDeviceId == deviceId) {
+                listenAt(message->params.address);
+            }
+
+            return true;
+        }
+
+        if (commandId == commands::builtin::RerollAddress.id) {
+            auto address = randomTemporaryAddress();
+            while (address == currentAddress) {
+                address = randomTemporaryAddress();
+            }
+
+            listenAt(address);
+            return true;
+        }
+
+        return false;
+    }
+
+    // Not called with the lock held, as the receive and request callbacks take it on the Wire task
+    void SlavePort::listenAt(const uint8_t address) {
+        twoWire.end();
+        if (!twoWire.begin(address, pins.SDA, pins.SCL, 100'000)) {
+            logger->error("Unable to listen at address 0x%02x", address);
+            return;
+        }
+
+        currentAddress = address;
+        logger->info("Listening at address 0x%02x", address);
+    }
+
+    uint8_t SlavePort::randomTemporaryAddress() {
+        constexpr auto count = addresses::TEMPORARY_LAST - addresses::TEMPORARY_FIRST + 1;
+        return addresses::TEMPORARY_FIRST + esp_random() % count;
     }
 
     void SlavePort::onRequestCallback() {

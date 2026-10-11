@@ -105,7 +105,8 @@ export class DeviceFacadeImpl implements DeviceFacade {
       deviceId: await this.getDeviceId(),
       deviceFirmwareVersion: await this.getDeviceFirmwareVersion(),
       deviceType: await this.getDeviceType(),
-      deviceAddress: await this.getDeviceAddress(),
+      // The connected device is the master, which has no address
+      deviceAddress: 0,
       deviceName: await this.getDeviceName(),
       deviceRegisterNames: await this.getDeviceRegisterNames(),
       parentDeviceId: null,
@@ -123,11 +124,6 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
   async getDeviceType(): Promise<string> {
     return await this.sendSingleLineResponseCommand("read.device.type")
-  }
-
-  async getDeviceAddress(): Promise<number> {
-    const addressHex = await this.sendSingleLineResponseCommand("read.device.address")
-    return parseInt(addressHex, 16)
   }
 
   async getDeviceName(): Promise<string> {

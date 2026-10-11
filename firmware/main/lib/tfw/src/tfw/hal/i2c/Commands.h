@@ -46,11 +46,25 @@ namespace tfw::hal::i2c::commands {
 
         struct AcknowledgeDiscoveryParams {
         };
+
+        struct AssignAddressParams {
+            const uint8_t address;
+        };
+
+        struct RerollAddressParams {
+        };
 #pragma pack(pop)
 
         inline RemoteCommandDescriptor<SetEndpointParams> SetEndpoint = {.id = 0x01};
 
         // Releases the discovery line, once the master has found the device
         inline RemoteCommandDescriptor<AcknowledgeDiscoveryParams> AcknowledgeDiscovery = {.id = 0x02};
+
+        // Moves the target device, and only it, from its temporary address to a permanent one
+        inline RemoteCommandDescriptor<AssignAddressParams> AssignAddress = {.id = 0x03};
+
+        // Makes every device at the address pick a new temporary address, sent when their identities collided. The
+        // target device ID is ignored, as the colliding devices aren't known.
+        inline RemoteCommandDescriptor<RerollAddressParams> RerollAddress = {.id = 0x04};
     }
 }

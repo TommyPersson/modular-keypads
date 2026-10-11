@@ -20,7 +20,6 @@ import { ErrorAlert, PropertyGroup, PropertyText } from "@src/modules/common/com
 import { useDeviceContext } from "@src/modules/device/context"
 import type { DeviceFacade } from "@src/modules/device/facade"
 import { ResetDeviceDeviceCommand } from "@src/modules/device/facade/device-commands/ResetDeviceDeviceCommand"
-import { SetDeviceAddressDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceAddressDeviceCommand"
 import { SetDeviceNameDeviceCommand } from "@src/modules/device/facade/device-commands/SetDeviceNameDeviceCommand"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { GetDeviceInformationQuery } from "@src/modules/device/queries"
@@ -95,10 +94,6 @@ export const DeviceInformationCard = () => {
             subtitle={<code>{deviceInformation?.deviceType ?? "N/A"}</code>}
           />
           <PropertyText
-            title={"Address"}
-            subtitle={<code>{deviceInformation?.deviceAddress ?? "N/A"}</code>}
-          />
-          <PropertyText
             title={"Register Names"}
             subtitle={(deviceInformation?.deviceRegisterNames ?? []).map(it => <Fragment
               key={it}><code>{it}</code><br /></Fragment>)}
@@ -133,25 +128,14 @@ const UpdateDeviceConfigurationDialog = (props: {
   } = props
 
   const [deviceTypeCode, setDeviceTypeCode] = useState(deviceInformation.deviceType)
-  const [deviceAddress, setDeviceAddress] = useState(deviceInformation.deviceAddress)
   const [deviceName, setDeviceName] = useState(deviceInformation.deviceName)
-
-  const handleDeviceAddressChanged = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    let newValue = parseInt(event.target.value)
-    if (isNaN(newValue)) {
-      newValue = 0
-    }
-
-    setDeviceAddress(newValue)
-  }, [setDeviceAddress])
 
   const handleDeviceNameChanged = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setDeviceName(event.target.value)
   }, [setDeviceName])
 
   const saveMutation = useMutation({
-    mutationFn: async (args: { deviceTypeCode: string, deviceAddress: number, deviceName: string }) => {
-      await deviceFacade.executeCommand(new SetDeviceAddressDeviceCommand(args.deviceAddress))
+    mutationFn: async (args: { deviceTypeCode: string, deviceName: string }) => {
       await deviceFacade.executeCommand(new SetDeviceNameDeviceCommand(deviceInformation.deviceId, args.deviceName))
       await deviceFacade.executeCommand(new ResetDeviceDeviceCommand()).catch(() => {
       })
@@ -162,20 +146,18 @@ const UpdateDeviceConfigurationDialog = (props: {
   })
 
   const handleSaveClicked = useCallback(async () => {
-    await saveMutation.mutateAsync({ deviceTypeCode, deviceAddress, deviceName })
+    await saveMutation.mutateAsync({ deviceTypeCode, deviceName })
     onClose()
-  }, [deviceTypeCode, deviceAddress, deviceName, saveMutation, onClose])
+  }, [deviceTypeCode, deviceName, saveMutation, onClose])
 
   useEffect(() => {
     setDeviceTypeCode(deviceInformation.deviceType)
-    setDeviceAddress(deviceInformation.deviceAddress)
     setDeviceName(deviceInformation.deviceName)
     saveMutation.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceInformation, isOpen])
 
   const isDirty = deviceTypeCode !== deviceInformation.deviceType
-    || deviceAddress !== deviceInformation.deviceAddress
     || deviceName !== deviceInformation.deviceName
 
   const canSave = isDirty && !saveMutation.isPending
@@ -190,12 +172,6 @@ const UpdateDeviceConfigurationDialog = (props: {
             value={deviceName}
             onChange={handleDeviceNameChanged}
             helperText={"At most 30 characters"}
-          />
-          <TextField
-            label={"Device Address"}
-            value={deviceAddress}
-            onChange={handleDeviceAddressChanged}
-            helperText={"1-127"}
           />
           <Alert severity={"info"}>
             The device will be reset upon saving. You may need to reconnect.

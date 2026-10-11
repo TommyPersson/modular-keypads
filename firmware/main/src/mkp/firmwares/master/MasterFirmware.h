@@ -3,6 +3,7 @@
 #include "mkp/firmwares/base/Firmware.h"
 #include "mkp/components/keybindings/KeyBindingExecutor.h"
 #include "mkp/components/keybindings/TestModeController.h"
+#include "mkp/devices/common/DeviceScanner.h"
 
 class MasterFirmware final
     : public mkp::firmwares::base::Firmware,
@@ -37,6 +38,9 @@ private:
     std::unique_ptr<mkp::devices::common::LocalDevice> localDevice;
     std::vector<std::unique_ptr<mkp::devices::common::RemoteDevice>> remoteDevices;
     std::vector<mkp::devices::common::Device*> allDevices;
+
+    // Kept across scans, as it remembers the addresses it has assigned
+    std::unique_ptr<mkp::devices::common::DeviceScanner> deviceScanner;
 
     // Scans are run from the loop, as they can replace devices that are notifying, or are being iterated over
     bool remoteDeviceScanRequested = false;

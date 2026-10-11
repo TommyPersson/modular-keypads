@@ -39,12 +39,6 @@ void SlaveFirmware::setup() {
 
     registers = &device->getRegisters();
 
-    const auto deviceAddress = configuration.address;
-    if (deviceAddress == 0) {
-        logger->error("Device needs to have an address configured.");
-        return;
-    }
-
     const auto deviceId = configuration.id;
 
     mkp::devices::common::i2c::structs::DeviceInformation deviceInformationStruct;
@@ -58,8 +52,9 @@ void SlaveFirmware::setup() {
 
     updateDeviceNameEndpoint();
 
+    // The master assigns the address once it discovers the device
     slavePort.setup(
-        deviceAddress,
+        deviceId,
         device->getI2cPins(),
         device->getEventInterruptPin(),
         device->getDiscoveryPin()

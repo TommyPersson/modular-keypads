@@ -36,7 +36,11 @@ namespace tfw::hal::i2c {
         explicit SlavePort(TwoWireType& twoWire);
         ~SlavePort();
 
-        void setup(uint8_t address, Pins pins, uint8_t eventInterruptPin, uint8_t discoveryPin);
+        /**
+         * Starts listening at a random temporary address, until the master assigns a permanent one. The device ID
+         * tells the address assignments meant for this device apart from the ones for others at the same address.
+         */
+        void setup(uint64_t deviceId, Pins pins, uint8_t eventInterruptPin, uint8_t discoveryPin);
 
         /**
          * Drives the shared, open drain discovery line low until the master acknowledges the device, to tell the
@@ -77,6 +81,14 @@ namespace tfw::hal::i2c {
     private:
         void selectEndpoint(uint8_t endpointId);
 
+        /**
+         * Returns whether the command was one of the address commands, which are handled here rather than by the
+         * added command handlers.
+         */
+        bool processAddressCommand(const PendingCommand& command);
+        void listenAt(uint8_t address);
+        static uint8_t randomTemporaryAddress();
+
         EndpointData endpoints[255]{};
         void onReceiveCallback(int len);
         void onRequestCallback();
@@ -86,6 +98,9 @@ namespace tfw::hal::i2c {
         EndpointData* selectedEndpoint;
 
         TwoWireType& twoWire;
+        Pins pins{};
+        uint64_t deviceId = 0;
+        uint8_t currentAddress = 0;
 
         utils::ring_queue<Event> eventQueue{255};
         std::unique_ptr<gpio::OutputPin> eventInterruptOutputPin;

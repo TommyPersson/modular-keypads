@@ -30,9 +30,6 @@ namespace mkp::devices::common {
         uint64_t getDeviceId() const;
         std::string getDeviceVersion() const;
 
-        uint8_t getDeviceAddress() const;
-        bool setDeviceAddress(uint8_t deviceAddress) const;
-
         std::string getDeviceName() const;
         bool setDeviceName(const std::string_view& deviceName) const;
 

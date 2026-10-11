@@ -35,6 +35,7 @@ using namespace mkp::firmwares::master::commands;
 
 MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     : Firmware(serviceLocator) {
+    deviceScanner = std::make_unique<DeviceScanner>(serviceLocator.i2cClient, serviceLocator.clock);
     macroStorage = std::make_unique<MacroStorage>(serviceLocator.fileSystem);
     keyBindingStorage = std::make_unique<KeyBindingStorage>(serviceLocator.fileSystem);
     keyBindingExecutor = std::make_unique<KeyBindingExecutor>(
@@ -52,9 +53,7 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<ReadDeviceId>(deviceConfigurationManager));
     addCommandHandler(std::make_shared<ReadDeviceFirmwareVersion>(deviceConfigurationManager));
     addCommandHandler(std::make_shared<ReadDeviceType>(deviceConfigurationManager));
-    addCommandHandler(std::make_shared<ReadDeviceAddress>(deviceConfigurationManager));
     addCommandHandler(std::make_shared<ReadDeviceName>(deviceConfigurationManager));
-    addCommandHandler(std::make_shared<SetDeviceAddress>(deviceConfigurationManager));
     addCommandHandler(std::make_shared<ResetDevice>(deviceConfigurationManager));
     addCommandHandler(std::make_shared<ListRegisters>(registers));
     addCommandHandler(std::make_shared<ReadRegister>(registers));
@@ -172,10 +171,11 @@ void MasterFirmware::observe(const DeviceRenamedEvent& event) {
 }
 
 // Devices that are found again are kept, so that rescanning doesn't reset their state. Devices that appeared or
-// disappeared are notified as connected and disconnected. A device's address and type are assumed never to change.
+// disappeared are notified as connected and disconnected. A device's type is assumed never to change. Its address
+// rarely does, as devices that restart are assigned their previous address again, but a device found at another
+// address is replaced, and notified as disconnected and connected.
 void MasterFirmware::refreshRemoteDevices() {
-    DeviceScanner scanner(serviceLocator.i2cClient);
-    const auto scanResult = scanner.scan();
+    const auto scanResult = deviceScanner->scan();
 
     // All found devices are acknowledged, including known ones that restarted, and ones of unsupported types, as
     // the discovery line stays low until every device has released it
@@ -203,8 +203,12 @@ void MasterFirmware::refreshRemoteDevices() {
     std::vector<uint64_t> connectedDeviceIds;
 
     for (const auto& deviceConfiguration : scanResult) {
-        if (auto existing = previousDevices.extract(deviceConfiguration->id)) {
-            remoteDevices.push_back(std::move(existing.mapped()));
+        // Devices found at another address are left with the lost devices, and created again at the new address
+        const auto previous = previousDevices.find(deviceConfiguration->id);
+        if (previous != previousDevices.end()
+            && previous->second->getConfiguration().address == deviceConfiguration->address) {
+            remoteDevices.push_back(std::move(previous->second));
+            previousDevices.erase(previous);
             continue;
         }
 
