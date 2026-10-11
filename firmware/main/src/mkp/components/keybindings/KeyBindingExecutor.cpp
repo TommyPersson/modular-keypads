@@ -90,7 +90,7 @@ namespace {
             const auto& data = dynamic_cast<MouseScrollMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::mouse(0, 0, 0, data.wheel, data.pan)},
+                .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, 0, 0, 0, data.wheel, data.pan)},
             });
         }
 
@@ -98,7 +98,7 @@ namespace {
             const auto& data = dynamic_cast<MouseButtonMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::mouse(data.buttons, 0, 0, 0, 0)},
+                .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, data.buttons, 0, 0, 0, 0)},
             });
         }
 
@@ -106,7 +106,7 @@ namespace {
             const auto& data = dynamic_cast<MouseMovementMacroData&>(*macro.data);
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::mouse(0, data.x, data.y, 0, 0)},
+                .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, 0, data.x, data.y, 0, 0)},
             });
         }
         return nullptr;
@@ -253,6 +253,7 @@ void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyB
 
     // Read on every execution, so that changes apply right away. Settings are cached, so this is cheap.
     usbConnection.setTypingDelayMs(settings::TypingDelayMs.get(deviceSettings));
+    usbConnection.setModifierHoldMs(settings::ModifierHoldMs.get(deviceSettings));
 
     for (const auto& macro : macros) {
         if (macro->macroId == keyBinding->macroId) {

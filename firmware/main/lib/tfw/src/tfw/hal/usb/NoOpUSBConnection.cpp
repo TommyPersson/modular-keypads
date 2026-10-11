@@ -15,3 +15,6 @@ void tfw::hal::usb::NoOpConnection::sendAction(Action& action) {
 
 void tfw::hal::usb::NoOpConnection::setTypingDelayMs(uint32_t delayMs) {
 }
+
+void tfw::hal::usb::NoOpConnection::setModifierHoldMs(uint32_t holdMs) {
+}

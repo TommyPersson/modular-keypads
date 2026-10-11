@@ -31,8 +31,19 @@ namespace mkp::components::settings {
         .maxValue = 1000,
     };
 
+    // Time to keep the keyboard modifiers of mouse macros held after the last such macro. Repeated mouse macros, such
+    // as when scrolling fast, then hold the modifiers once, instead of tapping them for each macro. Zero releases them
+    // right after each macro.
+    inline constexpr UIntSetting ModifierHoldMs{
+        .key = "modifier.hold",
+        .defaultValue = 250,
+        .minValue = 0,
+        .maxValue = 5000,
+    };
+
     inline constexpr std::array AllUIntSettings{
         TypingDelayMs,
+        ModifierHoldMs,
     };
 
     consteval bool isValidKey(const std::string_view key) {

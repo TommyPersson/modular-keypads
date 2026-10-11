@@ -1,5 +1,6 @@
 import { Chip } from "@mui/material"
 import type { MouseMovementMacroDefinition } from "@src/modules/macros/models"
+import { ModifiersVisualization } from "./ModifiersVisualization"
 
 export const MouseMovementMacroCellContent = (props: {
   macro: MouseMovementMacroDefinition
@@ -11,10 +12,12 @@ export const MouseMovementMacroCellContent = (props: {
   }
 
   return (
-    <Chip
-      label={<strong>{`Move ${macro.x}, ${macro.y}`}</strong>}
-      size={"small"}
-      color={"primary"}
-    />
+    <ModifiersVisualization modifiers={macro.modifiers}>
+      <Chip
+        label={<strong>{`Move ${macro.x}, ${macro.y}`}</strong>}
+        size={"small"}
+        color={"primary"}
+      />
+    </ModifiersVisualization>
   )
 }

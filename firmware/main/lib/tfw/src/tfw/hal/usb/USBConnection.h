@@ -18,6 +18,9 @@ namespace tfw::hal::usb {
         // Time to wait between characters typed by type actions
         virtual void setTypingDelayMs(uint32_t delayMs) = 0;
 
+        // Time to keep keyboard modifiers of mouse actions held after the last such action
+        virtual void setModifierHoldMs(uint32_t holdMs) = 0;
+
         static std::unique_ptr<Connection> create();
     };
 }

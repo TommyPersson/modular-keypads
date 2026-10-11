@@ -60,7 +60,12 @@ void tfw::hal::usb::RealConnection::setup() {
 
 void tfw::hal::usb::RealConnection::update() {
     const auto now = time::micros();
-    if (now - lastKeyboardWriteTime >= typingDelayUs) { // Without a delay then repeated characters can be missed.
+
+    applyModifierChange(modifierHolder.update(now));
+
+    const auto enoughTimePassSinceLastWrite = now - lastKeyboardWriteTime >= typingDelayUs;
+    const auto canWrite = enoughTimePassSinceLastWrite && !modifierHolder.isHeld();
+    if (canWrite) {
         const auto nextChar = characterOutputQueue.dequeue();
         if (nextChar != nullptr) {
             keyboard.write(*nextChar);
@@ -75,11 +80,39 @@ void tfw::hal::usb::RealConnection::setTypingDelayMs(const uint32_t delayMs) {
     typingDelayUs = static_cast<uint64_t>(delayMs) * 1'000;
 }
 
+void tfw::hal::usb::RealConnection::setModifierHoldMs(const uint32_t holdMs) {
+    modifierHolder.setHoldTimeUs(static_cast<uint64_t>(holdMs) * 1'000);
+}
+
+void tfw::hal::usb::RealConnection::applyModifierChange(const ModifierChange& change) {
+    // Modifier key codes 0xe0 to 0xe7 are in the same order as the bits of the modifier flags
+    for (uint8_t bit = 0; bit < 8; bit++) {
+        if (change.release & (1 << bit)) {
+            keyboard.releaseRaw(0xe0 + bit);
+        }
+    }
+
+    for (uint8_t bit = 0; bit < 8; bit++) {
+        if (change.press & (1 << bit)) {
+            keyboard.pressRaw(0xe0 + bit);
+        }
+    }
+}
+
 bool tfw::hal::usb::RealConnection::isConnected() {
     return ::isConnected;
 }
 
 void tfw::hal::usb::RealConnection::sendAction(Action& action) {
+    const auto mouseAction = dynamic_cast<MouseAction*>(&action);
+
+    // Other actions have no use for the modifiers of mouse actions, and key presses release all keys anyway
+    applyModifierChange(
+        mouseAction != nullptr
+            ? modifierHolder.hold(mouseAction->modifiers, time::micros())
+            : modifierHolder.releaseAll()
+    );
+
     const auto keyPressAction = dynamic_cast<KeyPressAction*>(&action);
     if (keyPressAction != nullptr) {
         for (auto keyCode : keyPressAction->data.keyCodes) {
@@ -108,7 +141,6 @@ void tfw::hal::usb::RealConnection::sendAction(Action& action) {
         }
     }
 
-    const auto mouseAction = dynamic_cast<MouseAction*>(&action);
     if (mouseAction != nullptr) {
         if (mouseAction->buttons != 0) {
             mouse.click(mouseAction->buttons);

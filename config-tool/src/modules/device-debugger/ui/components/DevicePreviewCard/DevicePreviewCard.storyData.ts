@@ -36,11 +36,36 @@ export const macros: MacroDefinition[] = [
     directory: "Mouse",
     name: "Scroll Up",
     type: MacroDefinitionType.MouseScroll,
+    modifiers: [],
     wheel: 1,
     pan: 0,
   },
-  { id: 9, directory: "Mouse", name: "Middle Click", type: MacroDefinitionType.MouseButton, buttons: 0x04 },
-  { id: 10, directory: "Mouse", name: "Nudge Right", type: MacroDefinitionType.MouseMovement, x: 10, y: 0 },
+  {
+    id: 11,
+    directory: "Mouse",
+    name: "Zoom In",
+    type: MacroDefinitionType.MouseScroll,
+    modifiers: [0xe0],
+    wheel: 1,
+    pan: 0,
+  },
+  {
+    id: 9,
+    directory: "Mouse",
+    name: "Middle Click",
+    type: MacroDefinitionType.MouseButton,
+    modifiers: [],
+    buttons: 0x04,
+  },
+  {
+    id: 10,
+    directory: "Mouse",
+    name: "Nudge Right",
+    type: MacroDefinitionType.MouseMovement,
+    modifiers: [],
+    x: 10,
+    y: 0,
+  },
 ]
 
 const pushButtons = (count: number, hasLed: boolean): DeviceCapability[] =>

@@ -139,6 +139,11 @@ namespace mkp::components::macros {
         return static_cast<int8_t>(std::clamp(value, -127, 127));
     }
 
+    // Keyboard modifiers of mouse macros come last, as they were added later. Macros saved before have none.
+    static uint8_t parseOptionalModifiers(const std::span<const std::string_view>& parts, const size_t index) {
+        return parts.size() > index ? tfw::utils::strings::atou8(parts[index], 16) : 0;
+    }
+
     class MouseScrollDataSerializer final
         : public MacroDataStorageSerializer<MouseScrollMacroData> {
     public:
@@ -149,9 +154,10 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseScrollMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%d:%d",
+                "%d:%d:0x%02x",
                 data.wheel,
-                data.pan
+                data.pan,
+                data.modifiers
             );
         }
 
@@ -169,6 +175,7 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseScrollMacroData>(
                 allocator,
                 macroId,
+                parseOptionalModifiers(parts, 2),
                 clampToInt8(tfw::utils::strings::atol(parts[0])),
                 clampToInt8(tfw::utils::strings::atol(parts[1]))
             );
@@ -185,8 +192,9 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseButtonMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x",
-                data.buttons
+                "0x%02x:0x%02x",
+                data.buttons,
+                data.modifiers
             );
         }
 
@@ -204,6 +212,7 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseButtonMacroData>(
                 allocator,
                 macroId,
+                parseOptionalModifiers(parts, 1),
                 tfw::utils::strings::atou8(parts[0], 16)
             );
         }
@@ -219,9 +228,10 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseMovementMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%d:%d",
+                "%d:%d:0x%02x",
                 data.x,
-                data.y
+                data.y,
+                data.modifiers
             );
         }
 
@@ -239,6 +249,7 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseMovementMacroData>(
                 allocator,
                 macroId,
+                parseOptionalModifiers(parts, 2),
                 clampToInt8(tfw::utils::strings::atol(parts[0])),
                 clampToInt8(tfw::utils::strings::atol(parts[1]))
             );

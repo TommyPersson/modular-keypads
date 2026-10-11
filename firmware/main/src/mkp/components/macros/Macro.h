@@ -72,38 +72,44 @@ namespace mkp::components::macros {
     };
 
     struct MouseScrollMacroData final : MacroData {
-        MouseScrollMacroData(const uint16_t id, const int8_t wheel, const int8_t pan)
+        MouseScrollMacroData(const uint16_t id, const uint8_t modifiers, const int8_t wheel, const int8_t pan)
             : MacroData(id, MacroType::MOUSE_SCROLL),
+              modifiers(modifiers),
               wheel(wheel),
               pan(pan) {
         }
 
         ~MouseScrollMacroData() override = default;
 
+        const uint8_t modifiers; // Same flags as for shortcuts
         const int8_t wheel; // Positive scrolls up
         const int8_t pan; // Positive scrolls right
     };
 
     struct MouseButtonMacroData final : MacroData {
-        MouseButtonMacroData(const uint16_t id, const uint8_t buttons)
+        MouseButtonMacroData(const uint16_t id, const uint8_t modifiers, const uint8_t buttons)
             : MacroData(id, MacroType::MOUSE_BUTTON),
+              modifiers(modifiers),
               buttons(buttons) {
         }
 
         ~MouseButtonMacroData() override = default;
 
+        const uint8_t modifiers; // Same flags as for shortcuts
         const uint8_t buttons; // Bit flags: left, right, middle, back, forward
     };
 
     struct MouseMovementMacroData final : MacroData {
-        MouseMovementMacroData(const uint16_t id, const int8_t x, const int8_t y)
+        MouseMovementMacroData(const uint16_t id, const uint8_t modifiers, const int8_t x, const int8_t y)
             : MacroData(id, MacroType::MOUSE_MOVEMENT),
+              modifiers(modifiers),
               x(x),
               y(y) {
         }
 
         ~MouseMovementMacroData() override = default;
 
+        const uint8_t modifiers; // Same flags as for shortcuts
         const int8_t x; // Positive moves right
         const int8_t y; // Positive moves down
     };

@@ -1,10 +1,12 @@
 import OpenWithOutlinedIcon from "@mui/icons-material/OpenWithOutlined"
 import { Tooltip } from "@mui/material"
 import {
+  createModifierFlags,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
-  type MouseMovementMacroDefinition
+  type MouseMovementMacroDefinition,
+  parseModifierFlags
 } from "@src/modules/macros/models"
 import { MouseMovementMacroCellContent } from "./components/MouseMovementMacroCellContent"
 import { MouseMovementMacroDefinitionEditor } from "./components/MouseMovementMacroDefinitionEditor"
@@ -35,26 +37,29 @@ export const MouseMovementMacroTypeDefinition: MacroTypeDefinition<MouseMovement
       directory: null,
       name,
       type: MacroDefinitionType.MouseMovement,
+      modifiers: [],
       x: 0,
       y: 0,
     }
   },
 
   parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseMovementMacroDefinition {
-    const [xArg, yArg] = dataArgs
+    const [xArg, yArg, modifiersArg] = dataArgs
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MouseMovement,
+      modifiers: parseModifierFlags(parseInt(modifiersArg, 16) || 0),
       x: parseInt(xArg, 10) || 0,
       y: parseInt(yArg, 10) || 0,
     }
   },
 
   serializeDeviceArguments(macro: MouseMovementMacroDefinition): string[] {
-    return ["0x07", `${macro.x}`, `${macro.y}`]
+    const modifiersArg = `0x${createModifierFlags(macro.modifiers).toString(16).padStart(2, "0")}`
+    return ["0x07", `${macro.x}`, `${macro.y}`, modifiersArg]
   },
 
   editorInformationComponent: () => null,

@@ -1,6 +1,7 @@
 import { Chip } from "@mui/material"
 import { mouseButtons } from "@src/modules/macros/data/mouseButtons"
 import type { MouseButtonMacroDefinition } from "@src/modules/macros/models"
+import { ModifiersVisualization } from "./ModifiersVisualization"
 
 export const MouseButtonMacroCellContent = (props: {
   macro: MouseButtonMacroDefinition
@@ -15,10 +16,12 @@ export const MouseButtonMacroCellContent = (props: {
   }
 
   return (
-    <Chip
-      label={<strong>{`Click ${clickedButtons.join(" + ")}`}</strong>}
-      size={"small"}
-      color={"primary"}
-    />
+    <ModifiersVisualization modifiers={macro.modifiers}>
+      <Chip
+        label={<strong>{`Click ${clickedButtons.join(" + ")}`}</strong>}
+        size={"small"}
+        color={"primary"}
+      />
+    </ModifiersVisualization>
   )
 }
