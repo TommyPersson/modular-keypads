@@ -55,8 +55,8 @@ export const DevicePreviewCard = () => {
  * Previews a device that isn't a sub-device, with its sub-devices, and the actions for them.
  *
  * The device's actions are shown above its name, which gets the full width of the card, followed by the given action,
- * e.g. for placing the card, and the info icon in the top-right corner. The actions of the sub-devices follow their
- * captions.
+ * e.g. for placing the card, and the info icon in the top-right corner. They're all only shown while the card is
+ * hovered. The actions of the sub-devices are in their top-right corners, shown while the sub-device is hovered.
  */
 export const TopLevelDevicePreviewCard = (props: {
   device: DeviceInformation,
@@ -68,6 +68,7 @@ export const TopLevelDevicePreviewCard = (props: {
   return (
     // Not shrunk, as the previews have a fixed size. The content fills the height below the header.
     <Card
+      className={classes.TopLevelCard}
       sx={{
         flexShrink: 0,
         width: TOP_LEVEL_CARD_WIDTH,
@@ -78,7 +79,12 @@ export const TopLevelDevicePreviewCard = (props: {
     >
       {/* The name is centered between the actions and the content, with 12px on both sides */}
       <Box sx={{ px: 2, pt: 1, pb: 0.5 }}>
-        <Stack direction={"row"} justifyContent={"flex-end"} alignItems={"center"}>
+        <Stack
+          direction={"row"}
+          justifyContent={"flex-end"}
+          alignItems={"center"}
+          className={classes.TopLevelHoverActions}
+        >
           <IdentifyDeviceButton device={device} size={"small"} />
           <RenameDeviceButton device={device} size={"small"} />
           {action && (

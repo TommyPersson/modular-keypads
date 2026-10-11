@@ -249,6 +249,25 @@
     white-space: nowrap;
 }
 
+/*
+  The device actions are only shown while the device is hovered, or something in it is focused. Transparent rather than
+  hidden, so that the layout stays the same and they can still be reached by keyboard. On the top-level cards, that's
+  the whole row above the name, including the actions given by the card's container, like reordering. The sub-devices
+  have their own actions, which are shown while the sub-device is hovered.
+*/
+.TopLevelHoverActions,
+.SubDevicePreviewCorner {
+    opacity: 0;
+    transition: opacity 150ms;
+}
+
+.TopLevelCard:hover .TopLevelHoverActions,
+.TopLevelCard:focus-within .TopLevelHoverActions,
+.SubDevicePreviewContainer:hover > .SubDevicePreviewCorner,
+.SubDevicePreviewContainer:focus-within > .SubDevicePreviewCorner {
+    opacity: 1;
+}
+
 /* Within the 20px top padding of the container */
 .SubDevicePreviewCorner {
     position: absolute;

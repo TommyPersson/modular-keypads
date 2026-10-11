@@ -250,10 +250,11 @@ const MacroDefinitionRow = (props: {
   )
 }
 
-// Hidden rather than removed, so that the rows don't change their layout. Also shown while focused by keyboard.
+// Transparent rather than hidden, so that the rows don't change their layout and the actions can still be reached by
+// keyboard, which shows them too.
 const rowActionsOnHover = {
-  "& .row-actions": { visibility: "hidden" },
-  "&:hover .row-actions, &:focus-within .row-actions": { visibility: "visible" },
+  "& .row-actions": { opacity: 0, transition: "opacity 150ms" },
+  "&:hover .row-actions, &:focus-within .row-actions": { opacity: 1 },
 }
 
 function createMacroDefinitionCellContent(macro: MacroDefinition) {
