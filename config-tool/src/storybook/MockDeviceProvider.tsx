@@ -16,6 +16,7 @@ export const MockDeviceProvider = (props: {
   const { options, children } = props
 
   const [facade] = useState(() => new MockDeviceFacade(options))
+  const [isConnected, setIsConnected] = useState(facade.isConnected)
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   }))
@@ -25,8 +26,10 @@ export const MockDeviceProvider = (props: {
     globalDeviceFacade.value = facade
     facade.onQueryDataChanged = queryKey => queryClient.invalidateQueries({ queryKey })
     facade.start()
+    const subscription = facade.isConnected$.subscribe(setIsConnected)
 
     return () => {
+      subscription.unsubscribe()
       facade.stop()
       facade.onQueryDataChanged = () => {}
       globalDeviceFacade.value = previousFacade
@@ -35,7 +38,7 @@ export const MockDeviceProvider = (props: {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DeviceContext.Provider value={{ facade, isConnected: true }}>
+      <DeviceContext.Provider value={{ facade, isConnected }}>
         {children}
       </DeviceContext.Provider>
     </QueryClientProvider>

@@ -8,6 +8,7 @@ import type {
   DeviceCapability,
   DeviceInformation,
   DeviceMessage,
+  DeviceMetric,
   LogMessage,
   NotificationMessage
 } from "@src/modules/device/models"
@@ -19,9 +20,12 @@ import {
 } from "@src/modules/key-bindings/models"
 import { ListKeyBindingsQueryKey } from "@src/modules/key-bindings/queries"
 import type { MacroDefinition } from "@src/modules/macros/models"
+import { ListStoredMacrosQueryKey } from "@src/modules/macros/queries"
+import type { Setting } from "@src/modules/settings/models"
+import { ListSettingsQueryKey } from "@src/modules/settings/queries"
 import { dequal } from "dequal"
 import { DateTime } from "luxon"
-import { BehaviorSubject, defer, from, merge, NEVER, Observable, Subject } from "rxjs"
+import { BehaviorSubject, defer, from, merge, Observable, Subject } from "rxjs"
 
 export type MockNotification = {
   deviceId: string
@@ -33,7 +37,11 @@ export type MockNotification = {
 
 export type MockCommandHandler = (command: DeviceCommand<unknown>) => unknown
 
+export type MockLogMessage = Pick<LogMessage, "level" | "component" | "message">
+
 export type MockDeviceOptions = {
+  // Whether the tool starts out connected to the device, defaults to true
+  connected?: boolean
   // All devices, both the connected one and its sub-devices
   devices: DeviceInformation[]
   // The device the tool is connected to, defaults to the first one
@@ -41,6 +49,10 @@ export type MockDeviceOptions = {
   notifications?: MockNotification[]
   keyBindings?: KeyBinding[]
   macros?: MacroDefinition[]
+  settings?: Setting[]
+  metrics?: DeviceMetric[]
+  // Log messages the device has sent, as if received right before the story was shown
+  logs?: MockLogMessage[]
   // By device ID
   capabilities?: Record<string, DeviceCapability[]>
   // Responses to commands by command type, in addition to the built-in ones
@@ -48,9 +60,10 @@ export type MockDeviceOptions = {
 }
 
 /**
- * A device facade for Storybook, that is always connected and answers commands from the given options. Renaming a
- * device changes the listed devices, setting and clearing key bindings changes the listed key bindings, and
- * identifying a device or a button does nothing. Devices can be connected and disconnected, to see how the components react.
+ * A device facade for Storybook, that answers commands from the given options. Renaming a device changes the listed
+ * devices, and setting key bindings, saving macros and changing settings change the listed ones. Identifying a device
+ * or a button does nothing. Sub-devices can be connected and disconnected, to see how the components react, and the
+ * tool can connect to and disconnect from the device. The commands and their responses are shown as serial traffic.
  *
  * Notifications without a repeat interval are replayed to every subscriber, so that components that mount late,
  * e.g. after a query has loaded, still get the same state as the others.
@@ -60,24 +73,31 @@ export class MockDeviceFacade implements DeviceFacade {
   private timers: ReturnType<typeof setInterval>[] = []
   private devices: DeviceInformation[]
   private keyBindings: KeyBinding[]
+  private macros: MacroDefinition[]
+  private settings: Setting[]
   private testMode = false
+  private nextCommandId = 1
+  private readonly trafficSubject = new BehaviorSubject<DeviceMessage[]>([])
+  private readonly logsSubject: BehaviorSubject<LogMessage[]>
 
   // Called when a command changes the data of the queries with the given key, so that they're refreshed
   onQueryDataChanged: (queryKey: readonly unknown[]) => void = () => {}
 
-  readonly messages$: Observable<DeviceMessage> = NEVER
-  readonly traffic$: Observable<DeviceMessage[]> = NEVER
-  readonly logs$: Observable<LogMessage[]> = NEVER
+  readonly messages$ = new Subject<DeviceMessage>()
   readonly notifications$: Observable<NotificationMessage>
-  readonly traffic: ReadonlyArray<DeviceMessage> = []
-  readonly logs: ReadonlyArray<LogMessage> = []
-
-  readonly isConnected$ = new BehaviorSubject(true)
-  readonly isConnected = true
+  readonly isConnected$: BehaviorSubject<boolean>
 
   constructor(private readonly options: MockDeviceOptions) {
     this.devices = options.devices
     this.keyBindings = options.keyBindings ?? []
+    this.macros = options.macros ?? []
+    this.settings = options.settings ?? []
+    this.isConnected$ = new BehaviorSubject(options.connected ?? true)
+    this.logsSubject = new BehaviorSubject((options.logs ?? []).map((it, index) => ({
+      ...it,
+      key: index,
+      timestamp: DateTime.now(),
+    })))
     const replayed = (options.notifications ?? []).filter(it => it.repeatMs === undefined)
     this.notifications$ = merge(
       defer(() => from(replayed.map(toNotificationMessage))),
@@ -102,10 +122,44 @@ export class MockDeviceFacade implements DeviceFacade {
     this.liveNotifications.next(toNotificationMessage(notification))
   }
 
+  get isConnected(): boolean {
+    return this.isConnected$.value
+  }
+
   async connect(): Promise<void> {
+    this.isConnected$.next(true)
   }
 
   async disconnect(): Promise<void> {
+    this.isConnected$.next(false)
+  }
+
+  get traffic$(): Observable<DeviceMessage[]> {
+    return this.trafficSubject
+  }
+
+  get traffic(): ReadonlyArray<DeviceMessage> {
+    return this.trafficSubject.value
+  }
+
+  clearTraffic(): void {
+    this.trafficSubject.next([])
+  }
+
+  get logs$(): Observable<LogMessage[]> {
+    return this.logsSubject
+  }
+
+  get logs(): ReadonlyArray<LogMessage> {
+    return this.logsSubject.value
+  }
+
+  clearLogs(): void {
+    this.logsSubject.next([])
+  }
+
+  deleteLogMessage(key: number): void {
+    this.logsSubject.next(this.logs.filter(it => it.key !== key))
   }
 
   async getDeviceInformation(): Promise<DeviceInformation> {
@@ -118,7 +172,29 @@ export class MockDeviceFacade implements DeviceFacade {
     return device
   }
 
+  // Shown as serial traffic in the format of the real device
   async executeCommand<TResult>(command: DeviceCommand<TResult>): Promise<TResult> {
+    const commandId = this.nextCommandId++
+    const args = command.arguments
+    this.addTraffic("to-device", `${commandId}:${command.type}${args.length > 0 ? `:${args.join(",")}` : ""}`)
+
+    try {
+      const result = this.respond(command)
+      this.addTraffic("to-host", command.type === "ping" ? `%${commandId}:${result}` : `%${commandId}.0:`)
+      return result
+    } catch (error) {
+      this.addTraffic("to-host", `%${commandId}.e:${(error as Error).message}`)
+      throw error
+    }
+  }
+
+  private addTraffic(direction: DeviceMessage["direction"], message: string) {
+    const deviceMessage = { direction, message, timestamp: DateTime.now() }
+    this.messages$.next(deviceMessage)
+    this.trafficSubject.next([...this.traffic, deviceMessage])
+  }
+
+  private respond<TResult>(command: DeviceCommand<TResult>): TResult {
     const handler = this.options.commandHandlers?.[command.type]
     if (handler) {
       return handler(command) as TResult
@@ -148,7 +224,27 @@ export class MockDeviceFacade implements DeviceFacade {
         return undefined as TResult
       }
       case "list.stored.macros":
-        return (this.options.macros ?? []) as TResult
+        return this.macros as TResult
+      case "save.macro": {
+        const { macro } = command as unknown as { macro: MacroDefinition }
+        this.changeMacros([...this.macros.filter(it => it.id !== macro.id), macro])
+        return undefined as TResult
+      }
+      case "delete.macro":
+        this.changeMacros(this.macros.filter(it => it.id.toString() !== command.arguments[0]))
+        return undefined as TResult
+      case "list.settings":
+        return this.settings as TResult
+      case "set.setting": {
+        const [key, value] = command.arguments
+        this.settings = this.settings.map(it => it.key === key ? { ...it, value: parseInt(value, 10) } : it)
+        this.onQueryDataChanged(ListSettingsQueryKey)
+        return undefined as TResult
+      }
+      case "read.metrics":
+        return (this.options.metrics ?? []) as TResult
+      case "ping":
+        return "pong" as TResult
       case "get.test.mode":
         return this.testMode as TResult
       case "set.test.mode":
@@ -163,6 +259,11 @@ export class MockDeviceFacade implements DeviceFacade {
   private changeKeyBindings(keyBindings: KeyBinding[]) {
     this.keyBindings = keyBindings
     this.onQueryDataChanged(ListKeyBindingsQueryKey)
+  }
+
+  private changeMacros(macros: MacroDefinition[]) {
+    this.macros = macros
+    this.onQueryDataChanged(ListStoredMacrosQueryKey)
   }
 
   // Notifies as the device does, which makes the device list refresh
@@ -181,15 +282,6 @@ export class MockDeviceFacade implements DeviceFacade {
     this.devices = this.devices.map(it => it.deviceId === deviceId ? { ...it, deviceName } : it)
     // As sent by the device, which makes the device list refresh
     this.notify({ deviceId, type: "device.renamed", args: [] })
-  }
-
-  clearTraffic(): void {
-  }
-
-  clearLogs(): void {
-  }
-
-  deleteLogMessage(_: number): void {
   }
 }
 

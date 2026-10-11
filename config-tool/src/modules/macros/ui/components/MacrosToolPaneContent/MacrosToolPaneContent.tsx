@@ -101,7 +101,7 @@ const ExistingMacrosCardContent = (props: {
                 </EmptyTableRow>
               )}
               {macros.map(([directory, macros]) => (
-                <MacroDefinitionRows directory={directory} macros={macros} onEditClick={onEditClick} />
+                <MacroDefinitionRows key={directory} directory={directory} macros={macros} onEditClick={onEditClick} />
               ))}
             </TableBody>
           </Table>
