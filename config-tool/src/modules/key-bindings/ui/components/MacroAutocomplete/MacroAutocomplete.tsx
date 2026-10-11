@@ -74,7 +74,9 @@ export const MacroAutocomplete = (props: {
   }, [])
 
   const handleChange = useCallback((_: any, value: AutocompleteValue<MacroDefinition, unknown, unknown, unknown>) => {
-    onSelect?.(value)
+    if (value !== null) {
+      onSelect?.(value)
+    }
   }, [onSelect])
 
   const handleInputChange = useCallback((_: any, __: any, reason: AutocompleteInputChangeReason) => {
