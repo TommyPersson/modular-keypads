@@ -10,6 +10,7 @@ export const SettingsAppModule: AppModule = {
     {
       id: "settings",
       title: "Settings",
+      shortTitle: "Settings",
       component: <SettingsToolPaneContent />,
       icon: <SettingsOutlinedIcon />
     }

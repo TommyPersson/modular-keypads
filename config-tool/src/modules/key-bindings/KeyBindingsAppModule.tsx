@@ -10,6 +10,7 @@ export const KeyBindingsAppModule: AppModule = {
     {
       id: "keyboard-events",
       title: "Keyboard Events",
+      shortTitle: "Keyboard",
       component: <KeyboardEventsToolPaneContent />,
       icon: <KeyboardAltOutlinedIcon />
     },

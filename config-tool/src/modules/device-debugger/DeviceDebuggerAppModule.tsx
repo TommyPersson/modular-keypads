@@ -16,18 +16,24 @@ export const DeviceDebuggerAppModule: AppModule = {
     {
       id: "device-logs",
       title: "Device Logs",
+      shortTitle: "Logs",
+      group: "debug",
       component: <DeviceLogsToolPaneContent />,
       icon: <DeviceLogsToolPaneIcon />
     },
     {
       id: "device-metrics",
       title: "Device Metrics",
+      shortTitle: "Metrics",
+      group: "debug",
       component: <DeviceMetricsToolPaneContent />,
       icon: <AssessmentOutlinedIcon />
     },
     {
       id: "device-traffic",
       title: "Device Serial Traffic",
+      shortTitle: "Traffic",
+      group: "debug",
       component: <DeviceTrafficToolPaneContent />,
       icon: <SwapVertOutlinedIcon />
     }

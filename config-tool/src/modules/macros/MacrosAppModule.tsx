@@ -10,6 +10,7 @@ export const MacrosAppModule: AppModule = {
     {
       id: "macros",
       title: "Macros",
+      shortTitle: "Macros",
       component: <MacrosToolPaneContent />,
       icon: <KeyboardCommandKeyOutlinedIcon />
     }
