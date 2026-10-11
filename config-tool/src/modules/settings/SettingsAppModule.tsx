@@ -5,7 +5,6 @@ import { SettingsToolPaneContent } from "@src/modules/settings/ui"
 export const SettingsAppModule: AppModule = {
   id: "settings",
   order: 900,
-  navItems: [],
   routes: [],
   toolPanes: [
     {

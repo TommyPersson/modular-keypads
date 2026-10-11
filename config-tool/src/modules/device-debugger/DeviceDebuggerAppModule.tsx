@@ -11,7 +11,6 @@ import {
 export const DeviceDebuggerAppModule: AppModule = {
   id: "device-debugger",
   order: 999,
-  navItems: [],
   routes: [],
   toolPanes: [
     {

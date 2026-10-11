@@ -5,7 +5,6 @@ import { MacrosToolPaneContent } from "@src/modules/macros/ui"
 export const MacrosAppModule: AppModule = {
   id: "macros",
   order: 3,
-  navItems: [],
   routes: [],
   toolPanes: [
     {

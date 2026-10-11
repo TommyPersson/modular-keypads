@@ -84,7 +84,7 @@ export const ConfigurationTransferButtons = () => {
 
   return (
     <>
-      <ButtonGroup ref={buttonGroupRef} variant={"outlined"} fullWidth>
+      <ButtonGroup ref={buttonGroupRef} variant={"text"}>
         <Button startIcon={<FileUploadOutlinedIcon />} onClick={handleImportClick}>
           Import
         </Button>

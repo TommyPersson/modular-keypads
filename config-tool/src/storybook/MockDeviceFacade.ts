@@ -60,6 +60,7 @@ export class MockDeviceFacade implements DeviceFacade {
   private timers: ReturnType<typeof setInterval>[] = []
   private devices: DeviceInformation[]
   private keyBindings: KeyBinding[]
+  private testMode = false
 
   // Called when a command changes the data of the queries with the given key, so that they're refreshed
   onQueryDataChanged: (queryKey: readonly unknown[]) => void = () => {}
@@ -148,6 +149,11 @@ export class MockDeviceFacade implements DeviceFacade {
       }
       case "list.stored.macros":
         return (this.options.macros ?? []) as TResult
+      case "get.test.mode":
+        return this.testMode as TResult
+      case "set.test.mode":
+        this.testMode = command.arguments[0] === "true"
+        return undefined as TResult
     }
 
     throw new Error(`The command '${command.type}' isn't mocked`)

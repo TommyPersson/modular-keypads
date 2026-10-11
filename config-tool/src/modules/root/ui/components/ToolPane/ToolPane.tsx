@@ -1,4 +1,4 @@
-import { Box, Collapse, Paper, Stack, Toolbar } from "@mui/material"
+import { Box, Collapse, Paper, Stack } from "@mui/material"
 import { AllAppModules } from "@src/AllAppModules"
 import {
   KeyboardEventsToolPaneContent
@@ -22,7 +22,6 @@ export const ToolPane = () => {
   return (
     <Collapse in={isOpen} orientation={"horizontal"} unmountOnExit style={{ height: "100%" }}>
       <Stack style={{ height: "100vh" }}>
-        <Toolbar />
         <Box flex={1} minHeight={0} padding={2}>
           <Paper elevation={6} sx={{ height: "100%", width: 700, overflowY: "auto", borderRadius: 2 }}>
             {content}

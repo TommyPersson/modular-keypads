@@ -5,7 +5,6 @@ import { KeyboardEventsToolPaneContent } from "@src/modules/key-bindings/ui/comp
 export const KeyBindingsAppModule: AppModule = {
   id: "key-bindings",
   order: 1,
-  navItems: [],
   routes: [],
   toolPanes: [
     {

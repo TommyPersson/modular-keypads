@@ -1,4 +1,4 @@
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, Toolbar, Tooltip } from "@mui/material"
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, Tooltip } from "@mui/material"
 import { AllAppModules } from "@src/AllAppModules"
 import { useToolPaneContext } from "@src/modules/root/ui/components/ToolPane/ToolPaneContext"
 
@@ -18,7 +18,6 @@ export const ToolPaneNavBar = () => {
         [`& .MuiDrawer-paper`]: { width: 88, boxSizing: "border-box" },
       }}
     >
-      <Toolbar />
       <List>
         {...AllAppModules
           .flatMap(it => it.toolPanes)
