@@ -142,7 +142,7 @@ export const ModifiersEditor = (props: {
   }, [onChange])
 
   return (
-    <FormControl sx={{ minWidth: 400 }} variant={"filled"}>
+    <FormControl sx={{ flex: 1, minWidth: 200 }} variant={"filled"}>
       <InputLabel>Modifiers</InputLabel>
       <TagSelect
         label={"Modifiers"}
@@ -170,7 +170,7 @@ export const KeyboardKeyCodeEditor = (props: {
   }, [onChange])
 
   return (
-    <FormControl sx={{ minWidth: 400 }} variant={"filled"}>
+    <FormControl sx={{ flex: 1, minWidth: 200 }} variant={"filled"}>
       <Autocomplete
         renderInput={(params) => (
           <TextField variant={"filled"} {...params} label="HID Key" />
@@ -291,6 +291,7 @@ export const RecordShortcutButton = (props: {
         data-recording={isRecording}
         ref={setButtonRef}
         className={classes.RecordButton}
+        sx={{ flexShrink: 0, whiteSpace: "nowrap" }}
       >
         {label}
       </Button>

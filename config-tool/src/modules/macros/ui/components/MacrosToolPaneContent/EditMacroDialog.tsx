@@ -1,19 +1,24 @@
 import {
   Alert,
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
-  Grid, InputAdornment,
-  RadioGroup,
+  InputAdornment,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
   Stack,
   TextField,
   Typography
 } from "@mui/material"
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
-import { CommandButton, RadioCard } from "@src/modules/common/components"
+import { CommandButton } from "@src/modules/common/components"
 import { SaveMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
@@ -43,42 +48,45 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
   return (
     <Dialog open={props.isOpen} onClose={state.handleClose} fullWidth maxWidth={"lg"}>
       <DialogTitle>{state.title}</DialogTitle>
-      <DialogContent>
-        <Stack gap={2}>
-          <Stack direction={"row"} gap={2}>
-            <MacroDirectoryEditor
-              value={state.macroDefinition.directory}
-              onChange={state.handleMacroDirectoryChange}
-            />
-            <MacroNameEditor
-              value={state.macroDefinition.name}
-              onChange={state.handleMacroNameChange}
+      <Divider />
+      {/*
+        The types in a sidebar, next to the rest of the macro. Only the sides scroll, and the dialog keeps its height
+        when switching between types, so that the sidebar doesn't move. It shrinks in windows too short for it.
+      */}
+      <Stack direction={"row"} sx={{ minHeight: 0, flex: "0 1 640px" }}>
+        <Box sx={{ width: 240, flexShrink: 0, overflowY: "auto", borderRight: 1, borderColor: "divider" }}>
+          <MacroTypeSelector
+            value={state.macroDefinition.type}
+            onChange={state.handleMacroTypeChange}
+          />
+        </Box>
+        <DialogContent>
+          <Stack gap={2}>
+            <Stack direction={"row"} gap={2}>
+              <MacroDirectoryEditor
+                value={state.macroDefinition.directory}
+                onChange={state.handleMacroDirectoryChange}
+              />
+              <MacroNameEditor
+                value={state.macroDefinition.name}
+                onChange={state.handleMacroNameChange}
+              />
+            </Stack>
+            {state.willOverwriteExistingMacro && (
+              <Alert severity={"warning"}>
+                There is already a macro named <strong>{state.macroDefinition.name}</strong>.
+                Saving will overwrite that macro.
+              </Alert>
+            )}
+            <Divider />
+            <MacroDefinitionEditor
+              value={state.macroDefinition}
+              onChange={state.handleMacroDefinitionChange}
             />
           </Stack>
-          {state.willOverwriteExistingMacro && (
-            <Alert severity={"warning"}>
-              There is already a macro named <strong>{state.macroDefinition.name}</strong>.
-              Saving will overwrite that macro.
-            </Alert>
-          )}
-        </Stack>
-      </DialogContent>
+        </DialogContent>
+      </Stack>
       <Divider />
-      <DialogContent>
-        <MacroTypeSelector
-          value={state.macroDefinition.type}
-          onChange={state.handleMacroTypeChange}
-        />
-      </DialogContent>
-      <Divider />
-      <DialogContent>
-        <Stack gap={2}>
-          <MacroDefinitionEditor
-            value={state.macroDefinition}
-            onChange={state.handleMacroDefinitionChange}
-          />
-        </Stack>
-      </DialogContent>
       <DialogActions>
         <Button onClick={props.onClose}>Cancel</Button>
         <CommandButton
@@ -220,43 +228,31 @@ const MacroNameEditor = (props: {
   )
 }
 
+// Lists the types by category, with the selected one highlighted
 const MacroTypeSelector = memo((props: {
   value: MacroDefinitionType,
   onChange: (type: MacroDefinitionType) => void
 }) => {
   const { value, onChange } = props
 
-  const handleTypeChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value as MacroDefinitionType)
-  }, [onChange])
-
   return (
-    <RadioGroup
-      value={value}
-      onChange={handleTypeChange}
-    >
-      <Stack gap={3}>
-        {Object.values(MacroTypeCategory).map(category => (
-          <Stack gap={1} key={category}>
-            <Typography variant={"subtitle2"}>{category}</Typography>
-            <Grid container spacing={2}>
-              {macroTypeDefinitions.all.filter(it => it.category === category).map(it => (
-                <Grid size={3} key={it.numericCode}>
-                  <RadioCard
-                    label={it.displayName}
-                    icon={<MacroTypeVisualization type={it.type} />}
-                    value={it.type}
-                    onClick={onChange}
-                    description={it.description}
-                    fillHeight
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Stack>
-        ))}
-      </Stack>
-    </RadioGroup>
+    <List dense>
+      {Object.values(MacroTypeCategory).map(category => (
+        <li key={category}>
+          <ul style={{ padding: 0 }}>
+            <ListSubheader>{category}</ListSubheader>
+            {macroTypeDefinitions.all.filter(it => it.category === category).map(it => (
+              <ListItemButton key={it.numericCode} selected={it.type === value} onClick={() => onChange(it.type)}>
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <MacroTypeVisualization type={it.type} />
+                </ListItemIcon>
+                <ListItemText primary={it.displayName} />
+              </ListItemButton>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </List>
   )
 })
 
@@ -271,6 +267,7 @@ const MacroDefinitionEditor = (props: {
   if (typeDefinition) {
     return (
       <>
+        <Typography variant={"body2"} color={"text.secondary"}>{typeDefinition.description}</Typography>
         <typeDefinition.editorInformationComponent />
         <typeDefinition.editorComponent value={value} onChange={onChange} />
       </>
