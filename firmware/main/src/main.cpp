@@ -60,7 +60,7 @@ namespace {
         notifierFactory = std::make_unique<mkp::components::notifications::NotifierFactory>(TheSerial);
         i2cClient = std::make_unique<tfw::hal::i2c::Client>(Wire);
         i2cSlavePort = std::make_unique<tfw::hal::i2c::SlavePort>(Wire, *clock);
-        usbConnection = tfw::hal::usb::Connection::create();
+        usbConnection = tfw::hal::usb::Connection::create(*clock);
         metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>(*clock);
         fileSystem = std::make_unique<tfw::hal::fs::ArduinoFileSystem>();
         preferencesDeviceSettings = std::make_unique<tfw::hal::settings::PreferencesDeviceSettings>("settings");

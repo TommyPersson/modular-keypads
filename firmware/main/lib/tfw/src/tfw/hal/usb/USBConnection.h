@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include "USBAction.h"
+#include "tfw/hal/time/Clock.h"
 
 namespace tfw::hal::usb {
     class Connection {
@@ -22,6 +23,6 @@ namespace tfw::hal::usb {
         // their own, held after the last such action
         virtual void setModifierHoldMs(uint32_t holdMs) = 0;
 
-        static std::unique_ptr<Connection> create();
+        static std::unique_ptr<Connection> create(time::Clock& clock);
     };
 }

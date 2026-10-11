@@ -10,9 +10,9 @@
 
 using namespace tfw::hal::usb;
 
-std::unique_ptr<Connection> Connection::create() {
+std::unique_ptr<Connection> Connection::create(time::Clock& clock) {
     #ifdef SOC_USB_OTG_SUPPORTED
-        return std::make_unique<RealConnection>();
+        return std::make_unique<RealConnection>(clock);
     #else
         return std::make_unique<NoOpConnection>();
     #endif
