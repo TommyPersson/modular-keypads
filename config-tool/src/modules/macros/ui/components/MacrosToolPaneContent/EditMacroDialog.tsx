@@ -138,7 +138,12 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
 
   const handleMacroTypeChange = useCallback((newType: MacroDefinitionType) => {
     if (macroDefinition.type !== newType) {
-      setMacroDefinition(s => createDefaultMacroDefinition(newType, s.name))
+      // Only the type's data starts over. The ID is kept so that an existing macro is changed rather than duplicated.
+      setMacroDefinition(s => ({
+        ...createDefaultMacroDefinition(newType, s.name),
+        id: s.id,
+        directory: s.directory,
+      }))
     }
   }, [setMacroDefinition, macroDefinition.type])
 
