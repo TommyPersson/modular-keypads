@@ -27,10 +27,18 @@ export type EditMacroDialogProps = {
   macro?: MacroDefinition | null
   isOpen: boolean
   onClose: () => void
+  // Receives the saved macro, with the ID the device assigned to it when it's new, before the dialog is closed
+  onSaved?: (macro: MacroDefinition) => void
 }
 
 export const EditMacroDialog = (props: EditMacroDialogProps) => {
+  const { onSaved, onClose } = props
   const state = useEditMacroDialogState(props)
+
+  const handleSaved = useCallback((macro: MacroDefinition) => {
+    onSaved?.(macro)
+    onClose()
+  }, [onSaved, onClose])
 
   return (
     <Dialog open={props.isOpen} onClose={state.handleClose} fullWidth maxWidth={"lg"}>
@@ -76,7 +84,7 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
         <CommandButton
           command={SaveMacroCommand}
           args={{ macro: state.macroDefinition }}
-          onSuccess={props.onClose}
+          onSuccess={handleSaved}
           variant={"contained"}
         />
       </DialogActions>

@@ -4,8 +4,8 @@ import { useMutation, type UseMutationOptions, type UseMutationResult } from "@t
 import { useCallback } from "react"
 import * as React from "react"
 
-export type Command<TArgs> = {
-  mutationOptions: UseMutationOptions<any, Error, TArgs>,
+export type Command<TArgs, TResult = any> = {
+  mutationOptions: UseMutationOptions<TResult, Error, TArgs>,
   label: any
   color?: ButtonProps["color"]
   icon?: React.ReactElement<IconProps>
@@ -15,12 +15,12 @@ export type Command<TArgs> = {
   canExecute?: (args: TArgs) => boolean
 }
 
-export async function executeCommand<TArgs>(options: {
-  command: Command<TArgs>,
-  mutation: UseMutationResult<any, Error, TArgs>,
+export async function executeCommand<TArgs, TResult>(options: {
+  command: Command<TArgs, TResult>,
+  mutation: UseMutationResult<TResult, Error, TArgs>,
   args: TArgs | null,
   confirm: UseConfirmResult,
-  onSuccess?: () => void,
+  onSuccess?: (result: TResult) => void,
 }) {
   const {
     command,
@@ -50,8 +50,8 @@ export async function executeCommand<TArgs>(options: {
     }
   }
 
-  await mutation.mutateAsync(args)
-  onSuccess?.()
+  const result = await mutation.mutateAsync(args)
+  onSuccess?.(result)
 }
 
 export type UseCommandHook<TArgs> = {

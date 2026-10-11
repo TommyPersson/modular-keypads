@@ -7,11 +7,13 @@ import { ListStoredMacrosQueryKey } from "@src/modules/macros/queries"
 import type { Command } from "@src/utils/commands"
 import { queryClient } from "@src/utils/queryClient"
 
-export const SaveMacroCommand: Command<{ macro: MacroDefinition }> = {
+// Results in the saved macro, with the ID the device assigned to it when it's new
+export const SaveMacroCommand: Command<{ macro: MacroDefinition }, MacroDefinition> = {
   mutationOptions: ({
     mutationKey: ["macros", "SaveMacroCommand"],
     mutationFn: async ({ macro }) => {
-      await globalDeviceFacade.value.executeCommand(new SaveMacroDeviceCommand(macro))
+      const id = await globalDeviceFacade.value.executeCommand(new SaveMacroDeviceCommand(macro))
+      return { ...macro, id }
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ListStoredMacrosQueryKey })

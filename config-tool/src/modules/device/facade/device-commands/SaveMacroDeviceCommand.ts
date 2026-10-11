@@ -2,7 +2,8 @@ import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { DeviceCommand } from "./DeviceCommand"
 
-export class SaveMacroDeviceCommand extends DeviceCommand<void> {
+// Responds with the ID of the saved macro, which the device assigns to new macros
+export class SaveMacroDeviceCommand extends DeviceCommand<number> {
   override type: string = "save.macro"
 
   constructor(
@@ -30,6 +31,7 @@ export class SaveMacroDeviceCommand extends DeviceCommand<void> {
       ...dataArgs]
   }
 
-  override parseResponse(_: string[]): void {
+  override parseResponse(lines: string[]): number {
+    return parseInt(lines[0], 10)
   }
 }

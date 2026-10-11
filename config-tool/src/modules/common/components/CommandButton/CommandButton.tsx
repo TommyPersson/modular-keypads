@@ -6,15 +6,15 @@ import { useRef } from "react"
 import { ErrorAlert } from "../ErrorAlert"
 
 
-export type CommandButtonProps<TArgs> = {
-  command: Command<TArgs>
+export type CommandButtonProps<TArgs, TResult> = {
+  command: Command<TArgs, TResult>
   args: TArgs | null
-  onSuccess?: () => void
+  onSuccess?: (result: TResult) => void
   iconOnly?: boolean
   tooltip?: any
 } & ButtonProps
 
-export const CommandButton = <TArgs, >(props: CommandButtonProps<TArgs>) => {
+export const CommandButton = <TArgs, TResult>(props: CommandButtonProps<TArgs, TResult>) => {
   const { command, args, onSuccess, iconOnly, tooltip, ...buttonProps } = props
 
   const confirm = useConfirm()

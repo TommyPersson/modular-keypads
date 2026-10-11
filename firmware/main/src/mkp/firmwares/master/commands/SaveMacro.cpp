@@ -53,11 +53,12 @@ tfw::utils::void_result SaveMacro::execute(
         .data = createData(args, arena)
     };
 
-    if (macro.data != nullptr) {
-        macroStorage.write(macro);
-    } else {
+    if (macro.data == nullptr || macroStorage.write(macro) < 0) {
         return tfw::utils::void_result::error("unable.to.save.macro");
     }
+
+    // The storage assigns new macros their ID while writing them, which the caller needs to refer to them
+    responseWriter.writeLineF("%u", static_cast<unsigned>(macro.data->id));
 
     return tfw::utils::void_result::success();
 }

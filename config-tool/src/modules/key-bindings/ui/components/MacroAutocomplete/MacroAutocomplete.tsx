@@ -1,16 +1,19 @@
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined"
 import {
   Autocomplete,
   type AutocompleteInputChangeReason,
   type AutocompleteValue,
   Box,
+  IconButton,
   Stack,
-  TextField
+  TextField,
+  Tooltip
 } from "@mui/material"
 import { createMacroFilter } from "@src/modules/macros/macroFilter"
 import type { MacroDefinition } from "@src/modules/macros/models"
-import { MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
-import { useCallback, useMemo } from "react"
+import { EditMacroDialog, MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
+import { useCallback, useMemo, useState } from "react"
 
 // The name takes a fixed part of the width, so that the definitions line up between the options
 const MacroOptionVisualization = (props: {
@@ -54,6 +57,9 @@ const MacroValueVisualization = (props: {
   )
 }
 
+/**
+ * Selects one of the macros, or a new one, which is created in the macro dialog and selected once it's saved.
+ */
 export const MacroAutocomplete = (props: {
   macros: MacroDefinition[]
   label: string
@@ -85,28 +91,45 @@ export const MacroAutocomplete = (props: {
     }
   }, [onSelect])
 
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+
   return (
-    <Autocomplete
-      size={"small"}
-      renderInput={(params) => (
-        <TextField variant={"filled"} {...params} label={label} />
-      )}
-      renderOption={(props, option) => (
-        <Box component={"li"} {...props} key={props.key}>
-          <MacroOptionVisualization macro={option} />
-        </Box>
-      )}
-      renderValue={(option) => (
-        <MacroValueVisualization macro={option} />
-      )}
-      groupBy={it => it.directory ?? "<root>"}
-      options={options}
-      filterOptions={filterOptions}
-      getOptionLabel={option => option.name + option.id}
-      value={selected}
-      onChange={handleChange}
-      onInputChange={handleInputChange}
-      disabled={disabled}
-    />
+    <Stack direction={"row"} alignItems={"center"} gap={1}>
+      <Autocomplete
+        sx={{ flex: 1 }}
+        size={"small"}
+        renderInput={(params) => (
+          <TextField variant={"filled"} {...params} label={label} />
+        )}
+        renderOption={(props, option) => (
+          <Box component={"li"} {...props} key={props.key}>
+            <MacroOptionVisualization macro={option} />
+          </Box>
+        )}
+        renderValue={(option) => (
+          <MacroValueVisualization macro={option} />
+        )}
+        groupBy={it => it.directory ?? "<root>"}
+        options={options}
+        filterOptions={filterOptions}
+        getOptionLabel={option => option.name + option.id}
+        value={selected}
+        onChange={handleChange}
+        onInputChange={handleInputChange}
+        disabled={disabled}
+      />
+      <Tooltip title={"Create a new macro for this action"}>
+        <span>
+          <IconButton onClick={() => setIsCreateDialogOpen(true)} disabled={disabled}>
+            <AddOutlinedIcon />
+          </IconButton>
+        </span>
+      </Tooltip>
+      <EditMacroDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSaved={macro => onSelect?.(macro)}
+      />
+    </Stack>
   )
 }

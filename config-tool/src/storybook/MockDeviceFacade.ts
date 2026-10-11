@@ -227,8 +227,10 @@ export class MockDeviceFacade implements DeviceFacade {
         return this.macros as TResult
       case "save.macro": {
         const { macro } = command as unknown as { macro: MacroDefinition }
-        this.changeMacros([...this.macros.filter(it => it.id !== macro.id), macro])
-        return undefined as TResult
+        // New macros get the ID after the highest one, as on the device
+        const id = macro.id > 0 ? macro.id : Math.max(0, ...this.macros.map(it => it.id)) + 1
+        this.changeMacros([...this.macros.filter(it => it.id !== id), { ...macro, id }])
+        return id as TResult
       }
       case "delete.macro":
         this.changeMacros(this.macros.filter(it => it.id.toString() !== command.arguments[0]))
