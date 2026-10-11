@@ -1,5 +1,6 @@
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -185,23 +186,44 @@ const MacroDirectoryEditor = (props: {
 }) => {
   const { value, onChange } = props
 
-  const handleOnChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.length > 0 ? e.target.value : null
-    onChange(value)
+  // Suggests the directories already in use, while still allowing a new one to be typed
+  const storedMacros = useStoredMacrosQuery().data ?? EmptyArray
+  const directories = useMemo(
+    () => [...new Set(storedMacros.map(it => it.directory).filter(it => it))].toSorted((a, b) => a.localeCompare(b)),
+    [storedMacros]
+  )
+
+  const handleInputChange = useCallback((_: unknown, newValue: string) => {
+    onChange(newValue.length > 0 ? newValue : null)
   }, [onChange])
 
   return (
-    <TextField
-      label={"Directory"}
-      variant={"filled"}
-      value={value}
-      onChange={handleOnChange}
-      style={{ width: 200 }}
-      slotProps={{
-        input: {
-          startAdornment: <InputAdornment position="start"><FolderOutlinedIcon fontSize={"small"}  /></InputAdornment>
-        }
-      }}
+    <Autocomplete
+      freeSolo
+      options={directories}
+      inputValue={value ?? ""}
+      onInputChange={handleInputChange}
+      style={{ width: 240 }}
+      renderInput={params => (
+        <TextField
+          {...params}
+          label={"Directory"}
+          // Macros without a directory are listed under the root
+          placeholder={"<root>"}
+          variant={"filled"}
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              // Without the top margin of filled inputs, as the autocomplete already pads the input below the label
+              startAdornment: (
+                <InputAdornment position="start" style={{ marginTop: 0 }}>
+                  <FolderOutlinedIcon fontSize={"small"} />
+                </InputAdornment>
+              )
+            }
+          }}
+        />
+      )}
     />
   )
 }
