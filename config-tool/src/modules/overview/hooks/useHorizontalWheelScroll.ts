@@ -16,6 +16,7 @@ const EASING_PER_FRAME = 0.25
  *
  * The notches of a mouse wheel scroll smoothly, easing out towards where they scroll to, which moves further along
  * with every notch. Scrolling some other way meanwhile, e.g. by dragging the scroll bar, stops the animation.
+ * Animated here rather than by the browser's smooth scrollBy, which turned out to be jittery.
  */
 export function useHorizontalWheelScroll(scrollerRef: RefObject<HTMLElement | null>) {
   useEffect(() => {

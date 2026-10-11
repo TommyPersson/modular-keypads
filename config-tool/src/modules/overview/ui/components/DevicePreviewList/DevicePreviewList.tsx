@@ -4,6 +4,10 @@ import { Box, Collapse, Fade, IconButton, Stack, Tooltip, useTheme, Zoom } from 
 import { TopLevelDevicePreviewCard } from "../DevicePreviewCard"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
 import { useDeviceOrder } from "@src/modules/overview/hooks/useDeviceOrder"
+import {
+  HORIZONTAL_SCROLLBAR_HEIGHT_VAR,
+  useHorizontalScrollbarHeight
+} from "@src/modules/overview/hooks/useHorizontalScrollbarHeight"
 import { useReorderAnimation } from "@src/modules/overview/hooks/useReorderAnimation"
 import { useHorizontalWheelScroll } from "@src/modules/overview/hooks/useHorizontalWheelScroll"
 import { useVisibleCenterAnchor } from "@src/modules/overview/hooks/useVisibleCenterAnchor"
@@ -20,6 +24,7 @@ const CARD_REORDER_MS = 300
  * The overlay insets are the space at the edges that is covered by things on top of the list. The cards are centered
  * in the space that remains, and can be scrolled out from under them. Changes to them are animated like a collapse,
  * so that the cards move along with an overlay that opens or closes, keeping the cards that were in view in view.
+ * The horizontal scrollbar is expected to be within the bottom inset, so the cards stay put when it appears.
  */
 export const DevicePreviewList = (props: { overlayInsets?: { right?: number, bottom?: number } }) => {
   const { right = 0, bottom = 0 } = props.overlayInsets ?? {}
@@ -41,6 +46,7 @@ export const DevicePreviewList = (props: { overlayInsets?: { right?: number, bot
   const cardsRef = useRef<HTMLDivElement>(null)
   useVisibleCenterAnchor(scrollerRef, cardsRef, right, insetDurationMs)
   useHorizontalWheelScroll(scrollerRef)
+  useHorizontalScrollbarHeight(scrollerRef)
 
   const handleMove = useCallback((deviceId: string, offset: number) => {
     capturePositions()
@@ -52,7 +58,8 @@ export const DevicePreviewList = (props: { overlayInsets?: { right?: number, bot
       {/*
         Centered by auto margins rather than by justifying the content, as the margins collapse when the cards
         don't fit, so that all of them can still be scrolled to. Padded so the scroll area doesn't clip the shadows,
-        and so the cards can be scrolled out from under the overlays.
+        and so the cards can be scrolled out from under the overlays. The bottom padding gives way to the scrollbar,
+        which would otherwise move the centered cards up by half its height.
       */}
       <Stack
         ref={cardsRef}
@@ -61,9 +68,10 @@ export const DevicePreviewList = (props: { overlayInsets?: { right?: number, bot
           m: "auto",
           p: 0.5,
           pr: `${4 + right}px`,
-          pb: `${4 + bottom}px`,
+          pb: `calc(${4 + bottom}px - var(${HORIZONTAL_SCROLLBAR_HEIGHT_VAR}, 0px))`,
           alignItems: "flex-start",
-          transition: theme.transitions.create("padding", { duration: insetDurationMs }),
+          // Only the right inset is animated, as the scrollbar should be made up for at once
+          transition: theme.transitions.create("padding-right", { duration: insetDurationMs }),
         }}
       >
         <TransitionGroup component={null}>
