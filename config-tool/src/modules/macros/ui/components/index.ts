@@ -1,2 +1,2 @@
-export * from "./EditMacrosCard"
+export * from "./MacrosToolPaneContent"
 export * from "./MacroTypeVisualization"

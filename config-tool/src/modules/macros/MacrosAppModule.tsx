@@ -1,22 +1,18 @@
 import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
 import type { AppModule } from "@src/modules/common/AppModule"
-import { MacrosPage } from "@src/modules/macros/ui"
+import { MacrosToolPaneContent } from "@src/modules/macros/ui"
 
 export const MacrosAppModule: AppModule = {
   id: "macros",
   order: 3,
-  navItems: [
+  navItems: [],
+  routes: [],
+  toolPanes: [
     {
+      id: "macros",
       title: "Macros",
-      link: "/macros",
+      component: <MacrosToolPaneContent />,
       icon: <KeyboardCommandKeyOutlinedIcon />
     }
   ],
-  routes: [
-    {
-      path: "macros",
-      Component: MacrosPage,
-    }
-  ],
-  toolPanes: [],
 }

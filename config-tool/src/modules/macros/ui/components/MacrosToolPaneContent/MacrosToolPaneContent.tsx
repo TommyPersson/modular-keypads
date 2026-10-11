@@ -1,9 +1,9 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
+import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
 import {
   Button,
-  Card,
   CardContent,
   CardHeader,
   Chip,
@@ -23,10 +23,10 @@ import { useStoredMacros } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
 import { type MacroDefinition } from "@src/modules/macros/models"
 import { MacroTypeVisualization } from "@src/modules/macros/ui"
-import { EditMacroDialog } from "@src/modules/macros/ui/components/EditMacrosCard/EditMacroDialog"
+import { EditMacroDialog } from "./EditMacroDialog"
 import { useCallback, useState } from "react"
 
-export const EditMacrosCard = () => {
+export const MacrosToolPaneContent = () => {
   const storedMacros = useStoredMacros()
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false)
@@ -47,9 +47,14 @@ export const EditMacrosCard = () => {
   }, [setMacroBeingEdited, setIsEditDialogOpen])
 
   return (
-    <Card>
+    <Stack>
       <CardHeader
-        title={"Macros"}
+        title={
+          <Stack spacing={1} direction={"row"} alignItems={"center"}>
+            <KeyboardCommandKeyOutlinedIcon />
+            <span>Macros</span>
+          </Stack>
+        }
         subheader={"Create macros to be able to bind them to keys"}
         action={
           <>
@@ -66,7 +71,7 @@ export const EditMacrosCard = () => {
         macros={storedMacros.macrosByDirectoryList}
         onEditClick={handleEditClicked}
       />
-    </Card>
+    </Stack>
   )
 }
 
@@ -80,7 +85,7 @@ const ExistingMacrosCardContent = (props: {
   return (
     <>
       <CardContent style={{ paddingLeft: 0, paddingRight: 0, }}>
-        <TableContainer style={{ maxHeight: "calc(100vh - 230px)", overflow: "auto" }}>
+        <TableContainer style={{ maxHeight: "calc(100vh - 200px)", overflow: "auto" }}>
           <Table size={"small"} stickyHeader>
             <TableHead>
               <TableRow>
