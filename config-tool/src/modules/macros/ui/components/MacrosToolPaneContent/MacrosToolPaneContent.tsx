@@ -24,9 +24,9 @@ import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
 import { useExpanderState } from "@src/modules/common/hooks/expanderState"
 import { DeleteMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacros } from "@src/modules/macros/hooks"
-import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
+import { createMacroFilter } from "@src/modules/macros/macroFilter"
 import { type MacroDefinition } from "@src/modules/macros/models"
-import { MacroTypeVisualization } from "@src/modules/macros/ui"
+import { MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
 import { EditMacroDialog } from "./EditMacroDialog"
 import { useCallback, useMemo, useState } from "react"
 
@@ -109,18 +109,11 @@ export const MacrosToolPaneContent = () => {
   )
 }
 
-// Keeps the macros that match all words of the filter, along with their directories. The words can be found in the
-// name, the directory or the definition as shown in the table, e.g. a modifier or a key code.
+// Keeps the macros that match the filter, along with their directories
 function filterMacros(macrosByDirectory: [string, MacroDefinition[]][], filter: string): [string, MacroDefinition[]][] {
-  const words = filter.trim().toLocaleLowerCase().split(/\s+/).filter(it => it.length > 0)
-  if (words.length === 0) {
+  const matches = createMacroFilter(filter)
+  if (matches === null) {
     return macrosByDirectory
-  }
-
-  const matches = (macro: MacroDefinition) => {
-    const searchTexts = macroTypeDefinitions.byType[macro.type]?.searchTexts(macro) ?? []
-    const text = [macro.name, macro.directory ?? "", ...searchTexts].join("\n").toLocaleLowerCase()
-    return words.every(word => text.includes(word))
   }
 
   return macrosByDirectory
@@ -215,8 +208,6 @@ const MacroDefinitionRow = (props: {
 }) => {
   const { macro, onEditClick } = props
 
-  const definitionCellContent = createMacroDefinitionCellContent(macro)
-
   const verticalAlign = isSequenceMacro(macro) ? "top" : undefined
 
   const handleEditIconClick = useCallback(() => {
@@ -230,7 +221,9 @@ const MacroDefinitionRow = (props: {
           <MacroTypeVisualization type={macro.type} /> {macro.name}
         </Stack>
       </TableCell>
-      <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>{definitionCellContent}</TableCell>
+      <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>
+        <MacroDefinitionVisualization macro={macro} />
+      </TableCell>
       <TableCell style={{ verticalAlign }} align={"right"}>
         <Stack direction={"row"} className={"row-actions"}>
           <Tooltip title={"Edit Macro"}>
@@ -255,15 +248,6 @@ const MacroDefinitionRow = (props: {
 const rowActionsOnHover = {
   "& .row-actions": { opacity: 0, transition: "opacity 150ms" },
   "&:hover .row-actions, &:focus-within .row-actions": { opacity: 1 },
-}
-
-function createMacroDefinitionCellContent(macro: MacroDefinition) {
-  const typeDefinition = macroTypeDefinitions.byType[macro.type]
-  if (typeDefinition) {
-    return <typeDefinition.macroTableCellComponent macro={macro} />
-  }
-
-  return null
 }
 
 function isSequenceMacro(macro: MacroDefinition) {
