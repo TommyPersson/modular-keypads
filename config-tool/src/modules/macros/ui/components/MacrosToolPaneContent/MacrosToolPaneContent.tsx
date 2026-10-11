@@ -1,19 +1,23 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined"
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined"
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined"
 import {
+  Box,
   Button,
-  CardContent,
   CardHeader,
   Chip,
   IconButton,
+  InputAdornment,
   Stack,
   Table,
   TableBody,
   TableCell, TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Tooltip
 } from "@mui/material"
 import { CommandButton, EmptyTableRow } from "@src/modules/common/components"
@@ -24,7 +28,7 @@ import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions
 import { type MacroDefinition } from "@src/modules/macros/models"
 import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { EditMacroDialog } from "./EditMacroDialog"
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 export const MacrosToolPaneContent = () => {
   const storedMacros = useStoredMacros()
@@ -46,8 +50,15 @@ export const MacrosToolPaneContent = () => {
     setIsEditDialogOpen(true)
   }, [setMacroBeingEdited, setIsEditDialogOpen])
 
+  const [filter, setFilter] = useState("")
+  const filteredMacros = useMemo(
+    () => filterMacros(storedMacros.macrosByDirectoryList, filter),
+    [storedMacros.macrosByDirectoryList, filter],
+  )
+
   return (
-    <Stack>
+    // Fills the pane, so that only the macro list scrolls rather than the whole pane
+    <Stack sx={{ height: "100%" }}>
       <CardHeader
         title={
           <Stack spacing={1} direction={"row"} alignItems={"center"}>
@@ -67,25 +78,66 @@ export const MacrosToolPaneContent = () => {
         isOpen={isEditDialogOpen}
         onClose={handleEditDialogClosed}
       />
+      <Box sx={{ px: 2, pb: 1 }}>
+        <TextField
+          size={"small"}
+          fullWidth
+          placeholder={"Filter by name or directory"}
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: <InputAdornment position={"start"}><SearchOutlinedIcon /></InputAdornment>,
+              endAdornment: filter && (
+                <InputAdornment position={"end"}>
+                  <IconButton size={"small"} onClick={() => setFilter("")}>
+                    <ClearOutlinedIcon fontSize={"small"} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      </Box>
       <ExistingMacrosCardContent
-        macros={storedMacros.macrosByDirectoryList}
+        macros={filteredMacros}
+        isFiltered={filter.trim().length > 0}
+        hasMacros={storedMacros.allMacros.length > 0}
         onEditClick={handleEditClicked}
       />
     </Stack>
   )
 }
 
+// Keeps the macros that match the filter by name or directory, along with their directories
+function filterMacros(macrosByDirectory: [string, MacroDefinition[]][], filter: string): [string, MacroDefinition[]][] {
+  const query = filter.trim().toLocaleLowerCase()
+  if (query.length === 0) {
+    return macrosByDirectory
+  }
+
+  const matches = (text: string | null) => !!text && text.toLocaleLowerCase().includes(query)
+
+  return macrosByDirectory
+    .map(([directory, macros]): [string, MacroDefinition[]] =>
+      [directory, macros.filter(it => matches(it.name) || matches(it.directory))])
+    .filter(([, macros]) => macros.length > 0)
+}
+
 const ExistingMacrosCardContent = (props: {
   macros: [string, MacroDefinition[]][]
+  isFiltered: boolean
+  hasMacros: boolean
   onEditClick: (macro: MacroDefinition) => void
 }) => {
 
-  const { macros, onEditClick } = props
+  const { macros, isFiltered, hasMacros, onEditClick } = props
 
   return (
     <>
-      <CardContent style={{ paddingLeft: 0, paddingRight: 0, }}>
-        <TableContainer style={{ maxHeight: "calc(100vh - 200px)", overflow: "auto" }}>
+      {/* Clear of the bottom of the pane, so that the scrollbar doesn't run into its rounded corners */}
+      <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", mb: 1.5 }}>
+        <TableContainer sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
           <Table size={"small"} stickyHeader>
             <TableHead>
               <TableRow>
@@ -97,16 +149,22 @@ const ExistingMacrosCardContent = (props: {
             <TableBody>
               {macros.length === 0 && (
                 <EmptyTableRow>
-                  There are no recorded macros.
+                  {hasMacros && isFiltered ? "No macros match the filter." : "There are no recorded macros."}
                 </EmptyTableRow>
               )}
               {macros.map(([directory, macros]) => (
-                <MacroDefinitionRows key={directory} directory={directory} macros={macros} onEditClick={onEditClick} />
+                <MacroDefinitionRows
+                  key={directory}
+                  directory={directory}
+                  macros={macros}
+                  forceExpanded={isFiltered}
+                  onEditClick={onEditClick}
+                />
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-      </CardContent>
+      </Box>
     </>
   )
 }
@@ -114,11 +172,14 @@ const ExistingMacrosCardContent = (props: {
 const MacroDefinitionRows = (props: {
   directory: string,
   macros: MacroDefinition[],
+  // While filtering, so that the matches in collapsed directories are shown too
+  forceExpanded: boolean,
   onEditClick: (macro: MacroDefinition) => void
 }) => {
-  const { directory, macros, onEditClick } = props
+  const { directory, macros, forceExpanded, onEditClick } = props
 
   const expanderState = useExpanderState(true)
+  const isExpanded = forceExpanded || expanderState.isExpanded
 
   return (
     <>
@@ -133,7 +194,7 @@ const MacroDefinitionRows = (props: {
         </TableCell>
       </TableRow>
 
-      {expanderState.isExpanded ? macros.map(macro =>
+      {isExpanded ? macros.map(macro =>
         <MacroDefinitionRow
           key={macro.id}
           macro={macro}
@@ -159,7 +220,7 @@ const MacroDefinitionRow = (props: {
   }, [macro, onEditClick])
 
   return (
-    <TableRow hover>
+    <TableRow hover sx={rowActionsOnHover}>
       <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>
         <Stack direction={"row"} alignItems={"center"} gap={1} style={{ marginLeft: 10 }}>
           <MacroTypeVisualization type={macro.type} /> {macro.name}
@@ -167,7 +228,7 @@ const MacroDefinitionRow = (props: {
       </TableCell>
       <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>{definitionCellContent}</TableCell>
       <TableCell style={{ verticalAlign }} align={"right"}>
-        <Stack direction={"row"}>
+        <Stack direction={"row"} className={"row-actions"}>
           <Tooltip title={"Edit Macro"}>
             <IconButton onClick={handleEditIconClick} size={"small"}>
               <EditOutlinedIcon fontSize={"small"} />
@@ -183,6 +244,12 @@ const MacroDefinitionRow = (props: {
       </TableCell>
     </TableRow>
   )
+}
+
+// Hidden rather than removed, so that the rows don't change their layout. Also shown while focused by keyboard.
+const rowActionsOnHover = {
+  "& .row-actions": { visibility: "hidden" },
+  "&:hover .row-actions, &:focus-within .row-actions": { visibility: "visible" },
 }
 
 function createMacroDefinitionCellContent(macro: MacroDefinition) {
