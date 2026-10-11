@@ -56,7 +56,7 @@ const ToolPaneNavItem = (props: {
           }}>
             {icon}
           </ListItemIcon>
-          <Typography variant={"caption"} color={"text.secondary"} sx={{ fontSize: "0.7rem", lineHeight: 1.4 }}>
+          <Typography variant={"caption"}>
             {shortTitle}
           </Typography>
         </ListItemButton>

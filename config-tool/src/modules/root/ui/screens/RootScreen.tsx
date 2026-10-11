@@ -1,5 +1,6 @@
 import { Box, CssBaseline, Fade, Grid, Stack } from "@mui/material"
 import { useDeviceContext } from "@src/modules/device/context"
+import { MainControlBar } from "@src/modules/root/ui/components/MainControlBar"
 import { ToolPane, useToolPaneContext } from "@src/modules/root/ui/components/ToolPane"
 import { ToolPaneNavBar } from "@src/modules/root/ui/components/ToolPane/ToolPaneNavBar"
 import { queryClient } from "@src/utils/queryClient"
@@ -49,6 +50,8 @@ export const RootScreen = () => {
           </Fade>
         </Grid>
       </Grid>
+
+      <MainControlBar />
     </Box>
   )
 }
