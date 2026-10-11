@@ -1,6 +1,6 @@
-import { Box, CssBaseline, Grid, Stack } from "@mui/material"
+import { Box, CssBaseline, Fade, Grid, Stack } from "@mui/material"
 import { useDeviceContext } from "@src/modules/device/context"
-import { ToolPane } from "@src/modules/root/ui/components/ToolPane"
+import { ToolPane, useToolPaneContext } from "@src/modules/root/ui/components/ToolPane"
 import { ToolPaneNavBar } from "@src/modules/root/ui/components/ToolPane/ToolPaneNavBar"
 import { queryClient } from "@src/utils/queryClient"
 import { useEffect } from "react"
@@ -15,6 +15,14 @@ export const RootScreen = () => {
   useEffect(() => {
     queryClient.resetQueries().then() // TODO give all device queries a prefix
   }, [isConnected])
+
+  // The tool panes all need a connected device
+  const { setSelectedToolId } = useToolPaneContext()
+  useEffect(() => {
+    if (!isConnected) {
+      setSelectedToolId(null)
+    }
+  }, [isConnected, setSelectedToolId])
 
   return (
     <Box className={classes.RootScreen}>
@@ -34,7 +42,11 @@ export const RootScreen = () => {
           </Stack>
         </Grid>
         <Grid size={"auto"}>
-          <ToolPaneNavBar />
+          <Fade in={isConnected} unmountOnExit>
+            <div>
+              <ToolPaneNavBar />
+            </div>
+          </Fade>
         </Grid>
       </Grid>
     </Box>
