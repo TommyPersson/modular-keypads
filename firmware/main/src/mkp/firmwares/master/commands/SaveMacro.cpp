@@ -41,6 +41,11 @@ tfw::utils::void_result SaveMacro::execute(
     tfw::utils::commands::CommandResponseWriter& responseWriter,
     tfw::utils::allocations::Arena& arena
 ) {
+    // Macro ID, name and type, followed by the data of the type
+    if (args.size() < 3) {
+        return tfw::utils::void_result::error("unable.to.save.macro");
+    }
+
     auto& nameArg = args[1];
 
     const Macro macro{

@@ -13,8 +13,9 @@ export const SettingDescriptions: Record<string, SettingDescription> = {
   },
   "modifier.hold": {
     title: "Modifier hold time",
-    description: "Time to keep the modifiers of mouse macros held after the last such macro, so that fast scrolling "
-      + "holds them once instead of tapping them for each step. Zero releases them right after each macro.",
+    description: "Time to keep the modifiers of mouse macros, and of shortcut macros that hold them without a hold time "
+      + "of their own, held after the last such macro. Fast scrolling then holds them once instead of tapping them for each step, and repeated "
+      + "Alt + Tab keeps the window switcher open. Zero releases them right after each macro.",
     unit: "ms",
   },
 }

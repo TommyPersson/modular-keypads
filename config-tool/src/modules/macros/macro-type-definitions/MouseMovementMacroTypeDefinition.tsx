@@ -44,22 +44,22 @@ export const MouseMovementMacroTypeDefinition: MacroTypeDefinition<MouseMovement
   },
 
   parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseMovementMacroDefinition {
-    const [xArg, yArg, modifiersArg] = dataArgs
+    const [modifiersArg, xArg, yArg] = dataArgs
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MouseMovement,
-      modifiers: parseModifierFlags(parseInt(modifiersArg, 16) || 0),
-      x: parseInt(xArg, 10) || 0,
-      y: parseInt(yArg, 10) || 0,
+      modifiers: parseModifierFlags(parseInt(modifiersArg, 16)),
+      x: parseInt(xArg, 10),
+      y: parseInt(yArg, 10),
     }
   },
 
   serializeDeviceArguments(macro: MouseMovementMacroDefinition): string[] {
     const modifiersArg = `0x${createModifierFlags(macro.modifiers).toString(16).padStart(2, "0")}`
-    return ["0x07", `${macro.x}`, `${macro.y}`, modifiersArg]
+    return ["0x07", modifiersArg, `${macro.x}`, `${macro.y}`]
   },
 
   editorInformationComponent: () => null,

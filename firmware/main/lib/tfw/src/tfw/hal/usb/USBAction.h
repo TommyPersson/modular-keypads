@@ -11,7 +11,12 @@ namespace tfw::hal::usb {
     struct Action {
         virtual ~Action() = default;
 
-        static std::shared_ptr<Action> keyPress(const std::vector<uint8_t>& keyCodes);
+        static std::shared_ptr<Action> shortcut(
+            uint8_t modifiers,
+            uint8_t keyCode,
+            bool holdModifiers,
+            uint32_t holdTimeMs
+        );
         static std::shared_ptr<Action> consumerControl(uint16_t usageId);
         static std::shared_ptr<Action> systemControl(uint8_t code);
         static std::shared_ptr<Action> type(const std::string_view& text);
@@ -43,17 +48,20 @@ namespace tfw::hal::usb {
         const uint8_t code;
     };
 
-    struct KeyPressData {
-        std::vector<uint8_t> keyCodes;
-    };
-
-    struct KeyPressAction final : Action {
-        ~KeyPressAction() override = default;
-
-        explicit KeyPressAction(const KeyPressData& data) : data(data) {
+    // A key press combined with keyboard modifiers. With holdModifiers, the modifiers stay held after the key press,
+    // for consecutive actions with the same modifiers. Repeating Alt + Tab then keeps the window switcher open, and
+    // switches when the repeats stop.
+    struct ShortcutAction final : Action {
+        ShortcutAction(const uint8_t modifiers, const uint8_t keyCode, const bool holdModifiers, const uint32_t holdTimeMs)
+            : modifiers(modifiers), keyCode(keyCode), holdModifiers(holdModifiers), holdTimeMs(holdTimeMs) {
         }
 
-        const KeyPressData data;
+        ~ShortcutAction() override = default;
+
+        const uint8_t modifiers; // Bit flags in HID keyboard report order (bit 0 = left control, ...)
+        const uint8_t keyCode;
+        const bool holdModifiers;
+        const uint32_t holdTimeMs; // Zero uses the connection's modifier hold time
     };
 
     struct TypeAction final : Action {

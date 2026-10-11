@@ -4,8 +4,12 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   Fade,
   FormControl,
+  FormControlLabel,
+  FormHelperText,
+  InputAdornment,
   InputLabel,
   Paper,
   Popper,
@@ -16,9 +20,12 @@ import {
 import { TagSelect } from "@src/modules/common/components"
 import { keyboadKeyCodes } from "@src/modules/macros/data"
 import type { KeyboardKeyCode, Shortcut, ShortcutMacroDefinition } from "@src/modules/macros/models"
-import { type ComponentProps, useCallback, useEffect, useState } from "react"
+import { type ChangeEvent, type ComponentProps, useCallback, useEffect, useState } from "react"
 
 import classes from "./ShortcutMacroDefinitionEditor.module.css"
+
+// Same limit as the modifier hold time setting on the device
+const MAX_HOLD_TIME_MS = 5000
 
 export const ShortcutMacroDefinitionEditor = (props: {
   value: ShortcutMacroDefinition
@@ -32,7 +39,47 @@ export const ShortcutMacroDefinitionEditor = (props: {
     onChange({ ...value, shortcut: shortcut })
   }, [value, onChange])
 
-  return <ShortcutEditor value={shortcut} onChange={handleShortcutChange} />
+  const handleHoldModifiersChange = useCallback((_: unknown, holdModifiers: boolean) => {
+    onChange({ ...value, holdModifiers })
+  }, [value, onChange])
+
+  const handleHoldTimeChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(event.target.value, 10)
+    const holdTimeMs = isNaN(parsed) ? 0 : Math.min(MAX_HOLD_TIME_MS, Math.max(0, parsed))
+    onChange({ ...value, holdTimeMs })
+  }, [value, onChange])
+
+  return (
+    <Stack gap={2}>
+      <ShortcutEditor value={shortcut} onChange={handleShortcutChange} />
+      <FormControl>
+        <FormControlLabel
+          label={"Hold modifiers"}
+          control={<Checkbox checked={value.holdModifiers} onChange={handleHoldModifiersChange} />}
+        />
+        <FormHelperText>
+          Keeps the modifiers held between repeats, and releases them once the repeats stop. Repeating Alt + Tab, such
+          as with a rotary encoder, then keeps the window switcher open while turning.
+        </FormHelperText>
+      </FormControl>
+      <TextField
+        variant={"filled"}
+        type={"number"}
+        label={"Hold time"}
+        helperText={<>Time to keep holding after the last repeat. Empty uses the <strong>Modifier hold time</strong> setting.</>}
+        placeholder={"Modifier hold time setting"}
+        value={value.holdTimeMs > 0 ? value.holdTimeMs.toString() : ""}
+        onChange={handleHoldTimeChange}
+        disabled={!value.holdModifiers}
+        slotProps={{
+          htmlInput: { min: 1, max: MAX_HOLD_TIME_MS, step: 50 },
+          input: { endAdornment: <InputAdornment position={"end"}>ms</InputAdornment> },
+          inputLabel: { shrink: true },
+        }}
+        sx={{ maxWidth: 400 }}
+      />
+    </Stack>
+  )
 }
 
 export const ShortcutEditor = (props: {

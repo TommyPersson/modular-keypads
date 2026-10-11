@@ -81,7 +81,7 @@ void tfw::hal::usb::RealConnection::setTypingDelayMs(const uint32_t delayMs) {
 }
 
 void tfw::hal::usb::RealConnection::setModifierHoldMs(const uint32_t holdMs) {
-    modifierHolder.setHoldTimeUs(static_cast<uint64_t>(holdMs) * 1'000);
+    modifierHolder.setDefaultHoldTimeUs(static_cast<uint64_t>(holdMs) * 1'000);
 }
 
 void tfw::hal::usb::RealConnection::applyModifierChange(const ModifierChange& change) {
@@ -104,22 +104,28 @@ bool tfw::hal::usb::RealConnection::isConnected() {
 }
 
 void tfw::hal::usb::RealConnection::sendAction(Action& action) {
+    const auto shortcutAction = dynamic_cast<ShortcutAction*>(&action);
     const auto mouseAction = dynamic_cast<MouseAction*>(&action);
 
-    // Other actions have no use for the modifiers of mouse actions, and key presses release all keys anyway
-    applyModifierChange(
-        mouseAction != nullptr
-            ? modifierHolder.hold(mouseAction->modifiers, time::micros())
-            : modifierHolder.releaseAll()
-    );
+    // Other actions have no use for held modifiers
+    if (shortcutAction == nullptr && mouseAction == nullptr) {
+        applyModifierChange(modifierHolder.releaseAll());
+    }
 
-    const auto keyPressAction = dynamic_cast<KeyPressAction*>(&action);
-    if (keyPressAction != nullptr) {
-        for (auto keyCode : keyPressAction->data.keyCodes) {
-            keyboard.pressRaw(keyCode);
+    if (shortcutAction != nullptr) {
+        const auto holdTimeUs = shortcutAction->holdTimeMs > 0
+            ? std::optional(static_cast<uint64_t>(shortcutAction->holdTimeMs) * 1'000)
+            : std::nullopt;
+        applyModifierChange(modifierHolder.hold(shortcutAction->modifiers, time::micros(), holdTimeUs));
+
+        if (shortcutAction->keyCode != 0) {
+            keyboard.pressRaw(shortcutAction->keyCode);
+            keyboard.releaseRaw(shortcutAction->keyCode);
         }
 
-        keyboard.releaseAll();
+        if (!shortcutAction->holdModifiers) {
+            applyModifierChange(modifierHolder.releaseAll());
+        }
     }
 
     const auto consumerControlAction = dynamic_cast<ConsumerControlAction*>(&action);
@@ -142,6 +148,8 @@ void tfw::hal::usb::RealConnection::sendAction(Action& action) {
     }
 
     if (mouseAction != nullptr) {
+        applyModifierChange(modifierHolder.hold(mouseAction->modifiers, time::micros()));
+
         if (mouseAction->buttons != 0) {
             mouse.click(mouseAction->buttons);
         }

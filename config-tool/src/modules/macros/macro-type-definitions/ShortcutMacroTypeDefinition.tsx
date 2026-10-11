@@ -42,11 +42,13 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
         modifiers: [],
         hidCode: 0
       },
+      holdModifiers: false,
+      holdTimeMs: 0,
     }
   },
 
   parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): ShortcutMacroDefinition {
-    const [modifiersStr, hidCodeStr] = dataArgs
+    const [modifiersStr, hidCodeStr, holdModifiersStr, holdTimeMsStr] = dataArgs
     const modifiers = parseModifierFlags(parseInt(modifiersStr, 16))
     const hidCode = parseInt(hidCodeStr, 16)
 
@@ -58,14 +60,16 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
       shortcut: {
         modifiers,
         hidCode
-      }
+      },
+      holdModifiers: holdModifiersStr === "1",
+      holdTimeMs: parseInt(holdTimeMsStr, 10),
     } satisfies ShortcutMacroDefinition
   },
 
   serializeDeviceArguments(macro: ShortcutMacroDefinition): string[] {
     const modifiersArg = `0x${createModifierFlags(macro.shortcut.modifiers).toString(16).padStart(2, "0")}`
     const hidCodeArg = `0x${macro.shortcut.hidCode.toString(16).padStart(2, "0")}`
-    return ["0x01", modifiersArg, hidCodeArg]
+    return ["0x01", modifiersArg, hidCodeArg, macro.holdModifiers ? "1" : "0", `${macro.holdTimeMs}`]
   },
 
   editorInformationComponent: () => (

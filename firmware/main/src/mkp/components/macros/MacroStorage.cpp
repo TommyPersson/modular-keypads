@@ -23,6 +23,11 @@ namespace {
 
         auto parts = tfw::utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
 
+        // Lines that can't be parsed are ignored
+        if (parts.size() < 3) {
+            return nullptr;
+        }
+
         auto macroIdPart = parts[0];
         auto macroId = tfw::utils::strings::atou16(macroIdPart);
         auto name = parts[1];

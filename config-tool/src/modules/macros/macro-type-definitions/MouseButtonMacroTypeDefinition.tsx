@@ -44,21 +44,21 @@ export const MouseButtonMacroTypeDefinition: MacroTypeDefinition<MouseButtonMacr
   },
 
   parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseButtonMacroDefinition {
-    const [buttonsArg, modifiersArg] = dataArgs
+    const [modifiersArg, buttonsArg] = dataArgs
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MouseButton,
-      modifiers: parseModifierFlags(parseInt(modifiersArg, 16) || 0),
-      buttons: parseInt(buttonsArg, 16) || 0,
+      modifiers: parseModifierFlags(parseInt(modifiersArg, 16)),
+      buttons: parseInt(buttonsArg, 16),
     }
   },
 
   serializeDeviceArguments(macro: MouseButtonMacroDefinition): string[] {
     const modifiersArg = `0x${createModifierFlags(macro.modifiers).toString(16).padStart(2, "0")}`
-    return ["0x06", `0x${macro.buttons.toString(16).padStart(2, "0")}`, modifiersArg]
+    return ["0x06", modifiersArg, `0x${macro.buttons.toString(16).padStart(2, "0")}`]
   },
 
   editorInformationComponent: () => null,

@@ -2,7 +2,18 @@
 
 #include <algorithm>
 
+#include "mkp/components/settings/Settings.h"
+
 namespace mkp::components::macros {
+    // Macro data with any other number of parts can't be parsed, and is ignored
+    static bool hasParts(const std::span<const std::string_view>& parts, const size_t count) {
+        return parts.size() == count;
+    }
+
+    static int8_t clampToInt8(const int value) {
+        return static_cast<int8_t>(std::clamp(value, -127, 127));
+    }
+
     class ConsumerControlMacroDataSerializer final
         : public MacroDataStorageSerializer<ConsumerControlMacroData> {
     public:
@@ -23,6 +34,10 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
+            if (!hasParts(parts, 1)) {
+                return nullptr;
+            }
+
             const tfw::utils::allocations::ArenaAllocator<ConsumerControlMacroData> allocator(arena);
 
             const auto usageIdPart = parts[0];
@@ -45,9 +60,11 @@ namespace mkp::components::macros {
         std::string_view serialize(const ShortcutMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x:0x%02x",
+                "0x%02x:0x%02x:%d:%u",
                 data.modifiers,
-                data.hidKeyCode
+                data.hidKeyCode,
+                data.holdModifiers ? 1 : 0,
+                static_cast<unsigned int>(data.holdTimeMs)
             );
         }
 
@@ -56,16 +73,24 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
+            if (!hasParts(parts, 4)) {
+                return nullptr;
+            }
+
             const tfw::utils::allocations::ArenaAllocator<ShortcutMacroData> allocator(arena);
 
             const auto modifiersPart = parts[0];
             const auto hidCodePart = parts[1];
+            const auto holdModifiersPart = parts[2];
+            const auto holdTimeMsPart = parts[3];
 
             return std::allocate_shared<ShortcutMacroData>(
                 allocator,
                 macroId,
                 tfw::utils::strings::atol(modifiersPart, 16),
-                tfw::utils::strings::atol(hidCodePart, 16)
+                tfw::utils::strings::atol(hidCodePart, 16),
+                tfw::utils::strings::atol(holdModifiersPart) != 0,
+                std::min(tfw::utils::strings::atou32(holdTimeMsPart), settings::ModifierHoldMs.maxValue)
             );
         }
     };
@@ -90,6 +115,10 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
+            if (!hasParts(parts, 1)) {
+                return nullptr;
+            }
+
             const tfw::utils::allocations::ArenaAllocator<SystemControlMacroData> allocator(arena);
 
             const auto codePart = parts[0];
@@ -123,6 +152,11 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
+            // The text is URI encoded, so it has no separators of its own
+            if (!hasParts(parts, 1)) {
+                return nullptr;
+            }
+
             const tfw::utils::allocations::ArenaAllocator<TextMacroData> allocator(arena);
 
             const auto textPart = parts[0];
@@ -135,15 +169,6 @@ namespace mkp::components::macros {
         }
     };
 
-    static int8_t clampToInt8(const int value) {
-        return static_cast<int8_t>(std::clamp(value, -127, 127));
-    }
-
-    // Keyboard modifiers of mouse macros come last, as they were added later. Macros saved before have none.
-    static uint8_t parseOptionalModifiers(const std::span<const std::string_view>& parts, const size_t index) {
-        return parts.size() > index ? tfw::utils::strings::atou8(parts[index], 16) : 0;
-    }
-
     class MouseScrollDataSerializer final
         : public MacroDataStorageSerializer<MouseScrollMacroData> {
     public:
@@ -154,10 +179,10 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseScrollMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%d:%d:0x%02x",
+                "0x%02x:%d:%d",
+                data.modifiers,
                 data.wheel,
-                data.pan,
-                data.modifiers
+                data.pan
             );
         }
 
@@ -166,7 +191,7 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (parts.size() < 2) {
+            if (!hasParts(parts, 3)) {
                 return nullptr;
             }
 
@@ -175,9 +200,9 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseScrollMacroData>(
                 allocator,
                 macroId,
-                parseOptionalModifiers(parts, 2),
-                clampToInt8(tfw::utils::strings::atol(parts[0])),
-                clampToInt8(tfw::utils::strings::atol(parts[1]))
+                tfw::utils::strings::atou8(parts[0], 16),
+                clampToInt8(tfw::utils::strings::atol(parts[1])),
+                clampToInt8(tfw::utils::strings::atol(parts[2]))
             );
         }
     };
@@ -193,8 +218,8 @@ namespace mkp::components::macros {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
                 "0x%02x:0x%02x",
-                data.buttons,
-                data.modifiers
+                data.modifiers,
+                data.buttons
             );
         }
 
@@ -203,7 +228,7 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (parts.empty()) {
+            if (!hasParts(parts, 2)) {
                 return nullptr;
             }
 
@@ -212,8 +237,8 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseButtonMacroData>(
                 allocator,
                 macroId,
-                parseOptionalModifiers(parts, 1),
-                tfw::utils::strings::atou8(parts[0], 16)
+                tfw::utils::strings::atou8(parts[0], 16),
+                tfw::utils::strings::atou8(parts[1], 16)
             );
         }
     };
@@ -228,10 +253,10 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseMovementMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%d:%d:0x%02x",
+                "0x%02x:%d:%d",
+                data.modifiers,
                 data.x,
-                data.y,
-                data.modifiers
+                data.y
             );
         }
 
@@ -240,7 +265,7 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (parts.size() < 2) {
+            if (!hasParts(parts, 3)) {
                 return nullptr;
             }
 
@@ -249,9 +274,9 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseMovementMacroData>(
                 allocator,
                 macroId,
-                parseOptionalModifiers(parts, 2),
-                clampToInt8(tfw::utils::strings::atol(parts[0])),
-                clampToInt8(tfw::utils::strings::atol(parts[1]))
+                tfw::utils::strings::atou8(parts[0], 16),
+                clampToInt8(tfw::utils::strings::atol(parts[1])),
+                clampToInt8(tfw::utils::strings::atol(parts[2]))
             );
         }
     };

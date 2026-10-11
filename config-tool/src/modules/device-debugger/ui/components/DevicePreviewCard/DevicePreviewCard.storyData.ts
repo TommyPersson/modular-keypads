@@ -29,6 +29,17 @@ export const macros: MacroDefinition[] = [
     name: "Copy",
     type: MacroDefinitionType.Shortcut,
     shortcut: { modifiers: [0xe0], hidCode: 0x06 },
+    holdModifiers: false,
+    holdTimeMs: 0,
+  },
+  {
+    id: 12,
+    directory: null,
+    name: "Switch Window",
+    type: MacroDefinitionType.Shortcut,
+    shortcut: { modifiers: [0xe2], hidCode: 0x2b },
+    holdModifiers: true,
+    holdTimeMs: 800,
   },
   { id: 6, directory: null, name: "Sleep", type: MacroDefinitionType.SystemControl, code: 0x82 },
   {

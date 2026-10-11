@@ -26,16 +26,27 @@ namespace mkp::components::macros {
     };
 
     struct ShortcutMacroData final : MacroData {
-        ShortcutMacroData(const uint16_t id, const uint8_t modifiers, const uint8_t hid_key_code)
-            : MacroData(id, MacroType::SHORTCUT),
-              modifiers(modifiers),
-              hidKeyCode(hid_key_code) {
+        ShortcutMacroData(
+            const uint16_t id,
+            const uint8_t modifiers,
+            const uint8_t hid_key_code,
+            const bool holdModifiers = false,
+            const uint32_t holdTimeMs = 0
+        ) : MacroData(id, MacroType::SHORTCUT),
+            modifiers(modifiers),
+            hidKeyCode(hid_key_code),
+            holdModifiers(holdModifiers),
+            holdTimeMs(holdTimeMs) {
         }
 
         ~ShortcutMacroData() override = default;
 
         const uint8_t modifiers;
         const uint8_t hidKeyCode;
+        // Keeps the modifiers held between repeats of the shortcut, such as for Alt + Tab
+        const bool holdModifiers;
+        // How long the modifiers stay held after the last repeat. Zero uses the modifier hold time setting.
+        const uint32_t holdTimeMs;
     };
 
     struct ConsumerControlMacroData final : MacroData {

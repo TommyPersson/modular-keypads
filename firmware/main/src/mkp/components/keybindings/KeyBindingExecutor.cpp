@@ -1,6 +1,5 @@
 #include "KeyBindingExecutor.h"
 
-#include <bitset>
 #include <tfw/utils/strings.h>
 
 #include <tfw/hal/logging.h>
@@ -17,44 +16,18 @@ using tfw::hal::buttons::ButtonState;
 namespace {
     auto logger = tfw::hal::logging::createLogger("KeyBindingSubSystem");
 
-    std::vector<uint8_t> getKeyCodesFromModifierFlags(const uint8_t modifiers) {
-        std::vector<uint8_t> result(8);
-
-        const std::bitset<8> flags(modifiers);
-
-        if (flags.test(0)) result.push_back(0xe0); // Control (L)
-        if (flags.test(1)) result.push_back(0xe1); // Shift (L)
-        if (flags.test(2)) result.push_back(0xe2); // Alt (L)
-        if (flags.test(3)) result.push_back(0xe3); // Meta (L)
-        if (flags.test(4)) result.push_back(0xe4); // Control (R)
-        if (flags.test(5)) result.push_back(0xe5); // Shift (R)
-        if (flags.test(6)) result.push_back(0xe6); // Alt (R)
-        if (flags.test(7)) result.push_back(0xe7); // Meta (R)
-
-        return result;
-    }
-
-    std::vector<std::shared_ptr<tfw::hal::usb::Action>> getActionSequence(const ShortcutMacroData& data) {
-        std::vector<std::shared_ptr<tfw::hal::usb::Action>> actions;
-
-        std::vector<uint8_t> keyCodes(9);
-        auto modifierKeyCodes = getKeyCodesFromModifierFlags(data.modifiers);
-        keyCodes.insert(keyCodes.begin(), modifierKeyCodes.begin(), modifierKeyCodes.end());
-        keyCodes.push_back(data.hidKeyCode);
-
-        actions.push_back(tfw::hal::usb::Action::keyPress(keyCodes));
-
-        return actions;
-    }
-
     std::shared_ptr<CompiledMacro> compileMacro(const Macro& macro) {
         if (macro.data->type == SHORTCUT) {
             const auto& data = dynamic_cast<ShortcutMacroData&>(*macro.data);
-            const auto sequence = getActionSequence(data);
-
+            const auto action = tfw::hal::usb::Action::shortcut(
+                data.modifiers,
+                data.hidKeyCode,
+                data.holdModifiers,
+                data.holdTimeMs
+            );
             return std::make_shared<CompiledMacro>(CompiledMacro{
                 .macroId = macro.data->id,
-                .actions = sequence,
+                .actions = std::vector{action},
             });
         }
 

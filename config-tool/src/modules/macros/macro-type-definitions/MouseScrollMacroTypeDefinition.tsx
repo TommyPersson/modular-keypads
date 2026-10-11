@@ -44,22 +44,22 @@ export const MouseScrollMacroTypeDefinition: MacroTypeDefinition<MouseScrollMacr
   },
 
   parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseScrollMacroDefinition {
-    const [wheelArg, panArg, modifiersArg] = dataArgs
+    const [modifiersArg, wheelArg, panArg] = dataArgs
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MouseScroll,
-      modifiers: parseModifierFlags(parseInt(modifiersArg, 16) || 0),
-      wheel: parseInt(wheelArg, 10) || 0,
-      pan: parseInt(panArg, 10) || 0,
+      modifiers: parseModifierFlags(parseInt(modifiersArg, 16)),
+      wheel: parseInt(wheelArg, 10),
+      pan: parseInt(panArg, 10),
     }
   },
 
   serializeDeviceArguments(macro: MouseScrollMacroDefinition): string[] {
     const modifiersArg = `0x${createModifierFlags(macro.modifiers).toString(16).padStart(2, "0")}`
-    return ["0x05", `${macro.wheel}`, `${macro.pan}`, modifiersArg]
+    return ["0x05", modifiersArg, `${macro.wheel}`, `${macro.pan}`]
   },
 
   editorInformationComponent: () => null,

@@ -2,8 +2,13 @@
 
 using namespace tfw::hal::usb;
 
-std::shared_ptr<Action> Action::keyPress(const std::vector<uint8_t>& keyCodes) {
-    return std::make_shared<KeyPressAction>(KeyPressData{ .keyCodes = keyCodes });
+std::shared_ptr<Action> Action::shortcut(
+    const uint8_t modifiers,
+    const uint8_t keyCode,
+    const bool holdModifiers,
+    const uint32_t holdTimeMs
+) {
+    return std::make_shared<ShortcutAction>(modifiers, keyCode, holdModifiers, holdTimeMs);
 }
 
 std::shared_ptr<Action> Action::consumerControl(uint16_t usageId) {

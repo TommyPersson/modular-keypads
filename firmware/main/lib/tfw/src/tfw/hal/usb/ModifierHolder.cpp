@@ -2,7 +2,11 @@
 
 using namespace tfw::hal::usb;
 
-ModifierChange ModifierHolder::hold(const uint8_t modifiers, const uint64_t nowUs) {
+ModifierChange ModifierHolder::hold(
+    const uint8_t modifiers,
+    const uint64_t nowUs,
+    const std::optional<uint64_t> holdTimeUs
+) {
     const ModifierChange change{
         .press = static_cast<uint8_t>(modifiers & ~held),
         .release = static_cast<uint8_t>(held & ~modifiers),
@@ -10,6 +14,7 @@ ModifierChange ModifierHolder::hold(const uint8_t modifiers, const uint64_t nowU
 
     held = modifiers;
     lastHoldUs = nowUs;
+    this->holdTimeUs = holdTimeUs.value_or(defaultHoldTimeUs);
 
     return change;
 }

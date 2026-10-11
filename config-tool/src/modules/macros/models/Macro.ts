@@ -26,6 +26,10 @@ export type MacroDefinitionBase = {
 export type ShortcutMacroDefinition = MacroDefinitionBase & {
   type: MacroDefinitionType.Shortcut
   shortcut: Shortcut
+  // Keeps the modifiers held between repeats of the shortcut, such as for Alt + Tab
+  holdModifiers: boolean
+  // How long the modifiers stay held after the last repeat. Zero uses the modifier hold time setting.
+  holdTimeMs: number
 }
 
 export type ConsumerControlMacroDefinition = MacroDefinitionBase & {

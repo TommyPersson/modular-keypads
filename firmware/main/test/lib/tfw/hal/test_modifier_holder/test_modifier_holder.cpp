@@ -12,7 +12,7 @@ namespace {
 class ModifierHolderTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        holder.setHoldTimeUs(250'000);
+        holder.setDefaultHoldTimeUs(250'000);
     }
 
     ModifierHolder holder;
@@ -83,8 +83,30 @@ TEST_F(ModifierHolderTest, ReleaseAllReleasesHeldModifiers) {
 }
 
 TEST_F(ModifierHolderTest, ZeroHoldTimeReleasesOnNextUpdate) {
-    holder.setHoldTimeUs(0);
+    holder.setDefaultHoldTimeUs(0);
     holder.hold(SHIFT, 1'000);
 
     EXPECT_EQ(holder.update(1'000), (ModifierChange{.release = SHIFT}));
+}
+
+TEST_F(ModifierHolderTest, HoldWithOwnHoldTimeReleasesAfterIt) {
+    holder.hold(ALT, 0, 1'000'000);
+
+    EXPECT_EQ(holder.update(999'999), ModifierChange{});
+    EXPECT_EQ(holder.update(1'000'000), (ModifierChange{.release = ALT}));
+}
+
+TEST_F(ModifierHolderTest, LatestHoldDecidesHoldTime) {
+    holder.hold(ALT, 0, 1'000'000);
+    holder.hold(SHIFT, 100'000);
+
+    // The default hold time of the latest hold applies, not the longer one of the earlier hold
+    EXPECT_EQ(holder.update(350'000), (ModifierChange{.release = SHIFT}));
+}
+
+TEST_F(ModifierHolderTest, ChangingDefaultHoldTimeKeepsOwnHoldTime) {
+    holder.hold(ALT, 0, 1'000'000);
+    holder.setDefaultHoldTimeUs(100'000);
+
+    EXPECT_EQ(holder.update(500'000), ModifierChange{});
 }
