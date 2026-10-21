@@ -75,7 +75,7 @@ namespace tfw::hal::i2c {
         void addCommandHandler(void* handler);
 
         /**
-         * Executes the commands received since the last call, and restarts discovery when the master doesn't
+         * Executes the commands received since the last call, and resets the MCU when the master doesn't
          * acknowledge the device in time. Call from the main loop.
          */
         void loop();

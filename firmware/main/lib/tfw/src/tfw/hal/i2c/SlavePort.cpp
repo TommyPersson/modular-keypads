@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <esp_random.h>
+#include <esp_system.h>
 #include <Wire.h>
 
 #include <tfw/hal/logging.h>
@@ -70,12 +71,11 @@ namespace tfw::hal::i2c {
         discoveryTimeout->update();
     }
 
-    // Starts over at a new temporary address, which also restarts the I2C peripheral, while keeping the discovery
-    // line low
+    // Restarting only the I2C peripheral isn't always enough to become reachable again, so the whole MCU is reset.
+    // The discovery line is released during the reset and driven low again once the device requests discovery.
     void SlavePort::onDiscoveryTimeout() {
-        logger->warn("Not acknowledged by the master in time, restarting discovery");
-        listenAt(randomTemporaryAddress());
-        discoveryTimeout->start();
+        logger->warn("Not acknowledged by the master in time, restarting the device");
+        esp_restart();
     }
 
     void SlavePort::addCommandHandler(void* handler) {
