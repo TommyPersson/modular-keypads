@@ -23,10 +23,9 @@ sub_module_connector_offset = 31;
 sub_module_connector_size = [5.1, 26.7, 4];
 sub_module_separation = 8;
 sub_module_shell_wall_width = 2;
-sub_module_shell_wall_height = pcb_thickness + sub_module_connector_size.z + module_top_thickness -
-    bottom_connector_inset;
+sub_module_shell_wall_height = pcb_thickness + sub_module_connector_size.z + module_top_thickness;// - bottom_connector_inset;
 sub_module_shell_top_thickness = module_top_cover_thickness;
-sub_module_shell_bottom_thickness = sub_module_connector_size.z - bottom_connector_inset;
+sub_module_shell_bottom_thickness = sub_module_connector_size.z; // - bottom_connector_inset;
 sub_module_shell_total_height = sub_module_shell_top_thickness + sub_module_shell_wall_height;
 
 sub_module_shell_size = [
@@ -57,7 +56,7 @@ module_screw_hole_points = [
 
 main_pcb_component_area_height_y = 37;
 
-connector_pcb_standoff_thickness = sub_module_connector_size.z;// - pcb_thickness + bottom_connector_inset;
+connector_pcb_standoff_thickness = sub_module_connector_size.z - bottom_connector_inset;// - pcb_thickness + bottom_connector_inset;
 connector_pcb_size = [bottom_pcb_size.x, bottom_pcb_size.y - 40];
 
 translate([-600, 0]) {
@@ -247,7 +246,7 @@ module connector_pcb_standoffs() {
                 }
             }
 
-            #linear_extrude(connector_pcb_standoff_thickness + 1) {
+            linear_extrude(connector_pcb_standoff_thickness + 1) {
                 connector_components_area = [28, 28 + 24];
                 translate([42, connector_pcb_size.y - 26]) {
                     square(connector_components_area, center = true);
@@ -446,7 +445,7 @@ module module_shell_bottom() {
                     }
                 }
 
-                translate([outer_wall_thickness - 0.25, outer_wall_thickness - 0.25, module_shell_bottom_height]) {
+                #translate([outer_wall_thickness - 0.25, outer_wall_thickness - 0.25, module_shell_bottom_height]) {
                     translate([0, 0, -connector_pcb_standoff_thickness]) {
                         linear_extrude(module_shell_bottom_height) {
                             size = [connector_pcb_size.x + 0.5, connector_pcb_size.y + 5.25];
