@@ -1,4 +1,4 @@
-import { mockDevice, type MockDeviceOptions, withMockDevice } from "@src/storybook"
+import { mockDevice, type MockDeviceOptions, withKeyBindingsPane, withMockDevice } from "@src/storybook"
 import type { DeviceCapability } from "@src/modules/device/models"
 import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import type { Meta } from "@storybook/react-vite"
@@ -104,7 +104,8 @@ export const mockDeviceParameter =(options: MockDeviceOptions) => ({ mockDevice:
 
 export const devicePreviewCardMeta = {
   component: TopLevelDevicePreviewCard,
-  decorators: [withMockDevice],
+  // With the key bindings pane below the card, for editing the bindings of the selected input
+  decorators: [withKeyBindingsPane, withMockDevice],
   // Centered, so that the card gets its natural width, as in the rows of cards in the app
   parameters: { layout: "centered" },
 } satisfies Partial<Meta<typeof TopLevelDevicePreviewCard>>

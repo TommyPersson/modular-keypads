@@ -70,6 +70,13 @@
     outline-offset: 1px;
 }
 
+/* While its bindings are edited in the key bindings pane. An outline, unlike a border, doesn't change the size. */
+.SwitchStateIndicator[data-selected="true"],
+.RotaryEncoderStateIndicator[data-selected="true"] {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+}
+
 /* Within the space above the press macro, which is centered below it */
 .SwitchStateIndicator[data-bound="true"] .SwitchStateIndicatorNumber {
     position: absolute;

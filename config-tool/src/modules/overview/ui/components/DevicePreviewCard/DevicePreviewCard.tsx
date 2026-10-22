@@ -1,5 +1,5 @@
 import { Box, Card, CardContent, Divider, Fade, Grid, Paper, Stack, Tooltip, Typography, Zoom } from "@mui/material"
-import { type KeyboardEvent, type ReactElement, type ReactNode, useCallback, useState } from "react"
+import { type KeyboardEvent, type ReactElement, type ReactNode, useCallback } from "react"
 import { TransitionGroup } from "react-transition-group"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
@@ -17,10 +17,12 @@ import {
   usePushButtonBindings,
   useRotaryEncoderBindings
 } from "@src/modules/key-bindings/hooks"
-import { EditPushButtonBindingsDialog } from "@src/modules/key-bindings/ui/components/EditPushButtonBindingsDialog"
 import {
-  EditRotaryEncoderBindingsDialog
-} from "@src/modules/key-bindings/ui/components/EditRotaryEncoderBindingsDialog"
+  isSelectedPushButton,
+  isSelectedRotaryEncoder,
+  keyBindingTargetProps,
+  useKeyBindingSelection
+} from "@src/modules/key-bindings/ui/components/KeyBindingsPane"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { DeviceInfoIcon, IdentifyDeviceButton, RenameDeviceButton } from "./DeviceActions"
@@ -396,16 +398,13 @@ const TypeSmc3PreviewCardContent = (props: {
   const clockwiseMacro = rotaryEncoderBindings[1]?.clockwise ?? null
   const counterClockwiseMacro = rotaryEncoderBindings[1]?.counterClockwise ?? null
 
-  // Opened by clicking any part of the encoder or any of the bound macros, which are all edited in the same dialog
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  // Selected by clicking any part of the encoder or any of the bound macros, which are all edited together
+  const { selectedTarget, setSelectedTarget } = useKeyBindingSelection()
+  const isSelected = isSelectedRotaryEncoder(selectedTarget, deviceId, 1)
 
-  const handleOpenDialog = useCallback(() => {
-    setIsDialogOpen(true)
-  }, [])
-
-  const handleDialogClose = useCallback(() => {
-    setIsDialogOpen(false)
-  }, [])
+  const handleSelect = useCallback(() => {
+    setSelectedTarget({ type: "RotaryEncoder", deviceId, encoderNumber: 1, buttonNumber: 1 })
+  }, [setSelectedTarget, deviceId])
 
   // The bound macros are placed around the encoder, in the container rather than in the content
   return (
@@ -416,12 +415,14 @@ const TypeSmc3PreviewCardContent = (props: {
         isLongPressed={isLongPressed}
         isRotatingClockwise={isRotatingClockwise}
         isRotatingCounterClockwise={isRotatingCounterClockwise}
-        onClick={handleOpenDialog}
+        isSelected={isSelected}
+        onClick={handleSelect}
       />
       {counterClockwiseMacro && (
         <BoundMacrosTooltip macros={[["Counterclockwise", counterClockwiseMacro]]}>
           <div
-            {...buttonProps("Counterclockwise action", handleOpenDialog)}
+            {...buttonProps("Counterclockwise action", handleSelect)}
+            {...keyBindingTargetProps}
             className={classes.RotaryEncoderBindings}
             data-position={"counter-clockwise"}
             data-active={isRotatingCounterClockwise}
@@ -433,7 +434,8 @@ const TypeSmc3PreviewCardContent = (props: {
       {clockwiseMacro && (
         <BoundMacrosTooltip macros={[["Clockwise", clockwiseMacro]]}>
           <div
-            {...buttonProps("Clockwise action", handleOpenDialog)}
+            {...buttonProps("Clockwise action", handleSelect)}
+            {...keyBindingTargetProps}
             className={classes.RotaryEncoderBindings}
             data-position={"clockwise"}
             data-active={isRotatingClockwise}
@@ -445,7 +447,8 @@ const TypeSmc3PreviewCardContent = (props: {
       {(pressedMacro || longPressedMacro) && (
         <BoundMacrosTooltip macros={[["Press", pressedMacro], ["Long press", longPressedMacro]]}>
           <div
-            {...buttonProps("Button actions", handleOpenDialog)}
+            {...buttonProps("Button actions", handleSelect)}
+            {...keyBindingTargetProps}
             className={classes.RotaryEncoderBindings}
             data-position={"button"}
             data-active={isPressed}
@@ -456,13 +459,6 @@ const TypeSmc3PreviewCardContent = (props: {
           </div>
         </BoundMacrosTooltip>
       )}
-      <EditRotaryEncoderBindingsDialog
-        isOpen={isDialogOpen}
-        deviceId={deviceId}
-        encoderNumber={1}
-        buttonNumber={1}
-        onClose={handleDialogClose}
-      />
     </SubDevicePreviewContainer>
   )
 }
@@ -472,7 +468,7 @@ const TypeSmc3PreviewCardContent = (props: {
  * up when the encoder is rotated in their direction: counter-clockwise on the left, clockwise on the right.
  *
  * Clicking the rings or the button activates it, but clicking the space around them doesn't. With the keyboard, it's
- * focused and activated as a whole.
+ * focused and activated as a whole. It's outlined while its bindings are edited.
  *
  * The data attributes are lowercase, as Chrome doesn't restyle SVG elements when mixed-case attributes change.
  */
@@ -482,13 +478,27 @@ const RotaryEncoderStateIndicator = (props: {
   isLongPressed: boolean,
   isRotatingClockwise: boolean,
   isRotatingCounterClockwise: boolean,
+  isSelected: boolean,
   onClick: () => void,
 }) => {
-  const { encoderNumber, isPressed, isLongPressed, isRotatingClockwise, isRotatingCounterClockwise, onClick } = props
+  const {
+    encoderNumber,
+    isPressed,
+    isLongPressed,
+    isRotatingClockwise,
+    isRotatingCounterClockwise,
+    isSelected,
+    onClick,
+  } = props
 
   return (
     // Focused as a div rather than as the drawing, as SVG elements aren't focused as reliably, e.g. in Storybook
-    <div {...buttonProps(`Encoder ${encoderNumber}`, onClick)} className={classes.RotaryEncoderStateIndicator}>
+    <div
+      {...buttonProps(`Encoder ${encoderNumber}`, onClick)}
+      {...keyBindingTargetProps}
+      className={classes.RotaryEncoderStateIndicator}
+      data-selected={isSelected}
+    >
       <svg viewBox={"0 0 120 120"}>
         <path
           d={halfRingPath(60, 60, 36, 56, "left")}
@@ -535,7 +545,7 @@ function halfRingPath(cx: number, cy: number, innerRadius: number, outerRadius: 
 
 /**
  * A cluster of switches (2x2 by default), numbered from firstSwitchNumber left to right, top to bottom. Clicking a
- * switch opens a dialog for selecting its bound macros.
+ * switch selects it, to edit its bound macros in the key bindings pane.
  */
 const SwitchStateIndicatorCluster = (props: {
   deviceId: string,
@@ -547,60 +557,48 @@ const SwitchStateIndicatorCluster = (props: {
 }) => {
   const { deviceId, firstSwitchNumber, rows = 2, columns = 2, pushButtonStates, pushButtonBindings } = props
 
-  // One dialog for the cluster. The switch is kept when the dialog is closed, so that it doesn't change while closing.
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [dialogSwitchNumber, setDialogSwitchNumber] = useState(firstSwitchNumber)
+  const { selectedTarget, setSelectedTarget } = useKeyBindingSelection()
 
   const handleSwitchClick = useCallback((switchNumber: number) => {
-    setDialogSwitchNumber(switchNumber)
-    setIsDialogOpen(true)
-  }, [])
-
-  const handleDialogClose = useCallback(() => {
-    setIsDialogOpen(false)
-  }, [])
+    setSelectedTarget({ type: "PushButton", deviceId, buttonNumber: switchNumber })
+  }, [setSelectedTarget, deviceId])
 
   return (
-    <>
-      <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
-        {
-          Array.from({ length: rows * columns }, (_, offset) => {
-            const switchNumber = firstSwitchNumber + offset
-            return (
-              <Grid key={switchNumber} size={12 / columns}>
-                <SwitchStateIndicator
-                  switchNumber={switchNumber}
-                  state={pushButtonStates[switchNumber]}
-                  binding={pushButtonBindings[switchNumber]}
-                  onClick={handleSwitchClick}
-                />
-              </Grid>
-            )
-          })
-        }
-      </Grid>
-      <EditPushButtonBindingsDialog
-        isOpen={isDialogOpen}
-        deviceId={deviceId}
-        buttonNumber={dialogSwitchNumber}
-        onClose={handleDialogClose}
-      />
-    </>
+    <Grid container spacing={1} className={classes.SwitchStateIndicatorCluster}>
+      {
+        Array.from({ length: rows * columns }, (_, offset) => {
+          const switchNumber = firstSwitchNumber + offset
+          return (
+            <Grid key={switchNumber} size={12 / columns}>
+              <SwitchStateIndicator
+                switchNumber={switchNumber}
+                state={pushButtonStates[switchNumber]}
+                binding={pushButtonBindings[switchNumber]}
+                isSelected={isSelectedPushButton(selectedTarget, deviceId, switchNumber)}
+                onClick={handleSwitchClick}
+              />
+            </Grid>
+          )
+        })
+      }
+    </Grid>
   )
 }
 
 /**
  * The switch number is centered on unbound switches. On bound switches it's moved to the top-left corner, making room
  * for the bound macros with their types: the press macro centered, and the long press macro, faded, along the bottom.
- * The names are cut off when they don't fit, so the full names are shown in a tooltip.
+ * The names are cut off when they don't fit, so the full names are shown in a tooltip. The switch is outlined while its
+ * bindings are edited.
  */
 const SwitchStateIndicator = (props: {
   switchNumber: number,
   state: PushButtonState | undefined,
   binding: PushButtonBinding | undefined,
+  isSelected: boolean,
   onClick: (switchNumber: number) => void,
 }) => {
-  const { switchNumber, state, binding, onClick } = props
+  const { switchNumber, state, binding, isSelected, onClick } = props
   const pressedMacro = binding?.pressed ?? null
   const longPressedMacro = binding?.longPressed ?? null
 
@@ -611,10 +609,12 @@ const SwitchStateIndicator = (props: {
   const indicator = (
     <div
       {...buttonProps(`Switch ${switchNumber}`, handleClick)}
+      {...keyBindingTargetProps}
       className={classes.SwitchStateIndicator}
       data-pressed={isPushButtonPressed(state)}
       data-long-pressed={state === PushButtonState.LongPressed}
       data-bound={binding !== undefined}
+      data-selected={isSelected}
     >
       <span className={classes.SwitchStateIndicatorNumber}>{switchNumber}</span>
       {pressedMacro && <BoundMacro macro={pressedMacro} />}

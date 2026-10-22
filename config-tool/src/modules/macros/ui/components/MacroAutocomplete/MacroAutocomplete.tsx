@@ -47,7 +47,8 @@ const MacroValueVisualization = (props: {
   }
 
   return (
-    <Stack direction={"row"} gap={2} alignItems={"center"} flex={1} style={{ maxWidth: 400 }}>
+    // As wide as it needs to be, rather than sharing the width with the text input, but cut off when it doesn't fit
+    <Stack direction={"row"} gap={2} alignItems={"center"} flex={"0 1 auto"} style={{ maxWidth: 400, minWidth: 0 }}>
       <Stack direction={"row"} gap={0.5} alignItems={"center"} flex={1} style={{ minWidth: 0, paddingLeft: 4 }}>
         <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {macro.directory ?? "<root>"}
@@ -153,6 +154,8 @@ export const MacroAutocomplete = (props: {
         renderValue={(option) => (
           <MacroValueVisualization macro={option} />
         )}
+        // At least wide enough for the options to be read, also when the input is narrow
+        slotProps={{ popper: { placement: "bottom-start", sx: { minWidth: OPTIONS_MIN_WIDTH } } }}
         groupBy={it => it.directory ?? "<root>"}
         options={options}
         filterOptions={filterOptions}
@@ -185,9 +188,13 @@ export const MacroAutocomplete = (props: {
 
 const EDIT_BUTTON_CLASS = "macro-edit-button"
 
-// Shown like the clear button, while hovered or focused, and with room for it at the end of the input
+const OPTIONS_MIN_WIDTH = 400
+
+// Shown like the clear button, while hovered or focused, and with room for it at the end of the input. Shrinks with
+// its container, cutting off the selected macro, rather than overflowing it.
 const editButtonOnHover = {
   flex: 1,
+  minWidth: 0,
   [`& .${EDIT_BUTTON_CLASS}`]: { visibility: "hidden" },
   [`&:hover .${EDIT_BUTTON_CLASS}, &.Mui-focused .${EDIT_BUTTON_CLASS}, &:focus-within .${EDIT_BUTTON_CLASS}`]: {
     visibility: "visible",
