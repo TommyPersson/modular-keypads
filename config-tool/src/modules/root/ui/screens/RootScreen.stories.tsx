@@ -11,7 +11,7 @@ import {
 import { OverviewPage } from "@src/modules/overview/ui/pages"
 import { ToolPaneContextProvider } from "@src/modules/root/ui/components/ToolPane/ToolPaneContextProvider"
 import { SettingType } from "@src/modules/settings/models"
-import { mockDevice, type MockDeviceOptions, withMockDevice } from "@src/storybook"
+import { mockDevice, type MockDeviceOptions, mockNotifications, withMockDevice } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { useState } from "react"
@@ -77,6 +77,15 @@ const device: MockDeviceOptions = {
 export const Overview: Story = {
   args: { path: "/overview" },
   parameters: mockDeviceParameter(device),
+}
+
+// Switch 5 of the middle keys is pressed every two seconds, which selects it once test mode is turned on
+export const PressingInTestMode: Story = {
+  args: { path: "/overview" },
+  parameters: mockDeviceParameter({
+    ...device,
+    notifications: [{ ...mockNotifications.pressed(smc2.deviceId, 5), repeatMs: 2000 }],
+  }),
 }
 
 export const Disconnected: Story = {

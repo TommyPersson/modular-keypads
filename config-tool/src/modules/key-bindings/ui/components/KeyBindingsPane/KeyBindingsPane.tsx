@@ -22,6 +22,7 @@ import { MacroAutocomplete } from "@src/modules/macros/ui"
 import { useQuery } from "@tanstack/react-query"
 import { Fragment, type MouseEvent as ReactMouseEvent, type ReactNode, useCallback, useEffect, useRef } from "react"
 import { isWithinKeyBindingTarget, type KeyBindingTarget, useKeyBindingSelection } from "./KeyBindingSelectionContext"
+import { useSelectInputsUsedInTestMode } from "./useSelectInputsUsedInTestMode"
 
 /**
  * Edits the macros bound to the selected input, next to the devices rather than in a dialog, so that the devices can
@@ -30,10 +31,12 @@ import { isWithinKeyBindingTarget, type KeyBindingTarget, useKeyBindingSelection
  *
  * The selections are applied right away, so the input only needs to be deselected, if at all. It's deselected by
  * clicking anywhere outside the pane, except on another input, which is selected instead, and when its device is
- * disconnected.
+ * disconnected. In test mode, inputs are also selected by using them on the device.
  */
 export const KeyBindingsPane = () => {
   const { selectedTarget, setSelectedTarget } = useKeyBindingSelection()
+
+  useSelectInputsUsedInTestMode()
 
   const connectedDevicesQuery = useConnectedDevices()
   const isDeviceConnected = connectedDevicesQuery.data?.some(it => it.deviceId === selectedTarget?.deviceId)
