@@ -1,5 +1,6 @@
-import { Box, Card, CardContent, Divider, Grid, Paper, Stack, Tooltip, Typography } from "@mui/material"
+import { Box, Card, CardContent, Divider, Fade, Grid, Paper, Stack, Tooltip, Typography, Zoom } from "@mui/material"
 import { type KeyboardEvent, type ReactElement, type ReactNode, useCallback, useState } from "react"
+import { TransitionGroup } from "react-transition-group"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
 import { useConnectedDevices } from "@src/modules/device/hooks/useConnectedDevices"
@@ -32,6 +33,8 @@ const TYPE_C_SUB_DEVICE_SLOTS = 3
 // All top-level devices have the same physical dimensions, so their cards all have the same size
 const TOP_LEVEL_CARD_WIDTH = 340
 const TOP_LEVEL_CARD_HEIGHT = 670
+
+const SUB_DEVICE_TRANSITION_MS = 300
 
 /**
  * Previews the device the tool is connected to, with its sub-devices. Shows nothing until the device is known.
@@ -164,16 +167,65 @@ const TypeCPreviewCardContent = (props: {
     subDevices.find(it => it.subDeviceSlot === index + 1) ?? null
   ))
 
+  // Each slot cross-fades between its sub-device and the placeholder, so that they're animated when they're connected
+  // and disconnected, but not when the card is first shown
   return (
     <div className={classes.SlotLayout}>
       {
         subDeviceSlots.map((it, index) => (
-          it !== null
-            ? <SubDevicePreview key={it.deviceId} subDevice={it} />
-            : <DisconnectedSubDevicePreview key={`disconnected-${index}`} slot={index + 1} />
+          <TransitionGroup key={index} className={classes.SubDeviceSlot}>
+            {
+              it !== null
+                ? (
+                  <SubDeviceSlotTransition key={it.deviceId} zoom>
+                    <SubDevicePreview subDevice={it} />
+                  </SubDeviceSlotTransition>
+                )
+                : (
+                  <SubDeviceSlotTransition key={"disconnected"}>
+                    <DisconnectedSubDevicePreview slot={index + 1} />
+                  </SubDeviceSlotTransition>
+                )
+            }
+          </TransitionGroup>
         ))
       }
     </div>
+  )
+}
+
+/**
+ * Fades the content of a slot in and out. Sub-devices also expand from their center when they're connected, and
+ * contract towards it when they're disconnected, as the top-level cards do.
+ *
+ * Receives the transition props from the transition group, which are passed on to the outermost transition.
+ */
+const SubDeviceSlotTransition = (props: {
+  in?: boolean
+  appear?: boolean
+  zoom?: boolean
+  children: ReactNode
+}) => {
+  const { in: isIn, appear, zoom = false, children, ...transitionProps } = props
+
+  const content = <div className={classes.SubDeviceSlotContent}>{children}</div>
+
+  if (!zoom) {
+    return (
+      <Fade {...transitionProps} in={isIn} appear={appear} timeout={SUB_DEVICE_TRANSITION_MS}>
+        {content}
+      </Fade>
+    )
+  }
+
+  return (
+    <Zoom {...transitionProps} in={isIn} appear={appear} timeout={SUB_DEVICE_TRANSITION_MS}>
+      <div className={classes.SubDeviceSlotContent}>
+        <Fade in={isIn} appear={appear} timeout={SUB_DEVICE_TRANSITION_MS}>
+          {content}
+        </Fade>
+      </div>
+    </Zoom>
   )
 }
 

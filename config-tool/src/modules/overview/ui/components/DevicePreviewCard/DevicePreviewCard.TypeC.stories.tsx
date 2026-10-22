@@ -1,8 +1,10 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import { IconButton } from "@mui/material"
-import { mockKeyBindings, type MockDeviceOptions, mockNotifications } from "@src/storybook"
+import { Button, IconButton, Stack } from "@mui/material"
+import type { DeviceInformation } from "@src/modules/device/models"
+import { mockKeyBindings, type MockDeviceOptions, mockNotifications, useMockDeviceFacade } from "@src/storybook"
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { useState } from "react"
 import { DevicePreviewCard } from "./DevicePreviewCard"
 import {
   capabilities,
@@ -117,5 +119,42 @@ export const WithAction: Story = {
 // The card for the device the tool is connected to, as on the device debugger page
 export const ConnectedDevice: Story = {
   render: () => <DevicePreviewCard />,
+  parameters: WithAllSubDevices.parameters,
+}
+
+const SubDeviceConnectionToggles = () => {
+  const facade = useMockDeviceFacade()
+
+  const [connectedIds, setConnectedIds] = useState<string[]>([smc1.deviceId, smc2.deviceId, smc3.deviceId])
+
+  const toggle = (subDevice: DeviceInformation) => {
+    if (connectedIds.includes(subDevice.deviceId)) {
+      facade.disconnectDevice(subDevice.deviceId)
+      setConnectedIds(ids => ids.filter(it => it !== subDevice.deviceId))
+    } else {
+      facade.connectDevice(subDevice)
+      setConnectedIds(ids => [...ids, subDevice.deviceId])
+    }
+  }
+
+  return (
+    <Stack direction={"row"} spacing={1}>
+      {[smc1, smc2, smc3].map(it => (
+        <Button key={it.deviceId} variant={"outlined"} onClick={() => toggle(it)}>
+          {connectedIds.includes(it.deviceId) ? "Disconnect" : "Connect"} {it.deviceName}
+        </Button>
+      ))}
+    </Stack>
+  )
+}
+
+// Connecting and disconnecting sub-devices cross-fades their slots with the placeholders
+export const ConnectingAndDisconnectingSubDevices: Story = {
+  render: (args) => (
+    <Stack spacing={2} alignItems={"center"}>
+      <SubDeviceConnectionToggles />
+      <meta.component {...args} />
+    </Stack>
+  ),
   parameters: WithAllSubDevices.parameters,
 }

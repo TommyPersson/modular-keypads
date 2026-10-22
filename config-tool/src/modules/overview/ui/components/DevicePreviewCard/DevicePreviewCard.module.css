@@ -6,6 +6,15 @@
     justify-content: space-between;
 }
 
+/* The entering and leaving content of a slot are stacked in the same cell while they're cross-faded */
+.SubDeviceSlot {
+    display: grid;
+}
+
+.SubDeviceSlotContent {
+    grid-area: 1 / 1;
+}
+
 .TypeAPreviewContainer {
     border-radius: 8px;
     width: 300px;
