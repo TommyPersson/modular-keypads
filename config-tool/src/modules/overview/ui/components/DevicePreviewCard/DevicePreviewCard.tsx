@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Divider, Fade, Grid, Paper, Stack, Tooltip, Typography, Zoom } from "@mui/material"
+import { Box, CardContent, Divider, Fade, Grid, Paper, Stack, Tooltip, Typography, Zoom } from "@mui/material"
 import { type KeyboardEvent, type ReactElement, type ReactNode, useCallback } from "react"
 import { TransitionGroup } from "react-transition-group"
 import type { DeviceInformation } from "@src/modules/device/models"
