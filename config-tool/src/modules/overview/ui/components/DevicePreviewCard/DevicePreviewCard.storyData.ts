@@ -41,7 +41,7 @@ export const macros: MacroDefinition[] = [
     holdModifiers: true,
     holdTimeMs: 800,
   },
-  { id: 6, directory: null, name: "Sleep", type: MacroDefinitionType.SystemControl, code: 0x82 },
+  { id: 6, directory: null, name: "Sleep", type: MacroDefinitionType.SystemControl, code: 0x02 },
   {
     id: 8,
     directory: "Mouse",
@@ -86,6 +86,23 @@ export const macros: MacroDefinition[] = [
       { macroId: 1, delayMs: 0 },
       { macroId: 2, delayMs: 500 },
       { macroId: 5, delayMs: 0 },
+    ],
+  },
+  // Too long to fit on one line, so that it's cut off
+  {
+    id: 14,
+    directory: "Signatures",
+    name: "Long sequence",
+    type: MacroDefinitionType.Sequence,
+    steps: [
+      { macroId: 1, delayMs: 0 },
+      { macroId: 2, delayMs: 500 },
+      { macroId: 5, delayMs: 0 },
+      { macroId: 9, delayMs: 250 },
+      { macroId: 10, delayMs: 0 },
+      { macroId: 1, delayMs: 1000 },
+      { macroId: 2, delayMs: 0 },
+      { macroId: 5, delayMs: 500 },
     ],
   },
 ]

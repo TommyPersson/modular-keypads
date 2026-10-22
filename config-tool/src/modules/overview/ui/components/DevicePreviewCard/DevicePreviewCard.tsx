@@ -72,7 +72,8 @@ export const TopLevelDevicePreviewCard = (props: {
 
   return (
     // Not shrunk, as the previews have a fixed size. The content fills the height below the header.
-    <Card
+    <Paper
+      elevation={4}
       className={classes.TopLevelCard}
       sx={{
         flexShrink: 0,
@@ -107,7 +108,7 @@ export const TopLevelDevicePreviewCard = (props: {
       <CardContent sx={{ flexGrow: 1, minHeight: 0, display: "flex", flexDirection: "column", pt: 1 }}>
         <PreviewCardContent deviceId={deviceId} deviceType={deviceType} />
       </CardContent>
-    </Card>
+    </Paper>
   )
 }
 

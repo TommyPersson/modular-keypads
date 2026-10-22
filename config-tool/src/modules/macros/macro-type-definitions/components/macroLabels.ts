@@ -86,8 +86,13 @@ export function sequenceStepLabel(step: SequenceStep, macros: MacroDefinition[])
   return macro?.name ?? "Missing macro"
 }
 
+// Short, as it's shown in small print below the arrow to the step, e.g. 500ms, 2s, or 1.5s
 export function sequenceDelayLabel(delayMs: number): string | null {
-  return delayMs > 0 ? `Wait ${delayMs} ms` : null
+  if (delayMs <= 0) {
+    return null
+  }
+
+  return delayMs < 1000 ? `${delayMs}ms` : `${parseFloat((delayMs / 1000).toFixed(2))}s`
 }
 
 // Leaves out the labels that aren't shown

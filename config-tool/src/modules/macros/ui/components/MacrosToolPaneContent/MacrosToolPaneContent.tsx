@@ -25,7 +25,7 @@ import { useExpanderState } from "@src/modules/common/hooks/expanderState"
 import { DeleteMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacros } from "@src/modules/macros/hooks"
 import { createMacroFilter } from "@src/modules/macros/macroFilter"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import type { MacroDefinition } from "@src/modules/macros/models"
 import { MacroDefinitionVisualization, MacroTypeVisualization } from "@src/modules/macros/ui"
 import { EditMacroDialog } from "./EditMacroDialog"
 import { useCallback, useMemo, useState } from "react"
@@ -212,15 +212,13 @@ const MacroDefinitionRow = (props: {
 }) => {
   const { macro, onEditClick } = props
 
-  const verticalAlign = isSequenceMacro(macro) ? "top" : undefined
-
   const handleEditIconClick = useCallback(() => {
     onEditClick(macro)
   }, [macro, onEditClick])
 
   return (
     <TableRow hover sx={rowActionsOnHover}>
-      <TableCell style={{ whiteSpace: "nowrap", verticalAlign }}>
+      <TableCell style={{ whiteSpace: "nowrap" }}>
         <Stack direction={"row"} alignItems={"center"} gap={1} style={{ marginLeft: 10 }}>
           <MacroTypeVisualization type={macro.type} /> {macro.name}
         </Stack>
@@ -228,7 +226,7 @@ const MacroDefinitionRow = (props: {
       <TableCell style={{ maxWidth: 0, overflow: "hidden" }}>
         <MacroDefinitionVisualization macro={macro} />
       </TableCell>
-      <TableCell style={{ verticalAlign }} align={"right"}>
+      <TableCell align={"right"}>
         <Stack direction={"row"} className={"row-actions"}>
           <Tooltip title={"Edit Macro"}>
             <IconButton onClick={handleEditIconClick} size={"small"}>
@@ -254,7 +252,3 @@ const rowActionsOnHover = {
   "&:hover .row-actions, &:focus-within .row-actions": { opacity: 1 },
 }
 
-// Sequences can wrap onto several lines, so the rest of their row is aligned to the top
-function isSequenceMacro(macro: MacroDefinition) {
-  return macro.type === MacroDefinitionType.Sequence
-}
