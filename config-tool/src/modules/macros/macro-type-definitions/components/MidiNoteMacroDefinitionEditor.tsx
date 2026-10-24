@@ -1,4 +1,4 @@
-import { Checkbox, FormControl, FormControlLabel, FormHelperText, Stack } from "@mui/material"
+import { Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Stack } from "@mui/material"
 import { MaxMidiNoteDurationMs, type MidiNoteMacroDefinition } from "@src/modules/macros/models"
 import { IntegerField } from "./IntegerField"
 import { IntegerType } from "./IntegerType"
@@ -17,7 +17,8 @@ export const MidiNoteMacroDefinitionEditor = (props: {
           type={IntegerType.U8}
           max={127}
           label={"Note"}
-          helperText={`${midiNoteName(value.note)} in note names`}
+          helperText={"0 to 127"}
+          endContent={<Chip label={midiNoteName(value.note)} size={"small"} />}
           value={value.note}
           onChange={note => onChange({ ...value, note })}
         />

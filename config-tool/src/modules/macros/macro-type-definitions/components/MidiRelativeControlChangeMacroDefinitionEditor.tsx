@@ -1,4 +1,5 @@
-import { ListItemText, MenuItem, Stack, TextField } from "@mui/material"
+import { Chip, ListItemText, MenuItem, Stack, TextField } from "@mui/material"
+import { midiControllerName } from "@src/modules/macros/data/midiControllers"
 import {
   MaxControlChangeController,
   MaxRelativeControlChangeAmount,
@@ -28,6 +29,7 @@ export const MidiRelativeControlChangeMacroDefinitionEditor = (props: {
           max={MaxControlChangeController}
           label={"Controller"}
           helperText={`0 to ${MaxControlChangeController}`}
+          endContent={<Chip label={midiControllerName(value.controller)} size={"small"} />}
           value={value.controller}
           onChange={controller => onChange({ ...value, controller })}
         />

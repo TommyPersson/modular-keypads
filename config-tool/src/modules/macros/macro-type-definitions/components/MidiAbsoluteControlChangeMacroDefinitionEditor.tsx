@@ -1,4 +1,5 @@
-import { Stack } from "@mui/material"
+import { Chip, Stack } from "@mui/material"
+import { midiControllerName } from "@src/modules/macros/data/midiControllers"
 import { MaxControlChangeController, type MidiAbsoluteControlChangeMacroDefinition } from "@src/modules/macros/models"
 import { IntegerField } from "./IntegerField"
 import { IntegerType } from "./IntegerType"
@@ -17,6 +18,7 @@ export const MidiAbsoluteControlChangeMacroDefinitionEditor = (props: {
           max={MaxControlChangeController}
           label={"Controller"}
           helperText={`0 to ${MaxControlChangeController}`}
+          endContent={<Chip label={midiControllerName(value.controller)} size={"small"} />}
           value={value.controller}
           onChange={controller => onChange({ ...value, controller })}
         />
