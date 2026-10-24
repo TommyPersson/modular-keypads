@@ -52,9 +52,17 @@ export const KeyBindingsPane = () => {
 
   // Clicks within the pane are told apart by React rather than by the DOM, as they include clicks in what the pane
   // shows in portals, like the macro options and the macro dialog. React handles them before they reach the document.
+  // Presses are tracked too, as a click that's pressed within the pane can be released outside of it, and is then
+  // dispatched on an element they share, such as the body. That's the case for dropdowns, which open on press, so that
+  // the release lands on the backdrop of the opened menu.
   const clickWithinPane = useRef<Event | null>(null)
   const handleClickCapture = useCallback((event: ReactMouseEvent) => {
     clickWithinPane.current = event.nativeEvent
+  }, [])
+
+  const pressWithinPane = useRef<Event | null>(null)
+  const handleMouseDownCapture = useCallback((event: ReactMouseEvent) => {
+    pressWithinPane.current = event.nativeEvent
   }, [])
 
   useEffect(() => {
@@ -62,14 +70,21 @@ export const KeyBindingsPane = () => {
       return
     }
 
+    let pressedWithinPane = false
+    const handleMouseDown = (event: MouseEvent) => {
+      pressedWithinPane = event === pressWithinPane.current
+    }
+
     const handleClick = (event: MouseEvent) => {
-      if (event !== clickWithinPane.current && !isWithinKeyBindingTarget(event.target)) {
+      if (event !== clickWithinPane.current && !pressedWithinPane && !isWithinKeyBindingTarget(event.target)) {
         setSelectedTarget(null)
       }
     }
 
+    document.addEventListener("mousedown", handleMouseDown)
     document.addEventListener("click", handleClick)
     return () => {
+      document.removeEventListener("mousedown", handleMouseDown)
       document.removeEventListener("click", handleClick)
     }
   }, [selectedTarget, setSelectedTarget])
@@ -79,6 +94,7 @@ export const KeyBindingsPane = () => {
       elevation={1}
       sx={{ height: "100%", borderRadius: 2, p: 2, overflow: "hidden" }}
       onClickCapture={handleClickCapture}
+      onMouseDownCapture={handleMouseDownCapture}
     >
       {selectedTarget !== null
         ? (
