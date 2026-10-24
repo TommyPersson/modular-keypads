@@ -17,6 +17,7 @@ namespace mkp::components::macros {
         SEQUENCE = 0x08,
         MIDI_NOTE = 0x09,
         MIDI_RELATIVE_CONTROL_CHANGE = 0x0a,
+        MIDI_ABSOLUTE_CONTROL_CHANGE = 0x0b,
     };
 
     struct MacroData {
@@ -190,6 +191,27 @@ namespace mkp::components::macros {
         const uint8_t controller; // 0 to 119
         const int8_t amount; // -63 to 63
         const RelativeControlChangeEncoding encoding;
+    };
+
+    // Steps the value of a controller by an amount, and sends the new value, for apps that only take absolute values.
+    // The device keeps the value, starting at zero, as it doesn't know the value in the app.
+    struct MidiAbsoluteControlChangeMacroData final : MacroData {
+        MidiAbsoluteControlChangeMacroData(
+            const uint16_t id,
+            const uint8_t channel,
+            const uint8_t controller,
+            const int8_t amount
+        ) : MacroData(id, MacroType::MIDI_ABSOLUTE_CONTROL_CHANGE),
+            channel(channel),
+            controller(controller),
+            amount(amount) {
+        }
+
+        ~MidiAbsoluteControlChangeMacroData() override = default;
+
+        const uint8_t channel; // 1 to 16
+        const uint8_t controller; // 0 to 119
+        const int8_t amount; // -127 to 127
     };
 
     struct SequenceStep {

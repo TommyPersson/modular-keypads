@@ -99,6 +99,15 @@ export const macros: MacroDefinition[] = [
     encoding: RelativeControlChangeEncoding.TwosComplement,
   },
   {
+    id: 17,
+    directory: "MIDI",
+    name: "Desktop Volume Down",
+    type: MacroDefinitionType.MidiAbsoluteControlChange,
+    channel: 1,
+    controller: 8,
+    amount: -4,
+  },
+  {
     id: 13,
     directory: "Signatures",
     name: "Greet and sign",

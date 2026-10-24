@@ -32,6 +32,7 @@ namespace tfw::hal::usb {
         static std::shared_ptr<Action> heldMidiNote(uint8_t channel, uint8_t note, uint8_t velocity);
         static std::shared_ptr<Action> midiNoteOff(uint8_t channel, uint8_t note);
         static std::shared_ptr<Action> midiControlChange(uint8_t channel, uint8_t controller, uint8_t value);
+        static std::shared_ptr<Action> midiControlChangeStep(uint8_t channel, uint8_t controller, int8_t amount);
     };
 
     struct ConsumerControlAction final : Action {
@@ -144,5 +145,19 @@ namespace tfw::hal::usb {
         const uint8_t channel; // 1 to 16
         const uint8_t controller; // 0 to 119, as 120 to 127 are channel mode messages
         const uint8_t value; // 0 to 127
+    };
+
+    // Changes the value of a controller by an amount, and sends the new value. The value is kept by the sender, per
+    // channel and controller, starting at zero, and is limited to 0 to 127.
+    struct MidiControlChangeStepAction final : Action {
+        MidiControlChangeStepAction(const uint8_t channel, const uint8_t controller, const int8_t amount)
+            : channel(channel), controller(controller), amount(amount) {
+        }
+
+        ~MidiControlChangeStepAction() override = default;
+
+        const uint8_t channel; // 1 to 16
+        const uint8_t controller; // 0 to 119
+        const int8_t amount;
     };
 }

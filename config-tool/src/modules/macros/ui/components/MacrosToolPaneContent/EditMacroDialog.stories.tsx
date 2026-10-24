@@ -49,3 +49,9 @@ export const MidiRelativeControlChangeMacro: Story = {
     macro: macros.find(it => it.name === "Mic Volume Up"),
   },
 }
+
+export const MidiAbsoluteControlChangeMacro: Story = {
+  args: {
+    macro: macros.find(it => it.name === "Desktop Volume Down"),
+  },
+}

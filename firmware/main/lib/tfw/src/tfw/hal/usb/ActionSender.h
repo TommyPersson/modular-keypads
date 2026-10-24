@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "tfw/hal/time/Clock.h"
@@ -16,6 +18,7 @@ namespace tfw::hal::usb {
     // one at a time by update(), with the typing delay in between. Mouse movement beyond the range of a report is sent
     // one report per update(). Modifiers of mouse actions and shortcuts that hold them stay held between consecutive
     // actions. MIDI notes are ended by update() once their duration has passed, and held ones by note off actions.
+    // Controller values changed by control change steps are kept until restart.
     class ActionSender {
     public:
         ActionSender(HostComputer& hostComputer, const time::Clock& clock);
@@ -46,6 +49,7 @@ namespace tfw::hal::usb {
         void sendMidiNote(const MidiNoteAction& action);
         void sendMidiNoteOff(const MidiNoteOffAction& action);
         void sendMidiControlChange(const MidiControlChangeAction& action);
+        void sendMidiControlChangeStep(const MidiControlChangeStepAction& action);
         void endMidiNotes(uint64_t now);
 
         HostComputer& hostComputer;
@@ -68,5 +72,9 @@ namespace tfw::hal::usb {
         };
 
         std::vector<PlayingMidiNote> playingMidiNotes;
+
+        // Values of controllers changed by control change steps, by channel and controller. The values in the app
+        // aren't known, so they start at zero.
+        std::map<std::pair<uint8_t, uint8_t>, uint8_t> controllerValues;
     };
 }

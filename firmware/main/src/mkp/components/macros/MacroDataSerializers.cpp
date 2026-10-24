@@ -381,6 +381,47 @@ namespace mkp::components::macros {
         }
     };
 
+    class MidiAbsoluteControlChangeDataSerializer final
+        : public MacroDataStorageSerializer<MidiAbsoluteControlChangeMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == MIDI_ABSOLUTE_CONTROL_CHANGE;
+        };
+
+        std::string_view serialize(
+            const MidiAbsoluteControlChangeMacroData& data,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%u:%u:%d",
+                data.channel,
+                data.controller,
+                data.amount
+            );
+        }
+
+        std::shared_ptr<MidiAbsoluteControlChangeMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (!hasParts(parts, 3)) {
+                return nullptr;
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<MidiAbsoluteControlChangeMacroData> allocator(arena);
+
+            return std::allocate_shared<MidiAbsoluteControlChangeMacroData>(
+                allocator,
+                macroId,
+                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[0]), 1, 16),
+                std::min<uint32_t>(tfw::utils::strings::atou32(parts[1]), MaxControlChangeController),
+                clampToInt8(tfw::utils::strings::atol(parts[2]))
+            );
+        }
+    };
+
     // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
     // and delay of each step separated by semicolons: "12;0;15;250". Neither colons nor commas can be used, as they
     // separate the parts of stored lines and the arguments of commands.
@@ -462,5 +503,6 @@ namespace mkp::components::macros {
         new SequenceDataSerializer{},
         new MidiNoteDataSerializer{},
         new MidiRelativeControlChangeDataSerializer{},
+        new MidiAbsoluteControlChangeDataSerializer{},
     };
 }

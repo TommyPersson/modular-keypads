@@ -49,3 +49,7 @@ std::shared_ptr<Action> Action::midiNoteOff(uint8_t channel, uint8_t note) {
 std::shared_ptr<Action> Action::midiControlChange(uint8_t channel, uint8_t controller, uint8_t value) {
     return std::make_shared<MidiControlChangeAction>(channel, controller, value);
 }
+
+std::shared_ptr<Action> Action::midiControlChangeStep(uint8_t channel, uint8_t controller, int8_t amount) {
+    return std::make_shared<MidiControlChangeStepAction>(channel, controller, amount);
+}

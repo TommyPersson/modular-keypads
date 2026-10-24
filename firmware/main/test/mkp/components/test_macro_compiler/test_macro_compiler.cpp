@@ -77,3 +77,19 @@ TEST(MacroCompilerTest, RelativeControlChangeMacroUsesItsEncoding) {
     ASSERT_NE(compiled, nullptr);
     EXPECT_EQ(onlyControlChange(*compiled).value, 126);
 }
+
+// ============================================================================
+// Absolute control change
+// ============================================================================
+
+TEST(MacroCompilerTest, AbsoluteControlChangeStepsTheController) {
+    const auto data = std::make_shared<MidiAbsoluteControlChangeMacroData>(1, 3, 7, -2);
+    const auto compiled = compileMacro(Macro{"Volume Down", data});
+
+    ASSERT_NE(compiled, nullptr);
+    ASSERT_EQ(compiled->actions.size(), 1);
+    const auto& action = dynamic_cast<const tfw::hal::usb::MidiControlChangeStepAction&>(*compiled->actions[0]);
+    EXPECT_EQ(action.channel, 3);
+    EXPECT_EQ(action.controller, 7);
+    EXPECT_EQ(action.amount, -2);
+}

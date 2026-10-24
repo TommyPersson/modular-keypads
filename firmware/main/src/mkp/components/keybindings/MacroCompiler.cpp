@@ -101,6 +101,15 @@ std::shared_ptr<CompiledMacro> mkp::components::keybindings::compileMacro(const 
         });
     }
 
+    if (macro.data->type == MIDI_ABSOLUTE_CONTROL_CHANGE) {
+        const auto& data = dynamic_cast<MidiAbsoluteControlChangeMacroData&>(*macro.data);
+        const auto action = tfw::hal::usb::Action::midiControlChangeStep(data.channel, data.controller, data.amount);
+        return std::make_shared<CompiledMacro>(CompiledMacro{
+            .macroId = macro.data->id,
+            .actions = std::vector{action},
+        });
+    }
+
     if (macro.data->type == SEQUENCE) {
         const auto& data = dynamic_cast<SequenceMacroData&>(*macro.data);
         return std::make_shared<CompiledMacro>(CompiledMacro{

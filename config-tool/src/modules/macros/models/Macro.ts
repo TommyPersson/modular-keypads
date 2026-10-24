@@ -11,6 +11,7 @@ export enum MacroDefinitionType {
   Sequence = "Sequence",
   MidiNote = "MidiNote",
   MidiRelativeControlChange = "MidiRelativeControlChange",
+  MidiAbsoluteControlChange = "MidiAbsoluteControlChange",
 }
 
 // Groups the macro types in the UI
@@ -125,6 +126,18 @@ export type MidiRelativeControlChangeMacroDefinition = MacroDefinitionBase & {
 export const MaxControlChangeController = 119
 export const MaxRelativeControlChangeAmount = 63
 
+// Steps the value of a controller by an amount, and sends the new value. The device keeps the value, from 0 to 127,
+// starting at 0, as it doesn't know the value in the app.
+export type MidiAbsoluteControlChangeMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.MidiAbsoluteControlChange
+  // 1 to 16
+  channel: number
+  // 0 to 119
+  controller: number
+  // -127 to 127, positive moves up
+  amount: number
+}
+
 export type SequenceStep = {
   macroId: number
   // Time to wait before running the macro, counted from when the previous step is done typing
@@ -159,4 +172,5 @@ export type MacroDefinition =
   | MouseMovementMacroDefinition
   | MidiNoteMacroDefinition
   | MidiRelativeControlChangeMacroDefinition
+  | MidiAbsoluteControlChangeMacroDefinition
   | SequenceMacroDefinition

@@ -115,6 +115,16 @@ protected:
         return Macro{name, data};
     }
 
+    Macro createAbsoluteControlChangeMacro(
+        uint16_t id,
+        const std::string_view& name,
+        uint8_t channel = 1,
+        uint8_t controller = 7,
+        int8_t amount = 1) {
+        auto data = std::make_shared<MidiAbsoluteControlChangeMacroData>(id, channel, controller, amount);
+        return Macro{name, data};
+    }
+
     Macro createSequenceMacro(
         uint16_t id,
         const std::string_view& name,
@@ -425,6 +435,41 @@ TEST_F(MacroStorageTest, RelativeControlChangeMacroClampsOutOfRangeValues) {
 
 TEST_F(MacroStorageTest, RelativeControlChangeMacroWithWrongNumberOfPartsIsIgnored) {
     mockFs.setFileContent(testFilePath, "1:CC:0x0a:1:7:1\n2:CC:0x0a:1:7:1:0:0\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
+}
+
+TEST_F(MacroStorageTest, WriteAbsoluteControlChangeMacro) {
+    auto macro = createAbsoluteControlChangeMacro(1, "Volume Down", 3, 7, -5);
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Volume Down:0x0b:3:7:-5"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, AbsoluteControlChangeMacroClampsOutOfRangeValues) {
+    mockFs.setFileContent(testFilePath, "1:Low:0x0b:0:7:-500\n2:High:0x0b:20:127:500\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const MidiAbsoluteControlChangeMacroData&>(*m.data);
+        if (m.data->id == 1) {
+            EXPECT_EQ(data.channel, 1);
+            EXPECT_EQ(data.controller, 7);
+            EXPECT_EQ(data.amount, -127);
+        } else {
+            EXPECT_EQ(data.channel, 16);
+            EXPECT_EQ(data.controller, 119);
+            EXPECT_EQ(data.amount, 127);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 2);
+}
+
+TEST_F(MacroStorageTest, AbsoluteControlChangeMacroWithWrongNumberOfPartsIsIgnored) {
+    mockFs.setFileContent(testFilePath, "1:CC:0x0b:1:7\n2:CC:0x0b:1:7:1:0\n");
 
     EXPECT_EQ(macroStorage.getNumStored(), 0);
 }

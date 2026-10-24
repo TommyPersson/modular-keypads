@@ -39,6 +39,8 @@ void ActionSender::send(Action& action) {
         sendMidiNoteOff(*midiNoteOffAction);
     } else if (const auto controlChangeAction = dynamic_cast<MidiControlChangeAction*>(&action)) {
         sendMidiControlChange(*controlChangeAction);
+    } else if (const auto controlChangeStepAction = dynamic_cast<MidiControlChangeStepAction*>(&action)) {
+        sendMidiControlChangeStep(*controlChangeStepAction);
     }
 }
 
@@ -194,6 +196,14 @@ void ActionSender::sendMidiNoteOff(const MidiNoteOffAction& action) {
 
 void ActionSender::sendMidiControlChange(const MidiControlChangeAction& action) {
     hostComputer.sendMidiControlChange(action.channel, action.controller, action.value);
+}
+
+// Sent also when the value is already at its limit, which brings an app that has moved on back to it
+void ActionSender::sendMidiControlChangeStep(const MidiControlChangeStepAction& action) {
+    auto& value = controllerValues[std::make_pair(action.channel, action.controller)];
+    value = static_cast<uint8_t>(std::clamp(value + action.amount, 0, 127));
+
+    hostComputer.sendMidiControlChange(action.channel, action.controller, value);
 }
 
 void ActionSender::endMidiNotes(const uint64_t now) {

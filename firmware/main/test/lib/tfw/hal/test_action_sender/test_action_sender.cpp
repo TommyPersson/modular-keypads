@@ -468,6 +468,47 @@ TEST_F(ActionSenderTest, MidiControlChangeIsSent) {
     EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi control change 2 7 65"}));
 }
 
+TEST_F(ActionSenderTest, MidiControlChangeStepsStartFromZero) {
+    send(Action::midiControlChangeStep(1, 7, 5));
+    send(Action::midiControlChangeStep(1, 7, 5));
+    send(Action::midiControlChangeStep(1, 7, -3));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "midi control change 1 7 5",
+        "midi control change 1 7 10",
+        "midi control change 1 7 7",
+    }));
+}
+
+TEST_F(ActionSenderTest, MidiControlChangeStepsAreLimitedAndStillSent) {
+    send(Action::midiControlChangeStep(1, 7, -1));
+    send(Action::midiControlChangeStep(1, 7, 100));
+    send(Action::midiControlChangeStep(1, 7, 100));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "midi control change 1 7 0",
+        "midi control change 1 7 100",
+        "midi control change 1 7 127",
+    }));
+}
+
+TEST_F(ActionSenderTest, MidiControlChangeStepsKeepValuesPerChannelAndController) {
+    send(Action::midiControlChangeStep(1, 7, 10));
+    send(Action::midiControlChangeStep(1, 8, 20));
+    send(Action::midiControlChangeStep(2, 7, 30));
+    hostComputer.takeEvents();
+
+    send(Action::midiControlChangeStep(1, 7, 1));
+    send(Action::midiControlChangeStep(1, 8, 1));
+    send(Action::midiControlChangeStep(2, 7, 1));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "midi control change 1 7 11",
+        "midi control change 1 8 21",
+        "midi control change 2 7 31",
+    }));
+}
+
 TEST_F(ActionSenderTest, IsNotBusyWhileMidiNotesPlay) {
     send(Action::midiNote(1, 60, 100, 50));
 

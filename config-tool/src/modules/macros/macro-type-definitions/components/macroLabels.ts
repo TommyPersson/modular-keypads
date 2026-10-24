@@ -96,6 +96,10 @@ export function midiRelativeControlChangeLabel(controller: number, amount: numbe
   return `CC ${controller} ${amount >= 0 ? "+" : ""}${amount}`
 }
 
+export function midiAbsoluteControlChangeLabel(controller: number, amount: number): string {
+  return `CC ${controller} step ${amount >= 0 ? "+" : ""}${amount}`
+}
+
 export function midiChannelLabel(channel: number): string {
   return `Ch ${channel}`
 }
