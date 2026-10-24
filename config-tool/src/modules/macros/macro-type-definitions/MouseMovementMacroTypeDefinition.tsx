@@ -1,5 +1,5 @@
 import OpenWithOutlinedIcon from "@mui/icons-material/OpenWithOutlined"
-import { Tooltip } from "@mui/material"
+import { Alert, Tooltip } from "@mui/material"
 import {
   createModifierFlags,
   MacroDefinitionType,
@@ -63,7 +63,13 @@ export const MouseMovementMacroTypeDefinition: MacroTypeDefinition<MouseMovement
     return ["0x07", modifiersArg, `${macro.x}`, `${macro.y}`]
   },
 
-  editorInformationComponent: () => null,
+  editorInformationComponent: () => (
+    <Alert severity={"info"}>
+      Movement is sent to the computer in steps of at most 127 pixels. With pointer acceleration, such as the
+      <em> Enhance pointer precision</em> setting in Windows, the pointer can then end up moving a different distance
+      than set here. Turn the acceleration off for exact movement.
+    </Alert>
+  ),
 
   editorComponent: MouseMovementMacroDefinitionEditor,
 

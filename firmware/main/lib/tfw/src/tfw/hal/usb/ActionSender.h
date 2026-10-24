@@ -11,18 +11,20 @@
 
 namespace tfw::hal::usb {
     // Sends actions to the host computer as key presses, mouse events and so on. Characters of type actions are typed
-    // one at a time by update(), with the typing delay in between, and modifiers of mouse actions and shortcuts that
-    // hold them stay held between consecutive actions.
+    // one at a time by update(), with the typing delay in between. Mouse movement beyond the range of a report is sent
+    // one report per update(). Modifiers of mouse actions and shortcuts that hold them stay held between consecutive
+    // actions.
     class ActionSender {
     public:
         ActionSender(HostComputer& hostComputer, const time::Clock& clock);
 
         void send(Action& action);
 
-        // Types queued characters and releases modifiers whose hold time has passed. Called continuously.
+        // Types queued characters, sends remaining mouse movement and releases modifiers whose hold time has passed.
+        // Called continuously.
         void update();
 
-        // Whether characters of type actions are still waiting to be typed
+        // Whether characters of type actions or mouse movement are still waiting to be sent
         bool isBusy() const;
 
         // Time to wait between characters typed by type actions
@@ -37,6 +39,7 @@ namespace tfw::hal::usb {
         void sendSystemControl(const SystemControlAction& action);
         void sendType(const TypeAction& action);
         void sendMouse(const MouseAction& action);
+        void sendMouseMovementPart(int8_t wheel, int8_t pan);
 
         HostComputer& hostComputer;
         const time::Clock& clock;
@@ -45,5 +48,10 @@ namespace tfw::hal::usb {
         utils::ring_queue<char> characterOutputQueue{1000}; // enforce size limit in storage and UI also
         uint64_t lastKeyboardWriteTime = 0;
         uint64_t typingDelayUs = 1'000;
+
+        // Movement not yet sent, with the modifiers of the latest mouse action, which stay held until it's sent
+        int32_t remainingMouseX = 0;
+        int32_t remainingMouseY = 0;
+        uint8_t mouseModifiers = 0;
     };
 }

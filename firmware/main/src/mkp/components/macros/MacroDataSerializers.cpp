@@ -14,6 +14,10 @@ namespace mkp::components::macros {
         return static_cast<int8_t>(std::clamp(value, -127, 127));
     }
 
+    static int16_t clampToInt16(const int value) {
+        return static_cast<int16_t>(std::clamp(value, -32767, 32767));
+    }
+
     class ConsumerControlMacroDataSerializer final
         : public MacroDataStorageSerializer<ConsumerControlMacroData> {
     public:
@@ -275,8 +279,8 @@ namespace mkp::components::macros {
                 allocator,
                 macroId,
                 tfw::utils::strings::atou8(parts[0], 16),
-                clampToInt8(tfw::utils::strings::atol(parts[1])),
-                clampToInt8(tfw::utils::strings::atol(parts[2]))
+                clampToInt16(tfw::utils::strings::atol(parts[1])),
+                clampToInt16(tfw::utils::strings::atol(parts[2]))
             );
         }
     };

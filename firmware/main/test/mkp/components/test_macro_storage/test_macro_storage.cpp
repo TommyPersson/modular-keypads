@@ -85,8 +85,8 @@ protected:
     Macro createMouseMovementMacro(
         uint16_t id,
         const std::string_view& name,
-        int8_t x = 0,
-        int8_t y = 0,
+        int16_t x = 0,
+        int16_t y = 0,
         uint8_t modifiers = 0x00) {
         auto data = std::make_shared<MouseMovementMacroData>(id, modifiers, x, y);
         return Macro{name, data};
@@ -233,7 +233,7 @@ TEST_F(MacroStorageTest, WriteMouseMovementMacro) {
 TEST_F(MacroStorageTest, RoundTripMouseMacros) {
     auto scroll = createMouseScrollMacro(1, "Scroll", 5, -2, 0x01);
     auto button = createMouseButtonMacro(2, "Button", 0x03, 0x02);
-    auto movement = createMouseMovementMacro(3, "Movement", -10, 20, 0x84);
+    auto movement = createMouseMovementMacro(3, "Movement", -1000, 20000, 0x84);
     macroStorage.write(scroll);
     macroStorage.write(button);
     macroStorage.write(movement);
@@ -252,8 +252,8 @@ TEST_F(MacroStorageTest, RoundTripMouseMacros) {
         } else if (m.data->type == MacroType::MOUSE_MOVEMENT) {
             const auto& data = dynamic_cast<const MouseMovementMacroData&>(*m.data);
             EXPECT_EQ(data.modifiers, 0x84);
-            EXPECT_EQ(data.x, -10);
-            EXPECT_EQ(data.y, 20);
+            EXPECT_EQ(data.x, -1000);
+            EXPECT_EQ(data.y, 20000);
         }
         found++;
     });
@@ -261,7 +261,7 @@ TEST_F(MacroStorageTest, RoundTripMouseMacros) {
 }
 
 TEST_F(MacroStorageTest, MouseMacrosClampOutOfRangeValues) {
-    mockFs.setFileContent(testFilePath, "1:Scroll:0x05:0x00:500:-500\n2:Movement:0x07:0x00:-300:300\n");
+    mockFs.setFileContent(testFilePath, "1:Scroll:0x05:0x00:500:-500\n2:Movement:0x07:0x00:-40000:40000\n");
 
     macroStorage.forEach([&](const Macro& m) {
         if (m.data->type == MacroType::MOUSE_SCROLL) {
@@ -270,8 +270,8 @@ TEST_F(MacroStorageTest, MouseMacrosClampOutOfRangeValues) {
             EXPECT_EQ(data.pan, -127);
         } else {
             const auto& data = dynamic_cast<const MouseMovementMacroData&>(*m.data);
-            EXPECT_EQ(data.x, -127);
-            EXPECT_EQ(data.y, 127);
+            EXPECT_EQ(data.x, -32767);
+            EXPECT_EQ(data.y, 32767);
         }
     });
 }

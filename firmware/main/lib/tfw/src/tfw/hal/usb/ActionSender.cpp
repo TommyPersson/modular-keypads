@@ -1,8 +1,20 @@
 #include "ActionSender.h"
 
+#include <algorithm>
 #include <optional>
 
 using namespace tfw::hal::usb;
+
+namespace {
+    // Limit of the signed byte movement values in the HID mouse report
+    constexpr int32_t MAX_MOUSE_REPORT_MOVEMENT = 127;
+
+    int8_t takeMouseReportMovement(int32_t& remaining) {
+        const auto part = std::clamp(remaining, -MAX_MOUSE_REPORT_MOVEMENT, MAX_MOUSE_REPORT_MOVEMENT);
+        remaining -= part;
+        return static_cast<int8_t>(part);
+    }
+}
 
 ActionSender::ActionSender(HostComputer& hostComputer, const time::Clock& clock)
     : hostComputer(hostComputer),
@@ -27,7 +39,17 @@ void ActionSender::send(Action& action) {
 void ActionSender::update() {
     const auto now = clock.micros();
 
-    modifierHolder.update(now);
+    if (remainingMouseX != 0 || remainingMouseY != 0) {
+        // Holding again keeps the modifiers held until the hold time has passed after the last part, and presses them
+        // again if other actions released them in between
+        modifierHolder.hold(mouseModifiers, now);
+        sendMouseMovementPart(0, 0);
+    }
+
+    // Releasing modifiers in the middle of a movement would tap them between its parts, with a zero hold time
+    if (remainingMouseX == 0 && remainingMouseY == 0) {
+        modifierHolder.update(now);
+    }
 
     // Typing waits while modifiers are held, as they would turn the characters into shortcuts. Without a delay
     // between characters, repeated characters can be missed.
@@ -45,7 +67,7 @@ void ActionSender::update() {
 }
 
 bool ActionSender::isBusy() const {
-    return characterOutputQueue.size() > 0;
+    return characterOutputQueue.size() > 0 || remainingMouseX != 0 || remainingMouseY != 0;
 }
 
 void ActionSender::setTypingDelayMs(const uint32_t delayMs) {
@@ -105,7 +127,20 @@ void ActionSender::sendMouse(const MouseAction& action) {
         hostComputer.clickMouse(action.buttons);
     }
 
-    if (action.x != 0 || action.y != 0 || action.wheel != 0 || action.pan != 0) {
-        hostComputer.moveMouse(action.x, action.y, action.wheel, action.pan);
+    // Added to movement still being sent by earlier actions, so that it keeps its order. The first part is sent right
+    // away, along with the scrolling, and the rest by update().
+    remainingMouseX += action.x;
+    remainingMouseY += action.y;
+    mouseModifiers = action.modifiers;
+
+    sendMouseMovementPart(action.wheel, action.pan);
+}
+
+void ActionSender::sendMouseMovementPart(const int8_t wheel, const int8_t pan) {
+    const auto x = takeMouseReportMovement(remainingMouseX);
+    const auto y = takeMouseReportMovement(remainingMouseY);
+
+    if (x != 0 || y != 0 || wheel != 0 || pan != 0) {
+        hostComputer.moveMouse(x, y, wheel, pan);
     }
 }

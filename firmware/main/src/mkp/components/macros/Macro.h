@@ -114,7 +114,7 @@ namespace mkp::components::macros {
     };
 
     struct MouseMovementMacroData final : MacroData {
-        MouseMovementMacroData(const uint16_t id, const uint8_t modifiers, const int8_t x, const int8_t y)
+        MouseMovementMacroData(const uint16_t id, const uint8_t modifiers, const int16_t x, const int16_t y)
             : MacroData(id, MacroType::MOUSE_MOVEMENT),
               modifiers(modifiers),
               x(x),
@@ -124,8 +124,8 @@ namespace mkp::components::macros {
         ~MouseMovementMacroData() override = default;
 
         const uint8_t modifiers; // Same flags as for shortcuts
-        const int8_t x; // Positive moves right
-        const int8_t y; // Positive moves down
+        const int16_t x; // Positive moves right
+        const int16_t y; // Positive moves down
     };
 
     struct SequenceStep {

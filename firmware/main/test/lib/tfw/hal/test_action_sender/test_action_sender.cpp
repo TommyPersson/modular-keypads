@@ -199,6 +199,82 @@ TEST_F(ActionSenderTest, MouseWithModifiersHoldsThemAcrossRepeats) {
     EXPECT_EQ(hostComputer.takeEvents(), (Events{"release key 0xe0"}));
 }
 
+TEST_F(ActionSenderTest, MouseMovementBeyondReportRangeIsSentOneReportPerUpdate) {
+    send(Action::mouse(0, 0, 300, -200, 1, 0));
+
+    // The first report also scrolls
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"move mouse 127 -127 1 0"}));
+    EXPECT_TRUE(sender.isBusy());
+
+    sender.update();
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"move mouse 127 -73 0 0"}));
+    EXPECT_TRUE(sender.isBusy());
+
+    sender.update();
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"move mouse 46 0 0 0"}));
+    EXPECT_FALSE(sender.isBusy());
+
+    sender.update();
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+}
+
+TEST_F(ActionSenderTest, MouseMovementIsAddedToMovementStillBeingSent) {
+    send(Action::mouse(0, 0, 200, 0, 0, 0));
+    send(Action::mouse(0, 0, -50, 10, 0, 0));
+    runForMs(10);
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"move mouse 127 0 0 0", "move mouse 23 10 0 0"}));
+}
+
+TEST_F(ActionSenderTest, MouseMovementKeepsModifiersHeldUntilHoldTimeAfterLastReport) {
+    send(Action::mouse(SHIFT, 0, 0, 400, 0, 0));
+    runForMs(3);
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "press key 0xe1",
+        "move mouse 0 127 0 0",
+        "move mouse 0 127 0 0",
+        "move mouse 0 127 0 0",
+        "move mouse 0 19 0 0",
+    }));
+
+    runForMs(249);
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+
+    runForMs(1);
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"release key 0xe1"}));
+}
+
+TEST_F(ActionSenderTest, MouseMovementWithZeroModifierHoldTimeHoldsModifiersAcrossReports) {
+    sender.setModifierHoldMs(0);
+
+    send(Action::mouse(SHIFT, 0, 200, 0, 0, 0));
+    runForMs(5);
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "press key 0xe1",
+        "move mouse 127 0 0 0",
+        "move mouse 73 0 0 0",
+        "release key 0xe1",
+    }));
+}
+
+TEST_F(ActionSenderTest, MouseMovementPressesModifiersAgainWhenReleasedByOtherAction) {
+    send(Action::mouse(CONTROL, 0, 300, 0, 0, 0));
+    send(Action::consumerControl(0x00e9));
+    sender.update();
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "press key 0xe0",
+        "move mouse 127 0 0 0",
+        "release key 0xe0",
+        "press consumer control 0x00e9",
+        "release consumer control",
+        "press key 0xe0",
+        "move mouse 127 0 0 0",
+    }));
+}
+
 TEST_F(ActionSenderTest, ZeroModifierHoldTimeReleasesRightAfterAction) {
     sender.setModifierHoldMs(0);
 

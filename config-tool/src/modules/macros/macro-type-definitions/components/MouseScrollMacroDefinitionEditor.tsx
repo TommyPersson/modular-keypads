@@ -1,7 +1,8 @@
 import { Stack } from "@mui/material"
 import type { MouseScrollMacroDefinition } from "@src/modules/macros/models"
 import { ModifiersEditor } from "./ShortcutMacroDefinitionEditor"
-import { SignedByteField } from "./SignedByteField"
+import { IntegerField } from "./IntegerField"
+import { IntegerType } from "./IntegerType"
 
 export const MouseScrollMacroDefinitionEditor = (props: {
   value: MouseScrollMacroDefinition
@@ -16,13 +17,15 @@ export const MouseScrollMacroDefinitionEditor = (props: {
         onChange={modifiers => onChange({ ...value, modifiers })}
       />
       <Stack direction={"row"} gap={2} sx={{ minWidth: 400 }}>
-        <SignedByteField
+        <IntegerField
+          type={IntegerType.S8}
           label={"Scroll vertically"}
           helperText={"Positive scrolls up"}
           value={value.wheel}
           onChange={wheel => onChange({ ...value, wheel })}
         />
-        <SignedByteField
+        <IntegerField
+          type={IntegerType.S8}
           label={"Scroll horizontally"}
           helperText={"Positive scrolls right"}
           value={value.pan}

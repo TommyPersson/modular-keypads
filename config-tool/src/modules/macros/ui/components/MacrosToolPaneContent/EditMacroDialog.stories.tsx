@@ -31,3 +31,9 @@ export const MouseScrollMacro: Story = {
     macro: macros.find(it => it.name === "Scroll Up"),
   },
 }
+
+export const MouseMovementMacro: Story = {
+  args: {
+    macro: macros.find(it => it.name === "Nudge Right"),
+  },
+}

@@ -1,7 +1,8 @@
 import { Stack } from "@mui/material"
 import type { MouseMovementMacroDefinition } from "@src/modules/macros/models"
 import { ModifiersEditor } from "./ShortcutMacroDefinitionEditor"
-import { SignedByteField } from "./SignedByteField"
+import { IntegerField } from "./IntegerField"
+import { IntegerType } from "./IntegerType"
 
 export const MouseMovementMacroDefinitionEditor = (props: {
   value: MouseMovementMacroDefinition
@@ -16,13 +17,15 @@ export const MouseMovementMacroDefinitionEditor = (props: {
         onChange={modifiers => onChange({ ...value, modifiers })}
       />
       <Stack direction={"row"} gap={2} sx={{ minWidth: 400 }}>
-        <SignedByteField
+        <IntegerField
+          type={IntegerType.S16}
           label={"Move horizontally"}
           helperText={"Positive moves right"}
           value={value.x}
           onChange={x => onChange({ ...value, x })}
         />
-        <SignedByteField
+        <IntegerField
+          type={IntegerType.S16}
           label={"Move vertically"}
           helperText={"Positive moves down"}
           value={value.y}
