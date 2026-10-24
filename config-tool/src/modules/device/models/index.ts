@@ -4,7 +4,8 @@ export * from "./LogMessage"
 
 export type DeviceInformation = {
   readonly deviceId: string
-  // The build date and git commit of the firmware, e.g. "2026-10-24-2444b54", or null when it isn't known, as for devices other than the connected one
+  // The build date and git commit of the firmware, e.g. "2026-10-24-2444b54", or null when it isn't known, as for
+  // sub-devices, and for devices whose firmware doesn't report it yet
   readonly deviceFirmwareVersion: string | null
   readonly deviceType: string
   readonly deviceAddress: number

@@ -24,14 +24,18 @@ tfw::utils::void_result ListConnectedDevices::execute(
     for (auto& device : devices) {
         const auto& config = device->getConfiguration();
         if (config.id != 0) {
+            // Empty when the version isn't known, as for sub-devices
+            const auto firmwareVersion = device->getFirmwareVersion();
             responseWriter.writeLineF(
-                "%08llx,%02x,%s,%s,%08llx,%u",
+                "%08llx,%02x,%s,%s,%08llx,%u,%.*s",
                 config.id,
                 config.address,
                 config.type.c_str(),
                 config.name.c_str(),
                 config.parentDeviceId,
-                config.subDeviceSlot
+                config.subDeviceSlot,
+                static_cast<int>(firmwareVersion.size()),
+                firmwareVersion.data()
             );
         }
     }

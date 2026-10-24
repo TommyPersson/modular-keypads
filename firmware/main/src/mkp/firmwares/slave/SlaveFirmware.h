@@ -25,6 +25,7 @@ public:
 private:
     void updateDeviceNameEndpoint();
     void updateSubDeviceEndpoints();
+    void updateFirmwareVersionEndpoint();
 
     std::unique_ptr<mkp::devices::common::LocalDevice> device;
     std::vector<mkp::devices::common::i2c::structs::SubDeviceInformation> subDeviceInformation;

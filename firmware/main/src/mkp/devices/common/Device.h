@@ -43,6 +43,9 @@ namespace mkp::devices::common {
         virtual const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const = 0;
         virtual std::span<Device* const> getSubDevices() const { return {}; }
 
+        /// The version of the firmware the device runs, see FirmwareVersion.h, or empty when it isn't known
+        virtual std::string_view getFirmwareVersion() const { return {}; }
+
         virtual tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) = 0;
         virtual tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) = 0;
         virtual tfw::utils::void_result rename(const std::string_view& deviceName) = 0;
@@ -86,12 +89,19 @@ namespace mkp::devices::common {
                 char deviceType[6]{};
                 char deviceName[16]{};
             };
+
+            // Not null terminated when the version fills the array. Empty when read from devices whose firmware
+            // doesn't have the endpoint yet.
+            struct FirmwareVersion {
+                char version[tfw::hal::i2c::MAX_PACKET_SIZE]{};
+            };
 #pragma pack(pop)
         }
 
         namespace endpoints {
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceInformation> DeviceInformation{.id = 0x01};
             inline tfw::hal::i2c::EndpointDescriptor<structs::DeviceName> DeviceName{.id = 0x02};
+            inline tfw::hal::i2c::EndpointDescriptor<structs::FirmwareVersion> FirmwareVersion{.id = 0x03};
 
             // One endpoint per sub-device, indexed as in Device::getSubDevices()
             inline tfw::hal::i2c::EndpointDescriptor<structs::SubDeviceInformation> SubDeviceInformation(

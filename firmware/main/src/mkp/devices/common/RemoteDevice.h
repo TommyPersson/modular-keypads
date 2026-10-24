@@ -22,6 +22,7 @@ namespace mkp::devices::common {
         const DeviceConfiguration& getConfiguration() const override;
         const std::vector<std::shared_ptr<DeviceCapability>>& getCapabilities() const override;
         std::span<Device* const> getSubDevices() const override;
+        std::string_view getFirmwareVersion() const override;
 
         tfw::utils::void_result flashIdentificationLights(uint32_t durationMs) override;
         tfw::utils::void_result flashButtonIdentificationLight(uint8_t buttonNumber, uint32_t durationMs) override;
@@ -37,6 +38,7 @@ namespace mkp::devices::common {
 
     private:
         void refreshName();
+        void refreshFirmwareVersion();
         void refreshSubDevices();
 
         DeviceConfiguration configuration;
@@ -46,6 +48,9 @@ namespace mkp::devices::common {
         tfw::hal::i2c::Client& i2cClient;
         bool remoteEventsAvailable = true;
         uint8_t numMissedPresenceChecks = 0;
+
+        // Read once, when the device is found, as devices that are updated are found again once they've restarted
+        std::string firmwareVersion;
 
         std::vector<std::unique_ptr<RemoteSubDevice>> subDevices;
         std::vector<Device*> subDevicePointers;

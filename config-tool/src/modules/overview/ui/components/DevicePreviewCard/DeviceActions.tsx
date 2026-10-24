@@ -7,7 +7,6 @@ import {
 } from "@src/modules/device/commands/FlashDeviceIdentificationLightsCommand"
 import { RenameDeviceCommand } from "@src/modules/device/commands/RenameDeviceCommand"
 import { globalFirmwareUpdateController } from "@src/modules/device/firmware"
-import { useDeviceInformation } from "@src/modules/device/hooks/useDeviceInformation"
 import type { DeviceInformation } from "@src/modules/device/models"
 import { useCallback, useState } from "react"
 import { RenameDeviceDialog } from "./RenameDeviceDialog"
@@ -28,10 +27,7 @@ export const DeviceInfoIcon = (props: {
 }) => {
   const { device, size } = props
 
-  // The listed devices don't include their versions, but the connected device's is known
-  const [connectedDevice] = useDeviceInformation()
   const firmwareVersion = device.deviceFirmwareVersion
-    ?? (connectedDevice?.deviceId === device.deviceId ? connectedDevice.deviceFirmwareVersion : null)
 
   return (
     <Tooltip

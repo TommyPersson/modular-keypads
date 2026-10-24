@@ -1,5 +1,7 @@
 #include "LocalDevice.h"
 
+#include "mkp/firmwares/base/FirmwareVersion.h"
+
 using namespace mkp::devices::common;
 
 LocalDevice::LocalDevice(
@@ -26,6 +28,10 @@ void LocalDevice::loop() {
     }
 
     indicatorLedManager->update();
+}
+
+std::string_view LocalDevice::getFirmwareVersion() const {
+    return mkp::firmwares::base::firmwareVersion();
 }
 
 tfw::utils::registers::RegisterManager& LocalDevice::getRegisters() const {

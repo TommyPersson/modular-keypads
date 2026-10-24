@@ -36,6 +36,7 @@ RemoteDevice::RemoteDevice(
 RemoteDevice::~RemoteDevice() = default;
 
 void RemoteDevice::setup() {
+    refreshFirmwareVersion();
     refreshSubDevices();
 }
 
@@ -127,6 +128,10 @@ std::span<Device* const> RemoteDevice::getSubDevices() const {
     return subDevicePointers;
 }
 
+std::string_view RemoteDevice::getFirmwareVersion() const {
+    return firmwareVersion;
+}
+
 tfw::utils::void_result RemoteDevice::flashIdentificationLights(uint32_t durationMs) {
     return i2cClient.sendCommand(
         configuration.address,
@@ -179,6 +184,17 @@ bool RemoteDevice::checkPresence() {
     logger->info("Device %08llx missed %u presence checks", configuration.id, numMissedPresenceChecks);
     numMissedPresenceChecks = 0;
     return false;
+}
+
+void RemoteDevice::refreshFirmwareVersion() {
+    const auto result = i2cClient.readEndpoint(configuration.address, i2c::endpoints::FirmwareVersion);
+    if (result.has_error) {
+        logger->error("Unable to read firmware version of device %08llx", configuration.id);
+        return;
+    }
+
+    const auto& version = result.value->version;
+    firmwareVersion = std::string(version, strnlen(version, sizeof(version)));
 }
 
 void RemoteDevice::refreshName() {

@@ -4,6 +4,7 @@
 #include <tfw/utils/strings.h>
 
 #include "mkp/components/events/RemoteEventTypes.h"
+#include "mkp/firmwares/base/FirmwareVersion.h"
 
 #include "i2c/commands/FlashButtonIdentificationLightRemoteCommandHandler.h"
 #include "i2c/commands/FlashDeviceIdentificationLightsRemoteCommandHandler.h"
@@ -51,6 +52,7 @@ void SlaveFirmware::setup() {
     );
 
     updateDeviceNameEndpoint();
+    updateFirmwareVersionEndpoint();
 
     // The master assigns the address once it discovers the device
     slavePort.setup(
@@ -202,6 +204,13 @@ void SlaveFirmware::updateDeviceNameEndpoint() {
     strncpy(deviceName.deviceName, device->getConfiguration().name.c_str(), sizeof(deviceName.deviceName));
 
     slavePort.updateEndpoint(mkp::devices::common::i2c::endpoints::DeviceName, &deviceName);
+}
+
+void SlaveFirmware::updateFirmwareVersionEndpoint() {
+    mkp::devices::common::i2c::structs::FirmwareVersion firmwareVersion;
+    strncpy(firmwareVersion.version, mkp::firmwares::base::firmwareVersion(), sizeof(firmwareVersion.version));
+
+    slavePort.updateEndpoint(mkp::devices::common::i2c::endpoints::FirmwareVersion, &firmwareVersion);
 }
 
 void SlaveFirmware::updateSubDeviceEndpoints() {

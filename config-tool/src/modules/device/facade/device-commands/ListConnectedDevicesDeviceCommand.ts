@@ -7,12 +7,12 @@ export class ListConnectedDevicesDeviceCommand extends DeviceCommand<DeviceInfor
   override parseResponse(lines: string[]): DeviceInformation[] {
 
     return lines.map(line => {
-      const [idHex, addressHex, type, name, parentIdHex, slotText] = line.split(",")
+      const [idHex, addressHex, type, name, parentIdHex, slotText, firmwareVersion] = line.split(",")
       const slot = parseInt(slotText)
       return {
         deviceId: idHex,
-        // Only the connected device reports its version, separately
-        deviceFirmwareVersion: null,
+        // Empty for sub-devices, and for devices with firmware that doesn't report its version
+        deviceFirmwareVersion: firmwareVersion || null,
         deviceType: type,
         deviceAddress: parseInt(addressHex, 16),
         deviceName: name,

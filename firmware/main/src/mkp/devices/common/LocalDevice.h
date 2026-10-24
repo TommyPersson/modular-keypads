@@ -18,6 +18,8 @@ namespace mkp::devices::common {
         void setup() override;
         void loop() override;
 
+        std::string_view getFirmwareVersion() const override;
+
         tfw::utils::registers::RegisterManager& getRegisters() const;
         virtual const std::vector<const tfw::utils::registers::RegisterDescriptor*>& getRegisterDescriptors() const = 0;
         virtual tfw::hal::i2c::Pins getI2cPins() const = 0;
