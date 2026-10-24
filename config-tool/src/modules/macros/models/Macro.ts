@@ -9,12 +9,14 @@ export enum MacroDefinitionType {
   MouseButton = "MouseButton",
   MouseMovement = "MouseMovement",
   Sequence = "Sequence",
+  MidiNote = "MidiNote",
 }
 
 // Groups the macro types in the UI
 export enum MacroTypeCategory {
   Keyboard = "Keyboard",
   Mouse = "Mouse",
+  Midi = "MIDI",
   Combined = "Combined",
 }
 
@@ -77,6 +79,24 @@ export type MouseMovementMacroDefinition = MacroDefinitionBase & {
   y: number
 }
 
+// A note played on the USB MIDI device, with note off sent once the duration has passed, or on key release
+export type MidiNoteMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.MidiNote
+  // 1 to 16
+  channel: number
+  // 0 to 127, 60 is middle C
+  note: number
+  // 1 to 127
+  velocity: number
+  // Zero sends note off right after note on. Not used when ending on release.
+  durationMs: number
+  // Sends note off when the key is released, rather than after the duration
+  endOnRelease: boolean
+}
+
+// The same limit as on the device
+export const MaxMidiNoteDurationMs = 60_000
+
 export type SequenceStep = {
   macroId: number
   // Time to wait before running the macro, counted from when the previous step is done typing
@@ -109,4 +129,5 @@ export type MacroDefinition =
   | MouseScrollMacroDefinition
   | MouseButtonMacroDefinition
   | MouseMovementMacroDefinition
+  | MidiNoteMacroDefinition
   | SequenceMacroDefinition

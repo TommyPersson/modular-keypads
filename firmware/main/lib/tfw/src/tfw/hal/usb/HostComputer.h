@@ -4,7 +4,7 @@
 
 namespace tfw::hal::usb {
     // The computer on the other end of the USB connection, as reached through the HID devices: keyboard, consumer
-    // control, system control and mouse. Separated from the USB connection, so that logic sending input can be tested.
+    // control, system control and mouse, and the USB MIDI device. Separated from the USB connection, so that logic sending input can be tested.
     class HostComputer {
     public:
         virtual ~HostComputer() = default;
@@ -27,5 +27,9 @@ namespace tfw::hal::usb {
         virtual void clickMouse(uint8_t buttons) = 0;
         // Relative movement and scrolling. Positive wheel scrolls up, positive pan scrolls right.
         virtual void moveMouse(int8_t x, int8_t y, int8_t wheel, int8_t pan) = 0;
+
+        // Channels 1 to 16
+        virtual void sendMidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) = 0;
+        virtual void sendMidiNoteOff(uint8_t channel, uint8_t note) = 0;
     };
 }

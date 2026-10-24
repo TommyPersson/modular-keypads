@@ -1,7 +1,5 @@
 #include "KeyBindingExecutor.h"
 
-#include <tfw/utils/strings.h>
-
 #include <tfw/hal/logging.h>
 
 #include "mkp/components/settings/Settings.h"
@@ -15,84 +13,6 @@ using tfw::hal::buttons::ButtonState;
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("KeyBindingSubSystem");
-
-    std::shared_ptr<CompiledMacro> compileMacro(const Macro& macro) {
-        if (macro.data->type == SHORTCUT) {
-            const auto& data = dynamic_cast<ShortcutMacroData&>(*macro.data);
-            const auto action = tfw::hal::usb::Action::shortcut(
-                data.modifiers,
-                data.hidKeyCode,
-                data.holdModifiers,
-                data.holdTimeMs
-            );
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{action},
-            });
-        }
-
-        if (macro.data->type == CONSUMER_CONTROL) {
-            const auto& data = dynamic_cast<ConsumerControlMacroData&>(*macro.data);
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::consumerControl(data.usageId)},
-            });
-        }
-
-        if (macro.data->type == SYSTEM_CONTROL) {
-            const auto& data = dynamic_cast<SystemControlMacroData&>(*macro.data);
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::systemControl(data.code)},
-            });
-        }
-
-        if (macro.data->type == TEXT) {
-            const auto& data = dynamic_cast<TextMacroData&>(*macro.data);
-            const auto encodedText = data.text;
-            char decodedText[encodedText.length() + 1];
-            tfw::utils::strings::uriDecode(encodedText, decodedText, encodedText.length() + 1);
-
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::type(decodedText)},
-            });
-        }
-
-        if (macro.data->type == MOUSE_SCROLL) {
-            const auto& data = dynamic_cast<MouseScrollMacroData&>(*macro.data);
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, 0, 0, 0, data.wheel, data.pan)},
-            });
-        }
-
-        if (macro.data->type == MOUSE_BUTTON) {
-            const auto& data = dynamic_cast<MouseButtonMacroData&>(*macro.data);
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, data.buttons, 0, 0, 0, 0)},
-            });
-        }
-
-        if (macro.data->type == MOUSE_MOVEMENT) {
-            const auto& data = dynamic_cast<MouseMovementMacroData&>(*macro.data);
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = std::vector{tfw::hal::usb::Action::mouse(data.modifiers, 0, data.x, data.y, 0, 0)},
-            });
-        }
-
-        if (macro.data->type == SEQUENCE) {
-            const auto& data = dynamic_cast<SequenceMacroData&>(*macro.data);
-            return std::make_shared<CompiledMacro>(CompiledMacro{
-                .macroId = macro.data->id,
-                .actions = {},
-                .steps = data.steps,
-            });
-        }
-        return nullptr;
-    }
 }
 
 KeyBindingExecutor::KeyBindingExecutor(
@@ -179,10 +99,17 @@ void KeyBindingExecutor::observe(const DeviceSwitchEvent& event) {
     const auto pressKeyBinding = findKeyBinding(event.deviceId, event.switchNumber, ButtonState::PRESSED);
     const auto longPressKeyBinding = findKeyBinding(event.deviceId, event.switchNumber, ButtonState::LONG_PRESSED);
 
+    // Macros with release actions are remembered until the button is released
+    const auto holdMacro = [&](const std::shared_ptr<CompiledMacro>& macro) {
+        if (macro != nullptr && !macro->releaseActions.empty()) {
+            heldMacros[button] = macro;
+        }
+    };
+
     switch (event.state) {
     case ButtonState::PRESSED:
         if (longPressKeyBinding == nullptr) {
-            executeMacroFor(pressKeyBinding);
+            holdMacro(executeMacroFor(pressKeyBinding));
         } else {
             // Not known yet whether it's a press or a long press
             pendingPresses.insert(button);
@@ -190,11 +117,18 @@ void KeyBindingExecutor::observe(const DeviceSwitchEvent& event) {
         break;
     case ButtonState::LONG_PRESSED:
         pendingPresses.erase(button);
-        executeMacroFor(longPressKeyBinding);
+        holdMacro(executeMacroFor(longPressKeyBinding));
         break;
     case ButtonState::UNPRESSED:
         if (pendingPresses.erase(button) > 0) {
-            executeMacroFor(pressKeyBinding);
+            // Executed on release, so it's released right away
+            if (const auto macro = executeMacroFor(pressKeyBinding)) {
+                sendReleaseActions(*macro);
+            }
+        }
+        if (const auto held = heldMacros.find(button); held != heldMacros.end()) {
+            sendReleaseActions(*held->second);
+            heldMacros.erase(held);
         }
         break;
     default:
@@ -237,13 +171,13 @@ std::shared_ptr<KeyBinding> KeyBindingExecutor::findKeyBinding(const DeviceRotar
 }
 
 
-void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding) {
+std::shared_ptr<CompiledMacro> KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding) {
     if (testModeController.isEnabled()) {
-        return;
+        return nullptr;
     }
 
     if (keyBinding == nullptr) {
-        return;
+        return nullptr;
     }
 
     // Read on every execution, so that changes apply right away. Settings are cached, so this is cheap.
@@ -252,7 +186,7 @@ void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyB
 
     const auto macro = findCompiledMacro(keyBinding->macroId);
     if (macro == nullptr) {
-        return;
+        return nullptr;
     }
 
     if (!macro->steps.empty()) {
@@ -261,6 +195,15 @@ void KeyBindingExecutor::executeMacroFor(const std::shared_ptr<KeyBinding>& keyB
         for (const auto& action : macro->actions) {
             usbConnection.sendAction(*action);
         }
+    }
+
+    return macro;
+}
+
+// Sent even in test mode, so that notes started before it was enabled still end
+void KeyBindingExecutor::sendReleaseActions(const CompiledMacro& macro) {
+    for (const auto& action : macro.releaseActions) {
+        usbConnection.sendAction(*action);
     }
 }
 

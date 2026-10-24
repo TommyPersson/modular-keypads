@@ -33,3 +33,15 @@ std::shared_ptr<Action> Action::mouse(
 ) {
     return std::make_shared<MouseAction>(modifiers, buttons, x, y, wheel, pan);
 }
+
+std::shared_ptr<Action> Action::midiNote(uint8_t channel, uint8_t note, uint8_t velocity, uint32_t durationMs) {
+    return std::make_shared<MidiNoteAction>(channel, note, velocity, durationMs, false);
+}
+
+std::shared_ptr<Action> Action::heldMidiNote(uint8_t channel, uint8_t note, uint8_t velocity) {
+    return std::make_shared<MidiNoteAction>(channel, note, velocity, 0, true);
+}
+
+std::shared_ptr<Action> Action::midiNoteOff(uint8_t channel, uint8_t note) {
+    return std::make_shared<MidiNoteOffAction>(channel, note);
+}

@@ -285,6 +285,49 @@ namespace mkp::components::macros {
         }
     };
 
+    class MidiNoteDataSerializer final
+        : public MacroDataStorageSerializer<MidiNoteMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == MIDI_NOTE;
+        };
+
+        std::string_view serialize(const MidiNoteMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%u:%u:%u:%u:%d",
+                data.channel,
+                data.note,
+                data.velocity,
+                static_cast<unsigned int>(data.durationMs),
+                data.endOnRelease ? 1 : 0
+            );
+        }
+
+        std::shared_ptr<MidiNoteMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (!hasParts(parts, 5)) {
+                return nullptr;
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<MidiNoteMacroData> allocator(arena);
+
+            // A velocity of zero would be taken as note off by the host
+            return std::allocate_shared<MidiNoteMacroData>(
+                allocator,
+                macroId,
+                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[0]), 1, 16),
+                std::min<uint32_t>(tfw::utils::strings::atou32(parts[1]), 127),
+                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[2]), 1, 127),
+                std::min(tfw::utils::strings::atou32(parts[3]), MaxMidiNoteDurationMs),
+                tfw::utils::strings::atol(parts[4]) != 0
+            );
+        }
+    };
+
     // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
     // and delay of each step separated by semicolons: "12;0;15;250". Neither colons nor commas can be used, as they
     // separate the parts of stored lines and the arguments of commands.
@@ -364,5 +407,6 @@ namespace mkp::components::macros {
         new MouseButtonDataSerializer{},
         new MouseMovementDataSerializer{},
         new SequenceDataSerializer{},
+        new MidiNoteDataSerializer{},
     };
 }

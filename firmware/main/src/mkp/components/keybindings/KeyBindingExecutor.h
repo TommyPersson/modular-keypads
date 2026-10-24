@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <set>
 #include <utility>
 
@@ -12,17 +13,11 @@
 #include "mkp/devices/common/Device.h"
 
 #include "KeyBindingStorage.h"
+#include "MacroCompiler.h"
 #include "SequenceRunner.h"
 #include "TestModeController.h"
 
 namespace mkp::components::keybindings {
-    struct CompiledMacro {
-        uint16_t macroId;
-        std::vector<std::shared_ptr<tfw::hal::usb::Action>> actions;
-        // The steps of a sequence, which runs other macros rather than actions of its own
-        std::vector<macros::SequenceStep> steps;
-    };
-
     class KeyBindingExecutor
         : tfw::utils::observables::Observer<macros::MacroSaved>,
           tfw::utils::observables::Observer<macros::MacroRemoved>,
@@ -65,7 +60,9 @@ namespace mkp::components::keybindings {
         );
         std::shared_ptr<KeyBinding> findKeyBinding(const devices::common::DeviceRotaryEncoderEvent& event);
 
-        void executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding);
+        // Results in the executed macro, if any
+        std::shared_ptr<CompiledMacro> executeMacroFor(const std::shared_ptr<KeyBinding>& keyBinding);
+        void sendReleaseActions(const CompiledMacro& macro);
         void executeSequenceStep(uint16_t macroId);
         std::shared_ptr<CompiledMacro> findCompiledMacro(uint16_t macroId);
 
@@ -86,5 +83,8 @@ namespace mkp::components::keybindings {
         // Presses of buttons with a long press binding, as device id and switch number. Their press binding is
         // executed on release, unless the press turned into a long press.
         std::set<std::pair<uint64_t, uint8_t>> pendingPresses;
+
+        // Macros with release actions executed by buttons that are still held, by device id and switch number
+        std::map<std::pair<uint64_t, uint8_t>, std::shared_ptr<CompiledMacro>> heldMacros;
     };
 }

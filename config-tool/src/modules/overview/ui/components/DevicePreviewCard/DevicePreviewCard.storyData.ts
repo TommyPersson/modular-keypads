@@ -78,6 +78,17 @@ export const macros: MacroDefinition[] = [
     y: 0,
   },
   {
+    id: 15,
+    directory: "MIDI",
+    name: "Kick Drum",
+    type: MacroDefinitionType.MidiNote,
+    channel: 10,
+    note: 36,
+    velocity: 110,
+    durationMs: 100,
+    endOnRelease: false,
+  },
+  {
     id: 13,
     directory: "Signatures",
     name: "Greet and sign",

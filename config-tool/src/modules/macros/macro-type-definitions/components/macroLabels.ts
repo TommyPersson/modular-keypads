@@ -80,6 +80,22 @@ export function mouseScrollLabel(wheel: number, pan: number): string | null {
   return `Scroll ${directions.join(", ")}`
 }
 
+const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+// With middle C (60) as C4, the most common numbering, though some programs call it C3
+export function midiNoteName(note: number): string {
+  return `${NOTE_NAMES[note % 12]}${Math.floor(note / 12) - 1}`
+}
+
+// The number first, as apps controlled with MIDI show and map notes by number
+export function midiNoteLabel(note: number): string {
+  return `Note ${note} (${midiNoteName(note)})`
+}
+
+export function midiChannelLabel(channel: number): string {
+  return `Ch ${channel}`
+}
+
 // The name of the macro of a sequence step, or a note when there's none, such as after it was deleted
 export function sequenceStepLabel(step: SequenceStep, macros: MacroDefinition[]): string {
   const macro = macros.find(it => it.id === step.macroId)

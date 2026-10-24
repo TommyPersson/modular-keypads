@@ -33,11 +33,17 @@ void ActionSender::send(Action& action) {
         sendType(*typeAction);
     } else if (const auto mouseAction = dynamic_cast<MouseAction*>(&action)) {
         sendMouse(*mouseAction);
+    } else if (const auto midiNoteAction = dynamic_cast<MidiNoteAction*>(&action)) {
+        sendMidiNote(*midiNoteAction);
+    } else if (const auto midiNoteOffAction = dynamic_cast<MidiNoteOffAction*>(&action)) {
+        sendMidiNoteOff(*midiNoteOffAction);
     }
 }
 
 void ActionSender::update() {
     const auto now = clock.micros();
+
+    endMidiNotes(now);
 
     if (remainingMouseX != 0 || remainingMouseY != 0) {
         // Holding again keeps the modifiers held until the hold time has passed after the last part, and presses them
@@ -143,4 +149,53 @@ void ActionSender::sendMouseMovementPart(const int8_t wheel, const int8_t pan) {
     if (x != 0 || y != 0 || wheel != 0 || pan != 0) {
         hostComputer.moveMouse(x, y, wheel, pan);
     }
+}
+
+void ActionSender::sendMidiNote(const MidiNoteAction& action) {
+    // The earlier note would otherwise be ended early, by the note off of this one, or late, after this one has ended
+    const auto playing = std::ranges::find_if(playingMidiNotes, [&](const PlayingMidiNote& it) {
+        return it.channel == action.channel && it.note == action.note;
+    });
+    if (playing != playingMidiNotes.end()) {
+        hostComputer.sendMidiNoteOff(playing->channel, playing->note);
+        playingMidiNotes.erase(playing);
+    }
+
+    hostComputer.sendMidiNoteOn(action.channel, action.note, action.velocity);
+
+    if (action.held) {
+        playingMidiNotes.push_back(PlayingMidiNote{
+            .channel = action.channel,
+            .note = action.note,
+            .endTimeUs = std::nullopt,
+        });
+    } else if (action.durationMs == 0) {
+        hostComputer.sendMidiNoteOff(action.channel, action.note);
+    } else {
+        playingMidiNotes.push_back(PlayingMidiNote{
+            .channel = action.channel,
+            .note = action.note,
+            .endTimeUs = clock.micros() + static_cast<uint64_t>(action.durationMs) * 1'000,
+        });
+    }
+}
+
+void ActionSender::sendMidiNoteOff(const MidiNoteOffAction& action) {
+    const auto playing = std::ranges::find_if(playingMidiNotes, [&](const PlayingMidiNote& it) {
+        return it.channel == action.channel && it.note == action.note;
+    });
+    if (playing != playingMidiNotes.end()) {
+        hostComputer.sendMidiNoteOff(playing->channel, playing->note);
+        playingMidiNotes.erase(playing);
+    }
+}
+
+void ActionSender::endMidiNotes(const uint64_t now) {
+    std::erase_if(playingMidiNotes, [&](const PlayingMidiNote& it) {
+        if (!it.endTimeUs.has_value() || now < *it.endTimeUs) {
+            return false;
+        }
+        hostComputer.sendMidiNoteOff(it.channel, it.note);
+        return true;
+    });
 }

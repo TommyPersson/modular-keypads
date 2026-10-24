@@ -28,6 +28,9 @@ namespace tfw::hal::usb {
             int8_t wheel,
             int8_t pan
         );
+        static std::shared_ptr<Action> midiNote(uint8_t channel, uint8_t note, uint8_t velocity, uint32_t durationMs);
+        static std::shared_ptr<Action> heldMidiNote(uint8_t channel, uint8_t note, uint8_t velocity);
+        static std::shared_ptr<Action> midiNoteOff(uint8_t channel, uint8_t note);
     };
 
     struct ConsumerControlAction final : Action {
@@ -95,5 +98,38 @@ namespace tfw::hal::usb {
         const int16_t y;
         const int8_t wheel;
         const int8_t pan;
+    };
+
+    // A MIDI note, played for a duration: note on right away, and note off once the duration has passed. Held notes
+    // have no duration, and play until a note off action for them. Playing the same note again before it has ended
+    // ends the earlier one first.
+    struct MidiNoteAction final : Action {
+        MidiNoteAction(
+            const uint8_t channel,
+            const uint8_t note,
+            const uint8_t velocity,
+            const uint32_t durationMs,
+            const bool held
+        ) : channel(channel), note(note), velocity(velocity), durationMs(durationMs), held(held) {
+        }
+
+        ~MidiNoteAction() override = default;
+
+        const uint8_t channel; // 1 to 16
+        const uint8_t note; // 0 to 127, 60 is middle C
+        const uint8_t velocity; // 1 to 127
+        const uint32_t durationMs; // Zero sends note off right after note on. Not used by held notes.
+        const bool held;
+    };
+
+    // Ends a playing MIDI note, such as a held one. Notes that have already ended are left alone.
+    struct MidiNoteOffAction final : Action {
+        MidiNoteOffAction(const uint8_t channel, const uint8_t note) : channel(channel), note(note) {
+        }
+
+        ~MidiNoteOffAction() override = default;
+
+        const uint8_t channel;
+        const uint8_t note;
     };
 }

@@ -37,3 +37,9 @@ export const MouseMovementMacro: Story = {
     macro: macros.find(it => it.name === "Nudge Right"),
   },
 }
+
+export const MidiNoteMacro: Story = {
+  args: {
+    macro: macros.find(it => it.name === "Kick Drum"),
+  },
+}

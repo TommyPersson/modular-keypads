@@ -26,6 +26,14 @@ namespace tfw::hal::usb::test {
             record("move mouse %d %d %d %d", x, y, wheel, pan);
         }
 
+        void sendMidiNoteOn(const uint8_t channel, const uint8_t note, const uint8_t velocity) override {
+            record("midi note on %u %u %u", channel, note, velocity);
+        }
+
+        void sendMidiNoteOff(const uint8_t channel, const uint8_t note) override {
+            record("midi note off %u %u", channel, note);
+        }
+
         // Returns the events recorded since the last call
         std::vector<std::string> takeEvents() {
             auto result = std::move(events);

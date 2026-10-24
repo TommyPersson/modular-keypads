@@ -15,6 +15,7 @@ namespace mkp::components::macros {
         MOUSE_BUTTON = 0x06,
         MOUSE_MOVEMENT = 0x07,
         SEQUENCE = 0x08,
+        MIDI_NOTE = 0x09,
     };
 
     struct MacroData {
@@ -126,6 +127,34 @@ namespace mkp::components::macros {
         const uint8_t modifiers; // Same flags as for shortcuts
         const int16_t x; // Positive moves right
         const int16_t y; // Positive moves down
+    };
+
+    constexpr uint32_t MaxMidiNoteDurationMs = 60'000;
+
+    struct MidiNoteMacroData final : MacroData {
+        MidiNoteMacroData(
+            const uint16_t id,
+            const uint8_t channel,
+            const uint8_t note,
+            const uint8_t velocity,
+            const uint32_t durationMs,
+            const bool endOnRelease = false
+        ) : MacroData(id, MacroType::MIDI_NOTE),
+            channel(channel),
+            note(note),
+            velocity(velocity),
+            durationMs(durationMs),
+            endOnRelease(endOnRelease) {
+        }
+
+        ~MidiNoteMacroData() override = default;
+
+        const uint8_t channel; // 1 to 16
+        const uint8_t note; // 0 to 127, 60 is middle C
+        const uint8_t velocity; // 1 to 127
+        const uint32_t durationMs; // Time between note on and note off, unless it ends on release
+        // Plays the note until the button is released, rather than for the duration
+        const bool endOnRelease;
     };
 
     struct SequenceStep {

@@ -92,6 +92,18 @@ protected:
         return Macro{name, data};
     }
 
+    Macro createMidiNoteMacro(
+        uint16_t id,
+        const std::string_view& name,
+        uint8_t channel = 1,
+        uint8_t note = 60,
+        uint8_t velocity = 100,
+        uint32_t durationMs = 100,
+        bool endOnRelease = false) {
+        auto data = std::make_shared<MidiNoteMacroData>(id, channel, note, velocity, durationMs, endOnRelease);
+        return Macro{name, data};
+    }
+
     Macro createSequenceMacro(
         uint16_t id,
         const std::string_view& name,
@@ -292,6 +304,67 @@ TEST_F(MacroStorageTest, WriteMouseMacroWithModifiers) {
 
     std::string content = mockFs.getFileContent(testFilePath);
     EXPECT_NE(content.find("1:Ctrl Scroll:0x05:0x01:1:0"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, WriteMidiNoteMacro) {
+    auto macro = createMidiNoteMacro(1, "Middle C", 10, 60, 100, 250);
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Middle C:0x09:10:60:100:250:0"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, RoundTripMidiNoteMacro) {
+    auto macro = createMidiNoteMacro(1, "Note", 16, 127, 1, 60000);
+    auto releasedMacro = createMidiNoteMacro(2, "Released", 1, 0, 127, 0, true);
+    macroStorage.write(macro);
+    macroStorage.write(releasedMacro);
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const MidiNoteMacroData&>(*m.data);
+        if (m.data->id == 1) {
+            EXPECT_EQ(data.channel, 16);
+            EXPECT_EQ(data.note, 127);
+            EXPECT_EQ(data.velocity, 1);
+            EXPECT_EQ(data.durationMs, 60000);
+            EXPECT_FALSE(data.endOnRelease);
+        } else {
+            EXPECT_EQ(data.note, 0);
+            EXPECT_TRUE(data.endOnRelease);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 2);
+}
+
+TEST_F(MacroStorageTest, MidiNoteMacroClampsOutOfRangeValues) {
+    mockFs.setFileContent(testFilePath, "1:Low:0x09:0:60:0:100:0\n2:High:0x09:17:200:200:100000:0\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const MidiNoteMacroData&>(*m.data);
+        if (m.data->id == 1) {
+            EXPECT_EQ(data.channel, 1);
+            EXPECT_EQ(data.note, 60);
+            EXPECT_EQ(data.velocity, 1);
+            EXPECT_EQ(data.durationMs, 100);
+        } else {
+            EXPECT_EQ(data.channel, 16);
+            EXPECT_EQ(data.note, 127);
+            EXPECT_EQ(data.velocity, 127);
+            EXPECT_EQ(data.durationMs, 60000);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 2);
+}
+
+TEST_F(MacroStorageTest, MidiNoteMacroWithWrongNumberOfPartsIsIgnored) {
+    mockFs.setFileContent(testFilePath, "1:Note:0x09:1:60:100:100\n2:Note:0x09:1:60:100:100:0:0\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
 }
 
 // ============================================================================

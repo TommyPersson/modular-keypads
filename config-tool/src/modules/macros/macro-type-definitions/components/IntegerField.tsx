@@ -17,16 +17,21 @@ const parseValue = (text: string, min: number, max: number) => {
   return isNaN(parsed) ? 0 : Math.min(max, Math.max(min, parsed))
 }
 
-// Keeps the typed text, so that intermediate input such as "-" isn't replaced while typing
+// Keeps the typed text, so that intermediate input such as "-" isn't replaced while typing. The min and max narrow the
+// range of the type, for values with limits of their own.
 export const IntegerField = (props: {
   label: string
   helperText: string
   type: IntegerType
+  min?: number
+  max?: number
+  disabled?: boolean
   value: number
   onChange: (value: number) => void
 }) => {
-  const { label, helperText, type, value, onChange } = props
-  const { min, max } = INTEGER_RANGES[type]
+  const { label, helperText, type, disabled, value, onChange } = props
+  const min = Math.max(INTEGER_RANGES[type].min, props.min ?? -Infinity)
+  const max = Math.min(INTEGER_RANGES[type].max, props.max ?? Infinity)
 
   const [text, setText] = useState(value.toString())
 
@@ -49,6 +54,7 @@ export const IntegerField = (props: {
       value={text}
       onChange={handleChange}
       onBlur={() => setText(value.toString())}
+      disabled={disabled}
       slotProps={{ htmlInput: { min, max, step: 1 } }}
       fullWidth
     />

@@ -353,3 +353,117 @@ TEST_F(ActionSenderTest, IsNotBusyWithModifiersHeld) {
 
     EXPECT_FALSE(sender.isBusy());
 }
+
+// ============================================================================
+// MIDI notes
+// ============================================================================
+
+TEST_F(ActionSenderTest, MidiNoteIsEndedAfterItsDuration) {
+    send(Action::midiNote(10, 60, 100, 50));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note on 10 60 100"}));
+
+    runForMs(49);
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+
+    runForMs(1);
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note off 10 60"}));
+
+    runForMs(100);
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+}
+
+TEST_F(ActionSenderTest, MidiNoteWithoutDurationIsEndedRightAway) {
+    send(Action::midiNote(1, 36, 127, 0));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note on 1 36 127", "midi note off 1 36"}));
+
+    runForMs(10);
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+}
+
+TEST_F(ActionSenderTest, ReplayingMidiNoteEndsTheEarlierOneFirst) {
+    send(Action::midiNote(1, 60, 100, 50));
+    runForMs(20);
+    send(Action::midiNote(1, 60, 80, 50));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "midi note on 1 60 100",
+        "midi note off 1 60",
+        "midi note on 1 60 80",
+    }));
+
+    runForMs(49);
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+
+    runForMs(1);
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note off 1 60"}));
+}
+
+TEST_F(ActionSenderTest, MidiNotesOnOtherChannelsOrNotesPlayTogether) {
+    send(Action::midiNote(1, 60, 100, 30));
+    send(Action::midiNote(1, 64, 100, 20));
+    send(Action::midiNote(2, 60, 100, 10));
+    hostComputer.takeEvents();
+
+    runForMs(10);
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note off 2 60"}));
+
+    runForMs(10);
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note off 1 64"}));
+
+    runForMs(10);
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note off 1 60"}));
+}
+
+// Notes don't reach the keyboard, so a window switcher kept open by held modifiers stays open
+TEST_F(ActionSenderTest, MidiNoteKeepsHeldModifiers) {
+    send(Action::shortcut(ALT, KEY_TAB, true, 0));
+    hostComputer.takeEvents();
+
+    send(Action::midiNote(1, 60, 100, 10));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note on 1 60 100"}));
+}
+
+TEST_F(ActionSenderTest, HeldMidiNotePlaysUntilNoteOff) {
+    send(Action::heldMidiNote(1, 60, 127));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note on 1 60 127"}));
+
+    runForMs(100'000);
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+
+    send(Action::midiNoteOff(1, 60));
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi note off 1 60"}));
+}
+
+TEST_F(ActionSenderTest, NoteOffForEndedMidiNoteSendsNothing) {
+    send(Action::midiNote(1, 60, 100, 10));
+    runForMs(10);
+    hostComputer.takeEvents();
+
+    send(Action::midiNoteOff(1, 60));
+    send(Action::midiNoteOff(1, 61));
+
+    EXPECT_EQ(hostComputer.takeEvents(), NO_EVENTS);
+}
+
+TEST_F(ActionSenderTest, ReplayingHeldMidiNoteEndsTheEarlierOneFirst) {
+    send(Action::heldMidiNote(1, 60, 127));
+    send(Action::heldMidiNote(1, 60, 127));
+    send(Action::midiNoteOff(1, 60));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{
+        "midi note on 1 60 127",
+        "midi note off 1 60",
+        "midi note on 1 60 127",
+        "midi note off 1 60",
+    }));
+}
+
+TEST_F(ActionSenderTest, IsNotBusyWhileMidiNotesPlay) {
+    send(Action::midiNote(1, 60, 100, 50));
+
+    EXPECT_FALSE(sender.isBusy());
+}
