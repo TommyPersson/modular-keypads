@@ -17,6 +17,7 @@
 
 #include "commands/All.h"
 #include "mkp/devices/common/DeviceScanner.h"
+#include "mkp/firmwares/drive/DriveMode.h"
 
 namespace {
     auto logger = tfw::hal::logging::createLogger("MasterFirmware");
@@ -49,6 +50,11 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     );
 
     firmwareUpdater = std::make_unique<mkp::components::firmware::FirmwareUpdater>(serviceLocator.clock);
+
+    bootButton = std::make_unique<mkp::firmwares::drive::BootButton>(serviceLocator.clock, [] {
+        logger->info("Boot button clicked, restarting in the drive mode");
+        mkp::firmwares::drive::restartInDriveMode();
+    });
 
     notifier = serviceLocator.notifierFactory.create();
 
@@ -90,6 +96,7 @@ MasterFirmware::~MasterFirmware() = default;
 void MasterFirmware::setup() {
     Firmware::setup();
 
+    bootButton->setup();
     macroStorage->setup();
     keyBindingStorage->setup();
     keyBindingExecutor->setup();
@@ -183,6 +190,7 @@ void MasterFirmware::loop() {
 
     keyBindingExecutor->loop();
     firmwareUpdater->loop();
+    bootButton->loop();
 }
 
 void MasterFirmware::observe(const DeviceConnectedEvent& event) {

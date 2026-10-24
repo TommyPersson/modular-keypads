@@ -1,11 +1,17 @@
 #pragma once
 
+#include <memory>
+
 #include "HostComputer.h"
 
 namespace tfw::hal::usb {
     // Sends input through the USB HID and MIDI devices of the ESP32 Arduino core
     class RealHostComputer final : public HostComputer {
     public:
+        // Registers the HID and MIDI devices with USB, which must be done before it's started
+        RealHostComputer();
+        ~RealHostComputer() override;
+
         // Starts the HID devices, once USB has been started
         void begin();
 
@@ -22,5 +28,10 @@ namespace tfw::hal::usb {
         void sendMidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) override;
         void sendMidiNoteOff(uint8_t channel, uint8_t note) override;
         void sendMidiControlChange(uint8_t channel, uint8_t controller, uint8_t value) override;
+
+    private:
+        struct Devices;
+
+        std::unique_ptr<Devices> devices;
     };
 }

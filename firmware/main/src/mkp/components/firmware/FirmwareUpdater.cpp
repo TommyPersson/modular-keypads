@@ -20,7 +20,7 @@ using namespace mkp::components::firmware;
 
 FirmwareUpdater::FirmwareUpdater(const tfw::hal::time::Clock& clock) {
     idleTimeoutCountDown = clock.createCountDown(IDLE_TIMEOUT_US, [this] {
-        logger->warn("Firmware update timed out after %" PRIu32 " of %" PRIu32 " bytes", writtenSize, expectedSize);
+        logger->warn("Firmware update timed out after %" PRIu32 " bytes", writtenSize);
         abort();
     });
 
@@ -33,6 +33,16 @@ FirmwareUpdater::FirmwareUpdater(const tfw::hal::time::Clock& clock) {
 FirmwareUpdater::~FirmwareUpdater() = default;
 
 tfw::utils::void_result FirmwareUpdater::begin(const uint32_t size) {
+    return begin(std::optional(size));
+}
+
+tfw::utils::void_result FirmwareUpdater::begin() {
+    return begin(std::nullopt);
+}
+
+tfw::utils::void_result FirmwareUpdater::begin(const std::optional<uint32_t> size) {
+    std::lock_guard lock(mutex);
+
     if (restartCountDown->isRunning()) {
         return tfw::utils::void_result::error("firmware.update.restart.pending");
     }
@@ -43,12 +53,16 @@ tfw::utils::void_result FirmwareUpdater::begin(const uint32_t size) {
         return tfw::utils::void_result::error("firmware.update.empty");
     }
 
-    if (!Update.begin(size, U_FLASH)) {
+    if (!Update.begin(size.value_or(UPDATE_SIZE_UNKNOWN), U_FLASH)) {
         logger->error("Unable to begin firmware update: %s", Update.errorString());
         return tfw::utils::void_result::error("firmware.update.begin.failed");
     }
 
-    logger->info("Firmware update started, %" PRIu32 " bytes", size);
+    if (size) {
+        logger->info("Firmware update started, %" PRIu32 " bytes", *size);
+    } else {
+        logger->info("Firmware update started, of unknown size");
+    }
 
     inProgress = true;
     expectedSize = size;
@@ -59,6 +73,8 @@ tfw::utils::void_result FirmwareUpdater::begin(const uint32_t size) {
 }
 
 tfw::utils::void_result FirmwareUpdater::write(const uint32_t offset, const std::span<const uint8_t> data) {
+    std::lock_guard lock(mutex);
+
     if (!inProgress) {
         return tfw::utils::void_result::error("firmware.update.not.started");
     }
@@ -67,7 +83,7 @@ tfw::utils::void_result FirmwareUpdater::write(const uint32_t offset, const std:
         return tfw::utils::void_result::error("firmware.update.unexpected.offset");
     }
 
-    if (writtenSize + data.size() > expectedSize) {
+    if (expectedSize && writtenSize + data.size() > *expectedSize) {
         return tfw::utils::void_result::error("firmware.update.too.large");
     }
 
@@ -86,18 +102,21 @@ tfw::utils::void_result FirmwareUpdater::write(const uint32_t offset, const std:
 }
 
 tfw::utils::void_result FirmwareUpdater::finish() {
+    std::lock_guard lock(mutex);
+
     if (!inProgress) {
         return tfw::utils::void_result::error("firmware.update.not.started");
     }
 
-    if (writtenSize != expectedSize) {
+    if (expectedSize && writtenSize != *expectedSize) {
         return tfw::utils::void_result::error("firmware.update.incomplete");
     }
 
     inProgress = false;
     idleTimeoutCountDown->stop();
 
-    if (!Update.end()) {
+    // Updates of unknown size end where the writing did
+    if (!Update.end(!expectedSize)) {
         logger->error("Unable to finish firmware update: %s", Update.errorString());
         return tfw::utils::void_result::error("firmware.update.verification.failed");
     }
@@ -109,6 +128,8 @@ tfw::utils::void_result FirmwareUpdater::finish() {
 }
 
 void FirmwareUpdater::abort() {
+    std::lock_guard lock(mutex);
+
     if (inProgress) {
         logger->info("Firmware update aborted");
         Update.abort();
@@ -119,6 +140,8 @@ void FirmwareUpdater::abort() {
 }
 
 void FirmwareUpdater::loop() {
+    std::lock_guard lock(mutex);
+
     idleTimeoutCountDown->update();
     restartCountDown->update();
 }

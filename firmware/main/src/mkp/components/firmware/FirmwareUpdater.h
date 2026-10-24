@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <memory>
+#include <mutex>
+#include <optional>
 #include <span>
 
 #include <tfw/hal/time/Clock.h>
@@ -13,6 +15,9 @@ namespace mkp::components::firmware {
      *
      * The image is the firmware.bin built by PlatformIO, not the merged image with the bootloader. It's only booted
      * once it has been completely written and verified, so a failed update leaves the running firmware in place.
+     *
+     * Updates are received over serial commands, from the loop, and from the firmware drive, from the USB task, so the
+     * updater can be used from both.
      */
     class FirmwareUpdater {
     public:
@@ -21,6 +26,9 @@ namespace mkp::components::firmware {
 
         /// Starts a new update of the given size, discarding any unfinished one
         tfw::utils::void_result begin(uint32_t size);
+
+        /// Starts a new update whose size is only known once all of it has been written, discarding any unfinished one
+        tfw::utils::void_result begin();
 
         /// Chunks must be written in order, which the offset is checked against, as a lost chunk would corrupt the image
         tfw::utils::void_result write(uint32_t offset, std::span<const uint8_t> data);
@@ -33,8 +41,14 @@ namespace mkp::components::firmware {
         void loop();
 
     private:
+        tfw::utils::void_result begin(std::optional<uint32_t> size);
+
+    private:
+        // Recursive, as the timeout aborts the update from the loop
+        std::recursive_mutex mutex;
+
         bool inProgress = false;
-        uint32_t expectedSize = 0;
+        std::optional<uint32_t> expectedSize;
         uint32_t writtenSize = 0;
 
         // Updates that are left unfinished, e.g. when the config tool is closed, are discarded

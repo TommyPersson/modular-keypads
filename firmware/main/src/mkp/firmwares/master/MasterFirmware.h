@@ -5,6 +5,7 @@
 #include "mkp/components/keybindings/KeyBindingExecutor.h"
 #include "mkp/components/keybindings/TestModeController.h"
 #include "mkp/devices/common/DeviceScanner.h"
+#include "mkp/firmwares/drive/BootButton.h"
 
 class MasterFirmware final
     : public mkp::firmwares::base::Firmware,
@@ -58,6 +59,9 @@ private:
     std::unique_ptr<mkp::components::keybindings::KeyBindingExecutor> keyBindingExecutor;
 
     std::unique_ptr<mkp::components::firmware::FirmwareUpdater> firmwareUpdater;
+
+    // Restarts the master in the drive mode, where it only presents the firmware drive
+    std::unique_ptr<mkp::firmwares::drive::BootButton> bootButton;
 
     std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;
     std::unique_ptr<tfw::hal::gpio::InputPin> slaveEventInterruptInputPin;
