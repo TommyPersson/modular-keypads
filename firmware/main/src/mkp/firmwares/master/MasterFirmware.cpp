@@ -48,6 +48,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         serviceLocator.clock
     );
 
+    firmwareUpdater = std::make_unique<mkp::components::firmware::FirmwareUpdater>(serviceLocator.clock);
+
     notifier = serviceLocator.notifierFactory.create();
 
     addCommandHandler(std::make_shared<Ping>());
@@ -75,6 +77,10 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
     addCommandHandler(std::make_shared<SetDeviceName>(allDevices));
     addCommandHandler(std::make_shared<ListSettings>(serviceLocator.deviceSettings));
     addCommandHandler(std::make_shared<SetSetting>(serviceLocator.deviceSettings));
+    addCommandHandler(std::make_shared<BeginFirmwareUpdate>(*firmwareUpdater));
+    addCommandHandler(std::make_shared<WriteFirmwareUpdate>(*firmwareUpdater));
+    addCommandHandler(std::make_shared<FinishFirmwareUpdate>(*firmwareUpdater));
+    addCommandHandler(std::make_shared<AbortFirmwareUpdate>(*firmwareUpdater));
 
     loopTimerMetric = serviceLocator.metricRegistry.timer("firmware.master.device_loop_time_us");
 }
@@ -176,6 +182,7 @@ void MasterFirmware::loop() {
     );
 
     keyBindingExecutor->loop();
+    firmwareUpdater->loop();
 }
 
 void MasterFirmware::observe(const DeviceConnectedEvent& event) {

@@ -25,7 +25,7 @@ import {
 } from "@src/modules/key-bindings/ui/components/KeyBindingsPane"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { MacroTypeVisualization } from "@src/modules/macros/ui"
-import { DeviceInfoIcon, IdentifyDeviceButton, RenameDeviceButton } from "./DeviceActions"
+import { DeviceInfoIcon, IdentifyDeviceButton, RenameDeviceButton, UpdateFirmwareButton } from "./DeviceActions"
 
 import classes from "./DevicePreviewCard.module.css"
 
@@ -93,6 +93,7 @@ export const TopLevelDevicePreviewCard = (props: {
         >
           <IdentifyDeviceButton device={device} size={"small"} />
           <RenameDeviceButton device={device} size={"small"} />
+          {isConnectedDevice(device) && <UpdateFirmwareButton device={device} size={"small"} />}
           {action && (
             <>
               <Divider orientation={"vertical"} flexItem sx={{ mx: 0.5 }} />
@@ -110,6 +111,11 @@ export const TopLevelDevicePreviewCard = (props: {
       </CardContent>
     </Paper>
   )
+}
+
+// The connected device is the master, which is the only device without an address
+function isConnectedDevice(device: DeviceInformation) {
+  return device.deviceAddress === 0 && device.parentDeviceId === null
 }
 
 /**

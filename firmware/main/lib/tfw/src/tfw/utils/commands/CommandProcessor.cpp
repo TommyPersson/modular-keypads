@@ -57,6 +57,15 @@ ParsedCommand CommandProcessor::parseCommand(const std::string_view& rawCommand)
 
     const auto commandParts = tfw::utils::allocations::arena::strings::split(rawCommand, ':', allocator);
 
+    // Lines without a command type, e.g. the end of a command cut off by a disconnect, match no handler
+    if (commandParts.size() < 2) {
+        return ParsedCommand{
+            .id = 0,
+            .type = {},
+            .args = tfw::utils::allocations::arena::vector(allocator),
+        };
+    }
+
     const auto commandId = strings::atol(commandParts[0]);
     const auto command = commandParts[1];
     auto args = commandParts.size() > 2

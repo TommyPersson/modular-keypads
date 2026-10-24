@@ -62,8 +62,8 @@ export type MockDeviceOptions = {
 /**
  * A device facade for Storybook, that answers commands from the given options. Renaming a device changes the listed
  * devices, and setting key bindings, saving macros and changing settings change the listed ones. Identifying a device
- * or a button does nothing. Sub-devices can be connected and disconnected, to see how the components react, and the
- * tool can connect to and disconnect from the device. The commands and their responses are shown as serial traffic.
+ * or a button, and updating the firmware, do nothing. Sub-devices can be connected and disconnected, to see how the
+ * components react, and the tool can connect to and disconnect from the device. The commands and their responses are shown as serial traffic.
  *
  * Notifications without a repeat interval are replayed to every subscriber, so that components that mount late,
  * e.g. after a query has loaded, still get the same state as the others.
@@ -132,6 +132,9 @@ export class MockDeviceFacade implements DeviceFacade {
 
   async disconnect(): Promise<void> {
     this.isConnected$.next(false)
+  }
+
+  async expectRestart(): Promise<void> {
   }
 
   get traffic$(): Observable<DeviceMessage[]> {
@@ -208,6 +211,10 @@ export class MockDeviceFacade implements DeviceFacade {
         return undefined as TResult
       case "flash.identification.lights":
       case "flash.button.identification.light":
+      case "begin.firmware.update":
+      case "write.firmware.update":
+      case "finish.firmware.update":
+      case "abort.firmware.update":
         return undefined as TResult
       case "list.device.capabilities":
         return (this.options.capabilities?.[command.arguments[0]] ?? []) as TResult

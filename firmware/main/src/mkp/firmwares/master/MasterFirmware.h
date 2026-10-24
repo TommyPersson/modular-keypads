@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mkp/firmwares/base/Firmware.h"
+#include "mkp/components/firmware/FirmwareUpdater.h"
 #include "mkp/components/keybindings/KeyBindingExecutor.h"
 #include "mkp/components/keybindings/TestModeController.h"
 #include "mkp/devices/common/DeviceScanner.h"
@@ -55,6 +56,8 @@ private:
     std::unique_ptr<mkp::components::macros::MacroStorage> macroStorage;
     std::unique_ptr<mkp::components::keybindings::KeyBindingStorage> keyBindingStorage;
     std::unique_ptr<mkp::components::keybindings::KeyBindingExecutor> keyBindingExecutor;
+
+    std::unique_ptr<mkp::components::firmware::FirmwareUpdater> firmwareUpdater;
 
     std::shared_ptr<tfw::hal::metrics::TimerMetric> loopTimerMetric;
     std::unique_ptr<tfw::hal::gpio::InputPin> slaveEventInterruptInputPin;

@@ -1,7 +1,10 @@
 #pragma once
 
+#include "AbortFirmwareUpdate.h"
+#include "BeginFirmwareUpdate.h"
 #include "ClearKeyBinding.h"
 #include "DeleteMacro.h"
+#include "FinishFirmwareUpdate.h"
 #include "FlashButtonIdentificationLight.h"
 #include "FlashDeviceIdentificationLights.h"
 #include "GetTestMode.h"
@@ -25,3 +28,4 @@
 #include "SetKeyBinding.h"
 #include "SetSetting.h"
 #include "SetTestMode.h"
+#include "WriteFirmwareUpdate.h"

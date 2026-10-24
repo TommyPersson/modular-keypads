@@ -95,6 +95,9 @@ void setup() {
 
     setCpuFrequencyMhz(80);
 
+    // Room for a whole command line, as firmware updates send them back to back at close to the line length limit
+    TheSerial.setRxBufferSize(2048);
+
     loggingOutput = std::unique_ptr<tfw::hal::streams::OutputStream>(
         tfw::hal::streams::createArduinoOutputStream(TheSerial)
     );

@@ -1,6 +1,7 @@
 #include "EspMetrics.h"
 
 #include <esp_heap_caps.h>
+#include <esp_ota_ops.h>
 #include <esp_pm.h>
 #include <esp_system.h>
 #include <multi_heap.h>
@@ -53,6 +54,18 @@ namespace mkp::components::metrics::esp {
 
         registry.add(tfw::hal::metrics::lambda_gauge("arduino.cpu_freq_mhz", []() {
             return getCpuFrequencyMhz();
+        }));
+
+        // 0 for app0 and 1 for app1, which alternate with every firmware update, or -1 when not running from either
+        registry.add(tfw::hal::metrics::lambda_gauge("esp.ota.running_partition", []() {
+            const auto partition = esp_ota_get_running_partition();
+            if (partition == nullptr
+                || partition->subtype < ESP_PARTITION_SUBTYPE_APP_OTA_MIN
+                || partition->subtype > ESP_PARTITION_SUBTYPE_APP_OTA_MAX) {
+                return -1;
+            }
+
+            return static_cast<int>(partition->subtype - ESP_PARTITION_SUBTYPE_APP_OTA_MIN);
         }));
     }
 }

@@ -15,13 +15,16 @@ export class DeviceCommandExecutor {
   private readonly commandTimeoutMs = 2000
   private readonly mutexTimeoutMs = this.commandTimeoutMs + 1000
 
+  // Long commands, like firmware chunks, are cut off in the traffic, as they'd only make it hard to read
+  private readonly maxTrafficMessageLength = 200
+
   constructor(
     private readonly writer: WritableStreamDefaultWriter,
     private readonly logsSubject: Subject<DeviceMessage>,
   ) {
   }
 
-  async sendCommand(type: string, args: string[]): Promise<string[]> {
+  async sendCommand(type: string, args: string[], timeoutMs: number = this.commandTimeoutMs): Promise<string[]> {
     const writer = this.writer
     if (!writer) {
       throw new Error("Not connected")
@@ -36,15 +39,19 @@ export class DeviceCommandExecutor {
 
       const packet = this.formatPacket(commandId, type, args)
 
-      console.debug(`Sending packet: '${packet.text}'`)
+      const trafficText = packet.text.length > this.maxTrafficMessageLength
+        ? `${packet.text.substring(0, this.maxTrafficMessageLength)}...`
+        : packet.text
+
+      console.debug(`Sending packet: '${trafficText}'`)
 
       await writer.write(packet.bytes)
 
-      this.logsSubject.next({ direction: "to-device", message: packet.text, timestamp: DateTime.now() })
+      this.logsSubject.next({ direction: "to-device", message: trafficText, timestamp: DateTime.now() })
 
       const timeout = setTimeout(() => {
         deferredCommandResult.reject(new Error("command timeout"))
-      }, this.commandTimeoutMs)
+      }, timeoutMs)
 
       const response = await deferredCommandResult.promise
 

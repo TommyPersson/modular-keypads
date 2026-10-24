@@ -1,5 +1,6 @@
 import { Box, CssBaseline, Fade, Stack } from "@mui/material"
 import { useDeviceContext } from "@src/modules/device/context"
+import { UpdateFirmwareDialog } from "@src/modules/device/ui"
 import { MainControlBar } from "@src/modules/root/ui/components/MainControlBar"
 import { ToolPane, useToolPaneContext } from "@src/modules/root/ui/components/ToolPane"
 import { ToolPaneNavBar } from "@src/modules/root/ui/components/ToolPane/ToolPaneNavBar"
@@ -53,6 +54,9 @@ export const RootScreen = () => {
       </Stack>
 
       <MainControlBar />
+
+      {/* Here rather than with the device, as the device disconnects while it restarts into the new firmware */}
+      <UpdateFirmwareDialog />
     </Box>
   )
 }
