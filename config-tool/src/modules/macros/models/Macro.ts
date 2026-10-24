@@ -10,6 +10,7 @@ export enum MacroDefinitionType {
   MouseMovement = "MouseMovement",
   Sequence = "Sequence",
   MidiNote = "MidiNote",
+  MidiRelativeControlChange = "MidiRelativeControlChange",
 }
 
 // Groups the macro types in the UI
@@ -97,6 +98,33 @@ export type MidiNoteMacroDefinition = MacroDefinitionBase & {
 // The same limit as on the device
 export const MaxMidiNoteDurationMs = 60_000
 
+// How relative changes are encoded in control change values, as apps expect different ones. The same numbers as on
+// the device.
+export enum RelativeControlChangeEncoding {
+  // 64 + amount: 65 is +1, 63 is -1
+  BinaryOffset = 0,
+  // 1 is +1, 127 is -1
+  TwosComplement = 1,
+  // 1 is +1, 65 is -1
+  SignMagnitude = 2,
+}
+
+// Changes the value of a controller by an amount, such as for an app slider turned with a rotary encoder
+export type MidiRelativeControlChangeMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.MidiRelativeControlChange
+  // 1 to 16
+  channel: number
+  // 0 to 119, as 120 to 127 are channel mode messages
+  controller: number
+  // -63 to 63, positive moves up
+  amount: number
+  encoding: RelativeControlChangeEncoding
+}
+
+// The same limits as on the device. All the encodings can represent the amount.
+export const MaxControlChangeController = 119
+export const MaxRelativeControlChangeAmount = 63
+
 export type SequenceStep = {
   macroId: number
   // Time to wait before running the macro, counted from when the previous step is done typing
@@ -130,4 +158,5 @@ export type MacroDefinition =
   | MouseButtonMacroDefinition
   | MouseMovementMacroDefinition
   | MidiNoteMacroDefinition
+  | MidiRelativeControlChangeMacroDefinition
   | SequenceMacroDefinition

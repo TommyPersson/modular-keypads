@@ -104,6 +104,17 @@ protected:
         return Macro{name, data};
     }
 
+    Macro createRelativeControlChangeMacro(
+        uint16_t id,
+        const std::string_view& name,
+        uint8_t channel = 1,
+        uint8_t controller = 7,
+        int8_t amount = 1,
+        RelativeControlChangeEncoding encoding = RelativeControlChangeEncoding::BINARY_OFFSET) {
+        auto data = std::make_shared<MidiRelativeControlChangeMacroData>(id, channel, controller, amount, encoding);
+        return Macro{name, data};
+    }
+
     Macro createSequenceMacro(
         uint16_t id,
         const std::string_view& name,
@@ -363,6 +374,57 @@ TEST_F(MacroStorageTest, MidiNoteMacroClampsOutOfRangeValues) {
 
 TEST_F(MacroStorageTest, MidiNoteMacroWithWrongNumberOfPartsIsIgnored) {
     mockFs.setFileContent(testFilePath, "1:Note:0x09:1:60:100:100\n2:Note:0x09:1:60:100:100:0:0\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
+}
+
+TEST_F(MacroStorageTest, WriteRelativeControlChangeMacro) {
+    auto macro = createRelativeControlChangeMacro(1, "Volume Down", 3, 7, -2, RelativeControlChangeEncoding::SIGN_MAGNITUDE);
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Volume Down:0x0a:3:7:-2:2"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, RoundTripRelativeControlChangeMacro) {
+    auto macro = createRelativeControlChangeMacro(1, "Pan", 16, 119, 63, RelativeControlChangeEncoding::TWOS_COMPLEMENT);
+    macroStorage.write(macro);
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const MidiRelativeControlChangeMacroData&>(*m.data);
+        EXPECT_EQ(data.channel, 16);
+        EXPECT_EQ(data.controller, 119);
+        EXPECT_EQ(data.amount, 63);
+        EXPECT_EQ(data.encoding, RelativeControlChangeEncoding::TWOS_COMPLEMENT);
+        found++;
+    });
+    EXPECT_EQ(found, 1);
+}
+
+TEST_F(MacroStorageTest, RelativeControlChangeMacroClampsOutOfRangeValues) {
+    mockFs.setFileContent(testFilePath, "1:Low:0x0a:0:7:-100:9\n2:High:0x0a:20:127:100:1\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const MidiRelativeControlChangeMacroData&>(*m.data);
+        if (m.data->id == 1) {
+            EXPECT_EQ(data.channel, 1);
+            EXPECT_EQ(data.amount, -63);
+            EXPECT_EQ(data.encoding, RelativeControlChangeEncoding::BINARY_OFFSET);
+        } else {
+            EXPECT_EQ(data.channel, 16);
+            EXPECT_EQ(data.controller, 119);
+            EXPECT_EQ(data.amount, 63);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 2);
+}
+
+TEST_F(MacroStorageTest, RelativeControlChangeMacroWithWrongNumberOfPartsIsIgnored) {
+    mockFs.setFileContent(testFilePath, "1:CC:0x0a:1:7:1\n2:CC:0x0a:1:7:1:0:0\n");
 
     EXPECT_EQ(macroStorage.getNumStored(), 0);
 }

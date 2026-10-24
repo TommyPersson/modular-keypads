@@ -37,6 +37,8 @@ void ActionSender::send(Action& action) {
         sendMidiNote(*midiNoteAction);
     } else if (const auto midiNoteOffAction = dynamic_cast<MidiNoteOffAction*>(&action)) {
         sendMidiNoteOff(*midiNoteOffAction);
+    } else if (const auto controlChangeAction = dynamic_cast<MidiControlChangeAction*>(&action)) {
+        sendMidiControlChange(*controlChangeAction);
     }
 }
 
@@ -188,6 +190,10 @@ void ActionSender::sendMidiNoteOff(const MidiNoteOffAction& action) {
         hostComputer.sendMidiNoteOff(playing->channel, playing->note);
         playingMidiNotes.erase(playing);
     }
+}
+
+void ActionSender::sendMidiControlChange(const MidiControlChangeAction& action) {
+    hostComputer.sendMidiControlChange(action.channel, action.controller, action.value);
 }
 
 void ActionSender::endMidiNotes(const uint64_t now) {

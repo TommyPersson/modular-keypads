@@ -45,6 +45,7 @@ namespace tfw::hal::usb {
         void sendMouseMovementPart(int8_t wheel, int8_t pan);
         void sendMidiNote(const MidiNoteAction& action);
         void sendMidiNoteOff(const MidiNoteOffAction& action);
+        void sendMidiControlChange(const MidiControlChangeAction& action);
         void endMidiNotes(uint64_t now);
 
         HostComputer& hostComputer;

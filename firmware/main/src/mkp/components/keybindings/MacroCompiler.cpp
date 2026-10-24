@@ -1,5 +1,7 @@
 #include "MacroCompiler.h"
 
+#include <algorithm>
+
 #include <tfw/utils/strings.h>
 
 using namespace mkp::components::macros;
@@ -90,6 +92,15 @@ std::shared_ptr<CompiledMacro> mkp::components::keybindings::compileMacro(const 
         });
     }
 
+    if (macro.data->type == MIDI_RELATIVE_CONTROL_CHANGE) {
+        const auto& data = dynamic_cast<MidiRelativeControlChangeMacroData&>(*macro.data);
+        const auto value = encodeRelativeControlChange(data.amount, data.encoding);
+        return std::make_shared<CompiledMacro>(CompiledMacro{
+            .macroId = macro.data->id,
+            .actions = std::vector{tfw::hal::usb::Action::midiControlChange(data.channel, data.controller, value)},
+        });
+    }
+
     if (macro.data->type == SEQUENCE) {
         const auto& data = dynamic_cast<SequenceMacroData&>(*macro.data);
         return std::make_shared<CompiledMacro>(CompiledMacro{
@@ -99,4 +110,21 @@ std::shared_ptr<CompiledMacro> mkp::components::keybindings::compileMacro(const 
         });
     }
     return nullptr;
+}
+
+uint8_t mkp::components::keybindings::encodeRelativeControlChange(
+    const int8_t amount,
+    const RelativeControlChangeEncoding encoding
+) {
+    const auto limited = std::clamp<int>(amount, -MaxRelativeControlChangeAmount, MaxRelativeControlChangeAmount);
+
+    switch (encoding) {
+    case RelativeControlChangeEncoding::TWOS_COMPLEMENT:
+        return static_cast<uint8_t>(limited >= 0 ? limited : 128 + limited);
+    case RelativeControlChangeEncoding::SIGN_MAGNITUDE:
+        return static_cast<uint8_t>(limited >= 0 ? limited : 64 - limited);
+    case RelativeControlChangeEncoding::BINARY_OFFSET:
+    default:
+        return static_cast<uint8_t>(64 + limited);
+    }
 }

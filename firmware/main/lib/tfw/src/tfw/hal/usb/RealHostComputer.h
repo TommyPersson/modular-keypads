@@ -21,5 +21,6 @@ namespace tfw::hal::usb {
         void moveMouse(int8_t x, int8_t y, int8_t wheel, int8_t pan) override;
         void sendMidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) override;
         void sendMidiNoteOff(uint8_t channel, uint8_t note) override;
+        void sendMidiControlChange(uint8_t channel, uint8_t controller, uint8_t value) override;
     };
 }

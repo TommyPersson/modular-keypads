@@ -1,6 +1,6 @@
 import { mockDevice, type MockDeviceOptions, withKeyBindingsPane, withMockDevice } from "@src/storybook"
 import type { DeviceCapability } from "@src/modules/device/models"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { type MacroDefinition, MacroDefinitionType, RelativeControlChangeEncoding } from "@src/modules/macros/models"
 import type { Meta } from "@storybook/react-vite"
 import { TopLevelDevicePreviewCard } from "./DevicePreviewCard"
 
@@ -87,6 +87,16 @@ export const macros: MacroDefinition[] = [
     velocity: 110,
     durationMs: 100,
     endOnRelease: false,
+  },
+  {
+    id: 16,
+    directory: "MIDI",
+    name: "Mic Volume Up",
+    type: MacroDefinitionType.MidiRelativeControlChange,
+    channel: 1,
+    controller: 7,
+    amount: 2,
+    encoding: RelativeControlChangeEncoding.TwosComplement,
   },
   {
     id: 13,

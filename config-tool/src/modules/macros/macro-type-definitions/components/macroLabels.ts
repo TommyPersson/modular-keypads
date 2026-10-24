@@ -92,6 +92,10 @@ export function midiNoteLabel(note: number): string {
   return `Note ${note} (${midiNoteName(note)})`
 }
 
+export function midiRelativeControlChangeLabel(controller: number, amount: number): string {
+  return `CC ${controller} ${amount >= 0 ? "+" : ""}${amount}`
+}
+
 export function midiChannelLabel(channel: number): string {
   return `Ch ${channel}`
 }

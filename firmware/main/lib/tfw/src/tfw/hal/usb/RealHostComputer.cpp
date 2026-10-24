@@ -75,4 +75,12 @@ void tfw::hal::usb::RealHostComputer::sendMidiNoteOff(const uint8_t channel, con
     midi.noteOff(note, 0, channel);
 }
 
+void tfw::hal::usb::RealHostComputer::sendMidiControlChange(
+    const uint8_t channel,
+    const uint8_t controller,
+    const uint8_t value
+) {
+    midi.controlChange(controller, value, channel);
+}
+
 #endif

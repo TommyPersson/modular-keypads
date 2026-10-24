@@ -2,6 +2,7 @@ import { TextMacroTypeDefinition } from "@src/modules/macros/macro-type-definiti
 import type { MacroDefinition, MacroTypeDefinition } from "@src/modules/macros/models"
 import { ConsumerControlMacroTypeDefinition } from "./ConsumerControlMacroTypeDefinition"
 import { MidiNoteMacroTypeDefinition } from "./MidiNoteMacroTypeDefinition"
+import { MidiRelativeControlChangeMacroTypeDefinition } from "./MidiRelativeControlChangeMacroTypeDefinition"
 import { MouseButtonMacroTypeDefinition } from "./MouseButtonMacroTypeDefinition"
 import { MouseMovementMacroTypeDefinition } from "./MouseMovementMacroTypeDefinition"
 import { MouseScrollMacroTypeDefinition } from "./MouseScrollMacroTypeDefinition"
@@ -19,6 +20,7 @@ const allMacroTypeDefinitions: MacroTypeDefinition<MacroDefinition>[] = [
   MouseButtonMacroTypeDefinition as any,
   MouseMovementMacroTypeDefinition as any,
   MidiNoteMacroTypeDefinition as any,
+  MidiRelativeControlChangeMacroTypeDefinition as any,
   SequenceMacroTypeDefinition as any,
 ]
 

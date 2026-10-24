@@ -328,6 +328,59 @@ namespace mkp::components::macros {
         }
     };
 
+    class MidiRelativeControlChangeDataSerializer final
+        : public MacroDataStorageSerializer<MidiRelativeControlChangeMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == MIDI_RELATIVE_CONTROL_CHANGE;
+        };
+
+        std::string_view serialize(
+            const MidiRelativeControlChangeMacroData& data,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%u:%u:%d:%u",
+                data.channel,
+                data.controller,
+                data.amount,
+                static_cast<unsigned int>(data.encoding)
+            );
+        }
+
+        std::shared_ptr<MidiRelativeControlChangeMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (!hasParts(parts, 4)) {
+                return nullptr;
+            }
+
+            // Unknown encodings fall back to the first one
+            const auto encodingValue = tfw::utils::strings::atou32(parts[3]);
+            const auto encoding = encodingValue <= static_cast<uint32_t>(RelativeControlChangeEncoding::SIGN_MAGNITUDE)
+                ? static_cast<RelativeControlChangeEncoding>(encodingValue)
+                : RelativeControlChangeEncoding::BINARY_OFFSET;
+
+            const tfw::utils::allocations::ArenaAllocator<MidiRelativeControlChangeMacroData> allocator(arena);
+
+            return std::allocate_shared<MidiRelativeControlChangeMacroData>(
+                allocator,
+                macroId,
+                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[0]), 1, 16),
+                std::min<uint32_t>(tfw::utils::strings::atou32(parts[1]), MaxControlChangeController),
+                std::clamp<int>(
+                    tfw::utils::strings::atol(parts[2]),
+                    -MaxRelativeControlChangeAmount,
+                    MaxRelativeControlChangeAmount
+                ),
+                encoding
+            );
+        }
+    };
+
     // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
     // and delay of each step separated by semicolons: "12;0;15;250". Neither colons nor commas can be used, as they
     // separate the parts of stored lines and the arguments of commands.
@@ -408,5 +461,6 @@ namespace mkp::components::macros {
         new MouseMovementDataSerializer{},
         new SequenceDataSerializer{},
         new MidiNoteDataSerializer{},
+        new MidiRelativeControlChangeDataSerializer{},
     };
 }

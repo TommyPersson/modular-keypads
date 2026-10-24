@@ -31,5 +31,6 @@ namespace tfw::hal::usb {
         // Channels 1 to 16
         virtual void sendMidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) = 0;
         virtual void sendMidiNoteOff(uint8_t channel, uint8_t note) = 0;
+        virtual void sendMidiControlChange(uint8_t channel, uint8_t controller, uint8_t value) = 0;
     };
 }

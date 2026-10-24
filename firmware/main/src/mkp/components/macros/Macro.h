@@ -16,6 +16,7 @@ namespace mkp::components::macros {
         MOUSE_MOVEMENT = 0x07,
         SEQUENCE = 0x08,
         MIDI_NOTE = 0x09,
+        MIDI_RELATIVE_CONTROL_CHANGE = 0x0a,
     };
 
     struct MacroData {
@@ -155,6 +156,40 @@ namespace mkp::components::macros {
         const uint32_t durationMs; // Time between note on and note off, unless it ends on release
         // Plays the note until the button is released, rather than for the duration
         const bool endOnRelease;
+    };
+
+    // How relative changes are encoded in control change values, as apps expect different ones
+    enum class RelativeControlChangeEncoding : uint8_t {
+        BINARY_OFFSET = 0, // 64 + amount: 65 is +1, 63 is -1
+        TWOS_COMPLEMENT = 1, // 1 is +1, 127 is -1
+        SIGN_MAGNITUDE = 2, // 1 is +1, 65 is -1
+    };
+
+    // Largest amount that all the encodings can represent
+    constexpr int8_t MaxRelativeControlChangeAmount = 63;
+    constexpr uint8_t MaxControlChangeController = 119;
+
+    // Changes the value of a controller by an amount, such as for an app slider turned with a rotary encoder
+    struct MidiRelativeControlChangeMacroData final : MacroData {
+        MidiRelativeControlChangeMacroData(
+            const uint16_t id,
+            const uint8_t channel,
+            const uint8_t controller,
+            const int8_t amount,
+            const RelativeControlChangeEncoding encoding
+        ) : MacroData(id, MacroType::MIDI_RELATIVE_CONTROL_CHANGE),
+            channel(channel),
+            controller(controller),
+            amount(amount),
+            encoding(encoding) {
+        }
+
+        ~MidiRelativeControlChangeMacroData() override = default;
+
+        const uint8_t channel; // 1 to 16
+        const uint8_t controller; // 0 to 119
+        const int8_t amount; // -63 to 63
+        const RelativeControlChangeEncoding encoding;
     };
 
     struct SequenceStep {

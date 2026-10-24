@@ -462,6 +462,12 @@ TEST_F(ActionSenderTest, ReplayingHeldMidiNoteEndsTheEarlierOneFirst) {
     }));
 }
 
+TEST_F(ActionSenderTest, MidiControlChangeIsSent) {
+    send(Action::midiControlChange(2, 7, 65));
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"midi control change 2 7 65"}));
+}
+
 TEST_F(ActionSenderTest, IsNotBusyWhileMidiNotesPlay) {
     send(Action::midiNote(1, 60, 100, 50));
 

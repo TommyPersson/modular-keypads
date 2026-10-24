@@ -43,3 +43,9 @@ export const MidiNoteMacro: Story = {
     macro: macros.find(it => it.name === "Kick Drum"),
   },
 }
+
+export const MidiRelativeControlChangeMacro: Story = {
+  args: {
+    macro: macros.find(it => it.name === "Mic Volume Up"),
+  },
+}

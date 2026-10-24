@@ -34,6 +34,10 @@ namespace tfw::hal::usb::test {
             record("midi note off %u %u", channel, note);
         }
 
+        void sendMidiControlChange(const uint8_t channel, const uint8_t controller, const uint8_t value) override {
+            record("midi control change %u %u %u", channel, controller, value);
+        }
+
         // Returns the events recorded since the last call
         std::vector<std::string> takeEvents() {
             auto result = std::move(events);

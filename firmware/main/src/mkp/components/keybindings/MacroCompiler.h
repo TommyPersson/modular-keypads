@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include <tfw/hal/usb.h>
+#include <tfw/hal/usb/USBAction.h>
 
 #include "mkp/components/macros/Macro.h"
 
@@ -20,4 +20,7 @@ namespace mkp::components::keybindings {
     // Turns stored macro data into the actions that are sent when the macro is executed. Results in null for macro
     // types that can't be executed.
     std::shared_ptr<CompiledMacro> compileMacro(const macros::Macro& macro);
+
+    // The control change value that represents the relative change by the amount, in the encoding
+    uint8_t encodeRelativeControlChange(int8_t amount, macros::RelativeControlChangeEncoding encoding);
 }
