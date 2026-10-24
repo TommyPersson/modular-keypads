@@ -15,7 +15,7 @@ DriveModeFirmware::DriveModeFirmware(const tfw::hal::time::Clock& clock) {
     firmwareUpdater = std::make_unique<components::firmware::FirmwareUpdater>(clock);
 
     // Created before USB is started by the setup, as the drive is part of the USB device
-    firmwareDrive = std::make_unique<components::firmware::FirmwareDrive>(*firmwareUpdater);
+    firmwareDrive = std::make_unique<components::firmware::FirmwareDrive>(*firmwareUpdater, clock);
 
     bootButton = std::make_unique<BootButton>(clock, [] {
         logger->info("Boot button clicked, restarting in the normal mode");
