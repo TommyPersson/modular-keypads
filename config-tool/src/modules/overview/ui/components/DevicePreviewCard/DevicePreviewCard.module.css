@@ -54,26 +54,26 @@
     position: relative;
     padding: 0 4px;
 
-    background: #f6f6f6;
+    background: var(--app-control-background);
     cursor: pointer;
 }
 
 /* Clicked to select the bound macros */
 .SwitchStateIndicator:hover {
-    border-color: black;
+    border-color: var(--mui-palette-text-primary);
 }
 
 .SwitchStateIndicator:focus-visible,
 .RotaryEncoderStateIndicator:focus-visible,
 .RotaryEncoderBindings:focus-visible {
-    outline: 2px solid #1976d2;
+    outline: 2px solid var(--mui-palette-primary-main);
     outline-offset: 1px;
 }
 
 /* While its bindings are edited in the key bindings pane. An outline, unlike a border, doesn't change the size. */
 .SwitchStateIndicator[data-selected="true"],
 .RotaryEncoderStateIndicator[data-selected="true"] {
-    outline: 2px solid #1976d2;
+    outline: 2px solid var(--mui-palette-primary-main);
     outline-offset: 2px;
 }
 
@@ -84,7 +84,7 @@
     left: 4px;
     font-size: 10px;
     line-height: 12px;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--mui-palette-text-secondary);
 }
 
 /* Along the bottom, also when there's no press macro, so that the press macro stays centered */
@@ -97,12 +97,12 @@
     justify-content: center;
 }
 .SwitchStateIndicator[data-pressed="true"] {
-    background: lightblue;
+    background: var(--app-control-pressed-background);
 }
 
 /* After the pressed styles, which it overrides */
 .SwitchStateIndicator[data-long-pressed="true"] {
-    background: #64b5f6;
+    background: var(--app-control-long-pressed-background);
 }
 
 .BoundMacro {
@@ -119,7 +119,7 @@
 
 .BoundMacro[data-long-press="true"] {
     font-weight: normal;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--mui-palette-text-secondary);
 }
 
 /* Two classes, so that the size overrides the size set by the icons themselves */
@@ -156,7 +156,7 @@
 
 .RotaryEncoderStateIndicatorRing,
 .RotaryEncoderStateIndicatorButton {
-    fill: #f6f6f6;
+    fill: var(--app-control-background);
     stroke: gray;
     stroke-width: 1px;
     vector-effect: non-scaling-stroke;
@@ -167,19 +167,21 @@
 /* Clicked to select the bound macros */
 .RotaryEncoderStateIndicatorRing:hover,
 .RotaryEncoderStateIndicatorButton:hover {
-    stroke: black;
+    stroke: var(--mui-palette-text-primary);
 }
 
 .RotaryEncoderStateIndicatorRing[data-active="true"],
 .RotaryEncoderStateIndicatorButton[data-pressed="true"] {
-    fill: lightblue;
+    fill: var(--app-control-pressed-background);
 }
 
 .RotaryEncoderStateIndicatorButton[data-long-pressed="true"] {
-    fill: #64b5f6;
+    fill: var(--app-control-long-pressed-background);
 }
 
 .RotaryEncoderStateIndicatorLabel {
+    /* SVG text is filled black by default, rather than taking the text color */
+    fill: var(--mui-palette-text-primary);
     font-weight: bold;
     text-anchor: middle;
     dominant-baseline: central;
@@ -200,12 +202,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #f6f6f6;
+    background: var(--app-control-background);
     cursor: pointer;
 }
 
 .RotaryEncoderBindings:hover {
-    border-color: black;
+    border-color: var(--mui-palette-text-primary);
 }
 
 .RotaryEncoderBindings[data-position="counter-clockwise"] {
@@ -224,12 +226,12 @@
 }
 
 .RotaryEncoderBindings[data-active="true"] {
-    background: lightblue;
+    background: var(--app-control-pressed-background);
 }
 
 /* After the active styles, which it overrides */
 .RotaryEncoderBindings[data-long-active="true"] {
-    background: #64b5f6;
+    background: var(--app-control-long-pressed-background);
 }
 
 .DisconnectedSubDevicePreview {
@@ -252,7 +254,7 @@
     bottom: 2px;
     font-size: 10px;
     line-height: 14px;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--mui-palette-text-secondary);
     display: flex;
     justify-content: center;
 }

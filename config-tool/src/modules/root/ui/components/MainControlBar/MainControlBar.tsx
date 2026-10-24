@@ -2,6 +2,7 @@ import { Divider, Paper, Stack } from "@mui/material"
 import { ConfigurationTransferButtons } from "@src/modules/config-transfer/ui"
 import { useDeviceContext } from "@src/modules/device/context"
 import { DeviceConnectionControl, TestModeSwitch } from "@src/modules/device/ui"
+import { ColorSchemeToggle } from "@src/modules/root/ui/components/ColorSchemeToggle"
 import { MAIN_CONTROL_BAR_BOTTOM, MAIN_CONTROL_BAR_HEIGHT } from "@src/modules/root/ui/overlayLayout"
 
 /**
@@ -38,6 +39,8 @@ export const MainControlBar = () => {
             <ConfigurationTransferButtons />
           </>
         )}
+        <Divider orientation={"vertical"} flexItem />
+        <ColorSchemeToggle />
       </Stack>
     </Paper>
   )

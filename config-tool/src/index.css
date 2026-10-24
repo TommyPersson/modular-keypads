@@ -1,4 +1,23 @@
+
+/* The app's own color tokens, for what the MUI palette has no color for. The dark ones follow MUI's selected scheme. */
 :root {
+    --app-control-background: #f6f6f6;
+    --app-control-pressed-background: lightblue;
+    --app-control-long-pressed-background: #64b5f6;
+    --app-log-background: lightgray;
+    --app-code-color: hsl(215, 15%, 12%);
+    --app-code-background: hsl(215, 15%, 97%);
+    --app-code-border: hsl(215, 15%, 89%);
+}
+
+:root[data-mui-color-scheme="dark"] {
+    --app-control-background: #2c2c2c;
+    --app-control-pressed-background: #1e4f74;
+    --app-control-long-pressed-background: #1976d2;
+    --app-log-background: #2c2c2c;
+    --app-code-color: hsl(215, 15%, 90%);
+    --app-code-background: hsl(215, 15%, 16%);
+    --app-code-border: hsl(215, 15%, 28%);
 }
 
 body {
@@ -8,9 +27,9 @@ body {
 
 code, pre {
     padding: 2px 4px;
-    color: hsl(215, 15%, 12%);
-    background-color: hsl(215, 15%, 97%);
-    border: 1px solid hsl(215, 15%, 89%);
+    color: var(--app-code-color);
+    background-color: var(--app-code-background);
+    border: 1px solid var(--app-code-border);
     border-radius: 6px;
 }
 

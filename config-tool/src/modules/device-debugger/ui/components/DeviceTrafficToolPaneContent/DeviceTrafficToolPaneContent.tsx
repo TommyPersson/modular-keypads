@@ -40,7 +40,7 @@ export const DeviceTrafficToolPaneContent = () => {
           minHeight: 100,
           maxHeight: "75vh",
           margin: 0,
-          background: "lightgray",
+          background: "var(--app-log-background)",
           padding: 8,
           fontSize: 14,
         }} ref={state.scrollViewRef}>

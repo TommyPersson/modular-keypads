@@ -1,7 +1,7 @@
 .RootScreen {
     width: 100vw;
     height: 100vh;
-    background: #eeeeee;
+    background: var(--mui-palette-background-default);
 }
 
 .ToolPaneOverlay {
