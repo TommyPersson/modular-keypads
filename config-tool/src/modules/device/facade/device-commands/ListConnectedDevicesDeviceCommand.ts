@@ -11,7 +11,8 @@ export class ListConnectedDevicesDeviceCommand extends DeviceCommand<DeviceInfor
       const slot = parseInt(slotText)
       return {
         deviceId: idHex,
-        deviceFirmwareVersion: "0.0.1", // TODO figure out something to do with versioning
+        // Only the connected device reports its version, separately
+        deviceFirmwareVersion: null,
         deviceType: type,
         deviceAddress: parseInt(addressHex, 16),
         deviceName: name,

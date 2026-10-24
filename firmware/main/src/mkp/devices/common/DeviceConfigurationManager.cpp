@@ -2,6 +2,8 @@
 
 #include <tfw/hal/logging.h>
 
+#include "mkp/firmwares/base/FirmwareVersion.h"
+
 namespace {
     auto logger = tfw::hal::logging::createLogger("DeviceConfigurationManager");
 
@@ -55,7 +57,7 @@ uint64_t DeviceConfigurationManager::getDeviceId() const {
 }
 
 std::string DeviceConfigurationManager::getDeviceVersion() const {
-    return "0.0.1";
+    return mkp::firmwares::base::firmwareVersion();
 }
 
 std::string DeviceConfigurationManager::getDeviceType() const {
