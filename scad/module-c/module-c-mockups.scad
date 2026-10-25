@@ -23,9 +23,9 @@ sub_module_connector_offset = 31;
 sub_module_connector_size = [5.1, 26.7, 4];
 sub_module_separation = 8;
 sub_module_shell_wall_width = 2;
-sub_module_shell_wall_height = pcb_thickness + sub_module_connector_size.z + module_top_thickness;// - bottom_connector_inset;
+sub_module_shell_wall_height = pcb_thickness + sub_module_connector_size.z + module_top_thickness;
 sub_module_shell_top_thickness = module_top_cover_thickness;
-sub_module_shell_bottom_thickness = sub_module_connector_size.z; // - bottom_connector_inset;
+sub_module_shell_bottom_thickness = sub_module_connector_size.z;
 sub_module_shell_total_height = sub_module_shell_top_thickness + sub_module_shell_wall_height;
 
 sub_module_shell_size = [
@@ -56,7 +56,7 @@ module_screw_hole_points = [
 
 main_pcb_component_area_height_y = 37;
 
-connector_pcb_standoff_thickness = sub_module_connector_size.z - bottom_connector_inset;// - pcb_thickness + bottom_connector_inset;
+connector_pcb_standoff_thickness = sub_module_connector_size.z - bottom_connector_inset;
 connector_pcb_size = [bottom_pcb_size.x, bottom_pcb_size.y - 40];
 
 translate([-600, 0]) {
@@ -759,9 +759,20 @@ module sub_module_3_shell() {
     difference() {
         sub_module_shell_base();
 
-        linear_extrude(sub_module_shell_top_thickness) {
+        translate([0, 0, 2]) {
+            linear_extrude(sub_module_shell_top_thickness) {
+
+                translate([sub_module_shell_size.x / 2, sub_module_shell_size.y / 2]) {
+                    circle(d = sub_module_3_encoder_diameter);
+                }
+            }
+        }
+
+        linear_extrude(sub_module_shell_top_thickness - 2) {
             translate([sub_module_shell_size.x / 2, sub_module_shell_size.y / 2]) {
-                circle(d = sub_module_3_encoder_diameter);
+                scale(0.8) {
+                    circle(d = sub_module_3_encoder_diameter);
+                }
             }
         }
     }
