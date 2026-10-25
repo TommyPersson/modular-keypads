@@ -82,6 +82,9 @@ void SlaveFirmware::setup() {
     device->onSubDeviceDisconnectedEvent().addObserver(this);
     device->onSubDeviceRenamedEvent().addObserver(this);
 
+    // Sub-devices found during the device setup were connected before the observers were added
+    updateSubDeviceEndpoints();
+
     // Last, so that the device is fully set up when the master scans it
     slavePort.requestDiscovery();
 }

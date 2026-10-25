@@ -51,10 +51,6 @@ void LocalDeviceC::setup() {
     subDevices[1] = subDevice2.get();
     subDevices[2] = subDevice3.get();
 
-    subDevice1->setup();
-    subDevice2->setup();
-    subDevice3->setup();
-
     subDevice1->onSwitchEvent().addObserver(this);
     subDevice1->onRotaryEncoderEvent().addObserver(this);
     subDevice1->onConnected().addObserver(this);
@@ -78,6 +74,10 @@ void LocalDeviceC::setup() {
     pinModReset->setHigh();
 
     registerRefresher->setup();
+
+    subDevice1->setup();
+    subDevice2->setup();
+    subDevice3->setup();
 }
 
 void LocalDeviceC::loop() {
