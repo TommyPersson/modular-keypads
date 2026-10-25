@@ -76,7 +76,8 @@ namespace tfw::hal::i2c {
 
         /**
          * Executes the commands received since the last call, and resets the MCU when the master doesn't
-         * acknowledge the device in time. Call from the main loop.
+         * acknowledge the device in time. Once acknowledged, discovery is requested again when the master stops
+         * talking to the device. Call from the main loop.
          */
         void loop();
 
@@ -88,6 +89,7 @@ namespace tfw::hal::i2c {
         void processPendingCommands();
 
         void onDiscoveryTimeout();
+        void onMasterSilenceTimeout();
 
         void selectEndpoint(uint8_t endpointId);
 
@@ -121,6 +123,10 @@ namespace tfw::hal::i2c {
         // Set from the receive callback, which runs on the Wire task
         std::atomic<bool> discoveryAcknowledged{false};
         std::unique_ptr<time::CountDown> discoveryTimeout;
+
+        // Set from the receive and request callbacks, which run on the Wire task
+        std::atomic<bool> masterTrafficSeen{false};
+        std::unique_ptr<time::CountDown> masterSilenceTimeout;
 
         std::vector<void*> knownCommandsHandlers;
 

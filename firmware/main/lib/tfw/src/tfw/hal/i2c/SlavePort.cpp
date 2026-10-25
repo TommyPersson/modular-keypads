@@ -20,13 +20,18 @@ namespace {
     // The master rescans every second while the discovery line is low, so a device that isn't acknowledged within a
     // few of those is unreachable, for example with its I2C peripheral stuck after power-up
     constexpr uint64_t DISCOVERY_TIMEOUT_US = 3'000'000;
+
+    // The master checks the presence of every known device each second, so a device that hasn't heard from it in a
+    // few of those has been lost by the master
+    constexpr uint64_t MASTER_SILENCE_TIMEOUT_US = 5'000'000;
 }
 
 namespace tfw::hal::i2c {
     SlavePort::SlavePort(TwoWireType& twoWire, time::Clock& clock) :
         selectedEndpoint(&endpoints[0]),
         twoWire(twoWire),
-        discoveryTimeout(clock.createCountDown(DISCOVERY_TIMEOUT_US, [this] { onDiscoveryTimeout(); })) {
+        discoveryTimeout(clock.createCountDown(DISCOVERY_TIMEOUT_US, [this] { onDiscoveryTimeout(); })),
+        masterSilenceTimeout(clock.createCountDown(MASTER_SILENCE_TIMEOUT_US, [this] { onMasterSilenceTimeout(); })) {
         uint8_t i = 0;
         for (auto& endpoint : endpoints) {
             endpoint.id = i;
@@ -58,6 +63,7 @@ namespace tfw::hal::i2c {
 
     void SlavePort::requestDiscovery() {
         discoveryAcknowledged = false;
+        masterSilenceTimeout->stop();
         discoveryOutputPin->setLow();
         discoveryTimeout->start();
     }
@@ -65,10 +71,18 @@ namespace tfw::hal::i2c {
     void SlavePort::loop() {
         processPendingCommands();
 
-        if (discoveryAcknowledged) {
+        // The master is only watched once it has acknowledged the device, as it doesn't talk to it before that
+        if (discoveryAcknowledged && discoveryTimeout->isRunning()) {
             discoveryTimeout->stop();
+            masterSilenceTimeout->start();
         }
+
+        if (masterTrafficSeen.exchange(false) && masterSilenceTimeout->isRunning()) {
+            masterSilenceTimeout->start();
+        }
+
         discoveryTimeout->update();
+        masterSilenceTimeout->update();
     }
 
     // Restarting only the I2C peripheral isn't always enough to become reachable again, so the whole MCU is reset.
@@ -78,11 +92,21 @@ namespace tfw::hal::i2c {
         esp_restart();
     }
 
+    // The master may have dropped the device while it was still reachable, e.g. after missing a few presence checks,
+    // and doesn't look for it again on its own. Requesting discovery makes it scan for the device, and restarts the
+    // device as above if the master still can't reach it.
+    void SlavePort::onMasterSilenceTimeout() {
+        logger->warn("Not contacted by the master in time, requesting discovery again");
+        requestDiscovery();
+    }
+
     void SlavePort::addCommandHandler(void* handler) {
         knownCommandsHandlers.push_back(handler);
     }
 
     void SlavePort::onReceiveCallback(const int len) {
+        masterTrafficSeen = true;
+
         PendingCommand command;
         while (twoWire.available()) {
             const auto value = twoWire.read();
@@ -192,6 +216,8 @@ namespace tfw::hal::i2c {
     }
 
     void SlavePort::onRequestCallback() {
+        masterTrafficSeen = true;
+
         std::lock_guard guard(lock);
 
         if (selectedEndpoint->id == i2c::endpoints::builtin::Events.id) {
