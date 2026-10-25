@@ -7,8 +7,9 @@ export interface DeviceFacade {
   disconnect(): Promise<void>
 
   /**
-   * Reconnects to the device once it has restarted, without asking the user to select its port again. Called before
-   * the device is made to restart, so that its reconnection isn't missed.
+   * Resolves once the device has restarted and been reconnected to, which happens without asking the user to select
+   * its port again, as after any reset. Called before the device is made to restart, so that its reconnection isn't
+   * missed.
    */
   expectRestart(timeoutMs?: number, abortSignal?: AbortSignal): Promise<void>
 

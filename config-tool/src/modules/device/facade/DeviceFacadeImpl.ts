@@ -2,7 +2,7 @@ import type { DeviceCommand } from "@src/modules/device/facade/device-commands/D
 import { takeLast } from "@src/utils/arrays"
 import { readLines } from "@src/utils/streams"
 import { DateTime } from "luxon"
-import { BehaviorSubject, Observable, Subject } from "rxjs"
+import { BehaviorSubject, Observable, Subject, Subscription } from "rxjs"
 import type { DeviceInformation, DeviceMessage, LogMessage, NotificationMessage } from "../models"
 import { DeviceCommandExecutor } from "./DeviceCommandExecutor"
 import type { DeviceFacade } from "./DeviceFacade"
@@ -27,6 +27,10 @@ export class DeviceFacadeImpl implements DeviceFacade {
 
   private port: SerialPort | null = null
 
+  // The port to reconnect to when it's reported again, e.g. after the device has been reset. Cleared when the user
+  // disconnects.
+  private reconnectPortInfo: SerialPortInfo | null = null
+
   private commandExecutor: DeviceCommandExecutor | null = null
 
   private nextLogMessageKey = 0
@@ -35,6 +39,11 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.messagesSubject.subscribe(message => {
       this.trafficSubject.next([...takeLast(this.trafficSubject.value, MaxTrafficMessages - 1), message])
     })
+
+    // Not available in all browsers
+    if ("serial" in navigator) {
+      navigator.serial.addEventListener("connect", event => this.onPortConnected(event.target as SerialPort))
+    }
   }
 
   async connect(): Promise<void> {
@@ -49,40 +58,61 @@ export class DeviceFacadeImpl implements DeviceFacade {
       await this.openPort(port)
     } catch (e) {
       console.error(e)
+      this.reconnectPortInfo = null
       await this.close()
     }
   }
 
+  // The device is reconnected to like after any other reset, so this only waits for it to disconnect and reconnect
   async expectRestart(timeoutMs: number = 30_000, abortSignal?: AbortSignal): Promise<void> {
-    const previousPortInfo = this.port?.getInfo()
-
-    let onPortConnected: ((event: Event) => void) | null = null
+    let subscription: Subscription | null = null
     let timeout: ReturnType<typeof setTimeout> | null = null
 
     const reconnected = new Promise<void>((resolve, reject) => {
       timeout = setTimeout(() => reject(new Error("The device didn't reconnect after restarting")), timeoutMs)
 
-      // Only the previously granted port is reported again, which is opened without asking the user to select it
-      onPortConnected = (event: Event) => {
-        const port = event.target as SerialPort
-        const portInfo = port.getInfo()
-        if (portInfo.usbVendorId !== previousPortInfo?.usbVendorId
-          || portInfo.usbProductId !== previousPortInfo?.usbProductId) {
-          return
+      let disconnected = false
+      subscription = this.isConnectedSubject.subscribe(isConnected => {
+        if (!isConnected) {
+          disconnected = true
+        } else if (disconnected) {
+          resolve()
         }
-
-        this.openPort(port).then(resolve, reject)
-      }
-
-      navigator.serial.addEventListener("connect", onPortConnected)
+      })
 
       abortSignal?.addEventListener("abort", () => reject(abortSignal.reason))
     })
 
     return reconnected.finally(() => {
-      navigator.serial.removeEventListener("connect", onPortConnected!)
+      subscription!.unsubscribe()
       clearTimeout(timeout!)
     })
+  }
+
+  // Only the previously granted port is reported again, which is opened without asking the user to select it.
+  // Failures are left silent, as the user can still connect manually.
+  private async onPortConnected(port: SerialPort) {
+    if (this.port?.connected || !this.reconnectPortInfo) {
+      return
+    }
+
+    const portInfo = port.getInfo()
+    if (portInfo.usbVendorId !== this.reconnectPortInfo.usbVendorId
+      || portInfo.usbProductId !== this.reconnectPortInfo.usbProductId) {
+      return
+    }
+
+    // The previous port may not have noticed that it was disconnected yet
+    if (this.port) {
+      await this.close()
+    }
+
+    try {
+      await this.openPort(port)
+    } catch (e) {
+      console.warn("Unable to reconnect", e)
+      await this.close(port)
+    }
   }
 
   // Resolves once the port is open, while its lines are read until it's closed or disconnected
@@ -91,6 +121,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
     this.disconnectAbortController = abortController
 
     this.port = port
+    this.reconnectPortInfo = port.getInfo()
     await port.open({ baudRate: 115200 })
 
     this.writer = port.writable!.getWriter()
@@ -150,6 +181,7 @@ export class DeviceFacadeImpl implements DeviceFacade {
   }
 
   async disconnect(): Promise<void> {
+    this.reconnectPortInfo = null
     this.disconnectAbortController?.abort("disconnecting")
   }
 
@@ -212,25 +244,29 @@ export class DeviceFacadeImpl implements DeviceFacade {
     return (await this.commandExecutor.sendCommand(str, args))[0]
   }
 
-  // Only the current port is closed, as a port that disconnected may finish closing after it has been reopened
+  // Only the current port is closed, as a port that disconnected may finish closing after it has been reopened. The
+  // state is reset before the port is closed, so that a port opened in the meantime isn't reset by it.
   private async close(port: SerialPort | null = this.port) {
     if (port !== this.port) {
       return
     }
 
-    try {
-      this.writer?.releaseLock()
-      await this.writer?.close().catch(console.warn)
-      await this.port?.close().catch(console.warn)
-    } catch (e) {
-      console.error("unable to close", e)
-    }
+    const writer = this.writer
 
     this.port = null
+    this.writer = null
     this.disconnectAbortController = null
     this.commandExecutor = null
     this._isConnected = false
     this.isConnectedSubject.next(false)
+
+    try {
+      writer?.releaseLock()
+      await writer?.close().catch(console.warn)
+      await port?.close().catch(console.warn)
+    } catch (e) {
+      console.error("unable to close", e)
+    }
   }
 
   get messages$(): Observable<DeviceMessage> {
