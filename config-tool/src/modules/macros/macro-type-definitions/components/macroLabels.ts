@@ -104,8 +104,13 @@ export function midiChannelLabel(channel: number): string {
   return `Ch ${channel}`
 }
 
-// The name of the macro of a sequence step, or a note when there's none, such as after it was deleted
+// The name of the macro of a sequence step, or a note when there's none, such as after it was deleted. Loop steps are
+// labeled with the step they go back to, numbered from 1 like in the editor.
 export function sequenceStepLabel(step: SequenceStep, macros: MacroDefinition[]): string {
+  if (step.loop) {
+    return `Back to step ${step.loop.targetStep + 1}, ${step.loop.repeats}×`
+  }
+
   const macro = macros.find(it => it.id === step.macroId)
   return macro?.name ?? "Missing macro"
 }

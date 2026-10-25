@@ -190,7 +190,14 @@ std::shared_ptr<CompiledMacro> KeyBindingExecutor::executeMacroFor(const std::sh
     }
 
     if (!macro->steps.empty()) {
-        sequenceRunner.start(macro->macroId, macro->steps);
+        // Pressing the button again stops the sequence, such as one looping for longer than wanted. Rotary encoders
+        // don't, as turning one sends steps in quick succession, which would stop and start it over and over.
+        const bool isButton = keyBinding->trigger->type == PUSH_BUTTON;
+        if (isButton && sequenceRunner.isRunning(macro->macroId)) {
+            sequenceRunner.stop(macro->macroId);
+        } else {
+            sequenceRunner.start(macro->macroId, macro->steps);
+        }
     } else {
         for (const auto& action : macro->actions) {
             usbConnection.sendAction(*action);

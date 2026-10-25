@@ -214,17 +214,30 @@ namespace mkp::components::macros {
         const int8_t amount; // -127 to 127
     };
 
+    // Runs a macro, or for loop steps, goes back to an earlier step a number of times, such as to repeat a few steps
     struct SequenceStep {
+        // Zero for loop steps
         uint16_t macroId;
-        // Time to wait before running the macro, counted from when the previous step is done typing
+        // Time to wait before running the macro, counted from when the previous step is done typing. For loop steps,
+        // the time to wait before going back, which isn't waited once it's done going back.
         uint32_t delayMs;
+        // For loop steps, the index of the earlier step to go back to
+        uint8_t loopTarget = 0;
+        // For loop steps, how many times to go back before going on with the next step. Zero for other steps.
+        uint16_t loopRepeats = 0;
+
+        bool isLoop() const {
+            return loopRepeats > 0;
+        }
     };
 
     // Limits that keep a stored sequence within a command line and a stored line, and its steps reasonable
     constexpr size_t MaxSequenceSteps = 32;
     constexpr uint32_t MaxSequenceStepDelayMs = 60'000;
+    constexpr uint16_t MaxSequenceLoopRepeats = 1'000;
 
-    // Runs other macros in order. Sequences can't be steps of other sequences, which keeps them from running forever.
+    // Runs other macros in order. Sequences can't be steps of other sequences, and loops only go back to earlier steps
+    // a limited number of times, which keeps them from running forever.
     struct SequenceMacroData final : MacroData {
         SequenceMacroData(const uint16_t id, std::vector<SequenceStep> steps)
             : MacroData(id, MacroType::SEQUENCE),

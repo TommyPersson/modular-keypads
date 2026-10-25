@@ -24,7 +24,8 @@ export const SequenceMacroTypeDefinition: MacroTypeDefinition<SequenceMacroDefin
   description: (
     <>
       Runs other macros in order. Each step waits until the text typed by the steps before it is done, and then for
-      its own delay. Sequences can't be steps of other sequences.
+      its own delay. Loop steps go back to an earlier step a number of times, to repeat the steps in between.
+      Pressing the button of a running sequence again stops it. Sequences can't be steps of other sequences.
     </>
   ),
 
@@ -42,14 +43,29 @@ export const SequenceMacroTypeDefinition: MacroTypeDefinition<SequenceMacroDefin
     }
   },
 
-  // The steps are one argument, with the macro ID and delay of each step separated by semicolons: "12;0;15;250".
-  // Commas separate the arguments of commands, and colons the parts of the lines listing the macros.
+  // The steps are one argument, with the macro ID and delay of each step separated by semicolons: "12;0;15;250". Loop
+  // steps are the index of the step to go back to after an L, how many times to go back, and the delay:
+  // "12;0;15;250;L0;3;500". Commas separate the arguments of commands, and colons the parts of the lines listing the
+  // macros.
   parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): SequenceMacroDefinition {
-    const numbers = (dataArgs[0] ?? "").split(";").map(it => parseInt(it, 10))
+    const values = (dataArgs[0] ?? "").split(";")
 
     const steps: SequenceStep[] = []
-    for (let i = 0; i + 1 < numbers.length; i += 2) {
-      steps.push({ macroId: numbers[i], delayMs: numbers[i + 1] })
+    let i = 0
+    while (i < values.length) {
+      if (values[i].startsWith("L") && i + 2 < values.length) {
+        steps.push({
+          macroId: 0,
+          delayMs: parseInt(values[i + 2], 10),
+          loop: { targetStep: parseInt(values[i].substring(1), 10), repeats: parseInt(values[i + 1], 10) },
+        })
+        i += 3
+      } else if (i + 1 < values.length) {
+        steps.push({ macroId: parseInt(values[i], 10), delayMs: parseInt(values[i + 1], 10) })
+        i += 2
+      } else {
+        break
+      }
     }
 
     return {
@@ -62,7 +78,12 @@ export const SequenceMacroTypeDefinition: MacroTypeDefinition<SequenceMacroDefin
   },
 
   serializeDeviceArguments(macro: SequenceMacroDefinition): string[] {
-    return ["0x08", macro.steps.flatMap(step => [step.macroId, step.delayMs]).join(";")]
+    const values = macro.steps.flatMap(step =>
+      step.loop
+        ? [`L${step.loop.targetStep}`, step.loop.repeats, step.delayMs]
+        : [step.macroId, step.delayMs]
+    )
+    return ["0x08", values.join(";")]
   },
 
   editorInformationComponent: () => null,

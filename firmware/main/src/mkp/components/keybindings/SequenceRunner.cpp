@@ -17,7 +17,7 @@ void SequenceRunner::start(const uint16_t sequenceId, const std::vector<Sequence
         return;
     }
 
-    runs.push_back(Run{.sequenceId = sequenceId, .steps = steps});
+    runs.push_back(Run{.sequenceId = sequenceId, .steps = steps, .timesLooped = std::vector<uint16_t>(steps.size())});
 
     // Steps without a delay run right away, rather than on the next update
     update();
@@ -31,6 +31,14 @@ bool SequenceRunner::advance(Run& run) {
     while (run.nextStep < run.steps.size()) {
         const auto& step = run.steps[run.nextStep];
 
+        // Loops that are done go on right away, as their delay is for going back. So do loops that don't go back to
+        // an earlier step, which would never end.
+        if (step.isLoop() && (run.timesLooped[run.nextStep] >= step.loopRepeats || step.loopTarget >= run.nextStep)) {
+            run.timesLooped[run.nextStep] = 0;
+            run.nextStep++;
+            continue;
+        }
+
         if (run.waitingForIdle) {
             if (isBusy()) {
                 return false;
@@ -43,12 +51,24 @@ bool SequenceRunner::advance(Run& run) {
             return false;
         }
 
+        run.waitingForIdle = true;
+
+        if (step.isLoop()) {
+            run.timesLooped[run.nextStep]++;
+            run.nextStep = step.loopTarget;
+            // Goes on with the next update, so that loops without delays don't keep the main loop busy
+            return false;
+        }
+
         executeStep(step.macroId);
         run.nextStep++;
-        run.waitingForIdle = true;
     }
 
     return true;
+}
+
+void SequenceRunner::stop(const uint16_t sequenceId) {
+    std::erase_if(runs, [sequenceId](const Run& run) { return run.sequenceId == sequenceId; });
 }
 
 void SequenceRunner::stopAll() {

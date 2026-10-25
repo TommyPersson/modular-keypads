@@ -155,9 +155,100 @@ TEST_F(SequenceRunnerTest, StopAllStopsRunningSequences) {
     EXPECT_FALSE(runner.isRunning(1));
 }
 
+TEST_F(SequenceRunnerTest, StopStopsOnlyThatSequence) {
+    runner.start(1, {{10, 0}, {11, 100}});
+    runner.start(2, {{20, 0}, {21, 100}});
+    takeExecuted();
+
+    runner.stop(1);
+    runForMs(200);
+
+    EXPECT_EQ(takeExecuted(), (MacroIds{21}));
+    EXPECT_FALSE(runner.isRunning(1));
+}
+
+TEST_F(SequenceRunnerTest, StoppedSequenceCanBeStartedAgain) {
+    runner.start(1, {{10, 0}, {11, 100}});
+    runner.stop(1);
+    runner.start(1, {{10, 0}, {11, 100}});
+    runForMs(100);
+
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 10, 11}));
+}
+
 TEST_F(SequenceRunnerTest, SequenceWithoutStepsDoesNothing) {
     runner.start(1, {});
 
     EXPECT_EQ(takeExecuted(), MacroIds{});
     EXPECT_FALSE(runner.isRunning(1));
+}
+
+// Goes back to the step at the index, a number of times
+static SequenceStep loop(const uint8_t target, const uint16_t repeats, const uint32_t delayMs = 0) {
+    return SequenceStep{.macroId = 0, .delayMs = delayMs, .loopTarget = target, .loopRepeats = repeats};
+}
+
+TEST_F(SequenceRunnerTest, LoopGoesBackToEarlierStep) {
+    runner.start(1, {{10, 0}, {11, 0}, {12, 0}, loop(1, 2), {13, 0}});
+    runForMs(10);
+
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 11, 12, 11, 12, 11, 12, 13}));
+    EXPECT_FALSE(runner.isRunning(1));
+}
+
+TEST_F(SequenceRunnerTest, LoopCanBeLastStep) {
+    runner.start(1, {{10, 0}, loop(0, 1)});
+    runForMs(10);
+
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 10}));
+    EXPECT_FALSE(runner.isRunning(1));
+}
+
+TEST_F(SequenceRunnerTest, LoopWaitsForItsDelayBeforeGoingBack) {
+    runner.start(1, {{10, 0}, loop(0, 1, 100), {11, 0}});
+    EXPECT_EQ(takeExecuted(), (MacroIds{10}));
+
+    runForMs(99);
+    EXPECT_EQ(takeExecuted(), MacroIds{});
+
+    // The next step runs right away once the loop is done, without waiting for the delay again
+    runForMs(2);
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 11}));
+}
+
+TEST_F(SequenceRunnerTest, LoopWaitsUntilEarlierStepsAreDoneTyping) {
+    typingMacros = {10};
+    runner.start(1, {{10, 0}, loop(0, 1)});
+    runForMs(10);
+    EXPECT_EQ(takeExecuted(), (MacroIds{10}));
+
+    busy = false;
+    runForMs(2);
+    EXPECT_EQ(takeExecuted(), (MacroIds{10}));
+}
+
+TEST_F(SequenceRunnerTest, InnerLoopRepeatsOnEachPassOfOuterLoop) {
+    runner.start(1, {{10, 0}, {11, 0}, loop(1, 1), loop(0, 1)});
+    runForMs(10);
+
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 11, 11, 10, 11, 11}));
+    EXPECT_FALSE(runner.isRunning(1));
+}
+
+TEST_F(SequenceRunnerTest, LoopThatDoesNotGoBackIsSkipped) {
+    runner.start(1, {{10, 0}, loop(1, 5), {11, 0}});
+    runForMs(10);
+
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 11}));
+}
+
+TEST_F(SequenceRunnerTest, StopAllStopsLoopingSequences) {
+    runner.start(1, {{10, 100}, loop(0, 100)});
+    runForMs(250);
+    EXPECT_EQ(takeExecuted(), (MacroIds{10, 10}));
+
+    runner.stopAll();
+    runForMs(500);
+
+    EXPECT_EQ(takeExecuted(), MacroIds{});
 }

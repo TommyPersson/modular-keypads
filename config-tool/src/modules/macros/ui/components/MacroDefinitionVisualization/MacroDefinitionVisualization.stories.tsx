@@ -184,3 +184,14 @@ export const AllStoredMacros: Story = {
     </Stack>
   ),
 }
+
+// Loops stand out from the macros they repeat
+export const SequenceWithLoop = story({
+  ...base,
+  type: MacroDefinitionType.Sequence,
+  steps: [
+    { macroId: 1, delayMs: 0 },
+    { macroId: 5, delayMs: 250 },
+    { macroId: 0, delayMs: 500, loop: { targetStep: 0, repeats: 3 } },
+  ],
+})

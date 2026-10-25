@@ -1011,6 +1011,58 @@ TEST_F(MacroStorageTest, SequenceMacroDelayIsLimited) {
     EXPECT_EQ(steps[0].delayMs, MaxSequenceStepDelayMs);
 }
 
+TEST_F(MacroStorageTest, WriteSequenceMacroWithLoop) {
+    auto macro = createSequenceMacro(1, "Repeat", {{3, 0}, {4, 250}, {0, 500, 0, 3}});
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:Repeat:0x08:3;0;4;250;L0;3;500"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, RoundTripSequenceMacroWithLoops) {
+    auto macro = createSequenceMacro(1, "Repeat", {{3, 0}, {4, 250}, {0, 0, 1, 2}, {5, 10}, {0, 500, 0, 3}});
+    macroStorage.write(macro);
+
+    const auto steps = readSequenceSteps(1);
+
+    ASSERT_EQ(steps.size(), 5);
+    EXPECT_FALSE(steps[1].isLoop());
+    EXPECT_EQ(steps[1].macroId, 4);
+    EXPECT_TRUE(steps[2].isLoop());
+    EXPECT_EQ(steps[2].loopTarget, 1);
+    EXPECT_EQ(steps[2].loopRepeats, 2);
+    EXPECT_EQ(steps[2].delayMs, 0);
+    EXPECT_EQ(steps[3].macroId, 5);
+    EXPECT_TRUE(steps[4].isLoop());
+    EXPECT_EQ(steps[4].loopTarget, 0);
+    EXPECT_EQ(steps[4].loopRepeats, 3);
+    EXPECT_EQ(steps[4].delayMs, 500);
+}
+
+TEST_F(MacroStorageTest, SequenceMacroLoopRepeatsAreLimited) {
+    mockFs.setFileContent(testFilePath, "1:Many:0x08:3;0;L0;999999;0\n");
+
+    const auto steps = readSequenceSteps(1);
+
+    ASSERT_EQ(steps.size(), 2);
+    EXPECT_EQ(steps[1].loopRepeats, MaxSequenceLoopRepeats);
+}
+
+TEST_F(MacroStorageTest, InvalidSequenceLoopsAreIgnored) {
+    mockFs.setFileContent(
+        testFilePath,
+        "1:Loop First:0x08:L0;1;0\n"
+        "2:Loop To Itself:0x08:3;0;L1;1;0\n"
+        "3:Loop Forward:0x08:3;0;L2;1;0;4;0\n"
+        "4:No Repeats:0x08:3;0;L0;0;0\n"
+        "5:Missing Delay:0x08:3;0;L0;1\n"
+        "6:Missing Target:0x08:3;0;L;1;0\n"
+    );
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
+}
+
 TEST_F(MacroStorageTest, InvalidSequenceMacrosAreIgnored) {
     std::string tooManySteps = "6:Too Many:0x08:";
     for (size_t i = 0; i <= MaxSequenceSteps; i++) {

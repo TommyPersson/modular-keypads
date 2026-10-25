@@ -2,7 +2,7 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined"
 import { globalDeviceFacade } from "@src/modules/device/context"
 import { SaveMacroDeviceCommand } from "@src/modules/device/facade/device-commands/SaveMacroDeviceCommand"
 import { ListKeyBindingsQueryKey } from "@src/modules/key-bindings/queries"
-import { type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
+import { isValidSequenceStep, type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import { ListStoredMacrosQueryKey } from "@src/modules/macros/queries"
 import type { Command } from "@src/utils/commands"
 import { queryClient } from "@src/utils/queryClient"
@@ -29,7 +29,7 @@ export const SaveMacroCommand: Command<{ macro: MacroDefinition }, MacroDefiniti
     }
 
     if (macro.type === MacroDefinitionType.Sequence) {
-      return macro.steps.length > 0 && macro.steps.every(step => step.macroId > 0)
+      return macro.steps.length > 0 && macro.steps.every((step, index) => isValidSequenceStep(step, index))
     }
 
     return true

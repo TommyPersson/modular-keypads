@@ -1,7 +1,8 @@
 import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined"
+import RepeatOutlinedIcon from "@mui/icons-material/RepeatOutlined"
 import { Box, Chip, Stack } from "@mui/material"
 import { useStoredMacros } from "@src/modules/macros/hooks"
-import type { SequenceMacroDefinition } from "@src/modules/macros/models"
+import { isValidSequenceStep, type SequenceMacroDefinition } from "@src/modules/macros/models"
 import { useIsOverflowing } from "@src/utils/hooks"
 import { Fragment, useRef } from "react"
 import { sequenceDelayLabel, sequenceStepLabel } from "./macroLabels"
@@ -37,17 +38,28 @@ export const SequenceMacroCellContent = (props: {
     >
       {macro.steps.map((step, index) => {
         const delayLabel = sequenceDelayLabel(step.delayMs)
-        const isMissing = !allMacros.some(it => it.id === step.macroId)
+        const isMissing = !step.loop && !allMacros.some(it => it.id === step.macroId)
 
         return (
           <Fragment key={index}>
             {/* Also before the first step when it's delayed, as there's no other place for its delay */}
             {(index > 0 || delayLabel) && <StepArrow delayLabel={delayLabel} />}
-            <Chip
-              label={<strong>{sequenceStepLabel(step, allMacros)}</strong>}
-              size={"small"}
-              color={isMissing ? "error" : "primary"}
-            />
+            {step.loop ? (
+              // Outlined, so that loops stand out from the macros they repeat
+              <Chip
+                icon={<RepeatOutlinedIcon />}
+                label={sequenceStepLabel(step, allMacros)}
+                size={"small"}
+                variant={"outlined"}
+                color={isValidSequenceStep(step, index) ? "primary" : "error"}
+              />
+            ) : (
+              <Chip
+                label={<strong>{sequenceStepLabel(step, allMacros)}</strong>}
+                size={"small"}
+                color={isMissing ? "error" : "primary"}
+              />
+            )}
           </Fragment>
         )
       })}

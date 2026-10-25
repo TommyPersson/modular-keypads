@@ -138,10 +138,21 @@ export type MidiAbsoluteControlChangeMacroDefinition = MacroDefinitionBase & {
   amount: number
 }
 
+// Runs a macro, or for loop steps, goes back to an earlier step a number of times, such as to repeat a few steps
 export type SequenceStep = {
+  // Zero for loop steps
   macroId: number
-  // Time to wait before running the macro, counted from when the previous step is done typing
+  // Time to wait before running the macro, counted from when the previous step is done typing. For loop steps, the time
+  // to wait before going back, which isn't waited once it's done going back.
   delayMs: number
+  loop?: SequenceLoop
+}
+
+export type SequenceLoop = {
+  // The index of the earlier step to go back to
+  targetStep: number
+  // How many times to go back before going on with the next step
+  repeats: number
 }
 
 // Runs other macros in order. Sequences can't be steps of other sequences.
@@ -153,6 +164,16 @@ export type SequenceMacroDefinition = MacroDefinitionBase & {
 // The same limits as on the device
 export const MaxSequenceSteps = 32
 export const MaxSequenceStepDelayMs = 60_000
+export const MaxSequenceLoopRepeats = 1_000
+
+// Steps need a macro, and loops can only go back to an earlier step, like on the device
+export function isValidSequenceStep(step: SequenceStep, index: number): boolean {
+  if (step.loop) {
+    return step.loop.targetStep >= 0 && step.loop.targetStep < index && step.loop.repeats > 0
+  }
+
+  return step.macroId > 0
+}
 
 export enum MouseButton {
   Left = 0x01,

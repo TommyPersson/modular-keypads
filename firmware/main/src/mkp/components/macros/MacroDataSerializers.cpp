@@ -423,8 +423,9 @@ namespace mkp::components::macros {
     };
 
     // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
-    // and delay of each step separated by semicolons: "12;0;15;250". Neither colons nor commas can be used, as they
-    // separate the parts of stored lines and the arguments of commands.
+    // and delay of each step separated by semicolons: "12;0;15;250". Loop steps are the index of the step to go back
+    // to after an L, how many times to go back, and the delay: "12;0;15;250;L0;3;500". Neither colons nor commas can
+    // be used, as they separate the parts of stored lines and the arguments of commands.
     class SequenceDataSerializer final
         : public MacroDataStorageSerializer<SequenceMacroData> {
     public:
@@ -438,7 +439,14 @@ namespace mkp::components::macros {
                 if (!steps.empty()) {
                     steps += ';';
                 }
-                steps += std::to_string(step.macroId);
+                if (step.isLoop()) {
+                    steps += 'L';
+                    steps += std::to_string(step.loopTarget);
+                    steps += ';';
+                    steps += std::to_string(step.loopRepeats);
+                } else {
+                    steps += std::to_string(step.macroId);
+                }
                 steps += ';';
                 steps += std::to_string(step.delayMs);
             }
@@ -460,30 +468,56 @@ namespace mkp::components::macros {
                 return nullptr;
             }
 
-            std::vector<uint32_t> numbers;
+            std::vector<std::string_view> values;
             std::string_view remaining = parts[0];
             while (!remaining.empty()) {
                 const auto separator = remaining.find(';');
-                const auto number = remaining.substr(0, separator);
-                if (number.empty()) {
+                const auto value = remaining.substr(0, separator);
+                if (value.empty()) {
                     return nullptr;
                 }
-                numbers.push_back(tfw::utils::strings::atou32(number));
+                values.push_back(value);
                 remaining = separator == std::string_view::npos ? "" : remaining.substr(separator + 1);
             }
 
-            // Sequences without steps, or with a step missing its delay, can't be run as intended
-            if (numbers.empty() || numbers.size() % 2 != 0 || numbers.size() / 2 > MaxSequenceSteps) {
-                return nullptr;
+            std::vector<SequenceStep> steps;
+            size_t next = 0;
+            while (next < values.size()) {
+                const bool isLoop = values[next].front() == 'L';
+                const size_t count = isLoop ? 3 : 2;
+                if (next + count > values.size()) {
+                    return nullptr;
+                }
+
+                const auto delay = tfw::utils::strings::atou32(values[next + count - 1]);
+                const auto delayMs = std::min(delay, MaxSequenceStepDelayMs);
+
+                if (isLoop) {
+                    const auto targetValue = values[next].substr(1);
+                    const auto target = tfw::utils::strings::atou32(targetValue);
+                    const auto repeats = tfw::utils::strings::atou32(values[next + 1]);
+                    // Loops can only go back, and ones that don't go back at all would be steps that do nothing
+                    if (targetValue.empty() || target >= steps.size() || repeats == 0) {
+                        return nullptr;
+                    }
+                    steps.push_back(SequenceStep{
+                        .macroId = 0,
+                        .delayMs = delayMs,
+                        .loopTarget = static_cast<uint8_t>(target),
+                        .loopRepeats = static_cast<uint16_t>(std::min<uint32_t>(repeats, MaxSequenceLoopRepeats)),
+                    });
+                } else {
+                    steps.push_back(SequenceStep{
+                        .macroId = static_cast<uint16_t>(tfw::utils::strings::atou32(values[next])),
+                        .delayMs = delayMs,
+                    });
+                }
+                next += count;
             }
 
-            std::vector<SequenceStep> steps;
-            steps.reserve(numbers.size() / 2);
-            for (size_t i = 0; i < numbers.size(); i += 2) {
-                steps.push_back(SequenceStep{
-                    .macroId = static_cast<uint16_t>(numbers[i]),
-                    .delayMs = std::min(numbers[i + 1], MaxSequenceStepDelayMs),
-                });
+            // Sequences without steps can't be run as intended
+            if (steps.empty() || steps.size() > MaxSequenceSteps) {
+                return nullptr;
             }
 
             const tfw::utils::allocations::ArenaAllocator<SequenceMacroData> allocator(arena);
