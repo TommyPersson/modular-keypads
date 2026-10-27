@@ -252,3 +252,55 @@ TEST_F(ArenaTest, MultipleArenasIndependent) {
     // arena2's allocation should be after its previous one
     EXPECT_EQ(ptr2_check - ptr2, 100);
 }
+
+// ============================================================================
+// Checkpoint Tests
+// ============================================================================
+
+TEST_F(ArenaTest, RewindFreesAllocationsAfterCheckpoint) {
+    Arena arena(1024);
+    arena.allocate(100);
+    const auto checkpoint = arena.checkpoint();
+    auto first = arena.allocate(200);
+
+    arena.rewind(checkpoint);
+
+    EXPECT_EQ(arena.allocate(200), first);
+}
+
+TEST_F(ArenaTest, RewindKeepsAllocationsBeforeCheckpoint) {
+    Arena arena(1024);
+    auto before = arena.allocate(10);
+    before[0] = 42;
+    const auto checkpoint = arena.checkpoint();
+    auto after = arena.allocate(10);
+    after[0] = 43;
+
+    arena.rewind(checkpoint);
+
+    EXPECT_EQ(before[0], 42);
+    EXPECT_EQ(after[0], 0);  // Cleared like a reset
+}
+
+TEST_F(ArenaTest, RewindMakesFullArenaUsableAgain) {
+    Arena arena(100);
+    const auto checkpoint = arena.checkpoint();
+    arena.allocate(100);
+    EXPECT_EQ(arena.allocate(1), nullptr);
+
+    arena.rewind(checkpoint);
+
+    EXPECT_NE(arena.allocate(100), nullptr);
+}
+
+TEST_F(ArenaTest, RewindToCheckpointFromBeforeResetIsIgnored) {
+    Arena arena(1024);
+    arena.allocate(100);
+    const auto checkpoint = arena.checkpoint();
+    arena.reset();
+    auto ptr = arena.allocate(50);
+
+    arena.rewind(checkpoint);
+
+    EXPECT_EQ(arena.allocate(1), ptr + 50);
+}

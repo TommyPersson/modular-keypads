@@ -23,9 +23,7 @@ tfw::utils::void_result ListStoredMacros::execute(
     tfw::utils::commands::CommandResponseWriter& responseWriter,
     tfw::utils::allocations::Arena& arena
 ) {
-    // The data of each macro is cleared after it's written, as the data of all macros wouldn't fit in the arena of
-    // the command. A macro fits in a command line of its own, as that is how it's saved.
-    tfw::utils::allocations::Arena macroArena(2048);
+    const auto beforeMacro = arena.checkpoint();
 
     macroStorage.forEach(
         [&](const Macro& macro) {
@@ -34,7 +32,7 @@ tfw::utils::void_result ListStoredMacros::execute(
             for (auto serializer : macroDataSerializers) {
                 auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
                 if (typedSerializer->handles(macro.data->type)) {
-                    dataPart = typedSerializer->serialize(*macro.data, macroArena);
+                    dataPart = typedSerializer->serialize(*macro.data, arena);
                 }
             }
 
@@ -50,7 +48,7 @@ tfw::utils::void_result ListStoredMacros::execute(
                 );
             }
 
-            macroArena.reset();
+            arena.rewind(beforeMacro);
         }
     );
 

@@ -20,6 +20,29 @@ namespace tfw::utils::allocations {
             delete[] buffer;
         }
 
+        Arena(const Arena&) = delete;
+        Arena& operator =(const Arena&) = delete;
+
+        // How far the arena has allocated, which it can be rewound to
+        struct Checkpoint {
+            size_t offset;
+        };
+
+        Checkpoint checkpoint() const {
+            return Checkpoint{.offset = offset};
+        }
+
+        // Frees and clears what was allocated after the checkpoint, like a reset of only that part. Checkpoints from
+        // before a reset or an earlier rewind are ignored, as their part is already freed.
+        void rewind(const Checkpoint& checkpoint) {
+            if (checkpoint.offset >= offset) {
+                return;
+            }
+
+            std::memset(&buffer[checkpoint.offset], 0, offset - checkpoint.offset);
+            offset = checkpoint.offset;
+        }
+
         uint8_t* allocate(size_t desiredSize) {
             const size_t remainder = size - offset;
 
