@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Divider,
   InputAdornment,
+  LinearProgress,
   List,
   ListItemButton,
   ListItemIcon,
@@ -16,10 +17,13 @@ import {
   ListSubheader,
   Stack,
   TextField,
+  Tooltip,
   Typography
 } from "@mui/material"
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
 import { CommandButton } from "@src/modules/common/components"
+import { MaxCommandLineLength } from "@src/modules/device/facade/device-commands/DeviceCommand"
+import { saveMacroCommandLineLength } from "@src/modules/device/facade/device-commands/SaveMacroDeviceCommand"
 import { SaveMacroCommand } from "@src/modules/macros/commands"
 import { useStoredMacrosQuery } from "@src/modules/macros/hooks"
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
@@ -28,6 +32,9 @@ import { MacroTypeVisualization } from "@src/modules/macros/ui"
 import { type ChangeEvent, type ComponentProps, memo, useCallback, useEffect, useMemo, useState } from "react"
 
 const EmptyArray: any[] = []
+
+// The width of the type selector, which the size indicator below it lines up with
+const SidebarWidth = 240
 
 export type EditMacroDialogProps = {
   macro?: MacroDefinition | null
@@ -55,7 +62,7 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
         when switching between types, so that the sidebar doesn't move. It shrinks in windows too short for it.
       */}
       <Stack direction={"row"} sx={{ minHeight: 0, flex: "0 1 640px" }}>
-        <Box sx={{ width: 240, flexShrink: 0, overflowY: "auto", borderRight: 1, borderColor: "divider" }}>
+        <Box sx={{ width: SidebarWidth, flexShrink: 0, overflowY: "auto", borderRight: 1, borderColor: "divider" }}>
           <MacroTypeSelector
             value={state.macroDefinition.type}
             onChange={state.handleMacroTypeChange}
@@ -73,6 +80,11 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
                 onChange={state.handleMacroNameChange}
               />
             </Stack>
+            {state.saveLength > MaxCommandLineLength && (
+              <Alert severity={"error"}>
+                The macro is too long to be saved. Shorten its name, its folder or its contents, such as the text.
+              </Alert>
+            )}
             {state.willOverwriteExistingMacro && (
               <Alert severity={"warning"}>
                 There is already a macro named <strong>{state.macroDefinition.name}</strong>.
@@ -89,6 +101,7 @@ export const EditMacroDialog = (props: EditMacroDialogProps) => {
       </Stack>
       <Divider />
       <DialogActions>
+        <MacroSizeIndicator length={state.saveLength} />
         <Button onClick={props.onClose}>Cancel</Button>
         <CommandButton
           command={SaveMacroCommand}
@@ -105,6 +118,8 @@ type EditMacroDialogState = {
   title: string
   macroDefinition: MacroDefinition
   willOverwriteExistingMacro: boolean
+  // The length of the command that saves the macro, which can't exceed the longest command line the device reads
+  saveLength: number
   handleMacroDirectoryChange: (directory: string | null) => void
   handleMacroNameChange: (name: string) => void
   handleMacroTypeChange: (type: MacroDefinitionType) => void
@@ -154,6 +169,8 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
     [storedMacros, macroDefinition.name, macro]
   )
 
+  const saveLength = useMemo(() => saveMacroCommandLineLength(macroDefinition), [macroDefinition])
+
   const title = macroDefinition.id < 1 ? "Create Macro" : "Edit Macro"
 
   useEffect(() => {
@@ -168,6 +185,7 @@ function useEditMacroDialogState(props: EditMacroDialogProps): EditMacroDialogSt
     title: title,
     macroDefinition: macroDefinition,
     willOverwriteExistingMacro: willOverwriteExistingMacro,
+    saveLength: saveLength,
     handleMacroDirectoryChange: handleMacroDirectoryChange,
     handleMacroNameChange: handleMacroNameChange,
     handleMacroTypeChange: handleMacroTypeChange,
@@ -233,6 +251,35 @@ const MacroDirectoryEditor = (props: {
   )
 }
 
+// How much of the command line that saves the macro is used, by the name, folder and contents together. Turns orange
+// when close to full, and red when the macro is too long to be saved.
+const MacroSizeIndicator = (props: { length: number }) => {
+  const { length } = props
+
+  const fraction = length / MaxCommandLineLength
+  const color = fraction > 1 ? "error" : fraction > 0.9 ? "warning" : "primary"
+
+  return (
+    <Tooltip title={"The size of the macro, which its name, folder and contents share"}>
+      {/*
+        Starts where the content next to the type selector starts: past the selector, and indented like the content,
+        less the padding of the dialog actions
+      */}
+      <Stack direction={"row"} alignItems={"center"} gap={1} sx={{ mr: "auto", ml: `${SidebarWidth + 24 - 8}px` }}>
+        <LinearProgress
+          variant={"determinate"}
+          value={Math.min(fraction, 1) * 100}
+          color={color}
+          sx={{ width: 160, height: 6, borderRadius: 3 }}
+        />
+        <Typography variant={"caption"} color={fraction > 1 ? "error" : "text.secondary"}>
+          {length} / {MaxCommandLineLength}
+        </Typography>
+      </Stack>
+    </Tooltip>
+  )
+}
+
 const MacroNameEditor = (props: {
   value: string
   onChange: (value: string) => void
@@ -247,7 +294,6 @@ const MacroNameEditor = (props: {
     <TextField
       label={"Name"}
       variant={"filled"}
-      helperText={"No more than 32 characters"}
       value={value}
       onChange={handleOnChange}
       style={{ width: 400 }}

@@ -1,13 +1,14 @@
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
 import type { MacroDefinition } from "@src/modules/macros/models"
 import { DeviceCommand } from "./DeviceCommand"
+import { decodeMacroPath } from "./macroNames"
 
 export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition[]> {
   override type: string = "list.stored.macros"
 
   override parseResponse(lines: string[]): MacroDefinition[] {
     const parseMacro = ((line: string): MacroDefinition | null => {
-      // The data fields have equal signs of their own, while the URI encoded name has none
+      // The data fields have equal signs of their own, while the URI encoded path has none
       const separator = line.indexOf("=")
       const encodedName = line.substring(0, separator)
       const restLine = line.substring(separator + 1)
@@ -15,11 +16,7 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
       const id = parseInt(idStr, 16)
       const type = parseInt(typeStr, 16)
 
-      const fullName = decodeURIComponent(encodedName)
-      const fullNameParts = fullName.split("/")
-      const directoryParts = fullNameParts.slice(0, fullNameParts.length-1)
-      const directory: string | null = directoryParts.length > 0 ? directoryParts.join("/") : null
-      const name = decodeURIComponent(fullNameParts[fullNameParts.length-1])
+      const { directory, name } = decodeMacroPath(encodedName)
 
       const dataArgs = restParts
 

@@ -3,6 +3,7 @@ import { Mutex } from "@src/utils/Mutex"
 import { DateTime } from "luxon"
 import { Subject } from "rxjs"
 import { DeviceCommandError, type DeviceMessage } from "../models"
+import { formatCommandLine, MaxCommandId } from "./device-commands/DeviceCommand"
 
 export class DeviceCommandExecutor {
 
@@ -107,7 +108,7 @@ export class DeviceCommandExecutor {
 
   private getNextCommandId() {
     const commandId = this.nextCommandId++
-    if (this.nextCommandId > 999) {
+    if (this.nextCommandId > MaxCommandId) {
       this.nextCommandId = 0
     }
     return commandId
@@ -115,10 +116,7 @@ export class DeviceCommandExecutor {
 
   private formatPacket(commandId: number, type: string, args: string[]): CommandPacket {
     const encoder = new TextEncoder()
-    let text = `${commandId}:${type}`
-    if (args.length > 0) {
-      text += `:${args.join(",")}`
-    }
+    const text = formatCommandLine(commandId, type, args)
     const bytes = encoder.encode(text + "\n")
     return { text, bytes }
   }

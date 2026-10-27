@@ -1,6 +1,16 @@
 import { macroTypeDefinitions } from "@src/modules/macros/macro-type-definitions"
 import type { MacroDefinition } from "@src/modules/macros/models"
-import { DeviceCommand } from "./DeviceCommand"
+import { commandLineLength, DeviceCommand, MaxCommandLineLength } from "./DeviceCommand"
+import { encodeMacroPath } from "./macroNames"
+
+// Macros are saved in one command line, which their name and data share
+export function saveMacroCommandLineLength(macro: MacroDefinition): number {
+  return commandLineLength(new SaveMacroDeviceCommand(macro))
+}
+
+export function fitsSaveMacroCommandLine(macro: MacroDefinition): boolean {
+  return saveMacroCommandLineLength(macro) <= MaxCommandLineLength
+}
 
 // Responds with the ID of the saved macro, which the device assigns to new macros
 export class SaveMacroDeviceCommand extends DeviceCommand<number> {
@@ -22,12 +32,9 @@ export class SaveMacroDeviceCommand extends DeviceCommand<number> {
       throw new Error("Unsupported macro type")
     })()
 
-    const directoryPart = this.macro.directory ? `${this.macro.directory}/` : ""
-    const fullName = directoryPart + encodeURIComponent(this.macro.name)
-
     return [
       this.macro.id.toString(),
-      encodeURIComponent(fullName),
+      encodeMacroPath(this.macro.directory, this.macro.name),
       ...dataArgs]
   }
 

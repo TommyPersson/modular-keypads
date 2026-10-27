@@ -1,6 +1,9 @@
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined"
 import { globalDeviceFacade } from "@src/modules/device/context"
-import { SaveMacroDeviceCommand } from "@src/modules/device/facade/device-commands/SaveMacroDeviceCommand"
+import {
+  fitsSaveMacroCommandLine,
+  SaveMacroDeviceCommand
+} from "@src/modules/device/facade/device-commands/SaveMacroDeviceCommand"
 import { ListKeyBindingsQueryKey } from "@src/modules/key-bindings/queries"
 import { isValidSequenceStep, type MacroDefinition, MacroDefinitionType } from "@src/modules/macros/models"
 import { ListStoredMacrosQueryKey } from "@src/modules/macros/queries"
@@ -24,6 +27,10 @@ export const SaveMacroCommand: Command<{ macro: MacroDefinition }, MacroDefiniti
   icon: <SaveOutlinedIcon />,
   errorTitle: "Unable to save macro",
   canExecute: ({ macro }) => {
+    if (!fitsSaveMacroCommandLine(macro)) {
+      return false
+    }
+
     if (macro.type === MacroDefinitionType.Shortcut) {
       return macro.shortcut.hidCode > 0
     }
