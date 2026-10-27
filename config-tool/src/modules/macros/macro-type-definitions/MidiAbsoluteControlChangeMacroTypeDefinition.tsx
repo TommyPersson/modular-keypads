@@ -1,10 +1,12 @@
 import LinearScaleOutlinedIcon from "@mui/icons-material/LinearScaleOutlined"
 import { Tooltip } from "@mui/material"
 import {
+  DeviceFields,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
-  type MidiAbsoluteControlChangeMacroDefinition
+  type MidiAbsoluteControlChangeMacroDefinition,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { MidiAbsoluteControlChangeMacroCellContent } from "./components/MidiAbsoluteControlChangeMacroCellContent"
 import { midiAbsoluteControlChangeLabel, midiChannelLabel, texts } from "./components/macroLabels"
@@ -52,22 +54,25 @@ export const MidiAbsoluteControlChangeMacroTypeDefinition: MacroTypeDefinition<M
     directory: string | null,
     name: string,
     dataArgs: string[]
-  ): MidiAbsoluteControlChangeMacroDefinition {
-    const [channelArg, controllerArg, amountArg] = dataArgs
+  ): MidiAbsoluteControlChangeMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MidiAbsoluteControlChange,
-      channel: parseInt(channelArg, 10),
-      controller: parseInt(controllerArg, 10),
-      amount: parseInt(amountArg, 10),
+      channel: fields.number("c", 1),
+      controller: fields.number("n", 0),
+      amount: fields.number("a", 0),
     }
   },
 
   serializeDeviceArguments(macro: MidiAbsoluteControlChangeMacroDefinition): string[] {
-    return ["0x0b", `${macro.channel}`, `${macro.controller}`, `${macro.amount}`]
+    return ["0x0b", ...serializeDeviceFields({ c: macro.channel, n: macro.controller, a: macro.amount })]
   },
 
   editorInformationComponent: () => null,

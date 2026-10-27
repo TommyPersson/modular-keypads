@@ -1,15 +1,62 @@
 #include "MacroDataSerializers.h"
 
 #include <algorithm>
+#include <optional>
 
 #include "mkp/components/generators/RandomTextGenerator.h"
 #include "mkp/components/settings/Settings.h"
 
 namespace mkp::components::macros {
-    // Macro data with any other number of parts can't be parsed, and is ignored
-    static bool hasParts(const std::span<const std::string_view>& parts, const size_t count) {
-        return parts.size() == count;
-    }
+    // The data parts are "key=value" fields, so that fields can be added and removed without breaking stored data or
+    // other firmware versions: keys that aren't known are skipped, and missing keys take their defaults.
+    class Fields {
+    public:
+        static std::optional<Fields> parse(const std::span<const std::string_view>& parts) {
+            // Parts without keys can't be told apart from each other
+            const bool keyed = std::ranges::all_of(
+                parts,
+                [](const std::string_view& part) { return part.find('=') != std::string_view::npos; }
+            );
+
+            if (!keyed) {
+                return std::nullopt;
+            }
+
+            return Fields(parts);
+        }
+
+        std::optional<std::string_view> get(const std::string_view& key) const {
+            for (const auto& part : parts) {
+                const auto separator = part.find('=');
+                if (part.substr(0, separator) == key) {
+                    return part.substr(separator + 1);
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        int number(const std::string_view& key, const int defaultValue, const int base = 10) const {
+            const auto value = get(key);
+            return value.has_value() ? tfw::utils::strings::atol(*value, base) : defaultValue;
+        }
+
+        uint32_t unsignedNumber(const std::string_view& key, const uint32_t defaultValue, const int base = 10) const {
+            const auto value = get(key);
+            return value.has_value() ? tfw::utils::strings::atou32(*value, base) : defaultValue;
+        }
+
+        bool flag(const std::string_view& key, const bool defaultValue = false) const {
+            const auto value = get(key);
+            return value.has_value() ? tfw::utils::strings::atol(*value) != 0 : defaultValue;
+        }
+
+    private:
+        explicit Fields(const std::span<const std::string_view>& parts) : parts(parts) {
+        }
+
+        std::span<const std::string_view> parts;
+    };
 
     static int8_t clampToInt8(const int value) {
         return static_cast<int8_t>(std::clamp(value, -127, 127));
@@ -29,7 +76,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const ConsumerControlMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%04x",
+                "u=0x%04x",
                 data.usageId
             );
         }
@@ -39,18 +86,17 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 1)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
             const tfw::utils::allocations::ArenaAllocator<ConsumerControlMacroData> allocator(arena);
 
-            const auto usageIdPart = parts[0];
-
             return std::allocate_shared<ConsumerControlMacroData>(
                 allocator,
                 macroId,
-                tfw::utils::strings::atou16(usageIdPart, 16)
+                static_cast<uint16_t>(fields->unsignedNumber("u", 0, 16))
             );
         }
     };
@@ -65,7 +111,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const ShortcutMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x:0x%02x:%d:%u",
+                "m=0x%02x:k=0x%02x:h=%d:t=%u",
                 data.modifiers,
                 data.hidKeyCode,
                 data.holdModifiers ? 1 : 0,
@@ -78,24 +124,20 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 4)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
             const tfw::utils::allocations::ArenaAllocator<ShortcutMacroData> allocator(arena);
 
-            const auto modifiersPart = parts[0];
-            const auto hidCodePart = parts[1];
-            const auto holdModifiersPart = parts[2];
-            const auto holdTimeMsPart = parts[3];
-
             return std::allocate_shared<ShortcutMacroData>(
                 allocator,
                 macroId,
-                tfw::utils::strings::atol(modifiersPart, 16),
-                tfw::utils::strings::atol(hidCodePart, 16),
-                tfw::utils::strings::atol(holdModifiersPart) != 0,
-                std::min(tfw::utils::strings::atou32(holdTimeMsPart), settings::ModifierHoldMs.maxValue)
+                fields->number("m", 0, 16),
+                fields->number("k", 0, 16),
+                fields->flag("h"),
+                std::min(fields->unsignedNumber("t", 0), settings::ModifierHoldMs.maxValue)
             );
         }
     };
@@ -110,7 +152,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const SystemControlMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x",
+                "c=0x%02x",
                 data.code
             );
         }
@@ -120,18 +162,17 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 1)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
             const tfw::utils::allocations::ArenaAllocator<SystemControlMacroData> allocator(arena);
 
-            const auto codePart = parts[0];
-
             return std::allocate_shared<SystemControlMacroData>(
                 allocator,
                 macroId,
-                tfw::utils::strings::atol(codePart, 16)
+                fields->number("c", 0, 16)
             );
         }
     };
@@ -146,7 +187,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const TextMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%.*s",
+                "t=%.*s",
                 static_cast<int>(data.text.length()),
                 data.text.data()
             );
@@ -158,18 +199,17 @@ namespace mkp::components::macros {
             tfw::utils::allocations::Arena& arena
         ) override {
             // The text is URI encoded, so it has no separators of its own
-            if (!hasParts(parts, 1)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
             const tfw::utils::allocations::ArenaAllocator<TextMacroData> allocator(arena);
 
-            const auto textPart = parts[0];
-
             return std::allocate_shared<TextMacroData>(
                 allocator,
                 macroId,
-                textPart
+                fields->get("t").value_or("")
             );
         }
     };
@@ -184,7 +224,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseScrollMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x:%d:%d",
+                "m=0x%02x:w=%d:p=%d",
                 data.modifiers,
                 data.wheel,
                 data.pan
@@ -196,7 +236,8 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 3)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
@@ -205,9 +246,9 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseScrollMacroData>(
                 allocator,
                 macroId,
-                tfw::utils::strings::atou8(parts[0], 16),
-                clampToInt8(tfw::utils::strings::atol(parts[1])),
-                clampToInt8(tfw::utils::strings::atol(parts[2]))
+                static_cast<uint8_t>(fields->unsignedNumber("m", 0, 16)),
+                clampToInt8(fields->number("w", 0)),
+                clampToInt8(fields->number("p", 0))
             );
         }
     };
@@ -222,7 +263,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseButtonMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x:0x%02x",
+                "m=0x%02x:b=0x%02x",
                 data.modifiers,
                 data.buttons
             );
@@ -233,7 +274,8 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 2)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
@@ -242,8 +284,8 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseButtonMacroData>(
                 allocator,
                 macroId,
-                tfw::utils::strings::atou8(parts[0], 16),
-                tfw::utils::strings::atou8(parts[1], 16)
+                static_cast<uint8_t>(fields->unsignedNumber("m", 0, 16)),
+                static_cast<uint8_t>(fields->unsignedNumber("b", 0, 16))
             );
         }
     };
@@ -258,7 +300,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const MouseMovementMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "0x%02x:%d:%d",
+                "m=0x%02x:x=%d:y=%d",
                 data.modifiers,
                 data.x,
                 data.y
@@ -270,7 +312,8 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 3)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
@@ -279,9 +322,9 @@ namespace mkp::components::macros {
             return std::allocate_shared<MouseMovementMacroData>(
                 allocator,
                 macroId,
-                tfw::utils::strings::atou8(parts[0], 16),
-                clampToInt16(tfw::utils::strings::atol(parts[1])),
-                clampToInt16(tfw::utils::strings::atol(parts[2]))
+                static_cast<uint8_t>(fields->unsignedNumber("m", 0, 16)),
+                clampToInt16(fields->number("x", 0)),
+                clampToInt16(fields->number("y", 0))
             );
         }
     };
@@ -296,7 +339,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const MidiNoteMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%u:%u:%u:%u:%d",
+                "c=%u:n=%u:v=%u:d=%u:r=%d",
                 data.channel,
                 data.note,
                 data.velocity,
@@ -310,7 +353,8 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 5)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
@@ -320,11 +364,11 @@ namespace mkp::components::macros {
             return std::allocate_shared<MidiNoteMacroData>(
                 allocator,
                 macroId,
-                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[0]), 1, 16),
-                std::min<uint32_t>(tfw::utils::strings::atou32(parts[1]), 127),
-                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[2]), 1, 127),
-                std::min(tfw::utils::strings::atou32(parts[3]), MaxMidiNoteDurationMs),
-                tfw::utils::strings::atol(parts[4]) != 0
+                std::clamp<uint32_t>(fields->unsignedNumber("c", 1), 1, 16),
+                std::min<uint32_t>(fields->unsignedNumber("n", 60), 127),
+                std::clamp<uint32_t>(fields->unsignedNumber("v", 127), 1, 127),
+                std::min(fields->unsignedNumber("d", 0), MaxMidiNoteDurationMs),
+                fields->flag("r")
             );
         }
     };
@@ -342,7 +386,7 @@ namespace mkp::components::macros {
         ) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%u:%u:%d:%u",
+                "c=%u:n=%u:a=%d:e=%u",
                 data.channel,
                 data.controller,
                 data.amount,
@@ -355,12 +399,13 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 4)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
             // Unknown encodings fall back to the first one
-            const auto encodingValue = tfw::utils::strings::atou32(parts[3]);
+            const auto encodingValue = fields->unsignedNumber("e", 0);
             const auto encoding = encodingValue <= static_cast<uint32_t>(RelativeControlChangeEncoding::SIGN_MAGNITUDE)
                 ? static_cast<RelativeControlChangeEncoding>(encodingValue)
                 : RelativeControlChangeEncoding::BINARY_OFFSET;
@@ -370,10 +415,10 @@ namespace mkp::components::macros {
             return std::allocate_shared<MidiRelativeControlChangeMacroData>(
                 allocator,
                 macroId,
-                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[0]), 1, 16),
-                std::min<uint32_t>(tfw::utils::strings::atou32(parts[1]), MaxControlChangeController),
+                std::clamp<uint32_t>(fields->unsignedNumber("c", 1), 1, 16),
+                std::min<uint32_t>(fields->unsignedNumber("n", 0), MaxControlChangeController),
                 std::clamp<int>(
-                    tfw::utils::strings::atol(parts[2]),
+                    fields->number("a", 0),
                     -MaxRelativeControlChangeAmount,
                     MaxRelativeControlChangeAmount
                 ),
@@ -395,7 +440,7 @@ namespace mkp::components::macros {
         ) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%u:%u:%d",
+                "c=%u:n=%u:a=%d",
                 data.channel,
                 data.controller,
                 data.amount
@@ -407,7 +452,8 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 3)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
@@ -416,9 +462,9 @@ namespace mkp::components::macros {
             return std::allocate_shared<MidiAbsoluteControlChangeMacroData>(
                 allocator,
                 macroId,
-                std::clamp<uint32_t>(tfw::utils::strings::atou32(parts[0]), 1, 16),
-                std::min<uint32_t>(tfw::utils::strings::atou32(parts[1]), MaxControlChangeController),
-                clampToInt8(tfw::utils::strings::atol(parts[2]))
+                std::clamp<uint32_t>(fields->unsignedNumber("c", 1), 1, 16),
+                std::min<uint32_t>(fields->unsignedNumber("n", 0), MaxControlChangeController),
+                clampToInt8(fields->number("a", 0))
             );
         }
     };
@@ -433,7 +479,7 @@ namespace mkp::components::macros {
         std::string_view serialize(const RandomTextMacroData& data, tfw::utils::allocations::Arena& arena) override {
             return tfw::utils::allocations::arena::strings::sprintf(
                 arena,
-                "%u:%d",
+                "f=%u:q=%d",
                 static_cast<unsigned int>(data.format),
                 data.quoted ? 1 : 0
             );
@@ -444,12 +490,13 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 2)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
             // Unknown formats, such as ones added in later firmware, are ignored
-            const auto format = static_cast<RandomTextFormat>(tfw::utils::strings::atou32(parts[0]));
+            const auto format = static_cast<RandomTextFormat>(fields->unsignedNumber("f", 0));
             if (generators::RandomTextGenerator::forFormat(format) == nullptr) {
                 return nullptr;
             }
@@ -460,15 +507,18 @@ namespace mkp::components::macros {
                 allocator,
                 macroId,
                 format,
-                tfw::utils::strings::atol(parts[1]) != 0
+                fields->flag("q")
             );
         }
     };
 
-    // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
-    // and delay of each step separated by semicolons: "12;0;15;250". Loop steps are the index of the step to go back
-    // to after an L, how many times to go back, and the delay: "12;0;15;250;L0;3;500". Neither colons nor commas can
-    // be used, as they separate the parts of stored lines and the arguments of commands.
+    // The steps are one field, separated by semicolons, with the fields of each step separated by slashes. A step
+    // field is a letter followed by a number: the macro to run (m) and the delay (d), or for loops, the index of the
+    // step to go back to (l) and how many times to go back (r) instead of the macro: "s=m12/d0;m15/d250;l0/r3/d500".
+    // Neither colons nor commas can be used, as they separate the parts of stored lines and the arguments of commands.
+    //
+    // Unknown step fields are skipped like other fields, but steps that are neither macros nor loops make the whole
+    // sequence invalid, as skipping them would change what it does and which steps its loops go back to.
     class SequenceDataSerializer final
         : public MacroDataStorageSerializer<SequenceMacroData> {
     public:
@@ -479,18 +529,17 @@ namespace mkp::components::macros {
         std::string_view serialize(const SequenceMacroData& data, tfw::utils::allocations::Arena& arena) override {
             std::string steps;
             for (const auto& step : data.steps) {
-                if (!steps.empty()) {
-                    steps += ';';
-                }
+                steps += steps.empty() ? "s=" : ";";
                 if (step.isLoop()) {
-                    steps += 'L';
+                    steps += 'l';
                     steps += std::to_string(step.loopTarget);
-                    steps += ';';
+                    steps += "/r";
                     steps += std::to_string(step.loopRepeats);
                 } else {
+                    steps += 'm';
                     steps += std::to_string(step.macroId);
                 }
-                steps += ';';
+                steps += "/d";
                 steps += std::to_string(step.delayMs);
             }
 
@@ -507,55 +556,21 @@ namespace mkp::components::macros {
             const std::span<const std::string_view>& parts,
             tfw::utils::allocations::Arena& arena
         ) override {
-            if (!hasParts(parts, 1)) {
+            const auto fields = Fields::parse(parts);
+            if (!fields) {
                 return nullptr;
             }
 
-            std::vector<std::string_view> values;
-            std::string_view remaining = parts[0];
+            std::vector<SequenceStep> steps;
+            std::string_view remaining = fields->get("s").value_or("");
             while (!remaining.empty()) {
                 const auto separator = remaining.find(';');
-                const auto value = remaining.substr(0, separator);
-                if (value.empty()) {
+                const auto step = parseStep(remaining.substr(0, separator), steps.size());
+                if (!step.has_value()) {
                     return nullptr;
                 }
-                values.push_back(value);
+                steps.push_back(*step);
                 remaining = separator == std::string_view::npos ? "" : remaining.substr(separator + 1);
-            }
-
-            std::vector<SequenceStep> steps;
-            size_t next = 0;
-            while (next < values.size()) {
-                const bool isLoop = values[next].front() == 'L';
-                const size_t count = isLoop ? 3 : 2;
-                if (next + count > values.size()) {
-                    return nullptr;
-                }
-
-                const auto delay = tfw::utils::strings::atou32(values[next + count - 1]);
-                const auto delayMs = std::min(delay, MaxSequenceStepDelayMs);
-
-                if (isLoop) {
-                    const auto targetValue = values[next].substr(1);
-                    const auto target = tfw::utils::strings::atou32(targetValue);
-                    const auto repeats = tfw::utils::strings::atou32(values[next + 1]);
-                    // Loops can only go back, and ones that don't go back at all would be steps that do nothing
-                    if (targetValue.empty() || target >= steps.size() || repeats == 0) {
-                        return nullptr;
-                    }
-                    steps.push_back(SequenceStep{
-                        .macroId = 0,
-                        .delayMs = delayMs,
-                        .loopTarget = static_cast<uint8_t>(target),
-                        .loopRepeats = static_cast<uint16_t>(std::min<uint32_t>(repeats, MaxSequenceLoopRepeats)),
-                    });
-                } else {
-                    steps.push_back(SequenceStep{
-                        .macroId = static_cast<uint16_t>(tfw::utils::strings::atou32(values[next])),
-                        .delayMs = delayMs,
-                    });
-                }
-                next += count;
             }
 
             // Sequences without steps can't be run as intended
@@ -566,6 +581,61 @@ namespace mkp::components::macros {
             const tfw::utils::allocations::ArenaAllocator<SequenceMacroData> allocator(arena);
 
             return std::allocate_shared<SequenceMacroData>(allocator, macroId, std::move(steps));
+        }
+
+    private:
+        static std::optional<SequenceStep> parseStep(std::string_view remaining, const size_t index) {
+            std::optional<uint32_t> macroId;
+            std::optional<uint32_t> delay;
+            std::optional<uint32_t> target;
+            std::optional<uint32_t> repeats;
+
+            while (true) {
+                const auto separator = remaining.find('/');
+                const auto field = remaining.substr(0, separator);
+                if (field.length() < 2) {
+                    return std::nullopt;
+                }
+
+                const auto value = tfw::utils::strings::atou32(field.substr(1));
+                switch (field.front()) {
+                    case 'm': macroId = value; break;
+                    case 'd': delay = value; break;
+                    case 'l': target = value; break;
+                    case 'r': repeats = value; break;
+                    default: break;
+                }
+
+                if (separator == std::string_view::npos) {
+                    break;
+                }
+                remaining = remaining.substr(separator + 1);
+            }
+
+            const auto delayMs = std::min(delay.value_or(0), MaxSequenceStepDelayMs);
+
+            if (macroId.has_value() && !target.has_value()) {
+                return SequenceStep{
+                    .macroId = static_cast<uint16_t>(*macroId),
+                    .delayMs = delayMs,
+                };
+            }
+
+            if (target.has_value() && !macroId.has_value()) {
+                // Loops can only go back, and ones that don't go back at all would be steps that do nothing
+                const auto repeatCount = repeats.value_or(0);
+                if (*target >= index || repeatCount == 0) {
+                    return std::nullopt;
+                }
+                return SequenceStep{
+                    .macroId = 0,
+                    .delayMs = delayMs,
+                    .loopTarget = static_cast<uint8_t>(*target),
+                    .loopRepeats = static_cast<uint16_t>(std::min<uint32_t>(repeatCount, MaxSequenceLoopRepeats)),
+                };
+            }
+
+            return std::nullopt;
         }
     };
 

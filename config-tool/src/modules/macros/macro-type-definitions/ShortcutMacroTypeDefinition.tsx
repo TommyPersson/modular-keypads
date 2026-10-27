@@ -2,10 +2,13 @@ import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandK
 import { Alert, Tooltip } from "@mui/material"
 import {
   createModifierFlags,
+  DeviceFields,
+  deviceHex,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
   parseModifierFlags,
+  serializeDeviceFields,
   type ShortcutMacroDefinition
 } from "@src/modules/macros/models"
 import { ShortcutMacroCellContent } from "./components/ShortcutMacroCellContent"
@@ -48,10 +51,11 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): ShortcutMacroDefinition {
-    const [modifiersStr, hidCodeStr, holdModifiersStr, holdTimeMsStr] = dataArgs
-    const modifiers = parseModifierFlags(parseInt(modifiersStr, 16))
-    const hidCode = parseInt(hidCodeStr, 16)
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): ShortcutMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
@@ -59,18 +63,21 @@ export const ShortcutMacroTypeDefinition: MacroTypeDefinition<ShortcutMacroDefin
       name,
       type: MacroDefinitionType.Shortcut,
       shortcut: {
-        modifiers,
-        hidCode
+        modifiers: parseModifierFlags(fields.number("m", 0, 16)),
+        hidCode: fields.number("k", 0, 16),
       },
-      holdModifiers: holdModifiersStr === "1",
-      holdTimeMs: parseInt(holdTimeMsStr, 10),
+      holdModifiers: fields.flag("h"),
+      holdTimeMs: fields.number("t", 0),
     } satisfies ShortcutMacroDefinition
   },
 
   serializeDeviceArguments(macro: ShortcutMacroDefinition): string[] {
-    const modifiersArg = `0x${createModifierFlags(macro.shortcut.modifiers).toString(16).padStart(2, "0")}`
-    const hidCodeArg = `0x${macro.shortcut.hidCode.toString(16).padStart(2, "0")}`
-    return ["0x01", modifiersArg, hidCodeArg, macro.holdModifiers ? "1" : "0", `${macro.holdTimeMs}`]
+    return ["0x01", ...serializeDeviceFields({
+      m: deviceHex(createModifierFlags(macro.shortcut.modifiers), 2),
+      k: deviceHex(macro.shortcut.hidCode, 2),
+      h: macro.holdModifiers,
+      t: macro.holdTimeMs,
+    })]
   },
 
   editorInformationComponent: () => (

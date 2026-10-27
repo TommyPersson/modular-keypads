@@ -2,12 +2,15 @@ import AdsClickOutlinedIcon from "@mui/icons-material/AdsClickOutlined"
 import { Tooltip } from "@mui/material"
 import {
   createModifierFlags,
+  DeviceFields,
+  deviceHex,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
   MouseButton,
   type MouseButtonMacroDefinition,
-  parseModifierFlags
+  parseModifierFlags,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { MouseButtonMacroCellContent } from "./components/MouseButtonMacroCellContent"
 import { modifiersLabel, mouseButtonLabel, texts } from "./components/macroLabels"
@@ -44,22 +47,27 @@ export const MouseButtonMacroTypeDefinition: MacroTypeDefinition<MouseButtonMacr
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseButtonMacroDefinition {
-    const [modifiersArg, buttonsArg] = dataArgs
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseButtonMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MouseButton,
-      modifiers: parseModifierFlags(parseInt(modifiersArg, 16)),
-      buttons: parseInt(buttonsArg, 16),
+      modifiers: parseModifierFlags(fields.number("m", 0, 16)),
+      buttons: fields.number("b", 0, 16),
     }
   },
 
   serializeDeviceArguments(macro: MouseButtonMacroDefinition): string[] {
-    const modifiersArg = `0x${createModifierFlags(macro.modifiers).toString(16).padStart(2, "0")}`
-    return ["0x06", modifiersArg, `0x${macro.buttons.toString(16).padStart(2, "0")}`]
+    return ["0x06", ...serializeDeviceFields({
+      m: deviceHex(createModifierFlags(macro.modifiers), 2),
+      b: deviceHex(macro.buttons, 2),
+    })]
   },
 
   editorInformationComponent: () => null,

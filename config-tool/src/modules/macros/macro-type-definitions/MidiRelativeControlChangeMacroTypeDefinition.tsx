@@ -1,11 +1,13 @@
 import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined"
 import { Tooltip } from "@mui/material"
 import {
+  DeviceFields,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
   type MidiRelativeControlChangeMacroDefinition,
-  RelativeControlChangeEncoding
+  RelativeControlChangeEncoding,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { MidiRelativeControlChangeMacroCellContent } from "./components/MidiRelativeControlChangeMacroCellContent"
 import { midiChannelLabel, midiRelativeControlChangeLabel, texts } from "./components/macroLabels"
@@ -59,23 +61,31 @@ export const MidiRelativeControlChangeMacroTypeDefinition: MacroTypeDefinition<M
     directory: string | null,
     name: string,
     dataArgs: string[]
-  ): MidiRelativeControlChangeMacroDefinition {
-    const [channelArg, controllerArg, amountArg, encodingArg] = dataArgs
+  ): MidiRelativeControlChangeMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MidiRelativeControlChange,
-      channel: parseInt(channelArg, 10),
-      controller: parseInt(controllerArg, 10),
-      amount: parseInt(amountArg, 10),
-      encoding: parseEncoding(encodingArg),
+      channel: fields.number("c", 1),
+      controller: fields.number("n", 0),
+      amount: fields.number("a", 0),
+      encoding: parseEncoding(fields.get("e") ?? "0"),
     }
   },
 
   serializeDeviceArguments(macro: MidiRelativeControlChangeMacroDefinition): string[] {
-    return ["0x0a", `${macro.channel}`, `${macro.controller}`, `${macro.amount}`, `${macro.encoding}`]
+    return ["0x0a", ...serializeDeviceFields({
+      c: macro.channel,
+      n: macro.controller,
+      a: macro.amount,
+      e: macro.encoding,
+    })]
   },
 
   editorInformationComponent: () => null,

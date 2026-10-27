@@ -4,7 +4,14 @@ import { TextMacroCellContent } from "@src/modules/macros/macro-type-definitions
 import {
   TextMacroDefinitionEditor
 } from "@src/modules/macros/macro-type-definitions/components/TextMacroDefinitionEditor"
-import { MacroDefinitionType, MacroTypeCategory, type MacroTypeDefinition, type TextMacroDefinition } from "@src/modules/macros/models"
+import {
+  DeviceFields,
+  MacroDefinitionType,
+  MacroTypeCategory,
+  type MacroTypeDefinition,
+  serializeDeviceFields,
+  type TextMacroDefinition
+} from "@src/modules/macros/models"
 
 
 export const TextMacroTypeDefinition: MacroTypeDefinition<TextMacroDefinition> = {
@@ -36,22 +43,24 @@ export const TextMacroTypeDefinition: MacroTypeDefinition<TextMacroDefinition> =
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): TextMacroDefinition {
-    const textArg = dataArgs[0]
-    const text = decodeURIComponent(textArg)
+  // The text is URI encoded, so it has no separators of its own
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): TextMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.Text,
-      text,
+      text: decodeURIComponent(fields.get("t") ?? ""),
     }
   },
 
   serializeDeviceArguments(macro: TextMacroDefinition): string[] {
-    const textArg = encodeURIComponent(macro.text)
-    return ["0x04", textArg]
+    return ["0x04", ...serializeDeviceFields({ t: encodeURIComponent(macro.text) })]
   },
 
   editorInformationComponent: () => null,

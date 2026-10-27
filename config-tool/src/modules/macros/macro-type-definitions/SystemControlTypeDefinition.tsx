@@ -1,9 +1,12 @@
 import ComputerOutlinedIcon from "@mui/icons-material/ComputerOutlined"
 import { Tooltip } from "@mui/material"
 import {
+  DeviceFields,
+  deviceHex,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
+  serializeDeviceFields,
   type SystemControlMacroDefinition
 } from "@src/modules/macros/models"
 import { SystemControlMacroCellContent } from "./components/SystemControlMacroCellContent"
@@ -40,22 +43,23 @@ export const SystemControlTypeDefinition: MacroTypeDefinition<SystemControlMacro
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): SystemControlMacroDefinition {
-    const codePart = dataArgs[0]
-    const code = parseInt(codePart, 16)
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): SystemControlMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.SystemControl,
-      code: code
+      code: fields.number("c", 0, 16),
     }
   },
 
   serializeDeviceArguments(macro: SystemControlMacroDefinition): string[] {
-    const usageIdArg = `0x${macro.code.toString(16).padStart(2, "0")}`
-    return ["0x03", usageIdArg]
+    return ["0x03", ...serializeDeviceFields({ c: deviceHex(macro.code, 2) })]
   },
 
   editorInformationComponent: () => null,

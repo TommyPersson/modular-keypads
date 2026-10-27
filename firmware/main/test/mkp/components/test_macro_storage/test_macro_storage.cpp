@@ -244,7 +244,7 @@ TEST_F(MacroStorageTest, WriteMouseScrollMacro) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Scroll Down:0x05:0x00:-3:0"), std::string::npos);
+    EXPECT_NE(content.find("1:Scroll Down:0x05:m=0x00:w=-3:p=0"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, WriteMouseButtonMacro) {
@@ -253,7 +253,7 @@ TEST_F(MacroStorageTest, WriteMouseButtonMacro) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Middle Click:0x06:0x00:0x04"), std::string::npos);
+    EXPECT_NE(content.find("1:Middle Click:0x06:m=0x00:b=0x04"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, WriteMouseMovementMacro) {
@@ -262,7 +262,7 @@ TEST_F(MacroStorageTest, WriteMouseMovementMacro) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Nudge:0x07:0x00:10:-20"), std::string::npos);
+    EXPECT_NE(content.find("1:Nudge:0x07:m=0x00:x=10:y=-20"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, RoundTripMouseMacros) {
@@ -296,7 +296,7 @@ TEST_F(MacroStorageTest, RoundTripMouseMacros) {
 }
 
 TEST_F(MacroStorageTest, MouseMacrosClampOutOfRangeValues) {
-    mockFs.setFileContent(testFilePath, "1:Scroll:0x05:0x00:500:-500\n2:Movement:0x07:0x00:-40000:40000\n");
+    mockFs.setFileContent(testFilePath, "1:Scroll:0x05:m=0x00:w=500:p=-500\n2:Movement:0x07:m=0x00:x=-40000:y=40000\n");
 
     macroStorage.forEach([&](const Macro& m) {
         if (m.data->type == MacroType::MOUSE_SCROLL) {
@@ -311,22 +311,13 @@ TEST_F(MacroStorageTest, MouseMacrosClampOutOfRangeValues) {
     });
 }
 
-TEST_F(MacroStorageTest, MouseMacrosWithWrongNumberOfPartsAreIgnored) {
-    mockFs.setFileContent(
-        testFilePath,
-        "1:Scroll:0x05:-3:0\n2:Button:0x06:0x04\n3:Movement:0x07:10:-20\n4:Scroll:0x05:0x00:1:0:0\n"
-    );
-
-    EXPECT_EQ(macroStorage.getNumStored(), 0);
-}
-
 TEST_F(MacroStorageTest, WriteMouseMacroWithModifiers) {
     auto macro = createMouseScrollMacro(1, "Ctrl Scroll", 1, 0, 0x01);
 
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Ctrl Scroll:0x05:0x01:1:0"), std::string::npos);
+    EXPECT_NE(content.find("1:Ctrl Scroll:0x05:m=0x01:w=1:p=0"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, WriteMidiNoteMacro) {
@@ -335,7 +326,7 @@ TEST_F(MacroStorageTest, WriteMidiNoteMacro) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Middle C:0x09:10:60:100:250:0"), std::string::npos);
+    EXPECT_NE(content.find("1:Middle C:0x09:c=10:n=60:v=100:d=250:r=0"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, RoundTripMidiNoteMacro) {
@@ -363,7 +354,7 @@ TEST_F(MacroStorageTest, RoundTripMidiNoteMacro) {
 }
 
 TEST_F(MacroStorageTest, MidiNoteMacroClampsOutOfRangeValues) {
-    mockFs.setFileContent(testFilePath, "1:Low:0x09:0:60:0:100:0\n2:High:0x09:17:200:200:100000:0\n");
+    mockFs.setFileContent(testFilePath, "1:Low:0x09:c=0:n=60:v=0:d=100:r=0\n2:High:0x09:c=17:n=200:v=200:d=100000:r=0\n");
 
     int found = 0;
     macroStorage.forEach([&](const Macro& m) {
@@ -384,19 +375,13 @@ TEST_F(MacroStorageTest, MidiNoteMacroClampsOutOfRangeValues) {
     EXPECT_EQ(found, 2);
 }
 
-TEST_F(MacroStorageTest, MidiNoteMacroWithWrongNumberOfPartsIsIgnored) {
-    mockFs.setFileContent(testFilePath, "1:Note:0x09:1:60:100:100\n2:Note:0x09:1:60:100:100:0:0\n");
-
-    EXPECT_EQ(macroStorage.getNumStored(), 0);
-}
-
 TEST_F(MacroStorageTest, WriteRelativeControlChangeMacro) {
     auto macro = createRelativeControlChangeMacro(1, "Volume Down", 3, 7, -2, RelativeControlChangeEncoding::SIGN_MAGNITUDE);
 
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Volume Down:0x0a:3:7:-2:2"), std::string::npos);
+    EXPECT_NE(content.find("1:Volume Down:0x0a:c=3:n=7:a=-2:e=2"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, RoundTripRelativeControlChangeMacro) {
@@ -416,7 +401,7 @@ TEST_F(MacroStorageTest, RoundTripRelativeControlChangeMacro) {
 }
 
 TEST_F(MacroStorageTest, RelativeControlChangeMacroClampsOutOfRangeValues) {
-    mockFs.setFileContent(testFilePath, "1:Low:0x0a:0:7:-100:9\n2:High:0x0a:20:127:100:1\n");
+    mockFs.setFileContent(testFilePath, "1:Low:0x0a:c=0:n=7:a=-100:e=9\n2:High:0x0a:c=20:n=127:a=100:e=1\n");
 
     int found = 0;
     macroStorage.forEach([&](const Macro& m) {
@@ -435,23 +420,17 @@ TEST_F(MacroStorageTest, RelativeControlChangeMacroClampsOutOfRangeValues) {
     EXPECT_EQ(found, 2);
 }
 
-TEST_F(MacroStorageTest, RelativeControlChangeMacroWithWrongNumberOfPartsIsIgnored) {
-    mockFs.setFileContent(testFilePath, "1:CC:0x0a:1:7:1\n2:CC:0x0a:1:7:1:0:0\n");
-
-    EXPECT_EQ(macroStorage.getNumStored(), 0);
-}
-
 TEST_F(MacroStorageTest, WriteAbsoluteControlChangeMacro) {
     auto macro = createAbsoluteControlChangeMacro(1, "Volume Down", 3, 7, -5);
 
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Volume Down:0x0b:3:7:-5"), std::string::npos);
+    EXPECT_NE(content.find("1:Volume Down:0x0b:c=3:n=7:a=-5"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, AbsoluteControlChangeMacroClampsOutOfRangeValues) {
-    mockFs.setFileContent(testFilePath, "1:Low:0x0b:0:7:-500\n2:High:0x0b:20:127:500\n");
+    mockFs.setFileContent(testFilePath, "1:Low:0x0b:c=0:n=7:a=-500\n2:High:0x0b:c=20:n=127:a=500\n");
 
     int found = 0;
     macroStorage.forEach([&](const Macro& m) {
@@ -468,12 +447,6 @@ TEST_F(MacroStorageTest, AbsoluteControlChangeMacroClampsOutOfRangeValues) {
         found++;
     });
     EXPECT_EQ(found, 2);
-}
-
-TEST_F(MacroStorageTest, AbsoluteControlChangeMacroWithWrongNumberOfPartsIsIgnored) {
-    mockFs.setFileContent(testFilePath, "1:CC:0x0b:1:7\n2:CC:0x0b:1:7:1:0\n");
-
-    EXPECT_EQ(macroStorage.getNumStored(), 0);
 }
 
 // ============================================================================
@@ -748,7 +721,7 @@ TEST_F(MacroStorageTest, WriteShortcutMacroHoldingModifiers) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Switch Window:0x01:0x04:0x2b:1:0"), std::string::npos);
+    EXPECT_NE(content.find("1:Switch Window:0x01:m=0x04:k=0x2b:h=1:t=0"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, RoundTripShortcutMacroHoldFlag) {
@@ -768,7 +741,7 @@ TEST_F(MacroStorageTest, RoundTripShortcutMacroHoldTime) {
     macroStorage.write(macro);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Switch Window:0x01:0x04:0x2b:1:800"), std::string::npos);
+    EXPECT_NE(content.find("1:Switch Window:0x01:m=0x04:k=0x2b:h=1:t=800"), std::string::npos);
 
     macroStorage.forEach([&](const Macro& m) {
         const auto& data = dynamic_cast<const ShortcutMacroData&>(*m.data);
@@ -778,7 +751,7 @@ TEST_F(MacroStorageTest, RoundTripShortcutMacroHoldTime) {
 }
 
 TEST_F(MacroStorageTest, ShortcutMacroHoldTimeIsLimitedLikeSetting) {
-    mockFs.setFileContent(testFilePath, "1:Switch Window:0x01:0x04:0x2b:1:999999\n");
+    mockFs.setFileContent(testFilePath, "1:Switch Window:0x01:m=0x04:k=0x2b:h=1:t=999999\n");
 
     macroStorage.forEach([&](const Macro& m) {
         const auto& data = dynamic_cast<const ShortcutMacroData&>(*m.data);
@@ -786,21 +759,15 @@ TEST_F(MacroStorageTest, ShortcutMacroHoldTimeIsLimitedLikeSetting) {
     });
 }
 
-TEST_F(MacroStorageTest, ShortcutMacroWithWrongNumberOfPartsIsIgnored) {
-    mockFs.setFileContent(testFilePath, "1:Copy:0x01:0x01:0x06\n2:Copy:0x01:0x01:0x06:0\n");
-
-    EXPECT_EQ(macroStorage.getNumStored(), 0);
-}
-
 TEST_F(MacroStorageTest, UnparseableLinesAreIgnored) {
     mockFs.setFileContent(
         testFilePath,
         "1:Broken\n"
-        "2:Unknown:0x7f:1\n"
-        "3:Volume Up:0x02\n"
-        "4:Sleep:0x03:0x82\n"
-        "5:Missing Text:0x04\n"
-        "6:Text:0x04:content\n"
+        "2:Unknown:0x7f:z=1\n"
+        "3:No Keys:0x02:0x00e9\n"
+        "4:Sleep:0x03:c=0x82\n"
+        "5:Mixed Keys:0x04:t=a:b\n"
+        "6:Text:0x04:t=content\n"
     );
 
     EXPECT_EQ(macroStorage.getNumStored(), 2);
@@ -812,8 +779,8 @@ TEST_F(MacroStorageTest, UnparseableLinesAreIgnored) {
     EXPECT_EQ(names, (std::vector<std::string>{"Sleep", "Text"}));
 }
 
-TEST_F(MacroStorageTest, WritingKeepsParseableMacrosOnly) {
-    mockFs.setFileContent(testFilePath, "1:Broken\n2:Sleep:0x03:0x82\n");
+TEST_F(MacroStorageTest, WritingDropsLinesThatCantBeMacros) {
+    mockFs.setFileContent(testFilePath, "1:Broken\n2:Sleep:0x03:c=0x82\n");
 
     auto macro = createTextMacro(3, "Text", "content");
     macroStorage.write(macro);
@@ -822,6 +789,123 @@ TEST_F(MacroStorageTest, WritingKeepsParseableMacrosOnly) {
     EXPECT_EQ(mockFs.getFileContent(testFilePath).find("Broken"), std::string::npos);
 }
 
+TEST_F(MacroStorageTest, WritingKeepsMacrosThatCantBeParsed) {
+    mockFs.setFileContent(testFilePath, "4:Later:0x7f:z=1\n");
+
+    auto macro = createTextMacro(0, "Text", "content");
+    macroStorage.write(macro);
+
+    // The ID of the unparsed macro is still taken
+    EXPECT_EQ(macro.data->id, 5);
+    EXPECT_NE(mockFs.getFileContent(testFilePath).find("4:Later:0x7f:z=1\n"), std::string::npos);
+
+    macroStorage.remove(5);
+    EXPECT_NE(mockFs.getFileContent(testFilePath).find("4:Later:0x7f:z=1\n"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, UnparsedMacrosCanBeOverwrittenAndRemoved) {
+    mockFs.setFileContent(testFilePath, "1:Later:0x7f:z=1\n2:Later:0x7f:z=1\n");
+
+    auto macro = createTextMacro(1, "Text", "content");
+    macroStorage.write(macro);
+    macroStorage.remove(2);
+
+    EXPECT_EQ(mockFs.getFileContent(testFilePath), "1:Text:0x04:t=content\n");
+}
+
+// ============================================================================
+// Field Compatibility Tests
+// ============================================================================
+
+TEST_F(MacroStorageTest, MacrosWithoutKeysAreIgnored) {
+    mockFs.setFileContent(testFilePath, "1:Copy:0x01:0x01:0x06:0:0\n2:Note:0x09:1:60:100:250:1\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
+}
+
+TEST_F(MacroStorageTest, MacrosWithoutFieldsTakeDefaults) {
+    mockFs.setFileContent(testFilePath, "1:Volume Up:0x02\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        EXPECT_EQ(dynamic_cast<const ConsumerControlMacroData&>(*m.data).usageId, 0);
+        found++;
+    });
+    EXPECT_EQ(found, 1);
+}
+
+TEST_F(MacroStorageTest, UnknownFieldsAreSkipped) {
+    mockFs.setFileContent(testFilePath, "1:Copy:0x01:z=9:k=0x06:m=0x01:h=1:t=200:future=abc\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const ShortcutMacroData&>(*m.data);
+        EXPECT_EQ(data.modifiers, 0x01);
+        EXPECT_EQ(data.hidKeyCode, 0x06);
+        EXPECT_TRUE(data.holdModifiers);
+        EXPECT_EQ(data.holdTimeMs, 200);
+        found++;
+    });
+    EXPECT_EQ(found, 1);
+}
+
+TEST_F(MacroStorageTest, MissingFieldsTakeDefaults) {
+    mockFs.setFileContent(testFilePath, "1:Copy:0x01:k=0x06\n2:Note:0x09:n=64\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        if (m.data->id == 1) {
+            const auto& data = dynamic_cast<const ShortcutMacroData&>(*m.data);
+            EXPECT_EQ(data.modifiers, 0x00);
+            EXPECT_EQ(data.hidKeyCode, 0x06);
+            EXPECT_FALSE(data.holdModifiers);
+            EXPECT_EQ(data.holdTimeMs, 0);
+        } else {
+            const auto& data = dynamic_cast<const MidiNoteMacroData&>(*m.data);
+            EXPECT_EQ(data.channel, 1);
+            EXPECT_EQ(data.note, 64);
+            EXPECT_EQ(data.velocity, 127);
+            EXPECT_FALSE(data.endOnRelease);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 2);
+}
+
+TEST_F(MacroStorageTest, MacrosMixingFieldsWithAndWithoutKeysAreIgnored) {
+    mockFs.setFileContent(testFilePath, "1:Copy:0x01:m=0x01:0x06:h=0:t=0\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
+}
+
+TEST_F(MacroStorageTest, RoundTripMacroTypesWithKeys) {
+    auto text = createTextMacro(1, "Text", "a%3Db");
+    auto consumer = createConsumerControlMacro(2, "Consumer", 0x00E9);
+    auto absolute = createAbsoluteControlChangeMacro(3, "CC", 2, 10, -3);
+    auto random = Macro{"UUID", std::make_shared<RandomTextMacroData>(4, RandomTextFormat::UUID_V4, true)};
+    macroStorage.write(text);
+    macroStorage.write(consumer);
+    macroStorage.write(absolute);
+    macroStorage.write(random);
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        if (m.data->id == 1) {
+            EXPECT_EQ(dynamic_cast<const TextMacroData&>(*m.data).text, "a%3Db");
+        } else if (m.data->id == 2) {
+            EXPECT_EQ(dynamic_cast<const ConsumerControlMacroData&>(*m.data).usageId, 0x00E9);
+        } else if (m.data->id == 3) {
+            const auto& data = dynamic_cast<const MidiAbsoluteControlChangeMacroData&>(*m.data);
+            EXPECT_EQ(data.channel, 2);
+            EXPECT_EQ(data.controller, 10);
+            EXPECT_EQ(data.amount, -3);
+        } else {
+            EXPECT_TRUE(dynamic_cast<const RandomTextMacroData&>(*m.data).quoted);
+        }
+        found++;
+    });
+    EXPECT_EQ(found, 4);
+}
 
 TEST_F(MacroStorageTest, RoundTripConsumerControlMacro) {
     auto originalMacro = createConsumerControlMacro(2, "Mute", 0x00E2);
@@ -971,7 +1055,7 @@ TEST_F(MacroStorageTest, WriteSequenceMacro) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Login:0x08:3;0;4;250"), std::string::npos);
+    EXPECT_NE(content.find("1:Login:0x08:s=m3/d0;m4/d250"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, RoundTripSequenceMacro) {
@@ -1005,12 +1089,31 @@ TEST_F(MacroStorageTest, RoundTripSequenceMacroWithMostSteps) {
 }
 
 TEST_F(MacroStorageTest, SequenceMacroDelayIsLimited) {
-    mockFs.setFileContent(testFilePath, "1:Slow:0x08:3;999999\n");
+    mockFs.setFileContent(testFilePath, "1:Slow:0x08:s=m3/d999999\n");
 
     const auto steps = readSequenceSteps(1);
 
     ASSERT_EQ(steps.size(), 1);
     EXPECT_EQ(steps[0].delayMs, MaxSequenceStepDelayMs);
+}
+
+TEST_F(MacroStorageTest, SequenceMacroStepsSkipUnknownFieldsAndDefaultMissingOnes) {
+    mockFs.setFileContent(testFilePath, "1:Sequence:0x08:s=m3/x7;m4/d250/x7;l0/r2/x7\n");
+
+    const auto steps = readSequenceSteps(1);
+
+    ASSERT_EQ(steps.size(), 3);
+    EXPECT_EQ(steps[0].macroId, 3);
+    EXPECT_EQ(steps[0].delayMs, 0);
+    EXPECT_EQ(steps[1].delayMs, 250);
+    EXPECT_TRUE(steps[2].isLoop());
+    EXPECT_EQ(steps[2].loopRepeats, 2);
+}
+
+TEST_F(MacroStorageTest, SequenceMacrosWithoutKeysAreIgnored) {
+    mockFs.setFileContent(testFilePath, "1:Login:0x08:3;0;4;250\n");
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
 }
 
 TEST_F(MacroStorageTest, WriteSequenceMacroWithLoop) {
@@ -1019,7 +1122,7 @@ TEST_F(MacroStorageTest, WriteSequenceMacroWithLoop) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:Repeat:0x08:3;0;4;250;L0;3;500"), std::string::npos);
+    EXPECT_NE(content.find("1:Repeat:0x08:s=m3/d0;m4/d250;l0/r3/d500"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, RoundTripSequenceMacroWithLoops) {
@@ -1043,7 +1146,7 @@ TEST_F(MacroStorageTest, RoundTripSequenceMacroWithLoops) {
 }
 
 TEST_F(MacroStorageTest, SequenceMacroLoopRepeatsAreLimited) {
-    mockFs.setFileContent(testFilePath, "1:Many:0x08:3;0;L0;999999;0\n");
+    mockFs.setFileContent(testFilePath, "1:Many:0x08:s=m3/d0;l0/r999999/d0\n");
 
     const auto steps = readSequenceSteps(1);
 
@@ -1054,30 +1157,31 @@ TEST_F(MacroStorageTest, SequenceMacroLoopRepeatsAreLimited) {
 TEST_F(MacroStorageTest, InvalidSequenceLoopsAreIgnored) {
     mockFs.setFileContent(
         testFilePath,
-        "1:Loop First:0x08:L0;1;0\n"
-        "2:Loop To Itself:0x08:3;0;L1;1;0\n"
-        "3:Loop Forward:0x08:3;0;L2;1;0;4;0\n"
-        "4:No Repeats:0x08:3;0;L0;0;0\n"
-        "5:Missing Delay:0x08:3;0;L0;1\n"
-        "6:Missing Target:0x08:3;0;L;1;0\n"
+        "1:Loop First:0x08:s=l0/r1/d0\n"
+        "2:Loop To Itself:0x08:s=m3/d0;l1/r1/d0\n"
+        "3:Loop Forward:0x08:s=m3/d0;l2/r1/d0;m4/d0\n"
+        "4:No Repeats:0x08:s=m3/d0;l0/r0/d0\n"
+        "5:Missing Repeats:0x08:s=m3/d0;l0/d0\n"
+        "6:Missing Target:0x08:s=m3/d0;l/r1/d0\n"
+        "7:Macro And Loop:0x08:s=m3/d0;m4/l0/r1/d0\n"
     );
 
     EXPECT_EQ(macroStorage.getNumStored(), 0);
 }
 
 TEST_F(MacroStorageTest, InvalidSequenceMacrosAreIgnored) {
-    std::string tooManySteps = "6:Too Many:0x08:";
+    std::string tooManySteps = "6:Too Many:0x08:s=";
     for (size_t i = 0; i <= MaxSequenceSteps; i++) {
-        tooManySteps += i == 0 ? "1;0" : ";1;0";
+        tooManySteps += i == 0 ? "m1/d0" : ";m1/d0";
     }
 
     mockFs.setFileContent(
         testFilePath,
-        "1:No Steps:0x08:\n"
-        "2:Missing Delay:0x08:3;0;4\n"
-        "3:Empty Number:0x08:3;;4;0\n"
-        "4:Extra Part:0x08:3;0:4;0\n"
-        "5:Missing Part:0x08\n" +
+        "1:No Steps:0x08:s=\n"
+        "2:Neither Macro Nor Loop:0x08:s=m3/d0;d250\n"
+        "3:Empty Step:0x08:s=m3/d0;;m4/d0\n"
+        "4:Empty Field:0x08:s=m3/d0/;m4/d0\n"
+        "5:Missing Steps:0x08\n" +
         tooManySteps + "\n"
     );
 
@@ -1090,11 +1194,11 @@ TEST_F(MacroStorageTest, WriteRandomTextMacro) {
     EXPECT_EQ(macroStorage.write(macro), 0);
 
     std::string content = mockFs.getFileContent(testFilePath);
-    EXPECT_NE(content.find("1:UUID:0x0c:1:1"), std::string::npos);
+    EXPECT_NE(content.find("1:UUID:0x0c:f=1:q=1"), std::string::npos);
 }
 
 TEST_F(MacroStorageTest, ReadRandomTextMacro) {
-    mockFs.setFileContent(testFilePath, "1:UUID:0x0c:1:0\n2:Quoted UUID:0x0c:1:1\n");
+    mockFs.setFileContent(testFilePath, "1:UUID:0x0c:f=1:q=0\n2:Quoted UUID:0x0c:f=1:q=1\n");
 
     int found = 0;
     macroStorage.forEach([&](const Macro& m) {
@@ -1108,7 +1212,7 @@ TEST_F(MacroStorageTest, ReadRandomTextMacro) {
 }
 
 TEST_F(MacroStorageTest, RandomTextMacroWithUnknownFormatIsIgnored) {
-    mockFs.setFileContent(testFilePath, "1:Unknown:0x0c:0:0\n2:Later:0x0c:99:0\n3:Parts:0x0c:1\n4:Parts:0x0c:1:0:0\n");
+    mockFs.setFileContent(testFilePath, "1:Unknown:0x0c:f=0:q=0\n2:Later:0x0c:f=99:q=0\n3:Missing Format:0x0c:q=1\n");
 
     EXPECT_EQ(macroStorage.getNumStored(), 0);
 }

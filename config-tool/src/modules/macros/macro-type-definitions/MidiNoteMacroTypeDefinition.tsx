@@ -1,10 +1,12 @@
 import PianoOutlinedIcon from "@mui/icons-material/PianoOutlined"
 import { Tooltip } from "@mui/material"
 import {
+  DeviceFields,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
-  type MidiNoteMacroDefinition
+  type MidiNoteMacroDefinition,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { MidiNoteMacroCellContent } from "./components/MidiNoteMacroCellContent"
 import { midiChannelLabel, midiNoteLabel, texts } from "./components/macroLabels"
@@ -46,25 +48,33 @@ export const MidiNoteMacroTypeDefinition: MacroTypeDefinition<MidiNoteMacroDefin
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MidiNoteMacroDefinition {
-    const [channelArg, noteArg, velocityArg, durationMsArg, endOnReleaseArg] = dataArgs
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MidiNoteMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MidiNote,
-      channel: parseInt(channelArg, 10),
-      note: parseInt(noteArg, 10),
-      velocity: parseInt(velocityArg, 10),
-      durationMs: parseInt(durationMsArg, 10),
-      endOnRelease: endOnReleaseArg === "1",
+      channel: fields.number("c", 1),
+      note: fields.number("n", 60),
+      velocity: fields.number("v", 127),
+      durationMs: fields.number("d", 0),
+      endOnRelease: fields.flag("r"),
     }
   },
 
   serializeDeviceArguments(macro: MidiNoteMacroDefinition): string[] {
-    const endOnReleaseArg = macro.endOnRelease ? "1" : "0"
-    return ["0x09", `${macro.channel}`, `${macro.note}`, `${macro.velocity}`, `${macro.durationMs}`, endOnReleaseArg]
+    return ["0x09", ...serializeDeviceFields({
+      c: macro.channel,
+      n: macro.note,
+      v: macro.velocity,
+      d: macro.durationMs,
+      r: macro.endOnRelease,
+    })]
   },
 
   editorInformationComponent: () => null,

@@ -2,9 +2,12 @@ import EmojiPeopleOutlinedIcon from "@mui/icons-material/EmojiPeopleOutlined"
 import { Alert, Tooltip } from "@mui/material"
 import {
   type ConsumerControlMacroDefinition,
+  DeviceFields,
+  deviceHex,
   MacroDefinitionType,
   MacroTypeCategory,
-  type MacroTypeDefinition
+  type MacroTypeDefinition,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { ConsumerControlMacroCellContent } from "./components/ConsumerControlMacroCellContent"
 import { consumerControlLabel, texts } from "./components/macroLabels"
@@ -41,22 +44,28 @@ export const ConsumerControlMacroTypeDefinition: MacroTypeDefinition<ConsumerCon
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): ConsumerControlMacroDefinition {
-    const usageIdPart = dataArgs[0]
-    const usageId = parseInt(usageIdPart, 16)
+  parseDeviceResponse(
+    id: number,
+    directory: string | null,
+    name: string,
+    dataArgs: string[]
+  ): ConsumerControlMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.ConsumerControl,
-      usageId
+      usageId: fields.number("u", 0, 16),
     }
   },
 
   serializeDeviceArguments(macro: ConsumerControlMacroDefinition): string[] {
-    const usageIdArg = `0x${macro.usageId.toString(16).padStart(4, "0")}`
-    return ["0x02", usageIdArg]
+    return ["0x02", ...serializeDeviceFields({ u: deviceHex(macro.usageId, 4) })]
   },
 
   editorInformationComponent: () => (

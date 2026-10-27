@@ -1,11 +1,13 @@
 import PlaylistPlayOutlinedIcon from "@mui/icons-material/PlaylistPlayOutlined"
 import { Tooltip } from "@mui/material"
 import {
+  DeviceFields,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
   type SequenceMacroDefinition,
-  type SequenceStep
+  type SequenceStep,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { sequenceDelayLabel, sequenceStepLabel, texts } from "./components/macroLabels"
 import { SequenceMacroCellContent } from "./components/SequenceMacroCellContent"
@@ -43,28 +45,41 @@ export const SequenceMacroTypeDefinition: MacroTypeDefinition<SequenceMacroDefin
     }
   },
 
-  // The steps are one argument, with the macro ID and delay of each step separated by semicolons: "12;0;15;250". Loop
-  // steps are the index of the step to go back to after an L, how many times to go back, and the delay:
-  // "12;0;15;250;L0;3;500". Commas separate the arguments of commands, and colons the parts of the lines listing the
-  // macros.
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): SequenceMacroDefinition {
-    const values = (dataArgs[0] ?? "").split(";")
+  // The steps are one field, separated by semicolons, with the fields of each step separated by slashes. A step field
+  // is a letter followed by a number: the macro to run (m) and the delay (d), or for loops, the index of the step to go
+  // back to (l) and how many times to go back (r) instead of the macro: "s=m12/d0;m15/d250;l0/r3/d500". Commas
+  // separate the arguments of commands, and colons the parts of the lines listing the macros.
+  //
+  // Unknown step fields are skipped, but steps that are neither macros nor loops make the whole sequence invalid, as
+  // skipping them would change what it does and which steps its loops go back to.
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): SequenceMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    const stepsField = fields?.get("s")
+    if (!stepsField) {
+      return null
+    }
 
     const steps: SequenceStep[] = []
-    let i = 0
-    while (i < values.length) {
-      if (values[i].startsWith("L") && i + 2 < values.length) {
-        steps.push({
-          macroId: 0,
-          delayMs: parseInt(values[i + 2], 10),
-          loop: { targetStep: parseInt(values[i].substring(1), 10), repeats: parseInt(values[i + 1], 10) },
-        })
-        i += 3
-      } else if (i + 1 < values.length) {
-        steps.push({ macroId: parseInt(values[i], 10), delayMs: parseInt(values[i + 1], 10) })
-        i += 2
+    for (const stepValue of stepsField.split(";")) {
+      const stepFields = new Map<string, number>()
+      for (const field of stepValue.split("/")) {
+        if (field.length < 2) {
+          return null
+        }
+        if (!stepFields.has(field[0])) {
+          stepFields.set(field[0], parseInt(field.substring(1), 10) || 0)
+        }
+      }
+
+      const macroId = stepFields.get("m")
+      const targetStep = stepFields.get("l")
+      const delayMs = stepFields.get("d") ?? 0
+      if (macroId !== undefined && targetStep === undefined) {
+        steps.push({ macroId, delayMs })
+      } else if (targetStep !== undefined && macroId === undefined) {
+        steps.push({ macroId: 0, delayMs, loop: { targetStep, repeats: stepFields.get("r") ?? 0 } })
       } else {
-        break
+        return null
       }
     }
 
@@ -78,12 +93,12 @@ export const SequenceMacroTypeDefinition: MacroTypeDefinition<SequenceMacroDefin
   },
 
   serializeDeviceArguments(macro: SequenceMacroDefinition): string[] {
-    const values = macro.steps.flatMap(step =>
+    const steps = macro.steps.map(step =>
       step.loop
-        ? [`L${step.loop.targetStep}`, step.loop.repeats, step.delayMs]
-        : [step.macroId, step.delayMs]
+        ? `l${step.loop.targetStep}/r${step.loop.repeats}/d${step.delayMs}`
+        : `m${step.macroId}/d${step.delayMs}`
     )
-    return ["0x08", values.join(";")]
+    return ["0x08", ...serializeDeviceFields({ s: steps.join(";") })]
   },
 
   editorInformationComponent: () => null,

@@ -2,11 +2,14 @@ import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined"
 import { Tooltip } from "@mui/material"
 import {
   createModifierFlags,
+  DeviceFields,
+  deviceHex,
   MacroDefinitionType,
   MacroTypeCategory,
   type MacroTypeDefinition,
   type MouseScrollMacroDefinition,
-  parseModifierFlags
+  parseModifierFlags,
+  serializeDeviceFields
 } from "@src/modules/macros/models"
 import { MouseScrollMacroCellContent } from "./components/MouseScrollMacroCellContent"
 import { modifiersLabel, mouseScrollLabel, texts } from "./components/macroLabels"
@@ -44,23 +47,29 @@ export const MouseScrollMacroTypeDefinition: MacroTypeDefinition<MouseScrollMacr
     }
   },
 
-  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseScrollMacroDefinition {
-    const [modifiersArg, wheelArg, panArg] = dataArgs
+  parseDeviceResponse(id: number, directory: string | null, name: string, dataArgs: string[]): MouseScrollMacroDefinition | null {
+    const fields = DeviceFields.parse(dataArgs)
+    if (!fields) {
+      return null
+    }
 
     return {
       id,
       directory,
       name,
       type: MacroDefinitionType.MouseScroll,
-      modifiers: parseModifierFlags(parseInt(modifiersArg, 16)),
-      wheel: parseInt(wheelArg, 10),
-      pan: parseInt(panArg, 10),
+      modifiers: parseModifierFlags(fields.number("m", 0, 16)),
+      wheel: fields.number("w", 0),
+      pan: fields.number("p", 0),
     }
   },
 
   serializeDeviceArguments(macro: MouseScrollMacroDefinition): string[] {
-    const modifiersArg = `0x${createModifierFlags(macro.modifiers).toString(16).padStart(2, "0")}`
-    return ["0x05", modifiersArg, `${macro.wheel}`, `${macro.pan}`]
+    return ["0x05", ...serializeDeviceFields({
+      m: deviceHex(createModifierFlags(macro.modifiers), 2),
+      w: macro.wheel,
+      p: macro.pan,
+    })]
   },
 
   editorInformationComponent: () => null,

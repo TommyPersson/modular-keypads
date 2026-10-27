@@ -7,7 +7,10 @@ export class ListStoredMacrosDeviceCommand extends DeviceCommand<MacroDefinition
 
   override parseResponse(lines: string[]): MacroDefinition[] {
     const parseMacro = ((line: string): MacroDefinition | null => {
-      const [encodedName, restLine] = line.split("=")
+      // The data fields have equal signs of their own, while the URI encoded name has none
+      const separator = line.indexOf("=")
+      const encodedName = line.substring(0, separator)
+      const restLine = line.substring(separator + 1)
       const [idStr, typeStr, ...restParts] = restLine.split(":")
       const id = parseInt(idStr, 16)
       const type = parseInt(typeStr, 16)

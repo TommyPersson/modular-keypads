@@ -17,19 +17,27 @@ namespace {
 }
 
 namespace {
-    std::shared_ptr<Macro> deserializeStoredMacro(const std::string_view& line, tfw::utils::allocations::Arena& arena) {
-        tfw::utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
+    // The ID of a stored line, or 0 for lines that can't be macros at all
+    uint16_t storedMacroId(const std::span<const std::string_view>& parts) {
+        if (parts.size() < 3) {
+            return 0;
+        }
+
+        return tfw::utils::strings::atou16(parts[0]);
+    }
+
+    std::shared_ptr<Macro> deserializeStoredMacro(
+        const std::span<const std::string_view>& parts,
+        tfw::utils::allocations::Arena& arena
+    ) {
         tfw::utils::allocations::ArenaAllocator<Macro> macroAllocator(arena);
 
-        auto parts = tfw::utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
-
         // Lines that can't be parsed are ignored
-        if (parts.size() < 3) {
+        const auto macroId = storedMacroId(parts);
+        if (macroId == 0) {
             return nullptr;
         }
 
-        auto macroIdPart = parts[0];
-        auto macroId = tfw::utils::strings::atou16(macroIdPart);
         auto name = parts[1];
         auto typePart = parts[2];
         auto type = static_cast<MacroType>(tfw::utils::strings::atol(typePart, 16));
@@ -39,7 +47,7 @@ namespace {
         for (auto serializer : macroDataSerializers) {
             auto typedSerializer = static_cast<MacroDataStorageSerializer<MacroData>*>(serializer);
             if (typedSerializer->handles(type)) {
-                macroData = typedSerializer->deserialize(macroId, std::span(parts).subspan(3), arena);
+                macroData = typedSerializer->deserialize(macroId, parts.subspan(3), arena);
             }
         }
 
@@ -75,6 +83,50 @@ namespace {
 
         return "";
     }
+
+    // Stored lines with their IDs, and their macros when they can be parsed
+    int iterateStoredLines(
+        tfw::hal::fs::FileSystem& fileSystem,
+        const std::function<void(const std::string_view&, uint16_t, const Macro*)>& callback
+    ) {
+        tfw::utils::allocations::Arena arena(1024);
+
+        return tfw::hal::fs::iterateLines(
+            fileSystem,
+            filePath,
+            [&](const std::string_view& line) {
+                tfw::utils::allocations::ArenaAllocator<std::string_view> stringViewAllocator(arena);
+                const auto parts = tfw::utils::allocations::arena::strings::split(line, ':', stringViewAllocator, 10);
+
+                const auto macro = deserializeStoredMacro(parts, arena);
+                callback(line, storedMacroId(parts), macro.get());
+
+                arena.reset();
+            }
+        );
+    }
+
+    // Lines of macros that can't be parsed, such as ones of types added in later firmware, are written back as they
+    // were, so that saving with older firmware doesn't lose them
+    void writeStoredLine(
+        tfw::hal::fs::File& file,
+        const std::string_view& line,
+        const Macro* macro,
+        tfw::utils::allocations::Arena& arena
+    ) {
+        const auto serialized = macro != nullptr
+            ? serializeStoredMacro(*macro, arena)
+            : tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%.*s",
+                static_cast<int>(line.length()),
+                line.data()
+            );
+
+        if (!serialized.empty()) {
+            file.println(serialized.data());
+        }
+    }
 }
 
 MacroStorage::MacroStorage(tfw::hal::fs::FileSystem& fileSystem) : fileSystem(fileSystem) {
@@ -96,19 +148,22 @@ int MacroStorage::write(const Macro& macro) {
     uint16_t highestIdSeen = 0;
     bool macroFound = false;
 
-    forEach([&](const Macro& storedMacro) {
-        if (storedMacro.data->id == macro.data->id) {
-            // Overwrite with new macro
-            auto serializedMacro = serializeStoredMacro(macro, arena);
-            tempOutputFile->println(serializedMacro.data());
-            macroFound = true;
-        } else {
-            // Re-write existing macro
-            auto serializedMacro = serializeStoredMacro(storedMacro, arena);
-            tempOutputFile->println(serializedMacro.data());
+    iterateStoredLines(fileSystem, [&](const std::string_view& line, const uint16_t id, const Macro* storedMacro) {
+        // Lines that can't be macros at all are dropped
+        if (id == 0) {
+            return;
         }
 
-        highestIdSeen = std::max(highestIdSeen, storedMacro.data->id);
+        if (id == macro.data->id) {
+            // Overwrite with new macro
+            writeStoredLine(*tempOutputFile, line, &macro, arena);
+            macroFound = true;
+        } else {
+            // Re-write existing macro, in the current format
+            writeStoredLine(*tempOutputFile, line, storedMacro, arena);
+        }
+
+        highestIdSeen = std::max(highestIdSeen, id);
 
         arena.reset();
     });
@@ -143,10 +198,9 @@ int MacroStorage::remove(uint16_t id) {
 
     tfw::utils::allocations::Arena arena(2048);
 
-    forEach([&](const Macro& storedMacro) {
-        if (storedMacro.data->id != id) {
-            auto serializedMacro = serializeStoredMacro(storedMacro, arena);
-            tempOutputFile->println(serializedMacro.data());
+    iterateStoredLines(fileSystem, [&](const std::string_view& line, const uint16_t storedId, const Macro* storedMacro) {
+        if (storedId != 0 && storedId != id) {
+            writeStoredLine(*tempOutputFile, line, storedMacro, arena);
         }
 
         arena.reset();
@@ -165,20 +219,11 @@ int MacroStorage::remove(uint16_t id) {
 }
 
 void MacroStorage::forEach(const std::function<void(const Macro&)>& callback) {
-    tfw::utils::allocations::Arena arena(1024);
-
-    const auto rc = tfw::hal::fs::iterateLines(
-        fileSystem,
-        filePath,
-        [&](const std::string_view& line) {
-            const auto macro = deserializeStoredMacro(line, arena);
-            if (macro != nullptr) {
-                callback(*macro);
-            }
-
-            arena.reset();
+    const auto rc = iterateStoredLines(fileSystem, [&](const std::string_view&, uint16_t, const Macro* macro) {
+        if (macro != nullptr) {
+            callback(*macro);
         }
-    );
+    });
 
     if (rc != 0) {
         logger->error("Failed to read '%s' (%i)", filePath, rc);
