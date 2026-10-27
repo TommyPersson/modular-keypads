@@ -18,6 +18,7 @@ namespace mkp::components::macros {
         MIDI_NOTE = 0x09,
         MIDI_RELATIVE_CONTROL_CHANGE = 0x0a,
         MIDI_ABSOLUTE_CONTROL_CHANGE = 0x0b,
+        RANDOM_TEXT = 0x0c,
     };
 
     struct MacroData {
@@ -212,6 +213,26 @@ namespace mkp::components::macros {
         const uint8_t channel; // 1 to 16
         const uint8_t controller; // 0 to 119
         const int8_t amount; // -127 to 127
+    };
+
+    // What kind of random text is typed. Stored by number, so the numbers must stay the same.
+    enum class RandomTextFormat : uint8_t {
+        UUID_V4 = 1, // Lowercase with hyphens: 0f8fad5b-d9cb-469f-a165-70867728950e
+    };
+
+    // Types random text that's generated each time the macro runs, such as a new ID
+    struct RandomTextMacroData final : MacroData {
+        RandomTextMacroData(const uint16_t id, const RandomTextFormat format, const bool quoted = false)
+            : MacroData(id, MacroType::RANDOM_TEXT),
+              format(format),
+              quoted(quoted) {
+        }
+
+        ~RandomTextMacroData() override = default;
+
+        const RandomTextFormat format;
+        // Wraps the text in double quotes, such as for pasting into code or JSON
+        const bool quoted;
     };
 
     // Runs a macro, or for loop steps, goes back to an earlier step a number of times, such as to repeat a few steps

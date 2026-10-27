@@ -46,7 +46,8 @@ MasterFirmware::MasterFirmware(ServiceLocator& serviceLocator)
         serviceLocator.usbConnection,
         serviceLocator.deviceSettings,
         serviceLocator.metricRegistry,
-        serviceLocator.clock
+        serviceLocator.clock,
+        serviceLocator.randomSource
     );
 
     firmwareUpdater = std::make_unique<mkp::components::firmware::FirmwareUpdater>(serviceLocator.clock);

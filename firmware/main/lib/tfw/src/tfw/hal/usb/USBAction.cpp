@@ -23,6 +23,10 @@ std::shared_ptr<Action> Action::type(const std::string_view& text) {
     return std::make_shared<TypeAction>(text);
 }
 
+std::shared_ptr<Action> Action::typeGenerated(TextGenerator generate) {
+    return std::make_shared<GeneratedTypeAction>(std::move(generate));
+}
+
 std::shared_ptr<Action> Action::mouse(
     uint8_t modifiers,
     uint8_t buttons,

@@ -7,6 +7,7 @@ import { MidiRelativeControlChangeMacroTypeDefinition } from "./MidiRelativeCont
 import { MouseButtonMacroTypeDefinition } from "./MouseButtonMacroTypeDefinition"
 import { MouseMovementMacroTypeDefinition } from "./MouseMovementMacroTypeDefinition"
 import { MouseScrollMacroTypeDefinition } from "./MouseScrollMacroTypeDefinition"
+import { RandomTextMacroTypeDefinition } from "./RandomTextMacroTypeDefinition"
 import { SequenceMacroTypeDefinition } from "./SequenceMacroTypeDefinition"
 import { ShortcutMacroTypeDefinition } from "./ShortcutMacroTypeDefinition"
 import { SystemControlTypeDefinition } from "./SystemControlTypeDefinition"
@@ -17,6 +18,7 @@ const allMacroTypeDefinitions: MacroTypeDefinition<MacroDefinition>[] = [
   ConsumerControlMacroTypeDefinition as any,
   SystemControlTypeDefinition as any,
   TextMacroTypeDefinition as any,
+  RandomTextMacroTypeDefinition as any,
   MouseScrollMacroTypeDefinition as any,
   MouseButtonMacroTypeDefinition as any,
   MouseMovementMacroTypeDefinition as any,

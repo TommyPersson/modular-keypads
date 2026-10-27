@@ -335,6 +335,39 @@ TEST_F(ActionSenderTest, TypingWaitsWhileModifiersAreHeld) {
     EXPECT_EQ(hostComputer.takeEvents(), (Events{"release key 0xe0", "type 'b'"}));
 }
 
+TEST_F(ActionSenderTest, GeneratedTextIsGeneratedAndTypedEachTimeItIsSent) {
+    char count = '0';
+    const auto action = Action::typeGenerated([&count](tfw::utils::allocations::Arena& arena) {
+        const auto text = reinterpret_cast<char*>(arena.allocate(1));
+        *text = ++count;
+        return std::string_view{text, 1};
+    });
+
+    send(action);
+    sender.update();
+    runForMs(10);
+    send(action);
+    runForMs(10);
+
+    EXPECT_EQ(hostComputer.takeEvents(), (Events{"type '1'", "type '2'"}));
+}
+
+TEST_F(ActionSenderTest, GeneratedTextReusesTheArenaOfTheSender) {
+    std::vector<const char*> texts;
+    const auto action = Action::typeGenerated([&texts](tfw::utils::allocations::Arena& arena) {
+        const auto text = reinterpret_cast<char*>(arena.allocate(1));
+        *text = 'a';
+        texts.push_back(text);
+        return std::string_view{text, 1};
+    });
+
+    send(action);
+    send(action);
+
+    ASSERT_EQ(texts.size(), 2);
+    EXPECT_EQ(texts[0], texts[1]);
+}
+
 TEST_F(ActionSenderTest, IsBusyUntilAllCharactersAreTyped) {
     EXPECT_FALSE(sender.isBusy());
 

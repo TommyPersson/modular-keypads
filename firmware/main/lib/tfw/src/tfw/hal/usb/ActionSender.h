@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "tfw/hal/time/Clock.h"
+#include "tfw/utils/allocations/Arena.h"
 #include "tfw/utils/ring_queue.h"
 
 #include "HostComputer.h"
@@ -44,6 +45,8 @@ namespace tfw::hal::usb {
         void sendConsumerControl(const ConsumerControlAction& action);
         void sendSystemControl(const SystemControlAction& action);
         void sendType(const TypeAction& action);
+        void sendType(std::string_view text);
+        void sendGeneratedType(const GeneratedTypeAction& action);
         void sendMouse(const MouseAction& action);
         void sendMouseMovementPart(int8_t wheel, int8_t pan);
         void sendMidiNote(const MidiNoteAction& action);
@@ -57,6 +60,9 @@ namespace tfw::hal::usb {
         ModifierHolder modifierHolder;
 
         utils::ring_queue<char> characterOutputQueue{1000}; // enforce size limit in storage and UI also
+
+        // Reused for the text of each generated type action, which is copied to the character queue right away
+        utils::allocations::Arena generatedTextArena{256};
         uint64_t lastKeyboardWriteTime = 0;
         uint64_t typingDelayUs = 1'000;
 

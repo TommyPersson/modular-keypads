@@ -4,10 +4,15 @@
 
 #include <tfw/utils/strings.h>
 
+#include "mkp/components/generators/RandomTextGenerator.h"
+
 using namespace mkp::components::macros;
 using namespace mkp::components::keybindings;
 
-std::shared_ptr<CompiledMacro> mkp::components::keybindings::compileMacro(const Macro& macro) {
+std::shared_ptr<CompiledMacro> mkp::components::keybindings::compileMacro(
+    const Macro& macro,
+    tfw::hal::random::RandomSource& randomSource
+) {
     if (macro.data->type == SHORTCUT) {
         const auto& data = dynamic_cast<ShortcutMacroData&>(*macro.data);
         const auto action = tfw::hal::usb::Action::shortcut(
@@ -104,6 +109,24 @@ std::shared_ptr<CompiledMacro> mkp::components::keybindings::compileMacro(const 
     if (macro.data->type == MIDI_ABSOLUTE_CONTROL_CHANGE) {
         const auto& data = dynamic_cast<MidiAbsoluteControlChangeMacroData&>(*macro.data);
         const auto action = tfw::hal::usb::Action::midiControlChangeStep(data.channel, data.controller, data.amount);
+        return std::make_shared<CompiledMacro>(CompiledMacro{
+            .macroId = macro.data->id,
+            .actions = std::vector{action},
+        });
+    }
+
+    if (macro.data->type == RANDOM_TEXT) {
+        const auto& data = dynamic_cast<RandomTextMacroData&>(*macro.data);
+        const auto generator = generators::RandomTextGenerator::forFormat(data.format);
+        if (generator == nullptr) {
+            return nullptr;
+        }
+
+        const auto action = tfw::hal::usb::Action::typeGenerated(
+            [generator, quoted = data.quoted, &randomSource](tfw::utils::allocations::Arena& arena) {
+                return generator->generate(quoted, randomSource, arena);
+            }
+        );
         return std::make_shared<CompiledMacro>(CompiledMacro{
             .macroId = macro.data->id,
             .actions = std::vector{action},

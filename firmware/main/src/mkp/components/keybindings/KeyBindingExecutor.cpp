@@ -22,12 +22,14 @@ KeyBindingExecutor::KeyBindingExecutor(
     tfw::hal::usb::Connection& usbConnection,
     tfw::hal::settings::DeviceSettings& deviceSettings,
     tfw::hal::metrics::MetricRegistry& metricRegistry,
-    const tfw::hal::time::Clock& clock
+    const tfw::hal::time::Clock& clock,
+    tfw::hal::random::RandomSource& randomSource
 ) : macroStorage(macroStorage),
     keyBindingStorage(keyBindingStorage),
     testModeController(testModeController),
     usbConnection(usbConnection),
     deviceSettings(deviceSettings),
+    randomSource(randomSource),
     sequenceRunner(
         clock,
         [this] { return this->usbConnection.isBusy(); },
@@ -240,7 +242,7 @@ void KeyBindingExecutor::refreshCompiledMacros() {
     macros.clear();
 
     macroStorage.forEach([&](const Macro& macro) {
-        auto compiledMacro = compileMacro(macro);
+        auto compiledMacro = compileMacro(macro, randomSource);
         if (compiledMacro != nullptr) {
             macros.push_back(compiledMacro);
         }

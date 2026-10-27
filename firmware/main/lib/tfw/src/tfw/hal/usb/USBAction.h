@@ -1,11 +1,18 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 
+#include "tfw/utils/allocations/Arena.h"
+
 namespace tfw::hal::usb {
+    // Writes generated text into the arena, and results in a view of it. Empty when the arena is too small.
+    using TextGenerator = std::function<std::string_view(utils::allocations::Arena& arena)>;
+
     // TODO support custom allocator
 
     struct Action {
@@ -20,6 +27,7 @@ namespace tfw::hal::usb {
         static std::shared_ptr<Action> consumerControl(uint16_t usageId);
         static std::shared_ptr<Action> systemControl(uint8_t code);
         static std::shared_ptr<Action> type(const std::string_view& text);
+        static std::shared_ptr<Action> typeGenerated(TextGenerator generate);
         static std::shared_ptr<Action> mouse(
             uint8_t modifiers,
             uint8_t buttons,
@@ -76,6 +84,17 @@ namespace tfw::hal::usb {
         }
 
         const std::string text;
+    };
+
+    // Types text that's generated each time the action is sent, such as a random ID that differs every time. The text
+    // is generated into an arena of the sender, rather than allocated, so that repeated sends don't fragment the heap.
+    struct GeneratedTypeAction final : Action {
+        ~GeneratedTypeAction() override = default;
+
+        explicit GeneratedTypeAction(TextGenerator generate) : generate(std::move(generate)) {
+        }
+
+        const TextGenerator generate;
     };
 
     // Relative mouse input. Buttons are clicked (pressed and released) before moving/scrolling. Movement beyond the

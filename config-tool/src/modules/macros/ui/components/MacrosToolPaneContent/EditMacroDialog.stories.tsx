@@ -55,3 +55,9 @@ export const MidiAbsoluteControlChangeMacro: Story = {
     macro: macros.find(it => it.name === "Desktop Volume Down"),
   },
 }
+
+export const RandomTextMacro: Story = {
+  args: {
+    macro: macros.find(it => it.name === "UUID"),
+  },
+}

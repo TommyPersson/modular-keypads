@@ -9,6 +9,7 @@
 #include <tfw/hal/usb.h>
 #include <tfw/hal/settings.h>
 #include <tfw/hal/streams/OutputStream.h>
+#include <tfw/hal/random/PlatformRandomSource.h>
 #include <tfw/hal/time/PlatformClock.h>
 
 #include <memory>
@@ -36,6 +37,7 @@ namespace {
     std::unique_ptr<mkp::firmwares::base::FirmwareModeDetector> deviceModeDetector;
     std::unique_ptr<tfw::hal::streams::OutputStream> loggingOutput;
     std::unique_ptr<tfw::hal::time::PlatformClock> clock;
+    std::unique_ptr<tfw::hal::random::PlatformRandomSource> randomSource;
     std::unique_ptr<tfw::hal::fs::FileSystem> fileSystem;
     std::unique_ptr<tfw::hal::settings::PreferencesDeviceSettings> preferencesDeviceSettings;
     std::unique_ptr<tfw::hal::settings::CachedDeviceSettings> deviceSettings;
@@ -57,6 +59,7 @@ namespace {
         serialPort = tfw::hal::uart::SerialPort::from(TheSerial);
         preferences = std::make_unique<Preferences>();
         clock = std::make_unique<tfw::hal::time::PlatformClock>();
+        randomSource = std::make_unique<tfw::hal::random::PlatformRandomSource>();
         deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>(*clock);
         deviceModeDetector = std::make_unique<mkp::firmwares::base::FirmwareModeDetector>();
         deviceConfigurationManager = std::make_unique<mkp::devices::common::DeviceConfigurationManager>(
@@ -83,6 +86,7 @@ namespace {
                 .metricRegistry = *metricRegistry,
                 .deviceModeDetector = *deviceModeDetector,
                 .clock = *clock,
+                .randomSource = *randomSource,
                 .fileSystem = *fileSystem,
                 .deviceSettings = *deviceSettings
             }

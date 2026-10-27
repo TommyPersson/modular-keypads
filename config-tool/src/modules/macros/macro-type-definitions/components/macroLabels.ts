@@ -2,7 +2,12 @@ import { consumerControlCodes } from "@src/modules/macros/data/consumerControlCo
 import { keyboadKeyCodes } from "@src/modules/macros/data"
 import { mouseButtons } from "@src/modules/macros/data/mouseButtons"
 import { systemControlCodes } from "@src/modules/macros/data/systemControlCodes"
-import type { MacroDefinition, SequenceStep, ShortcutMacroDefinition } from "@src/modules/macros/models"
+import {
+  type MacroDefinition,
+  RandomTextFormat,
+  type SequenceStep,
+  type ShortcutMacroDefinition
+} from "@src/modules/macros/models"
 
 // The texts of the macro definition chips, shared with the macro filter so that it finds what the chips show
 
@@ -78,6 +83,18 @@ export function mouseScrollLabel(wheel: number, pan: number): string | null {
   }
 
   return `Scroll ${directions.join(", ")}`
+}
+
+export const randomTextFormats: { format: RandomTextFormat, name: string, example: string }[] = [
+  { format: RandomTextFormat.UuidV4, name: "UUID v4", example: "0f8fad5b-d9cb-469f-a165-70867728950e" },
+]
+
+export function randomTextFormatLabel(format: RandomTextFormat): string | null {
+  return randomTextFormats.find(it => it.format === format)?.name ?? null
+}
+
+export function randomTextQuotedLabel(quoted: boolean): string | null {
+  return quoted ? "Quoted" : null
 }
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]

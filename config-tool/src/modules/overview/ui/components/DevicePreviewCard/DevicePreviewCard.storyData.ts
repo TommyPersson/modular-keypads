@@ -1,6 +1,11 @@
 import { mockDevice, type MockDeviceOptions, withKeyBindingsPane, withMockDevice } from "@src/storybook"
 import type { DeviceCapability } from "@src/modules/device/models"
-import { type MacroDefinition, MacroDefinitionType, RelativeControlChangeEncoding } from "@src/modules/macros/models"
+import {
+  type MacroDefinition,
+  MacroDefinitionType,
+  RandomTextFormat,
+  RelativeControlChangeEncoding
+} from "@src/modules/macros/models"
 import type { Meta } from "@storybook/react-vite"
 import { TopLevelDevicePreviewCard } from "./DevicePreviewCard"
 
@@ -106,6 +111,14 @@ export const macros: MacroDefinition[] = [
     channel: 1,
     controller: 8,
     amount: -4,
+  },
+  {
+    id: 18,
+    directory: "Generators",
+    name: "UUID",
+    type: MacroDefinitionType.RandomText,
+    format: RandomTextFormat.UuidV4,
+    quoted: true,
   },
   {
     id: 13,

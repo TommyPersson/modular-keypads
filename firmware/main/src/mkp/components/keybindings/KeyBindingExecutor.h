@@ -5,6 +5,7 @@
 #include <utility>
 
 #include <tfw/hal/metrics.h>
+#include <tfw/hal/random.h>
 #include <tfw/hal/settings.h>
 #include <tfw/hal/time/Clock.h>
 #include <tfw/hal/usb.h>
@@ -33,7 +34,8 @@ namespace mkp::components::keybindings {
             tfw::hal::usb::Connection& usbConnection,
             tfw::hal::settings::DeviceSettings& deviceSettings,
             tfw::hal::metrics::MetricRegistry& metricRegistry,
-            const tfw::hal::time::Clock& clock
+            const tfw::hal::time::Clock& clock,
+            tfw::hal::random::RandomSource& randomSource
         );
         ~KeyBindingExecutor() override;
 
@@ -74,6 +76,7 @@ namespace mkp::components::keybindings {
         TestModeController& testModeController;
         tfw::hal::usb::Connection& usbConnection;
         tfw::hal::settings::DeviceSettings& deviceSettings;
+        tfw::hal::random::RandomSource& randomSource;
 
         std::vector<std::shared_ptr<KeyBinding>> keyBindings;
         std::vector<std::shared_ptr<CompiledMacro>> macros;

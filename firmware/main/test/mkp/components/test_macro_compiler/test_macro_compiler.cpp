@@ -3,12 +3,22 @@
 
 #include "mkp/components/keybindings/MacroCompiler.h"
 #include "mkp/components/keybindings/MacroCompiler.cpp"
+#include "mkp/components/generators/RandomTextGenerator.cpp"
+#include "mkp/components/generators/UuidV4Generator.cpp"
+#include "../../../lib/tfw/hal/StubRandomSource.h"
 
 using namespace mkp::components::keybindings;
 using namespace mkp::components::macros;
 using tfw::hal::usb::MidiControlChangeAction;
+using tfw::hal::random::test::StubRandomSource;
 
 namespace {
+    StubRandomSource randomSource{{0x00}};
+
+    std::shared_ptr<CompiledMacro> compileMacro(const Macro& macro) {
+        return mkp::components::keybindings::compileMacro(macro, randomSource);
+    }
+
     Macro createRelativeControlChangeMacro(
         const int8_t amount,
         const RelativeControlChangeEncoding encoding,
@@ -92,4 +102,41 @@ TEST(MacroCompilerTest, AbsoluteControlChangeStepsTheController) {
     EXPECT_EQ(action.channel, 3);
     EXPECT_EQ(action.controller, 7);
     EXPECT_EQ(action.amount, -2);
+}
+
+// ============================================================================
+// Random text
+// ============================================================================
+
+TEST(MacroCompilerTest, RandomTextIsGeneratedEachTimeTheActionIsSent) {
+    StubRandomSource source{{
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+    }};
+    tfw::utils::allocations::Arena arena{128};
+    const auto data = std::make_shared<RandomTextMacroData>(1, RandomTextFormat::UUID_V4);
+    const auto compiled = mkp::components::keybindings::compileMacro(Macro{"UUID", data}, source);
+
+    ASSERT_NE(compiled, nullptr);
+    ASSERT_EQ(compiled->actions.size(), 1);
+    const auto& action = dynamic_cast<const tfw::hal::usb::GeneratedTypeAction&>(*compiled->actions[0]);
+    EXPECT_EQ(action.generate(arena), "00000000-0000-4000-8000-000000000000");
+    EXPECT_EQ(action.generate(arena), "01010101-0101-4101-8101-010101010101");
+}
+
+TEST(MacroCompilerTest, QuotedRandomTextIsWrappedInDoubleQuotes) {
+    StubRandomSource source{{0x00}};
+    tfw::utils::allocations::Arena arena{64};
+    const auto data = std::make_shared<RandomTextMacroData>(1, RandomTextFormat::UUID_V4, true);
+    const auto compiled = mkp::components::keybindings::compileMacro(Macro{"UUID", data}, source);
+
+    ASSERT_NE(compiled, nullptr);
+    const auto& action = dynamic_cast<const tfw::hal::usb::GeneratedTypeAction&>(*compiled->actions[0]);
+    EXPECT_EQ(action.generate(arena), "\"00000000-0000-4000-8000-000000000000\"");
+}
+
+TEST(MacroCompilerTest, RandomTextWithUnknownFormatIsNotCompiled) {
+    const auto data = std::make_shared<RandomTextMacroData>(1, static_cast<RandomTextFormat>(99));
+
+    EXPECT_EQ(compileMacro(Macro{"Later", data}), nullptr);
 }

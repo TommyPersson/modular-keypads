@@ -4,6 +4,7 @@
 #include <tfw/hal/uart.h>
 #include <tfw/hal/usb.h>
 #include <tfw/hal/i2c.h>
+#include <tfw/hal/random.h>
 #include <tfw/hal/time.h>
 #include <tfw/hal/fs.h>
 #include <tfw/hal/settings.h>
@@ -23,6 +24,7 @@ namespace mkp::firmwares::base {
         tfw::hal::metrics::MetricRegistry& metricRegistry;
         FirmwareModeDetector& deviceModeDetector;
         tfw::hal::time::Clock& clock;
+        tfw::hal::random::RandomSource& randomSource;
         tfw::hal::fs::FileSystem& fileSystem;
         tfw::hal::settings::DeviceSettings& deviceSettings;
     };

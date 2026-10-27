@@ -31,6 +31,8 @@ void ActionSender::send(Action& action) {
         sendSystemControl(*systemControlAction);
     } else if (const auto typeAction = dynamic_cast<TypeAction*>(&action)) {
         sendType(*typeAction);
+    } else if (const auto generatedTypeAction = dynamic_cast<GeneratedTypeAction*>(&action)) {
+        sendGeneratedType(*generatedTypeAction);
     } else if (const auto mouseAction = dynamic_cast<MouseAction*>(&action)) {
         sendMouse(*mouseAction);
     } else if (const auto midiNoteAction = dynamic_cast<MidiNoteAction*>(&action)) {
@@ -122,10 +124,20 @@ void ActionSender::sendSystemControl(const SystemControlAction& action) {
 }
 
 void ActionSender::sendType(const TypeAction& action) {
+    sendType(action.text);
+}
+
+void ActionSender::sendGeneratedType(const GeneratedTypeAction& action) {
+    // The text of the previous action has already been queued, so its room can be reused
+    generatedTextArena.reset();
+    sendType(action.generate(generatedTextArena));
+}
+
+void ActionSender::sendType(const std::string_view text) {
     // Modifiers held for other actions would turn the characters into shortcuts
     modifierHolder.releaseAll();
 
-    for (const auto& character : action.text) {
+    for (const auto& character : text) {
         characterOutputQueue.enqueue(character);
     }
 }

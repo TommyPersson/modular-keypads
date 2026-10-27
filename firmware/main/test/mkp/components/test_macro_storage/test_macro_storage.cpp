@@ -7,6 +7,8 @@
 
 #include "mkp/components/macros/MacroStorage.cpp"
 #include "mkp/components/macros/MacroDataSerializers.cpp"
+#include "mkp/components/generators/RandomTextGenerator.cpp"
+#include "mkp/components/generators/UuidV4Generator.cpp"
 
 using namespace tfw::hal::fs;
 using namespace mkp::components::macros;
@@ -1078,6 +1080,35 @@ TEST_F(MacroStorageTest, InvalidSequenceMacrosAreIgnored) {
         "5:Missing Part:0x08\n" +
         tooManySteps + "\n"
     );
+
+    EXPECT_EQ(macroStorage.getNumStored(), 0);
+}
+
+TEST_F(MacroStorageTest, WriteRandomTextMacro) {
+    auto macro = Macro{"UUID", std::make_shared<RandomTextMacroData>(1, RandomTextFormat::UUID_V4, true)};
+
+    EXPECT_EQ(macroStorage.write(macro), 0);
+
+    std::string content = mockFs.getFileContent(testFilePath);
+    EXPECT_NE(content.find("1:UUID:0x0c:1:1"), std::string::npos);
+}
+
+TEST_F(MacroStorageTest, ReadRandomTextMacro) {
+    mockFs.setFileContent(testFilePath, "1:UUID:0x0c:1:0\n2:Quoted UUID:0x0c:1:1\n");
+
+    int found = 0;
+    macroStorage.forEach([&](const Macro& m) {
+        const auto& data = dynamic_cast<const RandomTextMacroData&>(*m.data);
+        EXPECT_EQ(data.format, RandomTextFormat::UUID_V4);
+        EXPECT_EQ(data.quoted, m.data->id == 2);
+        found++;
+    });
+
+    EXPECT_EQ(found, 2);
+}
+
+TEST_F(MacroStorageTest, RandomTextMacroWithUnknownFormatIsIgnored) {
+    mockFs.setFileContent(testFilePath, "1:Unknown:0x0c:0:0\n2:Later:0x0c:99:0\n3:Parts:0x0c:1\n4:Parts:0x0c:1:0:0\n");
 
     EXPECT_EQ(macroStorage.getNumStored(), 0);
 }

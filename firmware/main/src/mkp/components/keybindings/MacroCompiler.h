@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include <tfw/hal/random.h>
 #include <tfw/hal/usb/USBAction.h>
 
 #include "mkp/components/macros/Macro.h"
@@ -18,8 +19,12 @@ namespace mkp::components::keybindings {
     };
 
     // Turns stored macro data into the actions that are sent when the macro is executed. Results in null for macro
-    // types that can't be executed.
-    std::shared_ptr<CompiledMacro> compileMacro(const macros::Macro& macro);
+    // types that can't be executed. Random text is generated from the random source each time the actions are sent, so
+    // the source must outlive the result.
+    std::shared_ptr<CompiledMacro> compileMacro(
+        const macros::Macro& macro,
+        tfw::hal::random::RandomSource& randomSource
+    );
 
     // The control change value that represents the relative change by the amount, in the encoding
     uint8_t encodeRelativeControlChange(int8_t amount, macros::RelativeControlChangeEncoding encoding);

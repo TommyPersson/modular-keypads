@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "mkp/components/generators/RandomTextGenerator.h"
 #include "mkp/components/settings/Settings.h"
 
 namespace mkp::components::macros {
@@ -422,6 +423,48 @@ namespace mkp::components::macros {
         }
     };
 
+    class RandomTextDataSerializer final
+        : public MacroDataStorageSerializer<RandomTextMacroData> {
+    public:
+        bool handles(const MacroType type) override {
+            return type == RANDOM_TEXT;
+        };
+
+        std::string_view serialize(const RandomTextMacroData& data, tfw::utils::allocations::Arena& arena) override {
+            return tfw::utils::allocations::arena::strings::sprintf(
+                arena,
+                "%u:%d",
+                static_cast<unsigned int>(data.format),
+                data.quoted ? 1 : 0
+            );
+        }
+
+        std::shared_ptr<RandomTextMacroData> deserialize(
+            const uint16_t macroId,
+            const std::span<const std::string_view>& parts,
+            tfw::utils::allocations::Arena& arena
+        ) override {
+            if (!hasParts(parts, 2)) {
+                return nullptr;
+            }
+
+            // Unknown formats, such as ones added in later firmware, are ignored
+            const auto format = static_cast<RandomTextFormat>(tfw::utils::strings::atou32(parts[0]));
+            if (generators::RandomTextGenerator::forFormat(format) == nullptr) {
+                return nullptr;
+            }
+
+            const tfw::utils::allocations::ArenaAllocator<RandomTextMacroData> allocator(arena);
+
+            return std::allocate_shared<RandomTextMacroData>(
+                allocator,
+                macroId,
+                format,
+                tfw::utils::strings::atol(parts[1]) != 0
+            );
+        }
+    };
+
     // The steps as one part, so that long sequences don't split into more parts than a line can hold, as the macro ID
     // and delay of each step separated by semicolons: "12;0;15;250". Loop steps are the index of the step to go back
     // to after an L, how many times to go back, and the delay: "12;0;15;250;L0;3;500". Neither colons nor commas can
@@ -538,5 +581,6 @@ namespace mkp::components::macros {
         new MidiNoteDataSerializer{},
         new MidiRelativeControlChangeDataSerializer{},
         new MidiAbsoluteControlChangeDataSerializer{},
+        new RandomTextDataSerializer{},
     };
 }

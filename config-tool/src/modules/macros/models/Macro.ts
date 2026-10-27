@@ -12,6 +12,7 @@ export enum MacroDefinitionType {
   MidiNote = "MidiNote",
   MidiRelativeControlChange = "MidiRelativeControlChange",
   MidiAbsoluteControlChange = "MidiAbsoluteControlChange",
+  RandomText = "RandomText",
 }
 
 // Groups the macro types in the UI
@@ -138,6 +139,20 @@ export type MidiAbsoluteControlChangeMacroDefinition = MacroDefinitionBase & {
   amount: number
 }
 
+// What kind of random text is typed. The same numbers as on the device.
+export enum RandomTextFormat {
+  // Lowercase with hyphens: 0f8fad5b-d9cb-469f-a165-70867728950e
+  UuidV4 = 1,
+}
+
+// Types random text that's generated each time the macro runs, such as a new ID
+export type RandomTextMacroDefinition = MacroDefinitionBase & {
+  type: MacroDefinitionType.RandomText
+  format: RandomTextFormat
+  // Wraps the text in double quotes, such as for pasting into code or JSON
+  quoted: boolean
+}
+
 // Runs a macro, or for loop steps, goes back to an earlier step a number of times, such as to repeat a few steps
 export type SequenceStep = {
   // Zero for loop steps
@@ -194,4 +209,5 @@ export type MacroDefinition =
   | MidiNoteMacroDefinition
   | MidiRelativeControlChangeMacroDefinition
   | MidiAbsoluteControlChangeMacroDefinition
+  | RandomTextMacroDefinition
   | SequenceMacroDefinition
