@@ -1,0 +1,33 @@
+name: Publish config-tool to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build app
+        working-directory: ./config-tool
+        run: bash ./scripts/ci-build-pages.sh
+
+      # The official actions/deploy-pages can only deploy to the repository running the workflow,
+      # so the build is pushed to the gh-pages branch of the separate pages repository instead.
+      - name: Publish to TommyPersson/mkp-config-tool
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          deploy_key: ${{ secrets.CONFIG_TOOL_PAGES_DEPLOY_KEY }}
+          external_repository: TommyPersson/mkp-config-tool
+          publish_branch: gh-pages
+          publish_dir: ./config-tool/dist
+          full_commit_message: Deploy config-tool from ${{ github.repository }}@${{ github.sha }}

@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "config-tool", "run", "storybook", "--", "--no-open", "-p", "6007"],
       "port": 6007
+    },
+    {
+      "name": "config-tool-pages-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "config-tool", "run", "preview", "--", "--base", "/mkp-config-tool/", "--port", "4173", "--strictPort"],
+      "port": 4173
     }
   ]
 }

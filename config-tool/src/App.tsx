@@ -23,7 +23,9 @@ const router = createBrowserRouter([
       ...AllAppModules.flatMap(it => it.routes),
     ]
   }
-])
+], {
+  basename: import.meta.env.BASE_URL,
+})
 
 export const App = () => {
   return (
