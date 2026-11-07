@@ -8413,7 +8413,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1"
+		(property "Value" "0.1 uF"
 			(at 328.93 321.3099 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8577,7 +8577,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1"
+		(property "Value" "0.1 uF"
 			(at 201.93 267.9699 0)
 			(show_name no)
 			(do_not_autoplace no)
