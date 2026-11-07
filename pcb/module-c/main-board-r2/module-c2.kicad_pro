@@ -835,7 +835,7 @@
         "uuid": "0888bf04-c6c1-4923-af80-2189ee3798b4"
       }
     ],
-    "used_designators": "C4,C11,C13,LED5-8,R7-12,J4-6,JP1-2,H3-4,H7-10,U2-3,U5,FPC1-3,D8-9,D14,#PWR5",
+    "used_designators": "C4,C11,C13,LED5-8,R7-13,J4-6,JP1-2,H3-4,H7-10,U2-3,U5,FPC1-3,D8-9,D14,#PWR5",
     "variants": []
   },
   "sheets": [

@@ -301,7 +301,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "12bac837-b572-40bc-acd2-a388b9ae8cb2")
-		(property "Reference" "SW14"
+		(property "Reference" "SW3"
 			(at 148.59 57.15 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -363,7 +363,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/64640560-133a-4941-8d7f-8d84516eeec4"
-					(reference "SW14")
+					(reference "SW3")
 					(unit 1)
 				)
 			)
@@ -381,7 +381,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2e87a747-dce2-44f6-bff7-e5276227d886")
-		(property "Reference" "SW15"
+		(property "Reference" "SW2"
 			(at 148.59 85.09 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -443,7 +443,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/64640560-133a-4941-8d7f-8d84516eeec4"
-					(reference "SW15")
+					(reference "SW2")
 					(unit 1)
 				)
 			)

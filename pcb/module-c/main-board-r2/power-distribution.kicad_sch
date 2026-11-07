@@ -1330,12 +1330,6 @@
 		(uuid "27589c23-f445-4168-a004-3160612c7841")
 	)
 	(junction
-		(at 53.34 115.57)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2e549406-955d-4e4b-abd4-b710c2bc1c3d")
-	)
-	(junction
 		(at 152.4 115.57)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1370,6 +1364,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7d1e31dd-17ca-4c2b-8743-eb011b954b76")
+	)
+	(junction
+		(at 46.99 91.44)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "85a4420b-9275-4928-aaf8-a287654e7632")
 	)
 	(junction
 		(at 68.58 115.57)
@@ -1408,6 +1408,12 @@
 		(uuid "bb4722c6-97c1-4699-ae73-6a9958ebc900")
 	)
 	(junction
+		(at 46.99 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "be9e21d1-bf42-457c-9acd-2d4587d5e9c1")
+	)
+	(junction
 		(at 87.63 115.57)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1430,12 +1436,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ddab95b0-a683-40ce-b6f0-3468ef3d9632")
-	)
-	(junction
-		(at 53.34 91.44)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "df947ae3-6980-415e-8522-27259f317f0f")
 	)
 	(junction
 		(at 227.33 115.57)
@@ -1517,16 +1517,6 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 91.44) (xy 60.96 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0da9df1f-1b10-408f-bf57-f6eafc141d1f")
-	)
-	(wire
-		(pts
 			(xy 227.33 115.57) (xy 251.46 115.57)
 		)
 		(stroke
@@ -1537,7 +1527,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 106.68) (xy 53.34 115.57)
+			(xy 46.99 106.68) (xy 46.99 115.57)
 		)
 		(stroke
 			(width 0)
@@ -1624,6 +1614,16 @@
 			(type default)
 		)
 		(uuid "363d6925-9612-4d40-85e3-6bde1282c7c6")
+	)
+	(wire
+		(pts
+			(xy 46.99 91.44) (xy 60.96 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "388b3885-8782-4cce-873b-b0b831ebff98")
 	)
 	(wire
 		(pts
@@ -1767,7 +1767,17 @@
 	)
 	(wire
 		(pts
-			(xy 27.94 91.44) (xy 53.34 91.44)
+			(xy 46.99 115.57) (xy 68.58 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62de9fb6-583d-4015-9bb2-4e7d6eece877")
+	)
+	(wire
+		(pts
+			(xy 27.94 91.44) (xy 46.99 91.44)
 		)
 		(stroke
 			(width 0)
@@ -1857,7 +1867,7 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 115.57) (xy 53.34 115.57)
+			(xy 25.4 115.57) (xy 46.99 115.57)
 		)
 		(stroke
 			(width 0)
@@ -1907,7 +1917,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 91.44) (xy 53.34 99.06)
+			(xy 46.99 91.44) (xy 46.99 99.06)
 		)
 		(stroke
 			(width 0)
@@ -2034,16 +2044,6 @@
 			(type default)
 		)
 		(uuid "dcd0469c-4eca-44b6-8cd9-d73aac2b7e8e")
-	)
-	(wire
-		(pts
-			(xy 53.34 115.57) (xy 68.58 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dd48dddb-7033-40b7-a3bb-2d324f40800c")
 	)
 	(wire
 		(pts
@@ -2252,7 +2252,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0616713b-34bc-4071-a122-76808f73599d")
-		(property "Reference" "U2"
+		(property "Reference" "U4"
 			(at 199.39 83.82 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2305,6 +2305,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "package/gullwing"
+			(at 199.39 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "abee3955-7717-4e05-a1e0-8bd4a9ac3d79")
 		)
@@ -2326,7 +2337,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "U2")
+					(reference "U4")
 					(unit 1)
 				)
 			)
@@ -2344,7 +2355,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0b63f4fd-a45a-4e29-a238-687368b7f806")
-		(property "Reference" "C8"
+		(property "Reference" "C4"
 			(at 156.21 101.5999 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2399,6 +2410,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 152.4 102.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6e2019e1-8900-46de-88cb-e48adf3fe090")
 		)
@@ -2408,7 +2430,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "C8")
+					(reference "C4")
 					(unit 1)
 				)
 			)
@@ -2425,7 +2447,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "12f63728-4c5e-4899-a077-8da8e85772b2")
-		(property "Reference" "C11"
+		(property "Reference" "C6"
 			(at 180.34 101.5999 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2480,6 +2502,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 176.53 102.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "033ed68f-b49d-49b4-a18c-16b95f7d9dbd")
 		)
@@ -2489,7 +2522,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "C11")
+					(reference "C6")
 					(unit 1)
 				)
 			)
@@ -2507,7 +2540,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2a2d5530-bc9a-4ea0-9c76-0f9e4be24ac1")
-		(property "Reference" "C10"
+		(property "Reference" "C9"
 			(at 266.7 101.5999 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2562,6 +2595,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 262.89 102.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "150514e8-8d91-4059-a687-39d657583e26")
 		)
@@ -2571,7 +2615,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "C10")
+					(reference "C9")
 					(unit 1)
 				)
 			)
@@ -2579,7 +2623,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 53.34 102.87 0)
+		(at 46.99 102.87 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2589,8 +2633,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2c799f2e-c9f2-4ab3-8bb7-8f2da918b8eb")
-		(property "Reference" "C13"
-			(at 57.15 101.5999 0)
+		(property "Reference" "C1"
+			(at 50.8 101.5999 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2601,7 +2645,7 @@
 			)
 		)
 		(property "Value" "0.1uF"
-			(at 57.15 104.1399 0)
+			(at 50.8 104.1399 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2612,7 +2656,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 54.3052 106.68 0)
+			(at 47.9552 106.68 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2623,7 +2667,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 53.34 102.87 0)
+			(at 46.99 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2634,7 +2678,18 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 53.34 102.87 0)
+			(at 46.99 102.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 46.99 102.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2653,7 +2708,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "C13")
+					(reference "C1")
 					(unit 1)
 				)
 			)
@@ -2670,7 +2725,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "40bba87a-5292-4372-a504-76966a6bc448")
-		(property "Reference" "C9"
+		(property "Reference" "C8"
 			(at 231.14 102.8699 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2725,6 +2780,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 227.33 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "953683d6-4917-4b7b-b383-8d52c3fcb361")
 		)
@@ -2734,7 +2800,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "C9")
+					(reference "C8")
 					(unit 1)
 				)
 			)
@@ -2807,6 +2873,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 105.41 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "2a0189d3-8c19-4c82-a7a5-1a861cf8ad23")
 		)
@@ -2834,7 +2911,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a0db04ad-8a3d-498e-bb47-13adee597fb0")
-		(property "Reference" "C7"
+		(property "Reference" "C3"
 			(at 130.81 101.5999 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2889,6 +2966,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 127 102.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4fa5a169-d5dc-4059-960b-cdee3d41be4b")
 		)
@@ -2898,7 +2986,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "C7")
+					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -2916,7 +3004,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aae39bb0-ec7d-40f5-9147-f9d854821f5e")
-		(property "Reference" "U5"
+		(property "Reference" "U1"
 			(at 68.58 83.82 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2969,6 +3057,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "package/gullwing"
+			(at 68.58 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "fb081d16-6bec-492d-9de7-35056b4b9217")
 		)
@@ -2990,7 +3089,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "U5")
+					(reference "U1")
 					(unit 1)
 				)
 			)
@@ -3008,7 +3107,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bc39c409-0b02-4285-86b3-4709f6e40d5b")
-		(property "Reference" "U3"
+		(property "Reference" "U7"
 			(at 251.46 85.09 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3062,6 +3161,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "package/gullwing"
+			(at 251.46 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "29d643d1-b881-4779-bd82-6b50f65876fc")
 		)
@@ -3080,7 +3190,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "U3")
+					(reference "U7")
 					(unit 1)
 				)
 			)
@@ -3098,7 +3208,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ceb68c33-efc4-479c-b013-249adf5dc595")
-		(property "Reference" "SW13"
+		(property "Reference" "SW1"
 			(at 95.25 93.98 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3163,7 +3273,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "SW13")
+					(reference "SW1")
 					(unit 1)
 				)
 			)
@@ -3181,7 +3291,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "eadaeb61-1969-447a-8097-034315acfac6")
-		(property "Reference" "U6"
+		(property "Reference" "U3"
 			(at 139.7 83.82 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3252,7 +3362,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/9d6f68c0-314a-4e90-b6f4-ed8a78b2c05b"
-					(reference "U6")
+					(reference "U3")
 					(unit 1)
 				)
 			)

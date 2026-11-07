@@ -2056,7 +2056,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "42543ebe-7176-43be-8353-fa9481b060e0")
-		(property "Reference" "R5"
+		(property "Reference" "R3"
 			(at 93.98 95.2499 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2111,6 +2111,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 91.44 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "78ce09dc-ff97-443f-a18d-70b499c7a4b9")
 		)
@@ -2120,7 +2131,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/54be6338-e11d-4442-8ddc-f5955a39fc35"
-					(reference "R5")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -2216,7 +2227,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "54f0a33e-eec2-4880-b3e0-1d96cffd27d8")
-		(property "Reference" "U7"
+		(property "Reference" "U2"
 			(at 129.9211 76.2 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2295,7 +2306,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/54be6338-e11d-4442-8ddc-f5955a39fc35"
-					(reference "U7")
+					(reference "U2")
 					(unit 1)
 				)
 			)
@@ -2313,7 +2324,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "88e8a718-4525-4eb5-8c43-17d4bb8be513")
-		(property "Reference" "R6"
+		(property "Reference" "R5"
 			(at 102.87 95.2499 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2368,6 +2379,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 100.33 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "e6bc48ff-9c53-4bd3-8ce0-bfbe10b839be")
 		)
@@ -2377,7 +2399,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/54be6338-e11d-4442-8ddc-f5955a39fc35"
-					(reference "R6")
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -2598,7 +2620,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "cd820456-8eec-40e6-8759-016336333d89")
-		(property "Reference" "C12"
+		(property "Reference" "C2"
 			(at 142.24 91.4399 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2653,6 +2675,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "SMD_2terminal_chip_molded"
+			(at 138.43 92.71 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4eebdd19-e299-4260-928d-aab12af3dafa")
 		)
@@ -2662,7 +2695,7 @@
 		(instances
 			(project "module-c2"
 				(path "/0888bf04-c6c1-4923-af80-2189ee3798b4/54be6338-e11d-4442-8ddc-f5955a39fc35"
-					(reference "C12")
+					(reference "C2")
 					(unit 1)
 				)
 			)
