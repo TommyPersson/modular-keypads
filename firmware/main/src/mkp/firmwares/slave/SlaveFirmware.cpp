@@ -92,6 +92,13 @@ void SlaveFirmware::setup() {
 void SlaveFirmware::loop() {
     Firmware::loop();
 
+    // A host that enumerates the device after the mode was detected, as one waking from sleep or slow to enumerate,
+    // makes it the master
+    if (serviceLocator.usbConnection.isConnected()) {
+        logger->info("Enumerated by a USB host, restarting as the master");
+        serviceLocator.deviceModeDetector.restartAsMaster();
+    }
+
     slavePort.loop();
 
     device->loop();

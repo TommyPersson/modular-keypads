@@ -7,6 +7,7 @@ namespace tfw::hal::usb {
     public:
         void setup() override;
         void update() override;
+        bool isStarted() override;
         bool isConnected() override;
         void sendAction(Action& action) override;
         bool isBusy() override;

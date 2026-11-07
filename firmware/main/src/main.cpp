@@ -23,6 +23,8 @@
 #include "esp_pm.h"
 
 namespace {
+    constexpr uint8_t VBUS_SENSE_PIN = 8;
+
     std::unique_ptr<mkp::firmwares::base::Firmware> firmware;
     std::unique_ptr<mkp::firmwares::drive::DriveModeFirmware> driveModeFirmware;
     std::unique_ptr<Preferences> preferences;
@@ -61,7 +63,6 @@ namespace {
         clock = std::make_unique<tfw::hal::time::PlatformClock>();
         randomSource = std::make_unique<tfw::hal::random::PlatformRandomSource>();
         deviceTypeDetector = std::make_unique<mkp::devices::common::DeviceTypeDetector>(*clock);
-        deviceModeDetector = std::make_unique<mkp::firmwares::base::FirmwareModeDetector>();
         deviceConfigurationManager = std::make_unique<mkp::devices::common::DeviceConfigurationManager>(
             *preferences,
             *deviceTypeDetector
@@ -69,7 +70,11 @@ namespace {
         notifierFactory = std::make_unique<mkp::components::notifications::NotifierFactory>(TheSerial);
         i2cClient = std::make_unique<tfw::hal::i2c::Client>(Wire);
         i2cSlavePort = std::make_unique<tfw::hal::i2c::SlavePort>(Wire, *clock);
-        usbConnection = tfw::hal::usb::Connection::create(*clock);
+        usbConnection = tfw::hal::usb::Connection::create(
+            *clock,
+            tfw::hal::gpio::InputPin::physical(VBUS_SENSE_PIN)
+        );
+        deviceModeDetector = std::make_unique<mkp::firmwares::base::FirmwareModeDetector>(*usbConnection, *clock);
         metricRegistry = std::make_unique<tfw::hal::metrics::MetricRegistry>(*clock);
         fileSystem = std::make_unique<tfw::hal::fs::ArduinoFileSystem>();
         preferencesDeviceSettings = std::make_unique<tfw::hal::settings::PreferencesDeviceSettings>("settings");
@@ -140,7 +145,8 @@ void setup() {
 
     fileSystem->begin();
     deviceSettings->begin();
-    deviceModeDetector->setup();
+    serialPort->begin(115200);
+    usbConnection->setup();
 
     firmware = mkp::firmwares::base::Firmware::create(*serviceLocator);
     firmware->setup();

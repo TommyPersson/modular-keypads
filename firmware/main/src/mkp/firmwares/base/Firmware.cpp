@@ -49,8 +49,6 @@ mkp::devices::common::DeviceFactory* Firmware::getDeviceFactory(const std::strin
 }
 
 void Firmware::setup() {
-    serialPort.begin(115200);
-    serviceLocator.usbConnection.setup();
     deviceConfigurationManager.begin();
 }
 

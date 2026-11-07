@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include "USBAction.h"
+#include "tfw/hal/gpio/InputPin.h"
 #include "tfw/hal/time/Clock.h"
 
 namespace tfw::hal::usb {
@@ -12,6 +13,11 @@ namespace tfw::hal::usb {
 
         virtual void setup() = 0;
         virtual void update() = 0;
+
+        // Whether USB was started by the setup
+        virtual bool isStarted() = 0;
+
+        // Whether a host has enumerated the device and isn't suspending it
         virtual bool isConnected() = 0;
 
         virtual void sendAction(Action& action) = 0;
@@ -26,6 +32,6 @@ namespace tfw::hal::usb {
         // their own, held after the last such action
         virtual void setModifierHoldMs(uint32_t holdMs) = 0;
 
-        static std::unique_ptr<Connection> create(time::Clock& clock);
+        static std::unique_ptr<Connection> create(time::Clock& clock, std::unique_ptr<gpio::InputPin> vbusPin);
     };
 }
