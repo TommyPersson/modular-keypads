@@ -1,3 +1,5 @@
+$fn = 300;
+
 use <./module-c-base.scad>
 use <./sub-module-common.scad>
 use <./sub-module-1.scad>

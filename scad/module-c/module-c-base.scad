@@ -188,6 +188,30 @@ module module_shell_top() {
     base_shell_height = sub_module_shell_total_height;
     skirt_height = pcb_cover_thickness + pcb_thickness;
 
+    difference() {
+        union() {
+            linear_extrude(skirt_height) {
+                translate([module_size.x / 2, module_size.y / 2]) {
+                    skirt_shape();
+                }
+            }
+        }
+
+        translate([module_size.x / 2, module_size.y]) {
+            linear_extrude(pcb_thickness) {
+                square([48 + wall_tolerance, outer_wall_thickness_base * 2], center = true);
+            }
+        }
+
+        for (p = module_screw_hole_points) {
+            translate(p) {
+                linear_extrude(5) {
+                    circle(d = 6);
+                }
+            }
+        }
+    }
+
     translate([0, 0, skirt_height])
         difference() {
             union() {
@@ -232,20 +256,6 @@ module module_shell_top() {
                 }
             }
         }
-
-    difference() {
-        linear_extrude(skirt_height) {
-            translate([module_size.x / 2, module_size.y / 2]) {
-                skirt_shape();
-            }
-        }
-
-        translate([module_size.x / 2, module_size.y]) {
-            linear_extrude(pcb_thickness) {
-                square([48 + wall_tolerance, outer_wall_thickness_base * 2], center = true);
-            }
-        }
-    }
 }
 
 module module_shell_bottom() {
@@ -363,7 +373,7 @@ module skirt_shape() {
     difference() {
         rounded_rectangle(module_size, corner_radius = 1, center = true);
 
-        cutout_size = [module_size.x - outer_wall_thickness * 2, module_size.y - outer_wall_thickness * 2];
+        cutout_size = [module_size.x - outer_wall_thickness * 2 + 0.5, module_size.y - outer_wall_thickness * 2 + 0.5];
         rounded_rectangle(cutout_size, corner_radius = 1, center = true);
     }
 }
