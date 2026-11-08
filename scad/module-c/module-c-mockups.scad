@@ -59,66 +59,52 @@ main_pcb_component_area_height_y = 37;
 connector_pcb_standoff_thickness = sub_module_connector_size.z - bottom_connector_inset;
 connector_pcb_size = [bottom_pcb_size.x, bottom_pcb_size.y - 40];
 
-translate([0, 0]) {
-    translate([-600, 0]) {
-        connector_pcb();
-    }
+translate([-400, 120]) {
+    sub_module_1_cover();
+}
 
-    translate([-500, 0]) {
-        main_pcb();
-    }
+translate([-400, 180]) {
+    sub_module_1_shell();
+}
 
-    translate([-400, 0]) {
-        sub_module_pcb();
-    }
+translate([-400, 240]) {
+    sub_module_2_cover();
+}
 
-    translate([-400, 120]) {
-        sub_module_1_cover();
-    }
+translate([-400, 300]) {
+    sub_module_2_shell();
+}
 
-    translate([-400, 180]) {
-        sub_module_1_shell();
-    }
+translate([-400, 360]) {
+    sub_module_3_cover();
+}
 
-    translate([-400, 240]) {
-        sub_module_2_cover();
-    }
+translate([-400, 420]) {
+    sub_module_3_shell();
+}
 
-    translate([-400, 300]) {
-        sub_module_2_shell();
-    }
+translate([-400, 60]) {
+    sub_module_shell_bottom();
+}
 
-    translate([-400, 360]) {
-        sub_module_3_cover();
-    }
+translate([-300, 0]) {
+    connector_pcb_standoffs();
+}
 
-    translate([-400, 420]) {
-        sub_module_3_shell();
-    }
+translate([-200, 0]) {
+    pcb_cover();
+}
 
-    translate([-400, 60]) {
-        sub_module_shell_bottom();
-    }
+translate([-200, 200]) {
+    module_shell_top();
+}
 
-    translate([-300, 0]) {
-        connector_pcb_standoffs();
-    }
+translate([-100, 0]) {
+    module_shell_bottom();
+}
 
-    translate([-200, 0]) {
-        pcb_cover();
-    }
-
-    translate([-200, 200]) {
-        module_shell_top();
-    }
-
-    translate([-100, 0]) {
-        module_shell_bottom();
-    }
-
-    translate([-100, 200]) {
-        connector_pcb_solder_jig();
-    }
+translate([-100, 200]) {
+    connector_pcb_solder_jig();
 }
 
 translate([0, 100]) {
@@ -137,20 +123,41 @@ module connector_pcb_solder_jig() {
             rounded_rectangle(size, corner_radius = 1);
         }
 
-        translate(-pcb_inset_xy) {
-            module_screw_hole_cutouts(module_size);
-        }
+        union() {
+            translate(-pcb_inset_xy) {
+                module_screw_hole_cutouts(module_size);
+            }
 
-        linear_extrude(connector_pcb_standoff_thickness + 1) {
-            translate([12, 10]) {
-                square([size.x - 24, size.y - 20]);
+            linear_extrude(connector_pcb_standoff_thickness + 1) {
+                translate([12, 10]) {
+                    square([size.x - 24, size.y - 20]);
+                }
+            }
+
+
+            for (m = sub_module_centers) {
+                translate(m) {
+                    translate([-sub_module_connector_offset, 0]) {
+                        translate([0, 0, 1]) {
+                            scale([0.6, 0.8])
+                                sub_module_connector();
+                        }
+                    }
+
+                    translate([sub_module_connector_offset, 0]) {
+                        translate([0, 0, 1]) {
+                            scale([0.6, 0.8])
+                                sub_module_connector();
+                        }
+                    }
+                }
             }
         }
     }
 
     translate([0, 0, 2]) {
         difference() {
-            linear_extrude(connector_pcb_standoff_thickness) {
+            linear_extrude(sub_module_connector_size.z) {
                 rounded_rectangle(size, corner_radius = 1);
             }
 
@@ -179,7 +186,7 @@ module connector_pcb_solder_jig() {
                     }
                 }
 
-                linear_extrude(connector_pcb_standoff_thickness + 1) {
+                linear_extrude(sub_module_connector_size.z + 1) {
                     translate([12, 10]) {
                         square([size.x - 24, size.y - 20]);
                     }
@@ -187,31 +194,6 @@ module connector_pcb_solder_jig() {
             }
         }
     }
-}
-
-module connector_pcb() {
-    difference() {
-        linear_extrude(pcb_thickness) {
-            rounded_rectangle(connector_pcb_size, corner_radius = 1);
-        }
-
-        translate(-pcb_inset_xy) {
-            module_screw_hole_cutouts(module_size);
-        }
-    }
-
-    translate([0, 0, pcb_thickness])
-        for (m = sub_module_centers) {
-            translate(m) {
-                translate([-sub_module_connector_offset, 0]) {
-                    sub_module_connector();
-                }
-
-                translate([sub_module_connector_offset, 0]) {
-                    sub_module_connector();
-                }
-            }
-        }
 }
 
 module connector_pcb_standoffs() {
@@ -259,49 +241,6 @@ module connector_pcb_standoffs() {
                 connector_components_area = [28, 28 + 24];
                 translate([42, connector_pcb_size.y - 26]) {
                     square(connector_components_area, center = true);
-                }
-            }
-        }
-    }
-}
-
-module main_pcb() {
-    difference() {
-        union() {
-            linear_extrude(pcb_thickness) {
-                translate([0, bottom_pcb_size.y - 38]) {
-                    rounded_rectangle([76, 38], corner_radius = 1);
-
-                    translate([14, 0]) {
-                        rounded_rectangle([48, 40], corner_radius = 1);
-                    }
-                }
-            }
-
-            // simulated component area
-            translate([bottom_pcb_size.x / 2, bottom_pcb_size.y - 22, pcb_thickness]) {
-                linear_extrude(3.5) {
-                    square([70, 30], center = true);
-                }
-            }
-        }
-
-        union() {
-            translate(-pcb_inset_xy) {
-                module_screw_hole_cutouts(module_size);
-            }
-
-            #for (m = sub_module_centers) {
-                translate(m) {
-                    translate([-sub_module_connector_offset, 0]) {
-                        scale(1.05)
-                            sub_module_connector();
-                    }
-
-                    translate([sub_module_connector_offset, 0]) {
-                        scale(1.05)
-                            sub_module_connector();
-                    }
                 }
             }
         }
@@ -519,32 +458,6 @@ module skirt_shape() {
 
         cutout_size = [module_size.x - outer_wall_thickness * 2, module_size.y - outer_wall_thickness * 2];
         rounded_rectangle(cutout_size, corner_radius = 1, center = true);
-    }
-}
-
-module sub_module_pcb() {
-    difference() {
-        union() {
-            linear_extrude(pcb_thickness) {
-                translate([sub_module_pcb_size.x / 2, sub_module_pcb_size.y / 2]) {
-                    rounded_rectangle(sub_module_pcb_size, corner_radius = 1, center = true);
-                }
-            }
-
-            translate([sub_module_pcb_size.x / 2, sub_module_pcb_size.y / 2, pcb_thickness]) {
-                translate([-sub_module_connector_offset, 0]) {
-                    sub_module_connector();
-                }
-
-                translate([sub_module_connector_offset, 0]) {
-                    sub_module_connector();
-                }
-            }
-        }
-
-        union() {
-            sub_module_screw_hole_cutouts();
-        }
     }
 }
 
@@ -799,7 +712,7 @@ module sub_module_4_shell() {
             }
         }
 
-        translate([0, 0, sub_module_shell_top_thickness- 2.5]) {
+        translate([0, 0, sub_module_shell_top_thickness - 2.5]) {
             #linear_extrude(2.5) {
                 translate([sub_module_shell_size.x / 2, sub_module_shell_size.y / 2]) {
                     translate([-24, 0]) {
